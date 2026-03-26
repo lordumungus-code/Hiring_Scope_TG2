@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro - PrestaServiços{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Criar Conta</h4>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome Completo</label>
+                            <input type="text" class="form-control" id="nome" name="nome" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="telefone" class="form-label">Telefone</label>
+                            <input type="tel" class="form-control" id="telefone" name="telefone" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="senha" class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="senha" name="senha" required minlength="6">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="foto_perfil" class="form-label">Foto de Perfil (opcional)</label>
+                            <input type="file" class="form-control" id="foto_perfil" name="foto_perfil" accept="image/*" onchange="previewFoto(event)">
+                            <small class="text-muted">Formatos: JPG, PNG. Máx: 5MB</small>
+                            <div id="fotoPreview" class="mt-2 text-center" style="display: none;">
+                                <img id="previewImg" src="#" alt="Preview" style="max-width: 100px; max-height: 100px; border-radius: 50%;">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Conta</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo" id="cliente" value="cliente" checked>
+                                <label class="form-check-label" for="cliente">
+                                    <i class="fas fa-user"></i> Cliente (quero contratar serviços)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo" id="prestador" value="prestador">
+                                <label class="form-check-label" for="prestador">
+                                    <i class="fas fa-briefcase"></i> Prestador (quero oferecer serviços)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100 mb-3">
+                            <i class="fas fa-user-plus me-2"></i> Cadastrar
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mb-3">
+                        <p class="text-muted">ou</p>
+                    </div>
+                    
+                    <a href="/auth/firebase/google" class="btn btn-danger w-100 mb-3">
+                        <i class="fab fa-google me-2"></i> Cadastrar com Google
+                    </a>
+                    
+                    <div class="text-center">
+                        <p>Já tem conta? <a href="/login">Faça login</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Máscara para telefone
+    document.getElementById('telefone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length <= 10) {
+            value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        } else {
+            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+        e.target.value = value;
+    });
+    
+    // Preview da foto
+    function previewFoto(event) {
+        const input = event.target;
+        const previewDiv = document.getElementById('fotoPreview');
+        const previewImg = document.getElementById('previewImg');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewDiv.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    // Validação do tamanho da foto (5MB)
+    document.getElementById('foto_perfil').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.size > 5 * 1024 * 1024) {
+            alert('A imagem deve ter no máximo 5MB');
+            this.value = '';
+            document.getElementById('fotoPreview').style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

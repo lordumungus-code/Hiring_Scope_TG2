@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serviços Disponíveis - PrestaServiços</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .filter-card {
+            background: white;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        .service-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            background: white;
+            height: 100%;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .card-img-wrapper {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        
+        .service-card:hover .card-img-wrapper img {
+            transform: scale(1.05);
+        }
+        
+        .destaque-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: gold;
+            color: #333;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .categoria-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .categoria-badge.tec { background: #e3f2fd; color: #1976d2; }
+        .categoria-badge.const { background: #fff3e0; color: #f57c00; }
+        .categoria-badge.limp { background: #e8f5e9; color: #388e3c; }
+        .categoria-badge.edu { background: #f3e5f5; color: #7b1fa2; }
+        .categoria-badge.saude { background: #ffebee; color: #c62828; }
+        .categoria-badge.market { background: #e0f2fe; color: #0284c7; }
+        .categoria-badge.default { background: #f5f5f5; color: #666; }
+        
+        .preco-tag {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .preco-consulta {
+            background: #6c757d;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        
+        .provider-info {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn-detalhes {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            transition: transform 0.2s;
+        }
+        
+        .btn-detalhes:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .no-results i {
+            font-size: 64px;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0;
+        }
+        
+        .btn-voltar {
+            background: #6c757d;
+            border: none;
+            border-radius: 25px;
+            padding: 8px 20px;
+            transition: all 0.2s;
+        }
+        
+        .btn-voltar:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .card-img-wrapper {
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-tools"></i> PrestaServiços
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home"></i> Início
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">
+                                <i class="fas fa-sign-out-alt"></i> Sair
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cadastro">
+                                <i class="fas fa-user-plus"></i> Cadastro
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <h1 class="page-title">
+                {% if categoria %}
+                    <i class="fas fa-tag text-primary me-2"></i> Serviços de {{ categoria }}
+                {% else %}
+                    <i class="fas fa-briefcase text-primary me-2"></i> Todos os Serviços
+                {% endif %}
+            </h1>
+            <a href="/" class="btn btn-voltar">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+        
+        <!-- Filtros -->
+        <div class="filter-card card">
+            <div class="card-body">
+                <form method="GET" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="categoria" class="form-label fw-bold">
+                            <i class="fas fa-filter me-1"></i> Filtrar por Categoria
+                        </label>
+                        <select class="form-select" id="categoria" name="categoria" onchange="this.form.submit()" style="border-radius: 10px;">
+                            <option value="">Todas as categorias</option>
+                            <option value="Tecnologia" {% if categoria == 'Tecnologia' %}selected{% endif %}>💻 Tecnologia</option>
+                            <option value="Construção" {% if categoria == 'Construção' %}selected{% endif %}>🏗️ Construção</option>
+                            <option value="Limpeza" {% if categoria == 'Limpeza' %}selected{% endif %}>🧹 Limpeza</option>
+                            <option value="Educação" {% if categoria == 'Educação' %}selected{% endif %}>📚 Educação</option>
+                            <option value="Saúde" {% if categoria == 'Saúde' %}selected{% endif %}>🏥 Saúde</option>
+                            <option value="Marketing" {% if categoria == 'Marketing' %}selected{% endif %}>📊 Marketing</option>
+                            <option value="Design" {% if categoria == 'Design' %}selected{% endif %}>🎨 Design</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100" style="border-radius: 10px;">
+                            <i class="fas fa-search me-2"></i> Aplicar Filtro
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        {% if servicos %}
+            <div class="row g-4">
+                {% for servico in servicos %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="service-card">
+                            <!-- Imagem do serviço -->
+                            <div class="card-img-wrapper">
+                                {% if servico.imagem_base64 %}
+                                    <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
+                                         alt="{{ servico.titulo }}">
+                                {% else %}
+                                    <div class="d-flex align-items-center justify-content-center h-100">
+                                        <i class="fas fa-tools fa-4x text-white opacity-50"></i>
+                                    </div>
+                                {% endif %}
+                                {% if servico.destaque %}
+                                    <span class="destaque-badge">
+                                        <i class="fas fa-star me-1"></i> Destaque
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="card-body p-4">
+                                <!-- Categoria -->
+                                <div class="mb-2">
+                                    <span class="categoria-badge 
+                                        {% if servico.categoria == 'Tecnologia' %}tec
+                                        {% elif servico.categoria == 'Construção' %}const
+                                        {% elif servico.categoria == 'Limpeza' %}limp
+                                        {% elif servico.categoria == 'Educação' %}edu
+                                        {% elif servico.categoria == 'Saúde' %}saude
+                                        {% elif servico.categoria == 'Marketing' %}market
+                                        {% else %}default{% endif %}">
+                                        <i class="fas fa-tag me-1"></i> {{ servico.categoria }}
+                                    </span>
+                                </div>
+                                
+                                <h5 class="card-title mb-2">{{ servico.titulo }}</h5>
+                                <p class="card-text text-muted small mb-3">{{ servico.descricao[:100] }}{% if servico.descricao|length > 100 %}...{% endif %}</p>
+                                
+                                <!-- Preço -->
+                                <div class="mb-3">
+                                    {% if servico.preco %}
+                                        <span class="preco-tag">
+                                            <i class="fas fa-dollar-sign me-1"></i> R$ {{ "%.2f"|format(servico.preco) }}
+                                        </span>
+                                    {% else %}
+                                        <span class="preco-consulta">
+                                            <i class="fas fa-comments me-1"></i> Preço sob consulta
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Prestador -->
+                                <div class="provider-info">
+                                    <i class="fas fa-user-circle me-2"></i>
+                                    <strong>{{ servico.prestador.nome }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i> 
+                                        {{ servico.data_postagem.strftime('%d/%m/%Y') }}
+                                    </small>
+                                </div>
+                                
+                                <!-- Botão de detalhes -->
+                                <div class="mt-3">
+                                    <a href="/servico/{{ servico.id }}" class="btn btn-detalhes btn-primary w-100">
+                                        <i class="fas fa-eye me-2"></i> Ver Detalhes
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <h4>Nenhum serviço encontrado</h4>
+                <p class="text-muted">Não encontramos serviços nesta categoria.</p>
+                <a href="/servicos" class="btn btn-primary mt-3">
+                    <i class="fas fa-sync-alt me-2"></i> Limpar filtros
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <footer class="text-center text-muted py-4 mt-5">
+        <div class="container">
+            <small>&copy; 2024 PrestaServiços - Todos os direitos reservados</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastrar Serviço - PrestaServiços{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-plus-circle"></i> Cadastrar Novo Serviço</h4>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST" enctype="multipart/form-data" id="servicoForm">
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label">Título do Serviço</label>
+                            <input type="text" class="form-control" id="titulo" name="titulo" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="categoria" class="form-label">Categoria</label>
+                            <select class="form-select" id="categoria" name="categoria" required>
+                                <option value="">Selecione...</option>
+                                <option value="Construção">Construção</option>
+                                <option value="Limpeza">Limpeza</option>
+                                <option value="Tecnologia">Tecnologia</option>
+                                <option value="Educação">Educação</option>
+                                <option value="Saúde">Saúde</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Design">Design</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="preco" class="form-label">Preço (opcional)</label>
+                            <input type="number" class="form-control" id="preco" name="preco" step="0.01" min="0">
+                        </div>
+                        
+                        <!-- NOVO: Upload de imagem -->
+                        <div class="mb-3">
+                            <label for="imagem" class="form-label">Imagem do Serviço (opcional)</label>
+                            <input type="file" class="form-control" id="imagem" name="imagem" accept="image/*" onchange="previewImage(event)">
+                            <small class="text-muted">Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 5MB</small>
+                            
+                            <!-- Preview da imagem -->
+                            <div id="imagePreview" class="mt-3 text-center" style="display: none;">
+                                <img id="preview" src="#" alt="Preview da imagem" style="max-width: 200px; max-height: 200px; border-radius: 10px; border: 2px solid #ddd;">
+                                <button type="button" class="btn btn-sm btn-danger mt-2" onclick="removeImage()">
+                                    <i class="fas fa-times"></i> Remover imagem
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="descricao" class="form-label">Descrição do Serviço</label>
+                            <textarea class="form-control" id="descricao" name="descricao" rows="5" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Cadastrar Serviço
+                        </button>
+                        <a href="/dashboard" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(event) {
+        const input = event.target;
+        const preview = document.getElementById('preview');
+        const previewDiv = document.getElementById('imagePreview');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                previewDiv.style.display = 'block';
+            }
+            
+            reader.readAsDataURL(input.files[0]); // Isso já gera o Base64
+        }
+    }
+    
+    function removeImage() {
+        const input = document.getElementById('imagem');
+        const previewDiv = document.getElementById('imagePreview');
+        
+        input.value = '';
+        previewDiv.style.display = 'none';
+    }
+    
+    // Validação do tamanho do arquivo (5MB)
+    document.getElementById('imagem').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.size > 5 * 1024 * 1024) {
+            alert('A imagem deve ter no máximo 5MB');
+            this.value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

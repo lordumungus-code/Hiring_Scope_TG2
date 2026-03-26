@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Serviços - PrestaServiços</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">PrestaServiços</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Sair</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Meus Serviços</h1>
+            <a href="/cadastro/servico" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> Novo Serviço
+            </a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if servicos %}
+            <div class="row">
+                {% for servico in servicos %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            {% if servico.destaque %}
+                                <span class="badge bg-warning position-absolute top-0 end-0 m-2">Destaque</span>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ servico.titulo }}</h5>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="fas fa-tag"></i> {{ servico.categoria }}
+                                    </small>
+                                </p>
+                                <p class="card-text">{{ servico.descricao[:100] }}...</p>
+                                {% if servico.preco %}
+                                    <p class="card-text">
+                                        <strong class="text-success">R$ {{ "%.2f"|format(servico.preco) }}</strong>
+                                    </p>
+                                {% endif %}
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar"></i> {{ servico.data_postagem.strftime('%d/%m/%Y') }}
+                                    </small>
+                                </p>
+                                <a href="/servico/{{ servico.id }}" class="btn btn-primary">Ver Detalhes</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <h4 class="alert-heading">Nenhum serviço cadastrado!</h4>
+                <p>Você ainda não cadastrou nenhum serviço. Clique no botão "Novo Serviço" para começar.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

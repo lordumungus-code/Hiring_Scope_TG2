@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+
+{% block title %}Meu Perfil - PrestaServiços{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <!-- Card do Perfil -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-circle me-2"></i> Meu Perfil
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <!-- Avatar -->
+                    <div class="position-relative d-inline-block mb-3">
+                        {% if usuario.foto_url %}
+                            <img src="{{ usuario.foto_url }}" 
+                                 class="rounded-circle" 
+                                 style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #667eea;">
+                        {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
+                            <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" 
+                                 class="rounded-circle" 
+                                 style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #667eea;">
+                        {% else %}
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto"
+                                 style="width: 120px; height: 120px;">
+                                <span class="text-white display-4">{{ usuario.nome[0]|upper }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <h4>{{ usuario.nome }}</h4>
+                    <p class="text-muted">
+                        <i class="fas fa-envelope me-1"></i> {{ usuario.email }}
+                    </p>
+                    <p>
+                        <span class="badge {% if usuario.tipo == 'prestador' %}bg-success{% else %}bg-info{% endif %}">
+                            <i class="fas {% if usuario.tipo == 'prestador' %}fa-briefcase{% else %}fa-user{% endif %} me-1"></i>
+                            {{ 'Prestador' if usuario.tipo == 'prestador' else 'Cliente' }}
+                        </span>
+                    </p>
+                    <p class="text-muted small">
+                        <i class="fas fa-calendar-alt me-1"></i> 
+                        Membro desde: {{ usuario.data_cadastro.strftime('%d/%m/%Y') }}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Card de Estatísticas (apenas para prestadores) -->
+            {% if usuario.tipo == 'prestador' %}
+            <div class="card mt-3">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i> Estatísticas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <h3 class="text-primary mb-0">{{ usuario.servicos_oferecidos|length }}</h3>
+                            <small class="text-muted">Serviços</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h3 class="text-warning mb-0">{{ usuario.media_avaliacoes()|round(1) }}</h3>
+                            <small class="text-muted">Avaliação Média</small>
+                        </div>
+                        <div class="col-6">
+                            <h3 class="text-success mb-0">{{ usuario.total_avaliacoes() }}</h3>
+                            <small class="text-muted">Avaliações</small>
+                        </div>
+                        <div class="col-6">
+                            <h3 class="text-info mb-0">{{ usuario.servicos_oferecidos|selectattr('destaque', 'equalto', true)|list|length }}</h3>
+                            <small class="text-muted">Destaques</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-8">
+            <!-- Formulário de Edição -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i> Editar Perfil
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="perfilForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nome" class="form-label">
+                                    <i class="fas fa-user me-1"></i> Nome Completo
+                                </label>
+                                <input type="text" class="form-control" id="nome" name="nome" 
+                                       value="{{ usuario.nome }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i> E-mail
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ usuario.email }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="telefone" class="form-label">
+                                    <i class="fas fa-phone me-1"></i> Telefone
+                                </label>
+                                <input type="tel" class="form-control" id="telefone" name="telefone" 
+                                       value="{{ usuario.telefone }}">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="foto_perfil" class="form-label">
+                                    <i class="fas fa-image me-1"></i> Foto de Perfil
+                                </label>
+                                <input type="file" class="form-control" id="foto_perfil" name="foto_perfil" 
+                                       accept="image/*" onchange="previewFoto(event)">
+                                <small class="text-muted">Formatos: JPG, PNG. Máx: 5MB</small>
+                                <div id="fotoPreview" class="mt-2 text-center" style="display: none;">
+                                    <img id="previewImg" src="#" alt="Preview" style="max-width: 100px; max-height: 100px; border-radius: 50%;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="descricao" class="form-label">
+                                <i class="fas fa-align-left me-1"></i> Sobre mim
+                            </label>
+                            <textarea class="form-control" id="descricao" name="descricao" 
+                                      rows="4" placeholder="Conte um pouco sobre você...">{{ usuario.descricao or '' }}</textarea>
+                            <small class="text-muted">Compartilhe suas experiências, habilidades e áreas de atuação</small>
+                        </div>
+                        
+                        {% if usuario.tipo == 'prestador' %}
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-tag me-1"></i> Especialidades
+                            </label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="especialidades" value="Tecnologia" id="tec">
+                                        <label class="form-check-label" for="tec">Tecnologia</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="especialidades" value="Construção" id="const">
+                                        <label class="form-check-label" for="const">Construção</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="especialidades" value="Educação" id="edu">
+                                        <label class="form-check-label" for="edu">Educação</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mt-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="especialidades" value="Saúde" id="saude">
+                                        <label class="form-check-label" for="saude">Saúde</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mt-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="especialidades" value="Marketing" id="marketing">
+                                        <label class="form-check-label" for="marketing">Marketing</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mt-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="especialidades" value="Design" id="design">
+                                        <label class="form-check-label" for="design">Design</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Dica:</strong> Mantenha seus dados atualizados para que outros usuários possam entrar em contato com você.
+                        </div>
+                        
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Salvar Alterações
+                            </button>
+                            <a href="/dashboard" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Card de Segurança -->
+            <div class="card mt-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lock me-2"></i> Segurança
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-warning w-100" data-bs-toggle="modal" data-bs-target="#alterarSenhaModal">
+                                <i class="fas fa-key me-2"></i> Alterar Senha
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="/logout" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-sign-out-alt me-2"></i> Sair da Conta
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Alterar Senha -->
+<div class="modal fade" id="alterarSenhaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">
+                    <i class="fas fa-key me-2"></i> Alterar Senha
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/alterar-senha" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="senha_atual" class="form-label">Senha Atual</label>
+                        <input type="password" class="form-control" id="senha_atual" name="senha_atual" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nova_senha" class="form-label">Nova Senha</label>
+                        <input type="password" class="form-control" id="nova_senha" name="nova_senha" required minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
+                        <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Alterar Senha</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Máscara para telefone
+    document.getElementById('telefone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length <= 10) {
+            value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        } else {
+            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+        e.target.value = value;
+    });
+    
+    // Preview da foto
+    function previewFoto(event) {
+        const input = event.target;
+        const previewDiv = document.getElementById('fotoPreview');
+        const previewImg = document.getElementById('previewImg');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewDiv.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    // Validação do tamanho da foto
+    document.getElementById('foto_perfil').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.size > 5 * 1024 * 1024) {
+            alert('A imagem deve ter no máximo 5MB');
+            this.value = '';
+            document.getElementById('fotoPreview').style.display = 'none';
+        }
+    });
+    
+    // Validação de senha no modal
+    document.querySelector('#alterarSenhaModal form').addEventListener('submit', function(e) {
+        const novaSenha = document.getElementById('nova_senha').value;
+        const confirmarSenha = document.getElementById('confirmar_senha').value;
+        
+        if (novaSenha !== confirmarSenha) {
+            e.preventDefault();
+            alert('As senhas não coincidem!');
+        }
+    });
+</script>
+
+<style>
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+</style>
+{% endblock %}
