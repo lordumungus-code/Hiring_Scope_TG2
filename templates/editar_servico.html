@@ -1,188 +1,50 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Serviço - {{ servico.titulo }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .edit-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-            margin-bottom: 50px;
-        }
-        
-        .edit-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 25px;
-            color: white;
-        }
-        
-        .edit-body {
-            padding: 30px;
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .form-control, .form-select {
-            border-radius: 10px;
-            border: 2px solid #e0e0e0;
-            padding: 10px 15px;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        
-        .image-preview {
-            max-width: 200px;
-            max-height: 200px;
-            border-radius: 10px;
-            margin-top: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .btn-save {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            border: none;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: transform 0.2s;
-        }
-        
-        .btn-save:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
-        }
-        
-        .btn-cancel {
-            background: #6c757d;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: transform 0.2s;
-        }
-        
-        .btn-cancel:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-        
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-        
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-        
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        
-        input:checked + .slider {
-            background-color: #28a745;
-        }
-        
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        
-        .destaque-label {
-            font-weight: 600;
-            margin-left: 15px;
-        }
-        
-        @media (max-width: 768px) {
-            .edit-body {
-                padding: 20px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container mt-5 mb-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="edit-card">
-                    <div class="edit-header">
-                        <h2 class="mb-0">
-                            <i class="fas fa-edit me-2"></i> Editar Serviço
-                        </h2>
-                        <p class="mb-0 mt-2 text-white-50">Atualize as informações do seu serviço</p>
-                    </div>
+{% extends "base.html" %}
+
+{% block title %}Editar Serviço - {{ servico.titulo }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="edit-card">
+                <div class="edit-header">
+                    <h2 class="mb-0">
+                        <i class="fas fa-edit me-2"></i> Editar Serviço
+                    </h2>
+                    <p class="mb-0 mt-2 text-white-50">Atualize as informações do seu serviço</p>
+                </div>
+                
+                <div class="edit-body">
+                    <!-- Mensagens Flash -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
                     
-                    <div class="edit-body">
-                        <!-- Mensagens Flash -->
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                                        <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
+                    <form method="POST" enctype="multipart/form-data" action="{{ url_for('servico.editar', id=servico.id) }}">
+                        <!-- Título do Serviço -->
+                        <div class="mb-4">
+                            <label for="titulo" class="form-label">
+                                <i class="fas fa-heading text-primary me-1"></i> Título do Serviço
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="titulo" name="titulo" 
+                                   value="{{ servico.titulo }}" required>
+                        </div>
                         
-                        <form method="POST" enctype="multipart/form-data">
-                            <!-- Título do Serviço -->
-                            <div class="mb-4">
-                                <label for="titulo" class="form-label">
-                                    <i class="fas fa-heading text-primary me-1"></i> Título do Serviço
-                                </label>
-                                <input type="text" class="form-control" id="titulo" name="titulo" 
-                                       value="{{ servico.titulo }}" required>
-                            </div>
-                            
+                        <div class="row">
                             <!-- Categoria -->
-                            <div class="mb-4">
+                            <div class="col-md-6 mb-4">
                                 <label for="categoria" class="form-label">
                                     <i class="fas fa-tag text-primary me-1"></i> Categoria
                                 </label>
-                                <select class="form-select" id="categoria" name="categoria" required>
+                                <select class="form-select form-select-lg" id="categoria" name="categoria" required>
                                     <option value="">Selecione uma categoria</option>
                                     <option value="Tecnologia" {% if servico.categoria == 'Tecnologia' %}selected{% endif %}>💻 Tecnologia</option>
                                     <option value="Construção" {% if servico.categoria == 'Construção' %}selected{% endif %}>🏗️ Construção</option>
@@ -196,156 +58,315 @@
                             </div>
                             
                             <!-- Preço -->
-                            <div class="mb-4">
+                            <div class="col-md-6 mb-4">
                                 <label for="preco" class="form-label">
                                     <i class="fas fa-dollar-sign text-primary me-1"></i> Preço (opcional)
                                 </label>
-                                <input type="number" class="form-control" id="preco" name="preco" 
-                                       step="0.01" min="0" value="{{ servico.preco }}">
+                                <input type="number" class="form-control form-control-lg" id="preco" name="preco" 
+                                       step="0.01" min="0" value="{{ servico.preco }}" placeholder="0.00">
                                 <small class="text-muted">Deixe em branco se for "preço sob consulta"</small>
                             </div>
+                        </div>
+                        
+                        <!-- Imagem -->
+                        <div class="mb-4">
+                            <label for="imagem" class="form-label">
+                                <i class="fas fa-image text-primary me-1"></i> Imagem do Serviço
+                            </label>
+                            <div class="image-upload-area">
+                                <input type="file" class="d-none" id="imagem" name="imagem" accept="image/*" onchange="previewImage(event)">
+                                <div class="upload-placeholder text-center py-3" onclick="document.getElementById('imagem').click()">
+                                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                                    <p class="mb-0 small">Clique para alterar a imagem</p>
+                                    <small class="text-muted">JPG, PNG, GIF | Máx: 5MB</small>
+                                </div>
+                            </div>
                             
-                            <!-- Imagem -->
-                            <div class="mb-4">
-                                <label for="imagem" class="form-label">
-                                    <i class="fas fa-image text-primary me-1"></i> Imagem do Serviço
-                                </label>
-                                <input type="file" class="form-control" id="imagem" name="imagem" 
-                                       accept="image/*" onchange="previewImage(event)">
-                                <small class="text-muted">Formatos: JPG, PNG, GIF. Máx: 5MB. Deixe em branco para manter a imagem atual.</small>
-                                
-                                <!-- Preview da imagem atual -->
-                                <div class="mt-3">
-                                    <p class="mb-2"><strong>Imagem atual:</strong></p>
-                                    {% if servico.imagem_base64 %}
+                            <!-- Preview da imagem atual -->
+                            <div class="mt-3">
+                                <p class="mb-2 fw-semibold"><i class="fas fa-image me-1"></i> Imagem atual:</p>
+                                {% if servico.imagem_base64 %}
+                                    <div class="position-relative d-inline-block">
                                         <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
                                              alt="Imagem atual" 
                                              class="image-preview"
                                              id="currentImage">
-                                        <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removerImagemAtual()">
-                                            <i class="fas fa-trash"></i> Remover imagem
+                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle" onclick="removerImagemAtual()" style="transform: translate(30%, -30%);">
+                                            <i class="fas fa-times"></i>
                                         </button>
-                                    {% else %}
-                                        <div class="alert alert-secondary">
-                                            <i class="fas fa-info-circle"></i> Nenhuma imagem cadastrada
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                
-                                <!-- Preview da nova imagem -->
-                                <div id="newImagePreview" style="display: none;" class="mt-3">
-                                    <p class="mb-2"><strong>Nova imagem:</strong></p>
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-secondary">
+                                        <i class="fas fa-info-circle me-2"></i> Nenhuma imagem cadastrada
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Preview da nova imagem -->
+                            <div id="newImagePreview" style="display: none;" class="mt-3">
+                                <p class="mb-2 fw-semibold"><i class="fas fa-image me-1"></i> Nova imagem:</p>
+                                <div class="position-relative d-inline-block">
                                     <img id="preview" src="#" alt="Preview" class="image-preview">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="cancelarNovaImagem()">
-                                        <i class="fas fa-times"></i> Cancelar
+                                    <button type="button" class="btn btn-sm btn-secondary position-absolute top-0 end-0 rounded-circle" onclick="cancelarNovaImagem()" style="transform: translate(30%, -30%);">
+                                        <i class="fas fa-times"></i>
                                     </button>
                                 </div>
                             </div>
-                            
-                            <!-- Descrição -->
-                            <div class="mb-4">
-                                <label for="descricao" class="form-label">
-                                    <i class="fas fa-align-left text-primary me-1"></i> Descrição do Serviço
+                        </div>
+                        
+                        <!-- Descrição -->
+                        <div class="mb-4">
+                            <label for="descricao" class="form-label">
+                                <i class="fas fa-align-left text-primary me-1"></i> Descrição do Serviço
+                            </label>
+                            <textarea class="form-control" id="descricao" name="descricao" 
+                                      rows="6" required placeholder="Descreva detalhadamente o serviço oferecido...">{{ servico.descricao }}</textarea>
+                            <small class="text-muted">Inclua detalhes importantes como tempo de execução, materiais utilizados, etc.</small>
+                        </div>
+                        
+                        <!-- Destaque -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-star text-primary me-1"></i> Serviço em Destaque
+                            </label>
+                            <div class="d-flex align-items-center">
+                                <label class="switch">
+                                    <input type="checkbox" id="destaque" name="destaque" {% if servico.destaque %}checked{% endif %}>
+                                    <span class="slider"></span>
                                 </label>
-                                <textarea class="form-control" id="descricao" name="descricao" 
-                                          rows="6" required>{{ servico.descricao }}</textarea>
-                                <small class="text-muted">Descreva detalhadamente o serviço oferecido</small>
+                                <span class="destaque-label ms-3">
+                                    {% if servico.destaque %}
+                                        <i class="fas fa-star text-warning me-1"></i> Serviço está em destaque
+                                    {% else %}
+                                        <i class="far fa-star text-muted me-1"></i> Serviço não está em destaque
+                                    {% endif %}
+                                </span>
                             </div>
-                            
-                            <!-- Destaque -->
-                            <div class="mb-4">
-                                <label class="form-label">
-                                    <i class="fas fa-star text-primary me-1"></i> Serviço em Destaque
-                                </label>
-                                <div class="d-flex align-items-center">
-                                    <label class="switch">
-                                        <input type="checkbox" id="destaque" name="destaque" {% if servico.destaque %}checked{% endif %}>
-                                        <span class="slider"></span>
-                                    </label>
-                                    <span class="destaque-label">
-                                        {% if servico.destaque %}
-                                            <i class="fas fa-star text-warning me-1"></i> Serviço está em destaque
-                                        {% else %}
-                                            <i class="far fa-star text-muted me-1"></i> Serviço não está em destaque
-                                        {% endif %}
-                                    </span>
-                                </div>
-                                <small class="text-muted">Serviços em destaque aparecem na página inicial</small>
-                            </div>
-                            
-                            <!-- Botões -->
-                            <div class="d-flex gap-3 mt-4">
-                                <button type="submit" class="btn btn-save text-white">
-                                    <i class="fas fa-save me-2"></i> Salvar Alterações
-                                </button>
-                                <a href="/servico/{{ servico.id }}" class="btn btn-cancel text-white">
-                                    <i class="fas fa-times me-2"></i> Cancelar
-                                </a>
-                            </div>
-                        </form>
-                    </div>
+                            <small class="text-muted">Serviços em destaque aparecem na página inicial</small>
+                        </div>
+                        
+                        <!-- Botões -->
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="submit" class="btn btn-save text-white">
+                                <i class="fas fa-save me-2"></i> Salvar Alterações
+                            </button>
+                            <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-cancel text-white">
+                                <i class="fas fa-times me-2"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<style>
+    .edit-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
     
-    <script>
-        function previewImage(event) {
-            const input = event.target;
-            const previewDiv = document.getElementById('newImagePreview');
-            const previewImg = document.getElementById('preview');
-            const currentImage = document.getElementById('currentImage');
+    .edit-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 25px;
+        color: white;
+    }
+    
+    .edit-body {
+        padding: 30px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        padding: 10px 15px;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .image-upload-area {
+        cursor: pointer;
+    }
+    
+    .upload-placeholder {
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        background: #f8f9fa;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    
+    .upload-placeholder:hover {
+        border-color: #28a745;
+        background: #f0fff4;
+    }
+    
+    .image-preview {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        object-fit: cover;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: transform 0.2s;
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-cancel {
+        background: #6c757d;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: transform 0.2s;
+    }
+    
+    .btn-cancel:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+    
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+    
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+        background-color: #28a745;
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+    
+    .destaque-label {
+        font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+        .edit-body {
+            padding: 20px;
+        }
+        
+        .btn-save, .btn-cancel {
+            padding: 10px 20px;
+        }
+    }
+</style>
+
+<script>
+    function previewImage(event) {
+        const input = event.target;
+        const previewDiv = document.getElementById('newImagePreview');
+        const previewImg = document.getElementById('preview');
+        const currentImage = document.getElementById('currentImage');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
             
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    previewImg.src = e.target.result;
-                    previewDiv.style.display = 'block';
-                    if (currentImage) currentImage.style.opacity = '0.5';
-                }
-                
-                reader.readAsDataURL(input.files[0]);
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewDiv.style.display = 'block';
+                if (currentImage) currentImage.style.opacity = '0.5';
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    function cancelarNovaImagem() {
+        const input = document.getElementById('imagem');
+        const previewDiv = document.getElementById('newImagePreview');
+        const currentImage = document.getElementById('currentImage');
+        
+        input.value = '';
+        previewDiv.style.display = 'none';
+        if (currentImage) currentImage.style.opacity = '1';
+    }
+    
+    function removerImagemAtual() {
+        if (confirm('Deseja remover a imagem atual?')) {
+            let hiddenInput = document.querySelector('input[name="remover_imagem"]');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'remover_imagem';
+                document.forms[0].appendChild(hiddenInput);
+            }
+            hiddenInput.value = 'true';
+            
+            const currentImage = document.getElementById('currentImage');
+            if (currentImage) {
+                currentImage.style.display = 'none';
+            }
+            
+            const removerBtn = document.querySelector('button[onclick="removerImagemAtual()"]');
+            if (removerBtn) {
+                removerBtn.style.display = 'none';
             }
         }
-        
-        function cancelarNovaImagem() {
-            const input = document.getElementById('imagem');
-            const previewDiv = document.getElementById('newImagePreview');
-            const currentImage = document.getElementById('currentImage');
-            
-            input.value = '';
-            previewDiv.style.display = 'none';
-            if (currentImage) currentImage.style.opacity = '1';
-        }
-        
-        function removerImagemAtual() {
-            if (confirm('Deseja remover a imagem atual?')) {
-                // Cria um campo hidden para indicar que deve remover a imagem
-                let hiddenInput = document.querySelector('input[name="remover_imagem"]');
-                if (!hiddenInput) {
-                    hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = 'remover_imagem';
-                    document.forms[0].appendChild(hiddenInput);
-                }
-                hiddenInput.value = 'true';
-                
-                const currentImage = document.getElementById('currentImage');
-                if (currentImage) {
-                    currentImage.style.display = 'none';
-                }
-                
-                // Remove o botão de remover
-                const removerBtn = document.querySelector('button[onclick="removerImagemAtual()"]');
-                if (removerBtn) {
-                    removerBtn.style.display = 'none';
-                }
-            }
-        }
-        
-        // Atualizar texto do destaque
-        document.getElementById('destaque').addEventListener('change', function() {
+    }
+    
+    // Atualizar texto do destaque
+    const destaqueCheckbox = document.getElementById('destaque');
+    if (destaqueCheckbox) {
+        destaqueCheckbox.addEventListener('change', function() {
             const label = document.querySelector('.destaque-label');
             if (this.checked) {
                 label.innerHTML = '<i class="fas fa-star text-warning me-1"></i> Serviço está em destaque';
@@ -353,16 +374,21 @@
                 label.innerHTML = '<i class="far fa-star text-muted me-1"></i> Serviço não está em destaque';
             }
         });
-        
-        // Validação do tamanho do arquivo
-        document.getElementById('imagem').addEventListener('change', function(e) {
+    }
+    
+    // Validação do tamanho do arquivo
+    const imagemInput = document.getElementById('imagem');
+    if (imagemInput) {
+        imagemInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file && file.size > 5 * 1024 * 1024) {
                 alert('A imagem deve ter no máximo 5MB');
                 this.value = '';
                 document.getElementById('newImagePreview').style.display = 'none';
+                const currentImage = document.getElementById('currentImage');
+                if (currentImage) currentImage.style.opacity = '1';
             }
         });
-    </script>
-</body>
-</html>
+    }
+</script>
+{% endblock %}

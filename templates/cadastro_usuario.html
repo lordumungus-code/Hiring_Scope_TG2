@@ -3,69 +3,125 @@
 {% block title %}Cadastro - PrestaServiços{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">Criar Conta</h4>
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-success text-white text-center py-3 rounded-top-4">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i> Criar Conta
+                    </h4>
+                    <p class="mb-0 mt-1 small opacity-75">Junte-se à nossa comunidade</p>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
+                    <!-- Mensagens Flash -->
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
                             {% for category, message in messages %}
-                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
                             {% endfor %}
                         {% endif %}
                     {% endwith %}
                     
-                    <form method="POST" enctype="multipart/form-data">
+                    <form method="POST" enctype="multipart/form-data" action="{{ url_for('auth.cadastro') }}">
+                        <!-- Nome Completo -->
                         <div class="mb-3">
-                            <label for="nome" class="form-label">Nome Completo</label>
-                            <input type="text" class="form-control" id="nome" name="nome" required>
+                            <label for="nome" class="form-label fw-semibold">
+                                <i class="fas fa-user me-1 text-success"></i> Nome Completo
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="nome" name="nome" 
+                                   placeholder="Digite seu nome completo" required>
                         </div>
                         
+                        <!-- E-mail -->
                         <div class="mb-3">
-                            <label for="email" class="form-label">E-mail</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="email" class="form-label fw-semibold">
+                                <i class="fas fa-envelope me-1 text-success"></i> E-mail
+                            </label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="email" 
+                                   placeholder="exemplo@email.com" required>
                         </div>
                         
+                        <!-- Telefone -->
                         <div class="mb-3">
-                            <label for="telefone" class="form-label">Telefone</label>
-                            <input type="tel" class="form-control" id="telefone" name="telefone" required>
+                            <label for="telefone" class="form-label fw-semibold">
+                                <i class="fas fa-phone me-1 text-success"></i> Telefone
+                            </label>
+                            <input type="tel" class="form-control form-control-lg" id="telefone" name="telefone" 
+                                   placeholder="(11) 99999-9999" required>
                         </div>
                         
+                        <!-- Senha -->
                         <div class="mb-3">
-                            <label for="senha" class="form-label">Senha</label>
-                            <input type="password" class="form-control" id="senha" name="senha" required minlength="6">
+                            <label for="senha" class="form-label fw-semibold">
+                                <i class="fas fa-lock me-1 text-success"></i> Senha
+                            </label>
+                            <input type="password" class="form-control form-control-lg" id="senha" name="senha" 
+                                   placeholder="Mínimo 6 caracteres" required minlength="6">
                         </div>
                         
+                        <!-- Foto de Perfil -->
                         <div class="mb-3">
-                            <label for="foto_perfil" class="form-label">Foto de Perfil (opcional)</label>
-                            <input type="file" class="form-control" id="foto_perfil" name="foto_perfil" accept="image/*" onchange="previewFoto(event)">
-                            <small class="text-muted">Formatos: JPG, PNG. Máx: 5MB</small>
-                            <div id="fotoPreview" class="mt-2 text-center" style="display: none;">
-                                <img id="previewImg" src="#" alt="Preview" style="max-width: 100px; max-height: 100px; border-radius: 50%;">
+                            <label for="foto_perfil" class="form-label fw-semibold">
+                                <i class="fas fa-image me-1 text-success"></i> Foto de Perfil (opcional)
+                            </label>
+                            <div class="image-upload-area" id="imageUploadArea">
+                                <input type="file" class="d-none" id="foto_perfil" name="foto_perfil" accept="image/*" onchange="previewFoto(event)">
+                                <div class="upload-placeholder text-center py-3" onclick="document.getElementById('foto_perfil').click()">
+                                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                                    <p class="mb-0 small">Clique para selecionar uma foto</p>
+                                    <small class="text-muted">JPG, PNG | Máx: 5MB</small>
+                                </div>
+                            </div>
+                            <div id="fotoPreview" class="mt-3 text-center" style="display: none;">
+                                <div class="position-relative d-inline-block">
+                                    <img id="previewImg" src="#" alt="Preview" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid #28a745; object-fit: cover;">
+                                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle" onclick="removerFoto()" style="transform: translate(30%, -30%);">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label class="form-label">Tipo de Conta</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tipo" id="cliente" value="cliente" checked>
-                                <label class="form-check-label" for="cliente">
-                                    <i class="fas fa-user"></i> Cliente (quero contratar serviços)
-                                </label>
+                        <!-- Tipo de Conta com Cards Interativos -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold mb-3">
+                                <i class="fas fa-user-tag me-1 text-success"></i> Tipo de Conta
+                            </label>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="card border-2 h-100 user-type-card" onclick="selectType('cliente')" id="card-cliente">
+                                        <div class="card-body text-center py-3">
+                                            <i class="fas fa-user fa-2x text-primary mb-2"></i>
+                                            <h6 class="mb-1">Cliente</h6>
+                                            <small class="text-muted">Quero contratar</small>
+                                            <div class="selected-indicator mt-2">
+                                                <span class="badge bg-success d-none">✓ Selecionado</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card border-2 h-100 user-type-card" onclick="selectType('prestador')" id="card-prestador">
+                                        <div class="card-body text-center py-3">
+                                            <i class="fas fa-briefcase fa-2x text-success mb-2"></i>
+                                            <h6 class="mb-1">Prestador</h6>
+                                            <small class="text-muted">Quero oferecer</small>
+                                            <div class="selected-indicator mt-2">
+                                                <span class="badge bg-success d-none">✓ Selecionado</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tipo" id="prestador" value="prestador">
-                                <label class="form-check-label" for="prestador">
-                                    <i class="fas fa-briefcase"></i> Prestador (quero oferecer serviços)
-                                </label>
-                            </div>
+                            <input type="hidden" name="tipo" id="tipo" value="cliente">
                         </div>
                         
-                        <button type="submit" class="btn btn-success w-100 mb-3">
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-semibold rounded-pill mb-3">
                             <i class="fas fa-user-plus me-2"></i> Cadastrar
                         </button>
                     </form>
@@ -74,12 +130,12 @@
                         <p class="text-muted">ou</p>
                     </div>
                     
-                    <a href="/auth/firebase/google" class="btn btn-danger w-100 mb-3">
+                    <a href="{{ url_for('auth.firebase_google') }}" class="btn btn-danger w-100 py-2 fw-semibold rounded-pill mb-3">
                         <i class="fab fa-google me-2"></i> Cadastrar com Google
                     </a>
                     
                     <div class="text-center">
-                        <p>Já tem conta? <a href="/login">Faça login</a></p>
+                        <p>Já tem conta? <a href="{{ url_for('auth.login') }}" class="text-decoration-none">Faça login</a></p>
                     </div>
                 </div>
             </div>
@@ -87,41 +143,188 @@
     </div>
 </div>
 
+<style>
+    .card {
+        border-radius: 20px !important;
+        overflow: hidden;
+    }
+    
+    .rounded-top-4 {
+        border-radius: 20px 20px 0 0 !important;
+    }
+    
+    .form-control-lg {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s;
+        font-size: 1rem;
+    }
+    
+    .form-control-lg:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    .image-upload-area {
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .upload-placeholder {
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        background: #f8f9fa;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    
+    .upload-placeholder:hover {
+        border-color: #28a745;
+        background: #f0fff4;
+    }
+    
+    .user-type-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-color: #e9ecef !important;
+        background: white;
+    }
+    
+    .user-type-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        border-color: #28a745 !important;
+    }
+    
+    .user-type-card.selected {
+        border-color: #28a745 !important;
+        background: linear-gradient(135deg, #f8fff9 0%, #ffffff 100%);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.1);
+    }
+    
+    .user-type-card.selected .selected-indicator .badge {
+        display: inline-block !important;
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        transition: all 0.3s;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-danger {
+        transition: all 0.3s;
+    }
+    
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.5rem !important;
+        }
+        
+        .user-type-card .card-body {
+            padding: 15px 10px;
+        }
+        
+        .user-type-card h6 {
+            font-size: 0.9rem;
+        }
+        
+        .user-type-card small {
+            font-size: 0.7rem;
+        }
+    }
+</style>
+
 <script>
     // Máscara para telefone
-    document.getElementById('telefone').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length <= 10) {
-            value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-        } else {
-            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-        }
-        e.target.value = value;
-    });
+    const telefoneInput = document.getElementById('telefone');
+    if (telefoneInput) {
+        telefoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length <= 10) {
+                value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+            } else {
+                value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            }
+            e.target.value = value;
+        });
+    }
     
     // Preview da foto
     function previewFoto(event) {
         const input = event.target;
         const previewDiv = document.getElementById('fotoPreview');
         const previewImg = document.getElementById('previewImg');
+        const uploadPlaceholder = document.querySelector('.upload-placeholder');
         
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 previewImg.src = e.target.result;
                 previewDiv.style.display = 'block';
+                if (uploadPlaceholder) uploadPlaceholder.style.display = 'none';
             }
             reader.readAsDataURL(input.files[0]);
         }
     }
     
+    function removerFoto() {
+        const input = document.getElementById('foto_perfil');
+        const previewDiv = document.getElementById('fotoPreview');
+        const uploadPlaceholder = document.querySelector('.upload-placeholder');
+        
+        input.value = '';
+        previewDiv.style.display = 'none';
+        if (uploadPlaceholder) uploadPlaceholder.style.display = 'block';
+    }
+    
     // Validação do tamanho da foto (5MB)
-    document.getElementById('foto_perfil').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file && file.size > 5 * 1024 * 1024) {
-            alert('A imagem deve ter no máximo 5MB');
-            this.value = '';
-            document.getElementById('fotoPreview').style.display = 'none';
+    const fotoInput = document.getElementById('foto_perfil');
+    if (fotoInput) {
+        fotoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.size > 5 * 1024 * 1024) {
+                alert('A imagem deve ter no máximo 5MB');
+                this.value = '';
+                document.getElementById('fotoPreview').style.display = 'none';
+                const uploadPlaceholder = document.querySelector('.upload-placeholder');
+                if (uploadPlaceholder) uploadPlaceholder.style.display = 'block';
+            }
+        });
+    }
+    
+    // Função para selecionar tipo de conta
+    function selectType(type) {
+        const cardCliente = document.getElementById('card-cliente');
+        const cardPrestador = document.getElementById('card-prestador');
+        const tipoInput = document.getElementById('tipo');
+        
+        if (type === 'cliente') {
+            cardCliente.classList.add('selected');
+            cardPrestador.classList.remove('selected');
+            tipoInput.value = 'cliente';
+        } else {
+            cardPrestador.classList.add('selected');
+            cardCliente.classList.remove('selected');
+            tipoInput.value = 'prestador';
+        }
+    }
+    
+    // Inicializar com cliente selecionado
+    document.addEventListener('DOMContentLoaded', function() {
+        const cardCliente = document.getElementById('card-cliente');
+        if (cardCliente) {
+            cardCliente.classList.add('selected');
         }
     });
 </script>

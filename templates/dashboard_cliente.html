@@ -1,168 +1,261 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Cliente - PrestaServiços</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .stat-card {
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-    </style>
-</head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-tools"></i> PrestaServiços
-            </a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <span class="nav-link text-white">
-                            <i class="fas fa-user"></i> {{ current_user.nome }}
-                        </span>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/logout">
-                            <i class="fas fa-sign-out-alt"></i> Sair
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
-    <div class="container mt-5">
-        <!-- Mensagens Flash -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+{% block title %}Dashboard Cliente - PrestaServiços{% endblock %}
 
-        <!-- Boas-vindas -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h2>
-                    <i class="fas fa-tachometer-alt text-primary"></i> 
-                    Painel do Cliente
+{% block content %}
+<div class="container mt-4">
+    <!-- Mensagens Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Boas-vindas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="welcome-card">
+                <h2 class="mb-2">
+                    <i class="fas fa-tachometer-alt text-primary me-2"></i> 
+                    Olá, {{ current_user.nome.split()[0] }}! 👋
                 </h2>
-                <p class="text-muted">Acompanhe suas solicitações e encontre novos serviços</p>
+                <p class="text-muted">Acompanhe suas solicitações e encontre os melhores serviços</p>
             </div>
         </div>
+    </div>
 
-        <!-- Botões de Ação -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <a href="/servicos" class="btn btn-primary">
-                    <i class="fas fa-search"></i> Explorar Serviços
+    <!-- Botões de Ação -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="action-buttons">
+                <a href="{{ url_for('servico.lista') }}" class="btn btn-primary btn-lg px-4">
+                    <i class="fas fa-search me-2"></i> Explorar Serviços
+                </a>
+                <a href="{{ url_for('chat.index') }}" class="btn btn-outline-primary btn-lg px-4 ms-2">
+                    <i class="fas fa-comments me-2"></i> Chat
                 </a>
             </div>
         </div>
+    </div>
 
-        <!-- Estatísticas -->
-        <div class="row mb-4">
-            <div class="col-md-6 mb-3">
-                <div class="card stat-card bg-info text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-0">Solicitações Enviadas</h6>
-                                <h2 class="mt-2 mb-0">{{ solicitacoes|length }}</h2>
-                            </div>
-                            <i class="fas fa-paper-plane fa-3x opacity-50"></i>
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card stat-card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">Solicitações Enviadas</h6>
+                            <h2 class="mt-2 mb-0">{{ solicitacoes|length }}</h2>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="card stat-card bg-success text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-0">Solicitações Pendentes</h6>
-                                <h2 class="mt-2 mb-0">{{ solicitacoes|selectattr('status', 'equalto', 'pendente')|list|length }}</h2>
-                            </div>
-                            <i class="fas fa-clock fa-3x opacity-50"></i>
-                        </div>
+                        <i class="fas fa-paper-plane fa-3x opacity-50"></i>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Minhas Solicitações -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Minhas Solicitações</h5>
-                    </div>
-                    <div class="card-body">
-                        {% if solicitacoes %}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Serviço</th>
-                                            <th>Prestador</th>
-                                            <th>Status</th>
-                                            <th>Data</th>
-                                            <th>Mensagem</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for sol in solicitacoes %}
-                                        <tr>
-                                            <td>{{ sol.servico.titulo }}</td>
-                                            <td>{{ sol.servico.prestador.nome }}</td>
-                                            <td>
-                                                {% if sol.status == 'pendente' %}
-                                                    <span class="badge bg-warning">Pendente</span>
-                                                {% elif sol.status == 'aceito' %}
-                                                    <span class="badge bg-success">Aceito</span>
-                                                {% elif sol.status == 'recusado' %}
-                                                    <span class="badge bg-danger">Recusado</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ sol.data_solicitacao.strftime('%d/%m/%Y') }}</td>
-                                            <td>{{ sol.mensagem[:50] }}{% if sol.mensagem|length > 50 %}...{% endif %}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% else %}
-                            <div class="text-center py-4">
-                                <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
-                                <h5>Você ainda não fez nenhuma solicitação</h5>
-                                <p class="text-muted">Explore os serviços disponíveis e solicite o que precisar!</p>
-                                <a href="/servicos" class="btn btn-primary">
-                                    <i class="fas fa-search"></i> Explorar Serviços
-                                </a>
-                            </div>
-                        {% endif %}
+        <div class="col-md-6 mb-3">
+            <div class="card stat-card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">Solicitações Pendentes</h6>
+                            <h2 class="mt-2 mb-0">{{ solicitacoes|selectattr('status', 'equalto', 'pendente')|list|length }}</h2>
+                        </div>
+                        <i class="fas fa-clock fa-3x opacity-50"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</body>
-</html>
+
+    <!-- Minhas Solicitações -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i> Minhas Solicitações
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if solicitacoes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th><i class="fas fa-briefcase me-1"></i> Serviço</th>
+                                        <th><i class="fas fa-user me-1"></i> Prestador</th>
+                                        <th><i class="fas fa-tag me-1"></i> Status</th>
+                                        <th><i class="fas fa-calendar me-1"></i> Data</th>
+                                        <th><i class="fas fa-comment me-1"></i> Mensagem</th>
+                                        <th><i class="fas fa-cog me-1"></i> Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for sol in solicitacoes %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ url_for('servico.detalhe', id=sol.servico.id) }}" class="text-decoration-none fw-semibold">
+                                                {{ sol.servico.titulo[:40] }}{% if sol.servico.titulo|length > 40 %}...{% endif %}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="javascript:void(0)" onclick="iniciarChat({{ sol.servico.prestador.id }}, '{{ sol.servico.prestador.nome }}')" class="text-decoration-none">
+                                                <i class="fas fa-user-circle me-1"></i> {{ sol.servico.prestador.nome }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {% if sol.status == 'pendente' %}
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="fas fa-hourglass-half me-1"></i> Pendente
+                                                </span>
+                                            {% elif sol.status == 'aceito' %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check-circle me-1"></i> Aceito
+                                                </span>
+                                            {% elif sol.status == 'recusado' %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-times-circle me-1"></i> Recusado
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small>{{ sol.data_solicitacao.strftime('%d/%m/%Y') }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="small text-muted" title="{{ sol.mensagem }}">
+                                                {{ sol.mensagem[:40] }}{% if sol.mensagem|length > 40 %}...{% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if sol.status == 'pendente' %}
+                                                <button class="btn btn-sm btn-outline-danger" onclick="cancelarSolicitacao({{ sol.id }})">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            {% elif sol.status == 'aceito' %}
+                                                <a href="{{ url_for('chat.index') }}" class="btn btn-sm btn-outline-primary" onclick="iniciarChat({{ sol.servico.prestador.id }}, '{{ sol.servico.prestador.nome }}')">
+                                                    <i class="fas fa-comments"></i>
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                            <h5>Você ainda não fez nenhuma solicitação</h5>
+                            <p class="text-muted">Explore os serviços disponíveis e solicite o que precisar!</p>
+                            <a href="{{ url_for('servico.lista') }}" class="btn btn-primary mt-2">
+                                <i class="fas fa-search me-2"></i> Explorar Serviços
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .welcome-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        padding: 20px;
+        border-radius: 15px;
+        border-left: 4px solid #007bff;
+    }
+    
+    .stat-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-outline-primary:hover {
+        transform: translateY(-2px);
+    }
+    
+    .table th {
+        font-weight: 600;
+        border-top: none;
+    }
+    
+    .table td {
+        vertical-align: middle;
+    }
+    
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .action-buttons .btn {
+            width: 100%;
+            margin-left: 0 !important;
+        }
+        
+        .table-responsive {
+            font-size: 0.85rem;
+        }
+    }
+</style>
+
+<script>
+    function iniciarChat(prestadorId, prestadorNome) {
+        if (prestadorId) {
+            sessionStorage.setItem('chat_with_id', prestadorId);
+            sessionStorage.setItem('chat_with_name', prestadorNome);
+            window.location.href = "{{ url_for('chat.index') }}";
+        }
+    }
+    
+    function cancelarSolicitacao(solicitacaoId) {
+        if (confirm('Tem certeza que deseja cancelar esta solicitação?')) {
+            fetch(`/solicitacao/cancelar/${solicitacaoId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Erro ao cancelar solicitação');
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}

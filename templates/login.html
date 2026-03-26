@@ -3,36 +3,49 @@
 {% block title %}Login - PrestaServiços{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Login</h4>
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white text-center py-3 rounded-top-4">
+                    <h4 class="mb-0">
+                        <i class="fas fa-sign-in-alt me-2"></i> Login
+                    </h4>
+                    <p class="mb-0 mt-1 small opacity-75">Acesse sua conta</p>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <!-- Mensagens Flash -->
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
                             {% for category, message in messages %}
-                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
                             {% endfor %}
                         {% endif %}
                     {% endwith %}
                     
                     <!-- Formulário de Login Tradicional -->
-                    <form method="POST">
+                    <form method="POST" action="{{ url_for('auth.login') }}">
                         <div class="mb-3">
-                            <label for="email" class="form-label">E-mail</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="email" class="form-label fw-semibold">
+                                <i class="fas fa-envelope me-1 text-primary"></i> E-mail
+                            </label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="email" 
+                                   placeholder="exemplo@email.com" required>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="senha" class="form-label">Senha</label>
-                            <input type="password" class="form-control" id="senha" name="senha" required>
+                        <div class="mb-4">
+                            <label for="senha" class="form-label fw-semibold">
+                                <i class="fas fa-lock me-1 text-primary"></i> Senha
+                            </label>
+                            <input type="password" class="form-control form-control-lg" id="senha" name="senha" 
+                                   placeholder="Digite sua senha" required>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-pill mb-3">
                             <i class="fas fa-sign-in-alt me-2"></i> Entrar
                         </button>
                     </form>
@@ -42,16 +55,71 @@
                     </div>
                     
                     <!-- Botão Login com Google -->
-                    <a href="/auth/firebase/google" class="btn btn-danger w-100 mb-3">
+                    <a href="{{ url_for('auth.firebase_google') }}" class="btn btn-danger w-100 py-2 fw-semibold rounded-pill mb-3">
                         <i class="fab fa-google me-2"></i> Entrar com Google
                     </a>
                     
                     <div class="text-center">
-                        <p>Não tem conta? <a href="/cadastro">Cadastre-se</a></p>
+                        <p>Não tem conta? <a href="{{ url_for('auth.cadastro') }}" class="text-decoration-none fw-semibold">Cadastre-se</a></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .card {
+        border-radius: 20px !important;
+        overflow: hidden;
+    }
+    
+    .rounded-top-4 {
+        border-radius: 20px 20px 0 0 !important;
+    }
+    
+    .form-control-lg {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s;
+        font-size: 1rem;
+    }
+    
+    .form-control-lg:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        border: none;
+        transition: all 0.3s;
+    }
+    
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.5rem !important;
+        }
+        
+        .form-control-lg {
+            font-size: 0.95rem;
+        }
+    }
+</style>
 {% endblock %}

@@ -17,10 +17,10 @@
                 
                 {% if not current_user.is_authenticated %}
                     <div class="d-flex justify-content-center gap-3 flex-wrap animate__animated animate__fadeInUp animate__delay-2s">
-                        <a href="/cadastro" class="btn btn-light btn-lg px-4">
+                        <a href="{{ url_for('auth.cadastro') }}" class="btn btn-light btn-lg px-4">
                             <i class="fas fa-user-plus me-2"></i>Criar Conta
                         </a>
-                        <a href="/servicos" class="btn btn-outline-light btn-lg px-4">
+                        <a href="{{ url_for('servico.lista') }}" class="btn btn-outline-light btn-lg px-4">
                             <i class="fas fa-search me-2"></i>Explorar Serviços
                         </a>
                     </div>
@@ -32,7 +32,7 @@
         <div class="row mt-5">
             <div class="col-md-8 mx-auto">
                 <div class="search-box">
-                    <form action="/servicos" method="GET" class="d-flex gap-2">
+                    <form action="{{ url_for('servico.lista') }}" method="GET" class="d-flex gap-2">
                         <input type="text" 
                                name="q" 
                                class="form-control form-control-lg" 
@@ -89,7 +89,7 @@
                     <i class="fas fa-star text-warning me-2"></i> Serviços em Destaque
                     <span class="badge bg-danger ms-2">Premium</span>
                 </h2>
-                <a href="/servicos" class="text-decoration-none">Ver todos <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ url_for('servico.lista') }}" class="text-decoration-none">Ver todos <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
         
@@ -105,7 +105,7 @@
                                          alt="{{ servico.titulo }}"
                                          loading="lazy">
                                     <div class="featured-badge">
-                                        {% if servico.destaque_pago %}
+                                        {% if servico.destaque_pago and servico.destaque_data_fim and servico.destaque_data_fim > now %}
                                             <i class="fas fa-crown"></i> Premium
                                         {% else %}
                                             <i class="fas fa-star"></i> Destaque
@@ -118,7 +118,7 @@
                                         <i class="fas fa-tools fa-4x text-white"></i>
                                     </div>
                                     <div class="featured-badge">
-                                        {% if servico.destaque_pago %}
+                                        {% if servico.destaque_pago and servico.destaque_data_fim and servico.destaque_data_fim > now %}
                                             <i class="fas fa-crown"></i> Premium
                                         {% else %}
                                             <i class="fas fa-star"></i> Destaque
@@ -157,7 +157,7 @@
                                 </div>
                                 
                                 <div class="d-flex gap-2 mt-3">
-                                    <a href="/servico/{{ servico.id }}" class="btn btn-primary flex-grow-1">
+                                    <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-primary flex-grow-1">
                                         <i class="fas fa-eye me-1"></i> Detalhes
                                     </a>
                                     {% if current_user.is_authenticated %}
@@ -176,9 +176,9 @@
             <div class="alert alert-info text-center">
                 <i class="fas fa-info-circle"></i> Nenhum serviço em destaque no momento. 
                 {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
-                    <a href="/cadastro/servico" class="alert-link">Cadastre um serviço agora!</a>
+                    <a href="{{ url_for('servico.cadastro') }}" class="alert-link">Cadastre um serviço agora!</a>
                 {% else %}
-                    <a href="/cadastro" class="alert-link">Cadastre-se como prestador!</a>
+                    <a href="{{ url_for('auth.cadastro') }}" class="alert-link">Cadastre-se como prestador!</a>
                 {% endif %}
             </div>
         {% endif %}
@@ -196,7 +196,7 @@
             {% if categorias_com_contagem %}
                 {% for cat in categorias_com_contagem %}
                     <div class="col-md-4 col-lg-2">
-                        <a href="/servicos?categoria={{ cat.categoria }}" class="text-decoration-none">
+                        <a href="{{ url_for('servico.lista') }}?categoria={{ cat.categoria }}" class="text-decoration-none">
                             <div class="category-card text-center">
                                 <div class="category-icon bg-{{ get_cor_categoria(cat.categoria) }} text-white">
                                     <i class="fas {{ get_icone_categoria(cat.categoria) }} fa-2x"></i>
@@ -218,7 +218,7 @@
                 ] %}
                 {% for cat in categorias %}
                     <div class="col-md-4 col-lg-2">
-                        <a href="/servicos?categoria={{ cat.nome }}" class="text-decoration-none">
+                        <a href="{{ url_for('servico.lista') }}?categoria={{ cat.nome }}" class="text-decoration-none">
                             <div class="category-card text-center">
                                 <div class="category-icon bg-{{ cat.cor }} text-white">
                                     <i class="fas {{ cat.icone }} fa-2x"></i>
@@ -240,7 +240,7 @@
                 <h2 class="section-title">
                     <i class="fas fa-clock text-success me-2"></i> Últimos Serviços
                 </h2>
-                <a href="/servicos" class="text-decoration-none">Ver todos <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ url_for('servico.lista') }}" class="text-decoration-none">Ver todos <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
         
@@ -275,7 +275,7 @@
                                     {% else %}
                                         <span class="text-muted small">Preço sob consulta</span>
                                     {% endif %}
-                                    <a href="/servico/{{ servico.id }}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-sm btn-outline-primary">
                                         Ver
                                     </a>
                                 </div>
@@ -288,9 +288,9 @@
                     <div class="alert alert-info text-center">
                         <i class="fas fa-info-circle"></i> Nenhum serviço cadastrado ainda. 
                         {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
-                            <a href="/cadastro/servico" class="alert-link">Seja o primeiro a cadastrar!</a>
+                            <a href="{{ url_for('servico.cadastro') }}" class="alert-link">Seja o primeiro a cadastrar!</a>
                         {% else %}
-                            <a href="/cadastro" class="alert-link">Cadastre-se como prestador!</a>
+                            <a href="{{ url_for('auth.cadastro') }}" class="alert-link">Cadastre-se como prestador!</a>
                         {% endif %}
                     </div>
                 </div>
@@ -400,14 +400,12 @@
     </div>
 </div>
 
-
-
 <script>
     function iniciarChat(prestadorId, prestadorNome) {
         if (prestadorId) {
             sessionStorage.setItem('chat_with_id', prestadorId);
             sessionStorage.setItem('chat_with_name', prestadorNome);
-            window.location.href = '/chat';
+            window.location.href = "{{ url_for('chat.index') }}";
         }
     }
     
@@ -417,7 +415,7 @@
         
         if (usuarioId) {
             sessionStorage.setItem('chat_with_id', usuarioId);
-            window.location.href = '/chat';
+            window.location.href = "{{ url_for('chat.index') }}";
         }
         
         // Animação para os cards ao rolar a página

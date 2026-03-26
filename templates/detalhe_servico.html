@@ -1,259 +1,283 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ servico.titulo }} - PrestaServiços</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .servico-detalhe {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-        .prestador-info {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        .btn-solicitar {
-            background: linear-gradient(45deg, #28a745, #20c997);
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            border-radius: 50px;
-            width: 100%;
-        }
-        .btn-chat {
-            background: linear-gradient(45deg, #17a2b8, #138496);
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            border-radius: 50px;
-            width: 100%;
-            color: white;
-        }
-        .btn-chat:hover {
-            background: linear-gradient(45deg, #138496, #117a8b);
-            color: white;
-        }
-    </style>
-</head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-tools"></i> PrestaServiços
-            </a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    {% if current_user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/dashboard">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/logout">
-                                <i class="fas fa-sign-out-alt"></i> Sair
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/login">
-                                <i class="fas fa-sign-in-alt"></i> Login
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
-    <div class="container mt-5">
-        <!-- Botão Voltar -->
-        <div class="mb-3">
-            <a href="javascript:history.back()" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </a>
-        </div>
+{% block title %}{{ servico.titulo }} - PrestaServiços{% endblock %}
 
-        <!-- Mensagens Flash -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+{% block content %}
+<div class="container mt-5">
+    <!-- Botão Voltar -->
+    <div class="mb-3">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Voltar
+        </a>
+    </div>
 
-        <!-- Detalhes do Serviço -->
-        <div class="servico-detalhe">
-            <div class="row">
-                <div class="col-md-8">
-                    <h1 class="mb-3">{{ servico.titulo }}</h1>
-                                        {% if servico.imagem_base64 %}
+    <!-- Mensagens Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Detalhes do Serviço -->
+    <div class="servico-detalhe">
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="mb-3">{{ servico.titulo }}</h1>
+                
+                <!-- Imagem do Serviço -->
+                {% if servico.imagem_base64 %}
                     <div class="text-center mb-4">
                         <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
                             alt="{{ servico.titulo }}" 
-                            style="max-width: 100%; max-height: 300px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                            class="img-fluid rounded-3 shadow-lg" 
+                            style="max-height: 350px; width: auto; object-fit: cover;">
                     </div>
-                    {% endif %}
-                    <div class="mb-3">
-                        {% if servico.destaque %}
-                            <span class="badge bg-warning text-dark">
-                                <i class="fas fa-star"></i> Serviço em Destaque
-                            </span>
-                        {% endif %}
-                        <span class="badge bg-info">
-                            <i class="fas fa-tag"></i> {{ servico.categoria }}
+                {% endif %}
+                
+                <!-- Badges -->
+                <div class="mb-3">
+                    {% if servico.destaque_pago and servico.destaque_data_fim and servico.destaque_data_fim > now %}
+                        <span class="badge bg-warning text-dark me-2">
+                            <i class="fas fa-crown me-1"></i> Destaque Premium
                         </span>
-                    </div>
-
-                    <h5 class="mb-3">Descrição do Serviço:</h5>
-                    <p class="mb-4">{{ servico.descricao }}</p>
-
-                    {% if servico.preco %}
-                        <div class="mb-4">
-                            <h4 class="text-success">
-                                <i class="fas fa-dollar-sign"></i> R$ {{ "%.2f"|format(servico.preco) }}
-                            </h4>
-                            <small class="text-muted">*Valor a combinar com o prestador</small>
-                        </div>
+                    {% elif servico.destaque %}
+                        <span class="badge bg-warning text-dark me-2">
+                            <i class="fas fa-star me-1"></i> Serviço em Destaque
+                        </span>
                     {% endif %}
+                    <span class="badge bg-info">
+                        <i class="fas fa-tag me-1"></i> {{ servico.categoria }}
+                    </span>
                 </div>
 
-                <div class="col-md-4">
-                    <!-- Informações do Prestador -->
-                    <div class="prestador-info">
-                        <h5 class="mb-3">
-                            <i class="fas fa-user-tie"></i> Sobre o Prestador
-                        </h5>
-                        <p><strong>Nome:</strong> {{ servico.prestador.nome }}</p>
-                        <p><strong>Telefone:</strong> {{ servico.prestador.telefone }}</p>
-                        <p><strong>Email:</strong> {{ servico.prestador.email }}</p>
-                        <p><strong>Membro desde:</strong> {{ servico.prestador.data_cadastro.strftime('%d/%m/%Y') }}</p>
-                        
-                        <hr>
-                        
-                        <p class="mb-0">
-                            <strong>Total de serviços:</strong> 
-                            {{ servico.prestador.servicos_oferecidos|length }}
-                        </p>
+                <h5 class="mb-3">Descrição do Serviço:</h5>
+                <p class="mb-4">{{ servico.descricao }}</p>
+
+                {% if servico.preco %}
+                    <div class="mb-4">
+                        <h4 class="text-success">
+                            <i class="fas fa-dollar-sign me-1"></i> R$ {{ "%.2f"|format(servico.preco) }}
+                        </h4>
+                        <small class="text-muted">*Valor a combinar com o prestador</small>
                     </div>
+                {% endif %}
+            </div>
 
-                    <!-- CORREÇÃO 1: Botão Chat movido para aqui -->
-                    {% if current_user.is_authenticated %}
-                        <div class="mt-3">
-                            <button onclick="iniciarChat({{ servico.prestador.id }}, '{{ servico.prestador.nome }}')" 
-                                    class="btn btn-info btn-chat">
-                                <i class="fas fa-comments"></i> Conversar com o Prestador
-                            </button>
-                        </div>
-                    {% endif %}
-
-                    <!-- Botão Solicitar (aparece apenas para clientes logados) -->
-                    {% if current_user.is_authenticated and current_user.tipo == 'cliente' %}
-                        <div class="mt-3">
-                            <button type="button" class="btn btn-success btn-solicitar" data-bs-toggle="modal" data-bs-target="#solicitarModal">
-                                <i class="fas fa-paper-plane"></i> Solicitar este Serviço
-                            </button>
-                        </div>
-                    {% elif not current_user.is_authenticated %}
-                        <div class="mt-3">
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i>
-                                <a href="/login">Faça login</a> como cliente para solicitar este serviço.
+            <div class="col-md-4">
+                <!-- Informações do Prestador -->
+                <div class="prestador-info">
+                    <h5 class="mb-3">
+                        <i class="fas fa-user-tie me-2"></i> Sobre o Prestador
+                    </h5>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        {% if servico.prestador.foto_url %}
+                            <img src="{{ servico.prestador.foto_url }}" class="rounded-circle me-3" width="60" height="60" style="object-fit: cover;">
+                        {% elif servico.prestador.foto_perfil and servico.prestador.foto_perfil != 'default.jpg' %}
+                            <img src="data:image/jpeg;base64,{{ servico.prestador.foto_perfil }}" class="rounded-circle me-3" width="60" height="60" style="object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                <span class="text-white fs-3">{{ servico.prestador.nome[0]|upper }}</span>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <strong>{{ servico.prestador.nome }}</strong>
+                            <div class="rating mt-1">
+                                {% set media = servico.prestador.media_avaliacoes() %}
+                                {% for i in range(5) %}
+                                    {% if i < media|round(0, 'floor') %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% elif i < media %}
+                                        <i class="fas fa-star-half-alt text-warning"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="text-muted ms-1">({{ servico.prestador.total_avaliacoes() }})</span>
                             </div>
                         </div>
-                    {% endif %}
-
-                    <!-- Botão Editar (aparece apenas para o prestador dono do serviço) -->
-                    <!-- Botão Editar (aparece apenas para o prestador dono do serviço) -->
-                    {% if current_user.is_authenticated and current_user.id == servico.prestador_id %}
-                        <div class="mt-3">
-                            <a href="/servico/editar/{{ servico.id }}" class="btn btn-warning w-100">
-                                <i class="fas fa-edit"></i> Editar Serviço
-                            </a>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Solicitação (apenas para clientes) -->
-    {% if current_user.is_authenticated and current_user.tipo == 'cliente' %}
-    <div class="modal fade" id="solicitarModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-paper-plane"></i> Solicitar Serviço
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="/solicitar/{{ servico.id }}" method="POST">
-                    <div class="modal-body">
-                        <p>Você está solicitando o serviço: <strong>{{ servico.titulo }}</strong></p>
-                        <p><small class="text-muted">Prestador: {{ servico.prestador.nome }}</small></p>
-                        
-                        <div class="mb-3">
-                            <label for="mensagem" class="form-label">Mensagem para o prestador (opcional):</label>
-                            <textarea class="form-control" id="mensagem" name="mensagem" rows="4" 
-                                      placeholder="Descreva suas necessidades, tire dúvidas ou combine detalhes..."></textarea>
-                        </div>
-                        
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i>
-                            O prestador será notificado da sua solicitação e entrará em contato em breve.
-                        </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-check"></i> Enviar Solicitação
+                    
+                    <p><strong><i class="fas fa-phone me-2"></i> Telefone:</strong> {{ servico.prestador.telefone or 'Não informado' }}</p>
+                    <p><strong><i class="fas fa-envelope me-2"></i> Email:</strong> {{ servico.prestador.email }}</p>
+                    <p><strong><i class="fas fa-calendar-alt me-2"></i> Membro desde:</strong> {{ servico.prestador.data_cadastro.strftime('%d/%m/%Y') }}</p>
+                    
+                    <hr>
+                    
+                    <p class="mb-0">
+                        <strong><i class="fas fa-briefcase me-2"></i> Total de serviços:</strong> 
+                        {{ servico.prestador.servicos_oferecidos|length }}
+                    </p>
+                </div>
+
+                <!-- Botão Chat -->
+                {% if current_user.is_authenticated %}
+                    <div class="mt-3">
+                        <button onclick="iniciarChat({{ servico.prestador.id }}, '{{ servico.prestador.nome }}')" 
+                                class="btn btn-info btn-chat">
+                            <i class="fas fa-comments me-2"></i> Conversar com o Prestador
                         </button>
                     </div>
-                </form>
+                {% endif %}
+
+                <!-- Botão Solicitar (aparece apenas para clientes logados) -->
+                {% if current_user.is_authenticated and current_user.tipo == 'cliente' %}
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-success btn-solicitar" data-bs-toggle="modal" data-bs-target="#solicitarModal">
+                            <i class="fas fa-paper-plane me-2"></i> Solicitar este Serviço
+                        </button>
+                    </div>
+                {% elif not current_user.is_authenticated %}
+                    <div class="mt-3">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <a href="{{ url_for('auth.login') }}" class="alert-link">Faça login</a> como cliente para solicitar este serviço.
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Botão Editar (aparece apenas para o prestador dono do serviço) -->
+                {% if current_user.is_authenticated and current_user.id == servico.prestador_id %}
+                    <div class="mt-3">
+                        <a href="{{ url_for('servico.editar', id=servico.id) }}" class="btn btn-warning w-100">
+                            <i class="fas fa-edit me-2"></i> Editar Serviço
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
-    {% endif %}
+</div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function iniciarChat(prestadorId, prestadorNome) {
-            if (prestadorId) {
-                // Salva o ID do prestador no sessionStorage
-                sessionStorage.setItem('chat_with_id', prestadorId);
-                sessionStorage.setItem('chat_with_name', prestadorNome);
-                window.location.href = '/chat';
-            }
+<!-- Modal de Solicitação (apenas para clientes) -->
+{% if current_user.is_authenticated and current_user.tipo == 'cliente' %}
+<div class="modal fade" id="solicitarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-paper-plane me-2"></i> Solicitar Serviço
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('servico.solicitar', servico_id=servico.id) }}" method="POST">
+                <div class="modal-body">
+                    <p>Você está solicitando o serviço: <strong>{{ servico.titulo }}</strong></p>
+                    <p><small class="text-muted">Prestador: {{ servico.prestador.nome }}</small></p>
+                    
+                    <div class="mb-3">
+                        <label for="mensagem" class="form-label">Mensagem para o prestador (opcional):</label>
+                        <textarea class="form-control" id="mensagem" name="mensagem" rows="4" 
+                                  placeholder="Descreva suas necessidades, tire dúvidas ou combine detalhes..."></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        O prestador será notificado da sua solicitação e entrará em contato em breve.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i> Enviar Solicitação
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .servico-detalhe {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    
+    .prestador-info {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 0;
+        border: 1px solid #e9ecef;
+    }
+    
+    .btn-solicitar {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        border: none;
+        padding: 12px 24px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        width: 100%;
+        transition: all 0.3s;
+    }
+    
+    .btn-solicitar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-chat {
+        background: linear-gradient(45deg, #17a2b8, #138496);
+        border: none;
+        padding: 12px 24px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        width: 100%;
+        color: white;
+        transition: all 0.3s;
+    }
+    
+    .btn-chat:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(23, 162, 184, 0.3);
+        color: white;
+    }
+    
+    .rating {
+        font-size: 0.85rem;
+    }
+    
+    @media (max-width: 768px) {
+        .servico-detalhe {
+            padding: 20px;
         }
         
-        // Verifica se o usuário quer ir para o chat com este prestador
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const abrirChat = urlParams.get('chat');
-            
-            if (abrirChat === 'true') {
-                const prestadorId = {{ servico.prestador.id }};
-                const prestadorNome = '{{ servico.prestador.nome }}';
-                iniciarChat(prestadorId, prestadorNome);
-            }
-        });
-    </script>
-</body>
-</html>
+        .btn-solicitar, .btn-chat {
+            padding: 10px 20px;
+        }
+    }
+</style>
+
+<script>
+    function iniciarChat(prestadorId, prestadorNome) {
+        if (prestadorId) {
+            sessionStorage.setItem('chat_with_id', prestadorId);
+            sessionStorage.setItem('chat_with_name', prestadorNome);
+            window.location.href = "{{ url_for('chat.index') }}";
+        }
+    }
+    
+    // Verifica se o usuário quer ir para o chat com este prestador
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const abrirChat = urlParams.get('chat');
+        
+        if (abrirChat === 'true') {
+            const prestadorId = {{ servico.prestador.id }};
+            const prestadorNome = '{{ servico.prestador.nome }}';
+            iniciarChat(prestadorId, prestadorNome);
+        }
+    });
+</script>
+{% endblock %}

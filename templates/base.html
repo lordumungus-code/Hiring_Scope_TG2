@@ -8,13 +8,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="/">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
                 <i class="fas fa-tools me-2"></i> PrestaServiços
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -23,7 +24,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/servicos">
+                        <a class="nav-link" href="{{ url_for('servico.lista') }}">
                             <i class="fas fa-search me-1"></i> Serviços
                         </a>
                     </li>
@@ -31,7 +32,7 @@
                     {% if current_user.is_authenticated %}
                         <!-- Chat com sino de notificação -->
                         <li class="nav-item">
-                            <a class="nav-link chat-link" href="/chat">
+                            <a class="nav-link chat-link" href="{{ url_for('chat.index') }}">
                                 <i class="fas fa-comments me-1"></i> Chat
                                 <span class="notification-badge" id="chatNotificationBadge" style="display: none;">0</span>
                             </a>
@@ -61,7 +62,7 @@
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li>
-                                    <a class="dropdown-item text-center" href="/chat">
+                                    <a class="dropdown-item text-center" href="{{ url_for('chat.index') }}">
                                         <i class="fas fa-comments me-1"></i> Ver todas as mensagens
                                     </a>
                                 </li>
@@ -70,7 +71,7 @@
                         
                         <!-- Dashboard -->
                         <li class="nav-item">
-                            <a class="nav-link" href="/dashboard">
+                            <a class="nav-link" href="{{ url_for('dashboard.index') }}">
                                 <i class="fas fa-tachometer-alt me-1"></i> Dashboard
                             </a>
                         </li>
@@ -111,25 +112,25 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item" href="/perfil">
+                                    <a class="dropdown-item" href="{{ url_for('perfil.index') }}">
                                         <i class="fas fa-user me-2"></i> Meu Perfil
                                     </a>
                                 </li>
                                 {% if current_user.tipo == 'prestador' %}
                                 <li>
-                                    <a class="dropdown-item" href="/meus-servicos">
+                                    <a class="dropdown-item" href="{{ url_for('servico.meus_servicos') }}">
                                         <i class="fas fa-briefcase me-2"></i> Meus Serviços
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="/cadastro/servico">
+                                    <a class="dropdown-item" href="{{ url_for('servico.cadastro') }}">
                                         <i class="fas fa-plus-circle me-2"></i> Novo Serviço
                                     </a>
                                 </li>
                                 {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item text-danger" href="/logout">
+                                    <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
                                         <i class="fas fa-sign-out-alt me-2"></i> Sair
                                     </a>
                                 </li>
@@ -138,12 +139,12 @@
                         
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/login">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">
                                 <i class="fas fa-sign-in-alt me-1"></i> Login
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/cadastro">
+                            <a class="nav-link" href="{{ url_for('auth.cadastro') }}">
                                 <i class="fas fa-user-plus me-1"></i> Cadastro
                             </a>
                         </li>
@@ -195,13 +196,13 @@
                 <div class="col-md-2 mb-4 mb-md-0">
                     <h5>Links Rápidos</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="/"><i class="fas fa-home me-2"></i>Início</a></li>
-                        <li class="mb-2"><a href="/servicos"><i class="fas fa-search me-2"></i>Serviços</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.index') }}"><i class="fas fa-home me-2"></i>Início</a></li>
+                        <li class="mb-2"><a href="{{ url_for('servico.lista') }}"><i class="fas fa-search me-2"></i>Serviços</a></li>
                         {% if current_user.is_authenticated %}
-                            <li class="mb-2"><a href="/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                            <li class="mb-2"><a href="{{ url_for('dashboard.index') }}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
                         {% else %}
-                            <li class="mb-2"><a href="/cadastro"><i class="fas fa-user-plus me-2"></i>Cadastro</a></li>
-                            <li class="mb-2"><a href="/login"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
+                            <li class="mb-2"><a href="{{ url_for('auth.cadastro') }}"><i class="fas fa-user-plus me-2"></i>Cadastro</a></li>
+                            <li class="mb-2"><a href="{{ url_for('auth.login') }}"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
                         {% endif %}
                     </ul>
                 </div>
@@ -290,7 +291,7 @@
             
             const notifItem = document.createElement('div');
             notifItem.className = 'notification-item unread';
-            notifItem.onclick = () => window.location.href = '/chat';
+            notifItem.onclick = () => window.location.href = "{{ url_for('chat.index') }}";
             
             const time = new Date().toLocaleTimeString();
             
@@ -398,7 +399,7 @@
         
         // Função para atualizar contador de não lidas
         function updateUnreadCount() {
-            fetch('/chat/nao-lidas')
+            fetch("{{ url_for('chat.nao_lidas') }}")
                 .then(response => response.json())
                 .then(data => {
                     if (data && data.count !== undefined) {

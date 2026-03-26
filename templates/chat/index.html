@@ -5,11 +5,16 @@
 {% block content %}
 <div class="chat-container">
     <!-- Sidebar com usuários -->
-    <div class="users-sidebar">
+    <div class="users-sidebar" id="usersSidebar">
         <div class="sidebar-header">
-            <h5 class="mb-0">
-                <i class="fas fa-users me-2"></i> Conversas
-            </h5>
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-users me-2"></i> Conversas
+                </h5>
+                <button class="btn-collapse-sidebar" id="collapseSidebarBtn" title="Recolher">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
             <div class="search-users mt-2">
                 <input type="text" class="form-control form-control-sm" placeholder="🔍 Buscar conversas..." id="searchUsers">
             </div>
@@ -42,12 +47,21 @@
                 </div>
             {% endif %}
         </div>
+        <div class="sidebar-footer">
+            <button class="btn-expand-sidebar" id="expandSidebarBtn" style="display: none;" title="Expandir">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Área principal do chat -->
-    <div class="chat-main">
+    <div class="chat-main" id="chatMain">
         <div class="chat-header" id="chat-header">
             <div class="chat-user-info">
+                <!-- Botão expandir quando sidebar estiver recolhida -->
+                <button class="btn-expand-mobile" id="expandMobileBtn" style="display: none;" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <div class="chat-user-avatar" id="chat-avatar">
                     <div class="avatar-circle bg-primary text-white" id="chat-avatar-initial">?</div>
                 </div>
@@ -57,7 +71,7 @@
                 </div>
             </div>
             <div class="chat-actions">
-                <button class="btn btn-icon" onclick="clearChat()" title="Limpar conversa">
+                <button class="btn-icon" onclick="clearChat()" title="Limpar conversa">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
@@ -98,6 +112,7 @@
         overflow: hidden;
         box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         background: white;
+        position: relative;
     }
 
     /* Sidebar */
@@ -107,8 +122,174 @@
         border-right: 1px solid #e9ecef;
         display: flex;
         flex-direction: column;
+        transition: width 0.3s ease, min-width 0.3s ease;
+        position: relative;
+        z-index: 10;
     }
 
+    /* Sidebar recolhida */
+    .users-sidebar.collapsed {
+        width: 60px;
+        min-width: 60px;
+    }
+
+    .users-sidebar.collapsed .sidebar-header h5,
+    .users-sidebar.collapsed .search-users,
+    .users-sidebar.collapsed .user-info,
+    .users-sidebar.collapsed .user-badge,
+    .users-sidebar.collapsed .last-message {
+        display: none;
+    }
+
+    .users-sidebar.collapsed .user-item {
+        justify-content: center;
+        padding: 12px 0;
+    }
+
+    .users-sidebar.collapsed .user-avatar {
+        margin-right: 0;
+    }
+
+    .users-sidebar.collapsed .avatar-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .users-sidebar.collapsed .status-indicator {
+        right: 0;
+        bottom: 0;
+    }
+
+    .users-sidebar.collapsed .sidebar-footer {
+        display: flex;
+        justify-content: center;
+        padding: 15px 0;
+    }
+
+    .users-sidebar.collapsed .btn-collapse-sidebar {
+        display: none;
+    }
+
+    .users-sidebar.collapsed .btn-expand-sidebar {
+        display: inline-flex !important;
+    }
+
+    /* Botão de colapsar */
+    .btn-collapse-sidebar {
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+    .btn-collapse-sidebar:hover {
+        background: #e9ecef;
+        color: #007bff;
+    }
+
+    .btn-expand-sidebar {
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: all 0.3s;
+        display: none;
+    }
+
+    .btn-expand-sidebar:hover {
+        background: #e9ecef;
+        color: #007bff;
+    }
+
+    .sidebar-footer {
+        padding: 15px;
+        border-top: 1px solid #e9ecef;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    /* Botão expandir mobile (quando sidebar recolhida) */
+    .btn-expand-mobile {
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: all 0.3s;
+        margin-right: 10px;
+        display: none;
+    }
+
+    .btn-expand-mobile:hover {
+        background: #e9ecef;
+        color: #007bff;
+    }
+
+    /* Quando sidebar recolhida, mostra botão expandir no header */
+    .users-sidebar.collapsed ~ .chat-main .btn-expand-mobile {
+        display: inline-flex;
+    }
+
+    /* Chat Main */
+    .chat-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    /* Chat Header */
+    .chat-header {
+        padding: 15px 25px;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+    }
+
+    .chat-user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .chat-user-avatar .avatar-circle {
+        width: 50px;
+        height: 50px;
+        font-size: 1.3rem;
+    }
+
+    .chat-user-details h5 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .btn-icon {
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+    .btn-icon:hover {
+        background: #f8f9fa;
+        color: #dc3545;
+    }
+
+    /* Restante dos estilos mantém-se igual */
     .sidebar-header {
         padding: 20px;
         background: white;
@@ -127,7 +308,6 @@
         font-size: 14px;
     }
 
-    /* Users List */
     .users-list {
         flex: 1;
         overflow-y: auto;
@@ -224,57 +404,6 @@
         text-align: center;
     }
 
-    /* Chat Main */
-    .chat-main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        background: white;
-    }
-
-    /* Chat Header */
-    .chat-header {
-        padding: 15px 25px;
-        border-bottom: 1px solid #e9ecef;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: white;
-    }
-
-    .chat-user-info {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .chat-user-avatar .avatar-circle {
-        width: 50px;
-        height: 50px;
-        font-size: 1.3rem;
-    }
-
-    .chat-user-details h5 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 2px;
-    }
-
-    .btn-icon {
-        background: none;
-        border: none;
-        color: #6c757d;
-        cursor: pointer;
-        padding: 8px;
-        border-radius: 8px;
-        transition: all 0.3s;
-    }
-
-    .btn-icon:hover {
-        background: #f8f9fa;
-        color: #dc3545;
-    }
-
     /* Chat Messages */
     .chat-messages {
         flex: 1;
@@ -356,7 +485,6 @@
         justify-content: flex-start;
     }
 
-    /* Typing Indicator */
     .typing-indicator {
         padding: 8px 25px;
         color: #6c757d;
@@ -366,7 +494,6 @@
         border-top: 1px solid #e9ecef;
     }
 
-    /* Chat Input */
     .chat-input-area {
         padding: 15px 25px;
         border-top: 1px solid #e9ecef;
@@ -399,7 +526,6 @@
         text-align: center;
     }
 
-    /* Empty State */
     .empty-chat {
         text-align: center;
         padding: 40px 20px;
@@ -431,27 +557,49 @@
     /* Responsive */
     @media (max-width: 768px) {
         .users-sidebar {
-            width: 280px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 20;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
         }
-        
-        .user-item {
-            padding: 10px 15px;
+
+        .users-sidebar.collapsed {
+            transform: translateX(-100%);
+            width: 320px;
         }
-        
-        .message-content {
-            max-width: 85%;
+
+        .users-sidebar.collapsed .sidebar-header h5,
+        .users-sidebar.collapsed .search-users,
+        .users-sidebar.collapsed .user-info,
+        .users-sidebar.collapsed .user-badge,
+        .users-sidebar.collapsed .last-message {
+            display: block;
         }
-        
-        .chat-header {
-            padding: 12px 15px;
+
+        .users-sidebar.collapsed .user-item {
+            justify-content: flex-start;
+            padding: 12px 20px;
         }
-        
-        .chat-messages {
-            padding: 15px;
+
+        .users-sidebar.collapsed .user-avatar {
+            margin-right: 12px;
         }
-        
-        .chat-input-area {
-            padding: 12px 15px;
+
+        .users-sidebar.collapsed .avatar-circle {
+            width: 48px;
+            height: 48px;
+            font-size: 1.2rem;
+        }
+
+        .users-sidebar.collapsed .btn-expand-sidebar {
+            display: none !important;
+        }
+
+        .btn-expand-mobile {
+            display: inline-flex !important;
         }
     }
 </style>
@@ -462,6 +610,49 @@
     let typingTimer;
     let currentUserId = {% if current_user.is_authenticated %}{{ current_user.id }}{% else %}null{% endif %};
     let socket = null;
+    
+    // Função para recolher/expandir sidebar
+    function toggleSidebar() {
+        const sidebar = document.getElementById('usersSidebar');
+        const collapseBtn = document.getElementById('collapseSidebarBtn');
+        const expandBtn = document.getElementById('expandSidebarBtn');
+        
+        sidebar.classList.toggle('collapsed');
+        
+        // Salvar estado no localStorage
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        localStorage.setItem('chatSidebarCollapsed', isCollapsed);
+        
+        // Ajustar exibição dos botões
+        if (collapseBtn && expandBtn) {
+            if (isCollapsed) {
+                collapseBtn.style.display = 'none';
+                expandBtn.style.display = 'inline-flex';
+            } else {
+                collapseBtn.style.display = 'inline-flex';
+                expandBtn.style.display = 'none';
+            }
+        }
+        
+        // Ajustar largura do chat main
+        setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+        }, 300);
+    }
+    
+    // Restaurar estado da sidebar
+    function restoreSidebarState() {
+        const sidebar = document.getElementById('usersSidebar');
+        const collapseBtn = document.getElementById('collapseSidebarBtn');
+        const expandBtn = document.getElementById('expandSidebarBtn');
+        const isCollapsed = localStorage.getItem('chatSidebarCollapsed') === 'true';
+        
+        if (isCollapsed && sidebar) {
+            sidebar.classList.add('collapsed');
+            if (collapseBtn) collapseBtn.style.display = 'none';
+            if (expandBtn) expandBtn.style.display = 'inline-flex';
+        }
+    }
     
     // Inicializar socket
     if (currentUserId) {
@@ -518,21 +709,19 @@
         });
     }
     
+    // ... (restante das funções selectUser, loadChatHistory, etc. mantém-se igual)
     function selectUser(userId, userName) {
         if (!userId) return;
         
         selectedUserId = parseInt(userId);
         selectedUserName = userName;
         
-        // Atualiza header
         document.getElementById('chat-with').textContent = userName;
         document.getElementById('user-status').textContent = 'Conversa ativa';
         
-        // Atualiza avatar
         const initial = userName.charAt(0).toUpperCase();
         document.getElementById('chat-avatar-initial').textContent = initial;
         
-        // Habilita input
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
         
@@ -543,7 +732,6 @@
         }
         if (sendButton) sendButton.disabled = false;
         
-        // Marca usuário como ativo na sidebar
         document.querySelectorAll('.user-item').forEach(item => {
             item.classList.remove('active');
             if (item.dataset.userId == userId) {
@@ -551,14 +739,10 @@
             }
         });
         
-        // Esconde mensagem de boas-vindas
         const welcomeMsg = document.querySelector('.welcome-message');
         if (welcomeMsg) welcomeMsg.style.display = 'none';
         
-        // Carrega histórico
         loadChatHistory(userId);
-        
-        // Marca mensagens como lidas
         markMessagesAsRead(userId);
     }
     
@@ -578,7 +762,6 @@
                         }
                     });
                 } else {
-                    // Mensagem de boas-vindas
                     const welcomeDiv = document.createElement('div');
                     welcomeDiv.className = 'text-center text-muted my-4';
                     welcomeDiv.innerHTML = `
@@ -600,7 +783,6 @@
         const chatMessages = document.getElementById('chat-messages');
         if (!chatMessages) return;
         
-        // Remove mensagem de boas-vindas se existir
         const welcomeMsg = chatMessages.querySelector('.text-center.text-muted.my-4');
         if (welcomeMsg) welcomeMsg.remove();
         
@@ -659,7 +841,6 @@
             remetente_id: remetenteId
         });
         
-        // Remove badge de não lidas
         const unreadBadge = document.getElementById(`unread-${remetenteId}`);
         if (unreadBadge) unreadBadge.style.display = 'none';
     }
@@ -674,7 +855,6 @@
     
     function clearChat() {
         if (selectedUserId && confirm('Limpar todas as mensagens desta conversa?')) {
-            // Aqui você pode implementar a lógica para limpar o chat
             document.getElementById('chat-messages').innerHTML = '';
             const welcomeDiv = document.createElement('div');
             welcomeDiv.className = 'text-center text-muted my-4';
@@ -697,7 +877,6 @@
         }
     }
     
-    // Buscar usuários
     document.getElementById('searchUsers')?.addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
         const users = document.querySelectorAll('.user-item');
@@ -712,11 +891,19 @@
         });
     });
     
-    // Ajustar altura do textarea
     document.getElementById('message-input')?.addEventListener('input', adjustTextareaHeight);
     
-    // Event listeners
     document.addEventListener('DOMContentLoaded', function() {
+        // Restaurar estado da sidebar
+        restoreSidebarState();
+        
+        // Configurar botões
+        const collapseBtn = document.getElementById('collapseSidebarBtn');
+        const expandBtn = document.getElementById('expandSidebarBtn');
+        
+        if (collapseBtn) collapseBtn.onclick = toggleSidebar;
+        if (expandBtn) expandBtn.onclick = toggleSidebar;
+        
         const messageInput = document.getElementById('message-input');
         if (messageInput) {
             messageInput.addEventListener('input', function() {
@@ -746,7 +933,6 @@
             });
         }
         
-        // Verificar se veio de outra página
         const chatWithId = sessionStorage.getItem('chat_with_id');
         const chatWithName = sessionStorage.getItem('chat_with_name');
         
@@ -760,7 +946,6 @@
                 if (userElement) {
                     userElement.click();
                 } else {
-                    // Nova conversa
                     selectUser(parseInt(chatWithId), chatWithName || 'Usuário');
                 }
             }, 500);

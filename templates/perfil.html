@@ -7,8 +7,8 @@
     <div class="row">
         <div class="col-md-4 mb-4">
             <!-- Card do Perfil -->
-            <div class="card">
-                <div class="card-header bg-primary text-white">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4">
                     <h5 class="mb-0">
                         <i class="fas fa-user-circle me-2"></i> Meu Perfil
                     </h5>
@@ -51,8 +51,8 @@
             
             <!-- Card de Estatísticas (apenas para prestadores) -->
             {% if usuario.tipo == 'prestador' %}
-            <div class="card mt-3">
-                <div class="card-header bg-success text-white">
+            <div class="card mt-3 shadow-sm border-0 rounded-4">
+                <div class="card-header bg-success text-white rounded-top-4">
                     <h5 class="mb-0">
                         <i class="fas fa-chart-line me-2"></i> Estatísticas
                     </h5>
@@ -83,14 +83,14 @@
         
         <div class="col-md-8">
             <!-- Formulário de Edição -->
-            <div class="card">
-                <div class="card-header bg-primary text-white">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4">
                     <h5 class="mb-0">
                         <i class="fas fa-edit me-2"></i> Editar Perfil
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data" id="perfilForm">
+                    <form method="POST" enctype="multipart/form-data" action="{{ url_for('perfil.index') }}" id="perfilForm">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="nome" class="form-label">
@@ -122,11 +122,22 @@
                                 <label for="foto_perfil" class="form-label">
                                     <i class="fas fa-image me-1"></i> Foto de Perfil
                                 </label>
-                                <input type="file" class="form-control" id="foto_perfil" name="foto_perfil" 
-                                       accept="image/*" onchange="previewFoto(event)">
-                                <small class="text-muted">Formatos: JPG, PNG. Máx: 5MB</small>
-                                <div id="fotoPreview" class="mt-2 text-center" style="display: none;">
-                                    <img id="previewImg" src="#" alt="Preview" style="max-width: 100px; max-height: 100px; border-radius: 50%;">
+                                <div class="image-upload-area">
+                                    <input type="file" class="d-none" id="foto_perfil" name="foto_perfil" 
+                                           accept="image/*" onchange="previewFoto(event)">
+                                    <div class="upload-placeholder text-center py-3" onclick="document.getElementById('foto_perfil').click()">
+                                        <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                                        <p class="mb-0 small">Clique para alterar a foto</p>
+                                        <small class="text-muted">JPG, PNG | Máx: 5MB</small>
+                                    </div>
+                                </div>
+                                <div id="fotoPreview" class="mt-3 text-center" style="display: none;">
+                                    <div class="position-relative d-inline-block">
+                                        <img id="previewImg" src="#" alt="Preview" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #28a745;">
+                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle" onclick="removerFoto()" style="transform: translate(30%, -30%);">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -195,7 +206,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save me-2"></i> Salvar Alterações
                             </button>
-                            <a href="/dashboard" class="btn btn-secondary">
+                            <a href="{{ url_for('dashboard.index') }}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i> Cancelar
                             </a>
                         </div>
@@ -204,8 +215,8 @@
             </div>
             
             <!-- Card de Segurança -->
-            <div class="card mt-4">
-                <div class="card-header bg-warning text-dark">
+            <div class="card mt-4 shadow-sm border-0 rounded-4">
+                <div class="card-header bg-warning text-dark rounded-top-4">
                     <h5 class="mb-0">
                         <i class="fas fa-lock me-2"></i> Segurança
                     </h5>
@@ -218,7 +229,7 @@
                             </button>
                         </div>
                         <div class="col-md-6">
-                            <a href="/logout" class="btn btn-outline-danger w-100">
+                            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger w-100">
                                 <i class="fas fa-sign-out-alt me-2"></i> Sair da Conta
                             </a>
                         </div>
@@ -239,7 +250,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/alterar-senha" method="POST">
+            <form action="{{ url_for('perfil.alterar_senha') }}" method="POST">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="senha_atual" class="form-label">Senha Atual</label>
@@ -265,55 +276,87 @@
 
 <script>
     // Máscara para telefone
-    document.getElementById('telefone').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length <= 10) {
-            value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-        } else {
-            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-        }
-        e.target.value = value;
-    });
+    const telefoneInput = document.getElementById('telefone');
+    if (telefoneInput) {
+        telefoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length <= 10) {
+                value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+            } else {
+                value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            }
+            e.target.value = value;
+        });
+    }
     
     // Preview da foto
     function previewFoto(event) {
         const input = event.target;
         const previewDiv = document.getElementById('fotoPreview');
         const previewImg = document.getElementById('previewImg');
+        const uploadPlaceholder = document.querySelector('.upload-placeholder');
         
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 previewImg.src = e.target.result;
                 previewDiv.style.display = 'block';
+                if (uploadPlaceholder) uploadPlaceholder.style.display = 'none';
             }
             reader.readAsDataURL(input.files[0]);
         }
     }
     
+    function removerFoto() {
+        const input = document.getElementById('foto_perfil');
+        const previewDiv = document.getElementById('fotoPreview');
+        const uploadPlaceholder = document.querySelector('.upload-placeholder');
+        
+        input.value = '';
+        previewDiv.style.display = 'none';
+        if (uploadPlaceholder) uploadPlaceholder.style.display = 'block';
+    }
+    
     // Validação do tamanho da foto
-    document.getElementById('foto_perfil').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file && file.size > 5 * 1024 * 1024) {
-            alert('A imagem deve ter no máximo 5MB');
-            this.value = '';
-            document.getElementById('fotoPreview').style.display = 'none';
-        }
-    });
+    const fotoInput = document.getElementById('foto_perfil');
+    if (fotoInput) {
+        fotoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.size > 5 * 1024 * 1024) {
+                alert('A imagem deve ter no máximo 5MB');
+                this.value = '';
+                document.getElementById('fotoPreview').style.display = 'none';
+                const uploadPlaceholder = document.querySelector('.upload-placeholder');
+                if (uploadPlaceholder) uploadPlaceholder.style.display = 'block';
+            }
+        });
+    }
     
     // Validação de senha no modal
-    document.querySelector('#alterarSenhaModal form').addEventListener('submit', function(e) {
-        const novaSenha = document.getElementById('nova_senha').value;
-        const confirmarSenha = document.getElementById('confirmar_senha').value;
-        
-        if (novaSenha !== confirmarSenha) {
-            e.preventDefault();
-            alert('As senhas não coincidem!');
-        }
-    });
+    const modalForm = document.querySelector('#alterarSenhaModal form');
+    if (modalForm) {
+        modalForm.addEventListener('submit', function(e) {
+            const novaSenha = document.getElementById('nova_senha').value;
+            const confirmarSenha = document.getElementById('confirmar_senha').value;
+            
+            if (novaSenha !== confirmarSenha) {
+                e.preventDefault();
+                alert('As senhas não coincidem!');
+            }
+        });
+    }
 </script>
 
 <style>
+    .card {
+        border-radius: 20px !important;
+        overflow: hidden;
+    }
+    
+    .rounded-top-4 {
+        border-radius: 20px 20px 0 0 !important;
+    }
+    
     .form-control:focus {
         border-color: #667eea;
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
@@ -322,11 +365,35 @@
     .btn-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none;
+        transition: all 0.3s;
     }
     
     .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .image-upload-area {
+        cursor: pointer;
+    }
+    
+    .upload-placeholder {
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        background: #f8f9fa;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    
+    .upload-placeholder:hover {
+        border-color: #28a745;
+        background: #f0fff4;
+    }
+    
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.5rem;
+        }
     }
 </style>
 {% endblock %}

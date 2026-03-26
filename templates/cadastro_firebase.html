@@ -6,53 +6,132 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-success text-white">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-success text-white text-center rounded-top-4 py-3">
                     <h4 class="mb-0">
                         <i class="fab fa-google me-2"></i> Completar Cadastro
                     </h4>
+                    <p class="mb-0 mt-1 small">Complete suas informações para continuar</p>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
+                    <!-- Informações do Google -->
                     <div class="text-center mb-4">
-                        <i class="fas fa-user-circle fa-4x text-primary"></i>
-                        <h5 class="mt-2">{{ usuario.nome }}</h5>
-                        <p class="text-muted">{{ usuario.email }}</p>
+                        {% if usuario.foto %}
+                            <img src="{{ usuario.foto }}" class="rounded-circle mb-3" width="80" height="80" style="object-fit: cover; border: 3px solid #28a745;">
+                        {% else %}
+                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-user-circle fa-4x text-white"></i>
+                            </div>
+                        {% endif %}
+                        <h5 class="mt-2 mb-1">{{ usuario.nome }}</h5>
+                        <p class="text-muted small mb-0">{{ usuario.email }}</p>
                     </div>
                     
-                    <form method="POST">
+                    <form method="POST" action="{{ url_for('auth.cadastro_firebase') }}">
+                        <!-- Telefone -->
                         <div class="mb-3">
-                            <label for="telefone" class="form-label">Telefone</label>
-                            <input type="tel" class="form-control" id="telefone" name="telefone" required>
-                            <small class="text-muted">Ex: (11) 99999-9999</small>
+                            <label for="telefone" class="form-label fw-semibold">
+                                <i class="fas fa-phone me-1 text-success"></i> Telefone
+                            </label>
+                            <input type="tel" class="form-control form-control-lg" id="telefone" name="telefone" 
+                                   placeholder="(11) 99999-9999" required>
+                            <small class="text-muted">Digite seu telefone com DDD</small>
                         </div>
                         
-                        <div class="mb-3">
-                            <label class="form-label">Tipo de Conta</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tipo" id="cliente" value="cliente" checked>
-                                <label class="form-check-label" for="cliente">
-                                    <i class="fas fa-user"></i> Cliente - Quero contratar serviços
-                                </label>
+                        <!-- Tipo de Conta -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-user-tag me-1 text-success"></i> Tipo de Conta
+                            </label>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="card border-2 h-100 user-type-card" onclick="selectType('cliente')" id="card-cliente">
+                                        <div class="card-body text-center py-3">
+                                            <i class="fas fa-user fa-2x text-primary mb-2"></i>
+                                            <h6 class="mb-1">Cliente</h6>
+                                            <small class="text-muted">Quero contratar serviços</small>
+                                            <div class="selected-check d-none text-success mt-2">
+                                                <i class="fas fa-check-circle"></i> Selecionado
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card border-2 h-100 user-type-card" onclick="selectType('prestador')" id="card-prestador">
+                                        <div class="card-body text-center py-3">
+                                            <i class="fas fa-briefcase fa-2x text-success mb-2"></i>
+                                            <h6 class="mb-1">Prestador</h6>
+                                            <small class="text-muted">Quero oferecer serviços</small>
+                                            <div class="selected-check d-none text-success mt-2">
+                                                <i class="fas fa-check-circle"></i> Selecionado
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tipo" id="prestador" value="prestador">
-                                <label class="form-check-label" for="prestador">
-                                    <i class="fas fa-briefcase"></i> Prestador - Quero oferecer serviços
-                                </label>
-                            </div>
+                            <input type="hidden" name="tipo" id="tipo" value="cliente">
                         </div>
                         
-                        <button type="submit" class="btn btn-success w-100">
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-semibold">
                             <i class="fas fa-check-circle me-2"></i> Completar Cadastro
                         </button>
                     </form>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Suas informações serão mantidas em segurança
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+    .user-type-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-color: #dee2e6 !important;
+    }
+    
+    .user-type-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .user-type-card.selected {
+        border-color: #28a745 !important;
+        background-color: #f0fff4;
+    }
+    
+    .user-type-card.selected .selected-check {
+        display: block !important;
+    }
+    
+    .form-control-lg {
+        border-radius: 12px;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s;
+    }
+    
+    .form-control-lg:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    .card {
+        border-radius: 16px !important;
+    }
+    
+    .rounded-top-4 {
+        border-radius: 16px 16px 0 0 !important;
+    }
+</style>
+
 <script>
+    // Máscara para telefone
     document.getElementById('telefone').addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length <= 10) {
@@ -61,6 +140,28 @@
             value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
         }
         e.target.value = value;
+    });
+    
+    // Função para selecionar tipo de conta
+    function selectType(type) {
+        const cardCliente = document.getElementById('card-cliente');
+        const cardPrestador = document.getElementById('card-prestador');
+        const tipoInput = document.getElementById('tipo');
+        
+        if (type === 'cliente') {
+            cardCliente.classList.add('selected');
+            cardPrestador.classList.remove('selected');
+            tipoInput.value = 'cliente';
+        } else {
+            cardPrestador.classList.add('selected');
+            cardCliente.classList.remove('selected');
+            tipoInput.value = 'prestador';
+        }
+    }
+    
+    // Inicializar com cliente selecionado
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('card-cliente').classList.add('selected');
     });
 </script>
 {% endblock %}

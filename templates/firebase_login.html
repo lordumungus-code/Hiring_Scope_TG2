@@ -3,19 +3,24 @@
 {% block title %}Login com Google - PrestaServiços{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white text-center">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white text-center py-3 rounded-top-4">
                     <h4 class="mb-0">
                         <i class="fab fa-google me-2"></i> Login com Google
                     </h4>
+                    <p class="mb-0 mt-1 small opacity-75">Acesse sua conta de forma rápida e segura</p>
                 </div>
-                <div class="card-body text-center py-5">
-                    <p>Clique no botão abaixo para fazer login com sua conta Google</p>
+                <div class="card-body text-center py-5 px-4">
+                    <div class="mb-4">
+                        <i class="fab fa-google fa-4x text-danger"></i>
+                    </div>
                     
-                    <button id="google-login-btn" class="btn btn-danger btn-lg px-5 mt-3">
+                    <p class="mb-3">Clique no botão abaixo para fazer login com sua conta Google</p>
+                    
+                    <button id="google-login-btn" class="btn btn-danger btn-lg px-5 mt-2 rounded-pill">
                         <i class="fab fa-google me-2"></i> Continuar com Google
                     </button>
                     
@@ -23,14 +28,14 @@
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Carregando...</span>
                         </div>
-                        <p class="mt-2">Aguarde...</p>
+                        <p class="mt-2">Aguarde, estamos redirecionando...</p>
                     </div>
                     
                     <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
                     
                     <hr class="my-4">
                     
-                    <a href="/login" class="text-decoration-none">
+                    <a href="{{ url_for('auth.login') }}" class="text-decoration-none">
                         <i class="fas fa-arrow-left me-1"></i> Voltar para login tradicional
                     </a>
                 </div>
@@ -44,26 +49,27 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
 <script>
-    // Configuração do Firebase - use seus dados
+    // Configuração do Firebase
     const firebaseConfig = {
-        apiKey: "AIzaSyANfk1Nlat3JjepQq7lClbmu6xImva_W6Y",
-        authDomain: "hiring-scope.firebaseapp.com",
-        projectId: "hiring-scope",
-        storageBucket: "hiring-scope.firebasestorage.app",
-        messagingSenderId: "400656444315",
-        appId: "1:400656444315:web:cff12e5a8a7593fde20f3e"
+        apiKey: "{{ config.FIREBASE_API_KEY or 'AIzaSyANfk1Nlat3JjepQq7lClbmu6xImva_W6Y' }}",
+        authDomain: "{{ config.FIREBASE_AUTH_DOMAIN or 'hiring-scope.firebaseapp.com' }}",
+        projectId: "{{ config.FIREBASE_PROJECT_ID or 'hiring-scope' }}",
+        storageBucket: "{{ config.FIREBASE_STORAGE_BUCKET or 'hiring-scope.firebasestorage.app' }}",
+        messagingSenderId: "{{ config.FIREBASE_MESSAGING_SENDER_ID or '400656444315' }}",
+        appId: "{{ config.FIREBASE_APP_ID or '1:400656444315:web:cff12e5a8a7593fde20f3e' }}"
     };
     
     // Inicializa Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     
-    // Botão de login
+    // Elementos DOM
     const loginBtn = document.getElementById('google-login-btn');
     const loading = document.getElementById('loading');
     const errorDiv = document.getElementById('error-message');
     
-    loginBtn.addEventListener('click', function() {
+    // Função para processar o login
+    async function processLogin() {
         loginBtn.disabled = true;
         loading.style.display = 'block';
         errorDiv.style.display = 'none';
@@ -72,52 +78,131 @@
         provider.addScope('profile');
         provider.addScope('email');
         
-        // Usar popup
-        auth.signInWithPopup(provider)
-            .then((result) => {
-                // Pega o token ID do usuário
+        try {
+            // Tenta login com popup
+            const result = await auth.signInWithPopup(provider);
+            const idToken = await result.user.getIdToken();
+            
+            // Envia token para o backend
+            const response = await fetch("{{ url_for('auth.firebase_callback') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ idToken: idToken })
+            });
+            
+            const data = await response.json();
+            
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else if (data.success) {
+                window.location.href = "{{ url_for('main.index') }}";
+            } else {
+                throw new Error(data.error || 'Erro desconhecido');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            loginBtn.disabled = false;
+            loading.style.display = 'none';
+            errorDiv.style.display = 'block';
+            
+            if (error.code === 'auth/popup-blocked') {
+                errorDiv.innerHTML = `
+                    <strong>⚠️ Popup bloqueado!</strong><br>
+                    O navegador bloqueou a janela de login. 
+                    <a href="#" id="redirect-link" class="alert-link">Clique aqui para continuar</a>.
+                `;
+                document.getElementById('redirect-link').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    auth.signInWithRedirect(provider);
+                });
+            } else if (error.code === 'auth/network-request-failed') {
+                errorDiv.innerHTML = `
+                    <strong>🌐 Erro de conexão!</strong><br>
+                    Verifique sua internet e tente novamente.
+                `;
+            } else {
+                errorDiv.textContent = 'Erro: ' + (error.message || 'Tente novamente mais tarde');
+            }
+        }
+    }
+    
+    // Processar resultado do redirecionamento (caso tenha vindo de redirect)
+    auth.getRedirectResult()
+        .then((result) => {
+            if (result.user) {
                 return result.user.getIdToken();
-            })
-            .then((idToken) => {
-                // Envia o token para o backend
-                return fetch('/auth/firebase/callback', {
+            }
+            return null;
+        })
+        .then((idToken) => {
+            if (idToken) {
+                return fetch("{{ url_for('auth.firebase_callback') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ idToken: idToken })
                 });
-            })
-            .then(response => response.json())
-            .then(data => {
+            }
+            return null;
+        })
+        .then(response => response?.json())
+        .then(data => {
+            if (data) {
                 if (data.redirect) {
                     window.location.href = data.redirect;
                 } else if (data.success) {
-                    window.location.href = '/';
-                } else {
-                    throw new Error(data.error || 'Erro desconhecido');
+                    window.location.href = "{{ url_for('main.index') }}";
                 }
-            })
-            .catch((error) => {
-                console.error('Erro:', error);
-                loginBtn.disabled = false;
-                loading.style.display = 'none';
-                errorDiv.style.display = 'block';
-                
-                if (error.code === 'auth/popup-blocked') {
-                    errorDiv.innerHTML = `
-                        <strong>Popup bloqueado!</strong><br>
-                        O navegador bloqueou a janela de login. 
-                        <a href="#" id="redirect-link" class="alert-link">Clique aqui para continuar</a>.
-                    `;
-                    document.getElementById('redirect-link').addEventListener('click', function(e) {
-                        e.preventDefault();
-                        auth.signInWithRedirect(provider);
-                    });
-                } else {
-                    errorDiv.textContent = 'Erro: ' + error.message;
-                }
-            });
-    });
+            }
+        })
+        .catch((error) => {
+            console.error('Erro no redirect:', error);
+        });
+    
+    // Adiciona evento de clique
+    loginBtn.addEventListener('click', processLogin);
 </script>
+
+<style>
+    .card {
+        border-radius: 20px !important;
+        overflow: hidden;
+    }
+    
+    .rounded-top-4 {
+        border-radius: 20px 20px 0 0 !important;
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        border: none;
+        transition: all 0.3s;
+        padding: 12px 28px;
+        font-weight: 500;
+    }
+    
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    .spinner-border {
+        width: 2rem;
+        height: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .btn-danger {
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+        
+        .card-body {
+            padding: 2rem !important;
+        }
+    }
+</style>
 {% endblock %}
