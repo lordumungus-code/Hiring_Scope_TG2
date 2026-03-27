@@ -5,9 +5,9 @@ from datetime import datetime
 import secrets
 import base64
 
-# Importa Firebase
+# Importa apenas o admin auth do Firebase
 from firebase_admin import auth as admin_auth
-from config.firebase_config import firebase_auth
+from config.firebase_config import firebase_config  # só para config, não para auth
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -104,6 +104,7 @@ def firebase_callback():
         if not id_token:
             return jsonify({'error': 'Token não fornecido'}), 400
         
+        # Verifica o token com Firebase Admin
         decoded_token = admin_auth.verify_id_token(id_token)
         
         email = decoded_token.get('email')
