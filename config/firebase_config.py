@@ -1,6 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, auth
 import os
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,19 +17,27 @@ firebase_config = {
     "databaseURL": os.environ.get('FIREBASE_DATABASE_URL', 'https://hiring-scope-default-rtdb.firebaseio.com')
 }
 
-# Firebase Admin SDK
+# Firebase Admin SDK - tenta local primeiro, depois variável de ambiente
 try:
+    # Tentativa 1: arquivo local (desenvolvimento)
     cred_path = os.path.join(os.path.dirname(__file__), 'firebase-adminsdk.json')
     if os.path.exists(cred_path):
         cred = credentials.Certificate(cred_path)
         firebase_admin.initialize_app(cred)
-        print("✅ Firebase Admin SDK inicializado com sucesso")
+        print("✅ Firebase Admin SDK inicializado via arquivo local")
     else:
-        print(f"⚠️ Arquivo de credenciais não encontrado em: {cred_path}")
-        print("   O login com Google ainda funciona, mas a verificação de token pode falhar")
+        # Tentativa 2: variável de ambiente (produção no Render)
+        cred_json = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_JSON')
+        if cred_json:
+            cred_dict = json.loads(cred_json)
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+            print("✅ Firebase Admin SDK inicializado via variável de ambiente")
+        else:
+            print("⚠️ Nenhuma credencial Firebase encontrada")
+            
 except Exception as e:
     print(f"❌ Erro ao inicializar Firebase Admin: {e}")
 
-# Exporta firebase_config para uso nos templates
 def get_firebase_config():
     return firebase_config
