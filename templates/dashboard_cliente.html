@@ -1,15 +1,68 @@
 {% extends "base.html" %}
-
+{% block search_bar_desktop %}{% endblock %}
+{% block search_bar_mobile %}{% endblock %}
 {% block title %}Dashboard Cliente - PrestaServiços{% endblock %}
 
 {% block content %}
+<style>
+    /* Estilos específicos do dashboard do cliente (apenas cores e cards) */
+    .stat-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    /* Botão "Explorar Serviços" (gradiente azul padrão) */
+    .btn-primary {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        color: white;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0a2a5a, #144e75);
+    }
+    /* Cabeçalho da tabela */
+    .card-header {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        color: white;
+        border-bottom: none;
+    }
+    /* Badges de status */
+    .badge.bg-warning {
+        background: #f59e0b !important;
+        color: #000;
+    }
+    .badge.bg-success {
+        background: #10b981 !important;
+    }
+    .badge.bg-danger {
+        background: #ef4444 !important;
+    }
+    /* Cores dos cards de estatística */
+    .stat-card.bg-info {
+        background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
+    }
+    .stat-card.bg-success {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+    }
+    /* Ajuste de cor primária para ícone de boas-vindas */
+    .text-primary {
+        color: #0b2b5c !important;
+    }
+</style>
+
 <div class="container mt-4">
-    <!-- Mensagens Flash -->
+    <!-- Mensagens Flash (o base.html já exibe, mas mantive para garantir) -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
                 <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -20,27 +73,20 @@
     <!-- Boas-vindas -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="welcome-card">
-                <h2 class="mb-2">
-                    <i class="fas fa-tachometer-alt text-primary me-2"></i> 
-                    Olá, {{ current_user.nome.split()[0] }}! 👋
-                </h2>
-                <p class="text-muted">Acompanhe suas solicitações e encontre os melhores serviços</p>
-            </div>
+            <h2>
+                <i class="fas fa-tachometer-alt text-primary"></i> 
+                Painel do Cliente
+            </h2>
+            <p class="text-muted">Acompanhe suas solicitações e encontre novos serviços</p>
         </div>
     </div>
 
     <!-- Botões de Ação -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="action-buttons">
-                <a href="{{ url_for('servico.lista') }}" class="btn btn-primary btn-lg px-4">
-                    <i class="fas fa-search me-2"></i> Explorar Serviços
-                </a>
-                <a href="{{ url_for('chat.index') }}" class="btn btn-outline-primary btn-lg px-4 ms-2">
-                    <i class="fas fa-comments me-2"></i> Chat
-                </a>
-            </div>
+            <a href="/servicos" class="btn btn-primary">
+                <i class="fas fa-search"></i> Explorar Serviços
+            </a>
         </div>
     </div>
 
@@ -60,7 +106,7 @@
             </div>
         </div>
         <div class="col-md-6 mb-3">
-            <div class="card stat-card bg-warning text-dark">
+            <div class="card stat-card bg-success text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -78,84 +124,50 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-list me-2"></i> Minhas Solicitações
-                    </h5>
+                <div class="card-header">
+                    <h5 class="mb-0">Minhas Solicitações</h5>
                 </div>
                 <div class="card-body">
                     {% if solicitacoes %}
                         <div class="table-responsive">
                             <table class="table table-hover">
-                                <thead class="table-light">
+                                <thead>
                                     <tr>
-                                        <th><i class="fas fa-briefcase me-1"></i> Serviço</th>
-                                        <th><i class="fas fa-user me-1"></i> Prestador</th>
-                                        <th><i class="fas fa-tag me-1"></i> Status</th>
-                                        <th><i class="fas fa-calendar me-1"></i> Data</th>
-                                        <th><i class="fas fa-comment me-1"></i> Mensagem</th>
-                                        <th><i class="fas fa-cog me-1"></i> Ações</th>
+                                        <th>Serviço</th>
+                                        <th>Prestador</th>
+                                        <th>Status</th>
+                                        <th>Data</th>
+                                        <th>Mensagem</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for sol in solicitacoes %}
                                     <tr>
-                                        <td>
-                                            <a href="{{ url_for('servico.detalhe', id=sol.servico.id) }}" class="text-decoration-none fw-semibold">
-                                                {{ sol.servico.titulo[:40] }}{% if sol.servico.titulo|length > 40 %}...{% endif %}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a href="javascript:void(0)" onclick="iniciarChat({{ sol.servico.prestador.id }}, '{{ sol.servico.prestador.nome }}')" class="text-decoration-none">
-                                                <i class="fas fa-user-circle me-1"></i> {{ sol.servico.prestador.nome }}
-                                            </a>
-                                        </td>
+                                        <td>{{ sol.servico.titulo }}</td>
+                                        <td>{{ sol.servico.prestador.nome }}</td>
                                         <td>
                                             {% if sol.status == 'pendente' %}
-                                                <span class="badge bg-warning text-dark">
-                                                    <i class="fas fa-hourglass-half me-1"></i> Pendente
-                                                </span>
+                                                <span class="badge bg-warning">Pendente</span>
                                             {% elif sol.status == 'aceito' %}
-                                                <span class="badge bg-success">
-                                                    <i class="fas fa-check-circle me-1"></i> Aceito
-                                                </span>
+                                                <span class="badge bg-success">Aceito</span>
                                             {% elif sol.status == 'recusado' %}
-                                                <span class="badge bg-danger">
-                                                    <i class="fas fa-times-circle me-1"></i> Recusado
-                                                </span>
+                                                <span class="badge bg-danger">Recusado</span>
                                             {% endif %}
                                         </td>
-                                        <td>
-                                            <small>{{ sol.data_solicitacao.strftime('%d/%m/%Y') }}</small>
-                                        </td>
-                                        <td>
-                                            <span class="small text-muted" title="{{ sol.mensagem }}">
-                                                {{ sol.mensagem[:40] }}{% if sol.mensagem|length > 40 %}...{% endif %}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            {% if sol.status == 'pendente' %}
-                                                <button class="btn btn-sm btn-outline-danger" onclick="cancelarSolicitacao({{ sol.id }})">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            {% elif sol.status == 'aceito' %}
-                                                <a href="{{ url_for('chat.index') }}" class="btn btn-sm btn-outline-primary" onclick="iniciarChat({{ sol.servico.prestador.id }}, '{{ sol.servico.prestador.nome }}')">
-                                                    <i class="fas fa-comments"></i>
-                                                </a>
-                                            {% endif %}
-                                        </td>
+                                        <td>{{ sol.data_solicitacao.strftime('%d/%m/%Y') }}</td>
+                                        <td>{{ sol.mensagem[:50] }}{% if sol.mensagem|length > 50 %}...{% endif %}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     {% else %}
-                        <div class="text-center py-5">
+                        <div class="text-center py-4">
                             <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
                             <h5>Você ainda não fez nenhuma solicitação</h5>
                             <p class="text-muted">Explore os serviços disponíveis e solicite o que precisar!</p>
-                            <a href="{{ url_for('servico.lista') }}" class="btn btn-primary mt-2">
-                                <i class="fas fa-search me-2"></i> Explorar Serviços
+                            <a href="/servicos" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Explorar Serviços
                             </a>
                         </div>
                     {% endif %}
@@ -164,98 +176,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    .welcome-card {
-        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-        padding: 20px;
-        border-radius: 15px;
-        border-left: 4px solid #007bff;
-    }
-    
-    .stat-card {
-        border-radius: 15px;
-        border: none;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .action-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        transition: all 0.3s;
-    }
-    
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    .btn-outline-primary:hover {
-        transform: translateY(-2px);
-    }
-    
-    .table th {
-        font-weight: 600;
-        border-top: none;
-    }
-    
-    .table td {
-        vertical-align: middle;
-    }
-    
-    @media (max-width: 768px) {
-        .action-buttons {
-            flex-direction: column;
-        }
-        
-        .action-buttons .btn {
-            width: 100%;
-            margin-left: 0 !important;
-        }
-        
-        .table-responsive {
-            font-size: 0.85rem;
-        }
-    }
-</style>
-
-<script>
-    function iniciarChat(prestadorId, prestadorNome) {
-        if (prestadorId) {
-            sessionStorage.setItem('chat_with_id', prestadorId);
-            sessionStorage.setItem('chat_with_name', prestadorNome);
-            window.location.href = "{{ url_for('chat.index') }}";
-        }
-    }
-    
-    function cancelarSolicitacao(solicitacaoId) {
-        if (confirm('Tem certeza que deseja cancelar esta solicitação?')) {
-            fetch(`/solicitacao/cancelar/${solicitacaoId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Erro ao cancelar solicitação');
-                }
-            });
-        }
-    }
-</script>
 {% endblock %}

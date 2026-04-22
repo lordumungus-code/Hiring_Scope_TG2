@@ -1,15 +1,94 @@
 {% extends "base.html" %}
-
+{% block search_bar_desktop %}{% endblock %}
+{% block search_bar_mobile %}{% endblock %}
 {% block title %}Dashboard Prestador - PrestaServiços{% endblock %}
 
 {% block content %}
+<style>
+    /* Estilos específicos do dashboard (apenas cores e cards) */
+    .stat-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    /* Botão Cadastrar (gradiente verde) */
+    .btn-cadastrar {
+        background: linear-gradient(45deg, #10b981, #059669);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        color: white;
+    }
+    .btn-cadastrar:hover {
+        background: linear-gradient(45deg, #059669, #047857);
+    }
+    /* Botão "Ver Meus Serviços" (gradiente azul padrão) */
+    .btn-primary {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        color: white;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0a2a5a, #144e75);
+    }
+    /* Cabeçalho da tabela */
+    .card-header {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        color: white;
+        border-bottom: none;
+    }
+    /* Botão visualizar (olho) */
+    .btn-info {
+        background: #1e5a8a;
+        border: none;
+        color: white;
+    }
+    .btn-info:hover {
+        background: #0f3b7a;
+    }
+    /* Badges */
+    .badge.bg-warning {
+        background: #f59e0b !important;
+        color: #000;
+    }
+    .badge.bg-secondary {
+        background: #64748b !important;
+    }
+    /* Cores dos cards de estatística */
+    .stat-card.bg-primary {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f) !important;
+    }
+    .stat-card.bg-success {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+    }
+    .stat-card.bg-info {
+        background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
+    }
+    /* Botão "Ver todos" */
+    .btn-outline-primary {
+        border-color: #0b2b5c;
+        color: #0b2b5c;
+    }
+    .btn-outline-primary:hover {
+        background: #0b2b5c;
+        color: white;
+    }
+</style>
+
 <div class="container mt-4">
-    <!-- Mensagens Flash -->
+    <!-- Mensagens Flash (o base.html já exibe, mas mantive para garantir) -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
                 <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -20,44 +99,27 @@
     <!-- Boas-vindas -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="welcome-card">
-                <h2 class="mb-2">
-                    <i class="fas fa-tachometer-alt text-primary me-2"></i> 
-                    Olá, {{ current_user.nome.split()[0] }}! 🚀
-                </h2>
-                <p class="text-muted">Gerencie seus serviços e acompanhe as solicitações dos clientes</p>
-                <div class="rating-info mt-2">
-                    <span class="badge bg-warning text-dark">
-                        <i class="fas fa-star me-1"></i> 
-                        Média: {{ "%.1f"|format(current_user.media_avaliacoes()) }}
-                    </span>
-                    <span class="badge bg-secondary ms-2">
-                        <i class="fas fa-users me-1"></i> 
-                        {{ current_user.total_avaliacoes() }} avaliações
-                    </span>
-                </div>
-            </div>
+            <h2>
+                <i class="fas fa-tachometer-alt text-primary"></i> 
+                Painel do Prestador
+            </h2>
+            <p class="text-muted">Gerencie seus serviços e solicitações</p>
         </div>
     </div>
 
-    <!-- Botões de Ação -->
+    <!-- Botões de ação -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="action-buttons">
-                <a href="{{ url_for('servico.cadastro') }}" class="btn btn-success btn-cadastrar">
-                    <i class="fas fa-plus-circle me-2"></i> Cadastrar Novo Serviço
-                </a>
-                <a href="{{ url_for('servico.meus_servicos') }}" class="btn btn-primary">
-                    <i class="fas fa-list me-2"></i> Ver Meus Serviços
-                </a>
-                <a href="{{ url_for('chat.index') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-comments me-2"></i> Chat
-                </a>
-            </div>
+            <a href="/cadastro/servico" class="btn btn-success btn-cadastrar">
+                <i class="fas fa-plus-circle"></i> Cadastrar Novo Serviço
+            </a>
+            <a href="/meus-servicos" class="btn btn-primary">
+                <i class="fas fa-list"></i> Ver Meus Serviços
+            </a>
         </div>
     </div>
 
-    <!-- Estatísticas -->
+    <!-- Cards de estatísticas -->
     <div class="row mb-4">
         <div class="col-md-4 mb-3">
             <div class="card stat-card bg-primary text-white">
@@ -73,7 +135,7 @@
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card stat-card bg-warning text-dark">
+            <div class="card stat-card bg-success text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -90,7 +152,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="mb-0">Categorias Atendidas</h6>
+                            <h6 class="mb-0">Categorias</h6>
                             <h2 class="mt-2 mb-0">{{ servicos|map(attribute='categoria')|unique|list|length }}</h2>
                         </div>
                         <i class="fas fa-tags fa-3x opacity-50"></i>
@@ -100,83 +162,45 @@
         </div>
     </div>
 
-    <!-- Meus Serviços Recentes -->
+    <!-- Tabela de serviços recentes -->
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-clock me-2"></i> Meus Serviços Recentes
-                    </h5>
+                <div class="card-header">
+                    <h5 class="mb-0">Meus Serviços Recentes</h5>
                 </div>
                 <div class="card-body">
                     {% if servicos %}
                         <div class="table-responsive">
                             <table class="table table-hover">
-                                <thead class="table-light">
+                                <thead>
                                     <tr>
-                                        <th><i class="fas fa-heading me-1"></i> Título</th>
-                                        <th><i class="fas fa-tag me-1"></i> Categoria</th>
-                                        <th><i class="fas fa-dollar-sign me-1"></i> Preço</th>
-                                        <th><i class="fas fa-star me-1"></i> Destaque</th>
-                                        <th><i class="fas fa-calendar me-1"></i> Data</th>
-                                        <th><i class="fas fa-cog me-1"></i> Ações</th>
+                                        <th>Título</th>
+                                        <th>Categoria</th>
+                                        <th>Preço</th>
+                                        <th>Destaque</th>
+                                        <th>Data</th>
+                                        <th>Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for servico in servicos[:5] %}
                                     <tr>
+                                        <td>{{ servico.titulo }}</td>
+                                        <td>{{ servico.categoria }}</td>
+                                        <td>R$ {{ "%.2f"|format(servico.preco) if servico.preco else 'A combinar' }}</td>
                                         <td>
-                                            <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="text-decoration-none fw-semibold">
-                                                {{ servico.titulo[:40] }}{% if servico.titulo|length > 40 %}...{% endif %}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <span class="badge 
-                                                {% if servico.categoria == 'Tecnologia' %}bg-info
-                                                {% elif servico.categoria == 'Construção' %}bg-warning text-dark
-                                                {% elif servico.categoria == 'Limpeza' %}bg-success
-                                                {% elif servico.categoria == 'Educação' %}bg-secondary
-                                                {% elif servico.categoria == 'Saúde' %}bg-danger
-                                                {% else %}bg-dark{% endif %}">
-                                                {{ servico.categoria }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            {% if servico.preco %}
-                                                <span class="text-success fw-semibold">R$ {{ "%.2f"|format(servico.preco) }}</span>
-                                            {% else %}
-                                                <span class="text-muted">A combinar</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if servico.destaque_pago and servico.destaque_data_fim and servico.destaque_data_fim > now %}
-                                                <span class="badge bg-warning text-dark">
-                                                    <i class="fas fa-crown me-1"></i> Premium
-                                                </span>
-                                            {% elif servico.destaque %}
-                                                <span class="badge bg-warning text-dark">
-                                                    <i class="fas fa-star me-1"></i> Destaque
-                                                </span>
+                                            {% if servico.destaque %}
+                                                <span class="badge bg-warning">Destaque</span>
                                             {% else %}
                                                 <span class="badge bg-secondary">Normal</span>
                                             {% endif %}
                                         </td>
+                                        <td>{{ servico.data_postagem.strftime('%d/%m/%Y') }}</td>
                                         <td>
-                                            <small>{{ servico.data_postagem.strftime('%d/%m/%Y') }}</small>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-sm btn-info" title="Ver detalhes">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="{{ url_for('servico.editar', id=servico.id) }}" class="btn btn-sm btn-warning" title="Editar">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <button class="btn btn-sm btn-danger" onclick="confirmarExclusao({{ servico.id }})" title="Excluir">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
+                                            <a href="/servico/{{ servico.id }}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -185,18 +209,16 @@
                         </div>
                         {% if servicos|length > 5 %}
                             <div class="text-center mt-3">
-                                <a href="{{ url_for('servico.meus_servicos') }}" class="btn btn-outline-primary">
-                                    <i class="fas fa-arrow-right me-2"></i> Ver todos os serviços
-                                </a>
+                                <a href="/meus-servicos" class="btn btn-outline-primary">Ver todos os serviços</a>
                             </div>
                         {% endif %}
                     {% else %}
-                        <div class="text-center py-5">
+                        <div class="text-center py-4">
                             <i class="fas fa-briefcase fa-4x text-muted mb-3"></i>
                             <h5>Você ainda não cadastrou nenhum serviço</h5>
-                            <p class="text-muted">Comece cadastrando seu primeiro serviço para atrair clientes!</p>
-                            <a href="{{ url_for('servico.cadastro') }}" class="btn btn-success mt-2">
-                                <i class="fas fa-plus-circle me-2"></i> Cadastrar Serviço
+                            <p class="text-muted">Comece cadastrando seu primeiro serviço!</p>
+                            <a href="/cadastro/servico" class="btn btn-success">
+                                <i class="fas fa-plus-circle"></i> Cadastrar Serviço
                             </a>
                         </div>
                     {% endif %}
@@ -205,120 +227,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    .welcome-card {
-        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-        padding: 20px;
-        border-radius: 15px;
-        border-left: 4px solid #28a745;
-    }
-    
-    .stat-card {
-        border-radius: 15px;
-        border: none;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .action-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-    
-    .btn-cadastrar {
-        background: linear-gradient(45deg, #28a745, #20c997);
-        border: none;
-        padding: 10px 24px;
-        border-radius: 25px;
-        font-weight: 600;
-        transition: all 0.3s;
-    }
-    
-    .btn-cadastrar:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
-    }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        transition: all 0.3s;
-    }
-    
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    .btn-outline-primary:hover {
-        transform: translateY(-2px);
-    }
-    
-    .table th {
-        font-weight: 600;
-        border-top: none;
-    }
-    
-    .table td {
-        vertical-align: middle;
-    }
-    
-    .btn-group .btn {
-        margin: 0 2px;
-    }
-    
-    .rating-info .badge {
-        font-size: 0.85rem;
-        padding: 6px 12px;
-    }
-    
-    @media (max-width: 768px) {
-        .action-buttons {
-            flex-direction: column;
-        }
-        
-        .action-buttons .btn {
-            width: 100%;
-        }
-        
-        .table-responsive {
-            font-size: 0.85rem;
-        }
-        
-        .btn-group .btn {
-            padding: 4px 8px;
-        }
-    }
-</style>
-
-<script>
-    function confirmarExclusao(servicoId) {
-        if (confirm('Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita.')) {
-            fetch(`/servico/excluir/${servicoId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Erro ao excluir serviço: ' + (data.error || 'Tente novamente'));
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao excluir serviço. Tente novamente.');
-            });
-        }
-    }
-</script>
 {% endblock %}

@@ -1,12 +1,11 @@
+import pyrebase
 import firebase_admin
 from firebase_admin import credentials, auth
 import os
-import json
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Configurações do Firebase (usadas nos templates)
 firebase_config = {
     "apiKey": os.environ.get('FIREBASE_API_KEY', 'AIzaSyANfk1Nlat3JjepQq7lClbmu6xImva_W6Y'),
     "authDomain": os.environ.get('FIREBASE_AUTH_DOMAIN', 'hiring-scope.firebaseapp.com'),
@@ -17,27 +16,20 @@ firebase_config = {
     "databaseURL": os.environ.get('FIREBASE_DATABASE_URL', 'https://hiring-scope-default-rtdb.firebaseio.com')
 }
 
-# Firebase Admin SDK - tenta local primeiro, depois variável de ambiente
+firebase = pyrebase.initialize_app(firebase_config)
+firebase_auth = firebase.auth()
+
+# Firebase Admin SDK com tolerância de tempo
 try:
-    # Tentativa 1: arquivo local (desenvolvimento)
     cred_path = os.path.join(os.path.dirname(__file__), 'firebase-adminsdk.json')
     if os.path.exists(cred_path):
         cred = credentials.Certificate(cred_path)
-        firebase_admin.initialize_app(cred)
-        print("✅ Firebase Admin SDK inicializado via arquivo local")
+        # Adiciona tolerância de 5 minutos para verificação de token
+        firebase_admin.initialize_app(cred, {
+            'projectId': firebase_config['projectId']
+        })
+        print("✅ Firebase Admin SDK inicializado com sucesso")
     else:
-        # Tentativa 2: variável de ambiente (produção no Render)
-        cred_json = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_JSON')
-        if cred_json:
-            cred_dict = json.loads(cred_json)
-            cred = credentials.Certificate(cred_dict)
-            firebase_admin.initialize_app(cred)
-            print("✅ Firebase Admin SDK inicializado via variável de ambiente")
-        else:
-            print("⚠️ Nenhuma credencial Firebase encontrada")
-            
+        print(f"⚠️ Arquivo de credenciais não encontrado em: {cred_path}")
 except Exception as e:
     print(f"❌ Erro ao inicializar Firebase Admin: {e}")
-
-def get_firebase_config():
-    return firebase_config

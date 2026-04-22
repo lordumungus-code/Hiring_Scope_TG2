@@ -3,168 +3,106 @@
 {% block title %}Completar Cadastro - PrestaServiços{% endblock %}
 
 {% block content %}
-<div class="container mt-5 mb-5">
+<style>
+    /* Estilos específicos para esta página */
+    .card-header-custom {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        color: white;
+        border-bottom: none;
+        border-radius: 1rem 1rem 0 0;
+        padding: 1.2rem;
+    }
+    .btn-completar {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        border-radius: 60px;
+        padding: 10px;
+        font-weight: 600;
+        transition: all 0.2s;
+        color: white;
+    }
+    .btn-completar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(16,185,129,0.3);
+        background: linear-gradient(135deg, #059669, #047857);
+    }
+    .form-control:focus {
+        border-color: #0b2b5c;
+        box-shadow: 0 0 0 3px rgba(11,43,92,0.15);
+    }
+    .form-check-input:checked {
+        background-color: #0b2b5c;
+        border-color: #0b2b5c;
+    }
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #1a6d8f;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow-lg border-0 rounded-4">
-                <div class="card-header bg-success text-white text-center py-3 rounded-top-4">
-                    <h4 class="mb-0">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header-custom">
+                    <h4 class="mb-0 fw-semibold">
                         <i class="fab fa-google me-2"></i> Completar Cadastro
                     </h4>
-                    <p class="mb-0 mt-1 small opacity-75">Complete suas informações para continuar</p>
                 </div>
                 <div class="card-body p-4">
-                    <!-- Informações do Google -->
+                    <!-- Dados do usuário Google -->
                     <div class="text-center mb-4">
                         {% if usuario.foto %}
-                            <img src="{{ usuario.foto }}" class="rounded-circle border border-3 border-success" width="85" height="85" style="object-fit: cover;">
+                            <img src="{{ usuario.foto }}" class="avatar-circle" alt="Foto do perfil">
                         {% else %}
-                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 85px; height: 85px;">
-                                <i class="fas fa-user-circle fa-4x text-white"></i>
-                            </div>
+                            <i class="fas fa-user-circle fa-4x text-primary"></i>
                         {% endif %}
-                        <h5 class="mt-3 mb-1">{{ usuario.nome }}</h5>
-                        <p class="text-muted small">{{ usuario.email }}</p>
-                        <div class="badge bg-light text-dark mt-1">
-                            <i class="fab fa-google me-1"></i> Conta Google
-                        </div>
+                        <h5 class="mt-3 fw-bold">{{ usuario.nome }}</h5>
+                        <p class="text-muted">{{ usuario.email }}</p>
                     </div>
                     
-                    <form method="POST" action="{{ url_for('auth.cadastro_firebase') }}">
-                        <!-- Telefone -->
-                        <div class="mb-4">
+                    <form method="POST">
+                        <div class="mb-3">
                             <label for="telefone" class="form-label fw-semibold">
-                                <i class="fas fa-phone me-1 text-success"></i> Telefone
+                                <i class="fas fa-phone me-1 text-primary"></i> Telefone
                             </label>
-                            <input type="tel" class="form-control form-control-lg" id="telefone" name="telefone" 
-                                   placeholder="(11) 99999-9999" required>
-                            <small class="text-muted">Informe seu telefone com DDD</small>
+                            <input type="tel" class="form-control rounded-pill" id="telefone" name="telefone" required>
                         </div>
                         
-                        <!-- Tipo de Conta com Cards Interativos -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold mb-3">
-                                <i class="fas fa-user-tag me-1 text-success"></i> Tipo de Conta
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-user-tag me-1 text-primary"></i> Tipo de Conta
                             </label>
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <div class="card border-2 h-100 user-type-card" onclick="selectType('cliente')" id="card-cliente">
-                                        <div class="card-body text-center py-3">
-                                            <i class="fas fa-user fa-2x text-primary mb-2"></i>
-                                            <h6 class="mb-1">Cliente</h6>
-                                            <small class="text-muted">Quero contratar</small>
-                                            <div class="selected-indicator mt-2">
-                                                <span class="badge bg-success d-none">✓ Selecionado</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="card border-2 h-100 user-type-card" onclick="selectType('prestador')" id="card-prestador">
-                                        <div class="card-body text-center py-3">
-                                            <i class="fas fa-briefcase fa-2x text-success mb-2"></i>
-                                            <h6 class="mb-1">Prestador</h6>
-                                            <small class="text-muted">Quero oferecer</small>
-                                            <div class="selected-indicator mt-2">
-                                                <span class="badge bg-success d-none">✓ Selecionado</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo" id="cliente" value="cliente" checked>
+                                <label class="form-check-label" for="cliente">
+                                    <i class="fas fa-user"></i> Cliente - Quero contratar serviços
+                                </label>
                             </div>
-                            <input type="hidden" name="tipo" id="tipo" value="cliente">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo" id="prestador" value="prestador">
+                                <label class="form-check-label" for="prestador">
+                                    <i class="fas fa-briefcase"></i> Prestador - Quero oferecer serviços
+                                </label>
+                            </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-success w-100 py-3 fw-semibold rounded-pill">
+                        <button type="submit" class="btn btn-completar w-100">
                             <i class="fas fa-check-circle me-2"></i> Completar Cadastro
                         </button>
                     </form>
-                    
-                    <div class="text-center mt-4">
-                        <small class="text-muted">
-                            <i class="fas fa-shield-alt me-1"></i>
-                            Suas informações estão seguras
-                        </small>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .card {
-        border-radius: 20px !important;
-        overflow: hidden;
-    }
-    
-    .rounded-top-4 {
-        border-radius: 20px 20px 0 0 !important;
-    }
-    
-    .user-type-card {
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border-color: #e9ecef !important;
-        background: white;
-    }
-    
-    .user-type-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        border-color: #28a745 !important;
-    }
-    
-    .user-type-card.selected {
-        border-color: #28a745 !important;
-        background: linear-gradient(135deg, #f8fff9 0%, #ffffff 100%);
-        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.1);
-    }
-    
-    .user-type-card.selected .selected-indicator .badge {
-        display: inline-block !important;
-    }
-    
-    .form-control-lg {
-        border-radius: 12px;
-        border: 2px solid #e9ecef;
-        transition: all 0.3s;
-        font-size: 1rem;
-    }
-    
-    .form-control-lg:focus {
-        border-color: #28a745;
-        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
-    }
-    
-    .btn-success {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        border: none;
-        transition: all 0.3s;
-    }
-    
-    .btn-success:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
-    }
-    
-    @media (max-width: 768px) {
-        .user-type-card .card-body {
-            padding: 15px 10px;
-        }
-        
-        .user-type-card h6 {
-            font-size: 0.9rem;
-        }
-        
-        .user-type-card small {
-            font-size: 0.7rem;
-        }
-    }
-</style>
-
 <script>
-    // Máscara para telefone
+    // Máscara para telefone (mantida igual)
     const telefoneInput = document.getElementById('telefone');
     if (telefoneInput) {
         telefoneInput.addEventListener('input', function(e) {
@@ -177,30 +115,5 @@
             e.target.value = value;
         });
     }
-    
-    // Função para selecionar tipo de conta
-    function selectType(type) {
-        const cardCliente = document.getElementById('card-cliente');
-        const cardPrestador = document.getElementById('card-prestador');
-        const tipoInput = document.getElementById('tipo');
-        
-        if (type === 'cliente') {
-            cardCliente.classList.add('selected');
-            cardPrestador.classList.remove('selected');
-            tipoInput.value = 'cliente';
-        } else {
-            cardPrestador.classList.add('selected');
-            cardCliente.classList.remove('selected');
-            tipoInput.value = 'prestador';
-        }
-    }
-    
-    // Inicializar com cliente selecionado
-    document.addEventListener('DOMContentLoaded', function() {
-        const cardCliente = document.getElementById('card-cliente');
-        if (cardCliente) {
-            cardCliente.classList.add('selected');
-        }
-    });
 </script>
 {% endblock %}

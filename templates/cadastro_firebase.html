@@ -3,135 +3,92 @@
 {% block title %}Completar Cadastro - PrestaServiços{% endblock %}
 
 {% block content %}
+<style>
+    .card-header-custom {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        color: white;
+        border-bottom: none;
+        border-radius: 1rem 1rem 0 0;
+        padding: 1.2rem;
+    }
+    .btn-completar {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        border-radius: 60px;
+        padding: 10px;
+        font-weight: 600;
+        transition: all 0.2s;
+        color: white;
+    }
+    .btn-completar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(16,185,129,0.3);
+        background: linear-gradient(135deg, #059669, #047857);
+    }
+    .form-control:focus {
+        border-color: #0b2b5c;
+        box-shadow: 0 0 0 3px rgba(11,43,92,0.15);
+    }
+    .form-check-input:checked {
+        background-color: #0b2b5c;
+        border-color: #0b2b5c;
+    }
+</style>
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card shadow-lg border-0 rounded-4">
-                <div class="card-header bg-success text-white text-center rounded-top-4 py-3">
-                    <h4 class="mb-0">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header-custom">
+                    <h4 class="mb-0 fw-semibold">
                         <i class="fab fa-google me-2"></i> Completar Cadastro
                     </h4>
-                    <p class="mb-0 mt-1 small">Complete suas informações para continuar</p>
                 </div>
                 <div class="card-body p-4">
-                    <!-- Informações do Google -->
                     <div class="text-center mb-4">
-                        {% if usuario.foto %}
-                            <img src="{{ usuario.foto }}" class="rounded-circle mb-3" width="80" height="80" style="object-fit: cover; border: 3px solid #28a745;">
-                        {% else %}
-                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                                <i class="fas fa-user-circle fa-4x text-white"></i>
-                            </div>
-                        {% endif %}
-                        <h5 class="mt-2 mb-1">{{ usuario.nome }}</h5>
-                        <p class="text-muted small mb-0">{{ usuario.email }}</p>
+                        <i class="fas fa-user-circle fa-4x" style="color: #1a6d8f;"></i>
+                        <h5 class="mt-3 fw-bold">{{ usuario.nome }}</h5>
+                        <p class="text-muted">{{ usuario.email }}</p>
                     </div>
                     
-                    <form method="POST" action="{{ url_for('auth.cadastro_firebase') }}">
-                        <!-- Telefone -->
+                    <form method="POST">
                         <div class="mb-3">
                             <label for="telefone" class="form-label fw-semibold">
-                                <i class="fas fa-phone me-1 text-success"></i> Telefone
+                                <i class="fas fa-phone me-1 text-primary"></i> Telefone
                             </label>
-                            <input type="tel" class="form-control form-control-lg" id="telefone" name="telefone" 
-                                   placeholder="(11) 99999-9999" required>
-                            <small class="text-muted">Digite seu telefone com DDD</small>
+                            <input type="tel" class="form-control rounded-pill" id="telefone" name="telefone" required>
+                            <small class="text-muted">Ex: (11) 99999-9999</small>
                         </div>
                         
-                        <!-- Tipo de Conta -->
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-user-tag me-1 text-success"></i> Tipo de Conta
+                                <i class="fas fa-user-tag me-1 text-primary"></i> Tipo de Conta
                             </label>
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <div class="card border-2 h-100 user-type-card" onclick="selectType('cliente')" id="card-cliente">
-                                        <div class="card-body text-center py-3">
-                                            <i class="fas fa-user fa-2x text-primary mb-2"></i>
-                                            <h6 class="mb-1">Cliente</h6>
-                                            <small class="text-muted">Quero contratar serviços</small>
-                                            <div class="selected-check d-none text-success mt-2">
-                                                <i class="fas fa-check-circle"></i> Selecionado
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="card border-2 h-100 user-type-card" onclick="selectType('prestador')" id="card-prestador">
-                                        <div class="card-body text-center py-3">
-                                            <i class="fas fa-briefcase fa-2x text-success mb-2"></i>
-                                            <h6 class="mb-1">Prestador</h6>
-                                            <small class="text-muted">Quero oferecer serviços</small>
-                                            <div class="selected-check d-none text-success mt-2">
-                                                <i class="fas fa-check-circle"></i> Selecionado
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo" id="cliente" value="cliente" checked>
+                                <label class="form-check-label" for="cliente">
+                                    <i class="fas fa-user"></i> Cliente - Quero contratar serviços
+                                </label>
                             </div>
-                            <input type="hidden" name="tipo" id="tipo" value="cliente">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo" id="prestador" value="prestador">
+                                <label class="form-check-label" for="prestador">
+                                    <i class="fas fa-briefcase"></i> Prestador - Quero oferecer serviços
+                                </label>
+                            </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-success w-100 py-2 fw-semibold">
+                        <button type="submit" class="btn btn-completar w-100">
                             <i class="fas fa-check-circle me-2"></i> Completar Cadastro
                         </button>
                     </form>
-                    
-                    <div class="text-center mt-3">
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Suas informações serão mantidas em segurança
-                        </small>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .user-type-card {
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border-color: #dee2e6 !important;
-    }
-    
-    .user-type-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    
-    .user-type-card.selected {
-        border-color: #28a745 !important;
-        background-color: #f0fff4;
-    }
-    
-    .user-type-card.selected .selected-check {
-        display: block !important;
-    }
-    
-    .form-control-lg {
-        border-radius: 12px;
-        border: 2px solid #e0e0e0;
-        transition: all 0.3s;
-    }
-    
-    .form-control-lg:focus {
-        border-color: #28a745;
-        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
-    }
-    
-    .card {
-        border-radius: 16px !important;
-    }
-    
-    .rounded-top-4 {
-        border-radius: 16px 16px 0 0 !important;
-    }
-</style>
-
 <script>
-    // Máscara para telefone
     document.getElementById('telefone').addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length <= 10) {
@@ -140,28 +97,6 @@
             value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
         }
         e.target.value = value;
-    });
-    
-    // Função para selecionar tipo de conta
-    function selectType(type) {
-        const cardCliente = document.getElementById('card-cliente');
-        const cardPrestador = document.getElementById('card-prestador');
-        const tipoInput = document.getElementById('tipo');
-        
-        if (type === 'cliente') {
-            cardCliente.classList.add('selected');
-            cardPrestador.classList.remove('selected');
-            tipoInput.value = 'cliente';
-        } else {
-            cardPrestador.classList.add('selected');
-            cardCliente.classList.remove('selected');
-            tipoInput.value = 'prestador';
-        }
-    }
-    
-    // Inicializar com cliente selecionado
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('card-cliente').classList.add('selected');
     });
 </script>
 {% endblock %}

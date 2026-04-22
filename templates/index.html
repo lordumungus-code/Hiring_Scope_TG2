@@ -14,29 +14,27 @@
                 <p class="lead mb-5 animate__animated animate__fadeInUp animate__delay-1s">
                     Conectamos clientes e prestadores de forma simples, rápida e segura
                 </p>
-                
                 {% if not current_user.is_authenticated %}
                     <div class="d-flex justify-content-center gap-3 flex-wrap animate__animated animate__fadeInUp animate__delay-2s">
-                        <a href="{{ url_for('auth.cadastro') }}" class="btn btn-light btn-lg px-4">
+                        <a href="/cadastro" class="btn btn-light btn-lg px-4">
                             <i class="fas fa-user-plus me-2"></i>Criar Conta
                         </a>
-                        <a href="{{ url_for('servico.lista') }}" class="btn btn-outline-light btn-lg px-4">
+                        <a href="/servicos" class="btn btn-outline-light btn-lg px-4">
                             <i class="fas fa-search me-2"></i>Explorar Serviços
                         </a>
                     </div>
                 {% endif %}
             </div>
         </div>
-        
-        <!-- Busca rápida -->
+        <!-- Busca rápida sem emoji -->
         <div class="row mt-5">
             <div class="col-md-8 mx-auto">
                 <div class="search-box">
-                    <form action="{{ url_for('servico.lista') }}" method="GET" class="d-flex gap-2">
+                    <form action="/servicos" method="GET" class="d-flex gap-2">
                         <input type="text" 
                                name="q" 
                                class="form-control form-control-lg" 
-                               placeholder="🔍 O que você está procurando? Ex: 'pintor', 'encanador', 'designer'..."
+                               placeholder="O que você está procurando? Ex: pintor, encanador, designer..."
                                style="border-radius: 50px; border: none;">
                         <button type="submit" class="btn btn-light btn-lg px-4" style="border-radius: 50px;">
                             <i class="fas fa-search"></i>
@@ -48,8 +46,8 @@
     </div>
 </div>
 
+<!-- Estatísticas -->
 <div class="container mt-5">
-    <!-- Estatísticas -->
     <div class="row mb-5">
         <div class="col-md-3 col-6 mb-3">
             <div class="stat-card text-center">
@@ -80,126 +78,84 @@
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Serviços em Destaque -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="section-title">
-                    <i class="fas fa-star text-warning me-2"></i> Serviços em Destaque
-                    <span class="badge bg-danger ms-2">Premium</span>
-                </h2>
-                <a href="{{ url_for('servico.lista') }}" class="text-decoration-none">Ver todos <i class="fas fa-arrow-right"></i></a>
-            </div>
-        </div>
-        
-        {% if servicos_destaque %}
-            <div class="row g-4">
+<!-- Seção: Serviços em Destaque (carrossel) -->
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title">
+            <i class="fas fa-star text-warning me-2"></i> Serviços em Destaque
+            <span class="badge bg-danger ms-2">Premium</span>
+        </h2>
+        <a href="/servicos" class="text-decoration-none">Ver todos <i class="fas fa-arrow-right"></i></a>
+    </div>
+    {% if servicos_destaque %}
+        <div id="carouselDestaques" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000" data-bs-pause="hover">
+            <div class="carousel-inner">
                 {% for servico in servicos_destaque %}
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card featured-card h-100">
-                            {% if servico.imagem_base64 %}
-                                <div class="card-img-top-wrapper">
-                                    <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
-                                         class="card-img-top" 
-                                         alt="{{ servico.titulo }}"
-                                         loading="lazy">
-                                    <div class="featured-badge">
-                                        {% if servico.destaque_pago and servico.destaque_data_fim and servico.destaque_data_fim > now %}
-                                            <i class="fas fa-crown"></i> Premium
+                    {% if loop.index0 % 3 == 0 %}
+                        <div class="carousel-item {% if loop.first %}active{% endif %}">
+                            <div class="row g-4">
+                    {% endif %}
+                                <div class="col-md-4">
+                                    <div class="card featured-card h-100">
+                                        {% if servico.imagem_base64 %}
+                                            <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" class="card-img-top" style="height: 180px; object-fit: cover;">
                                         {% else %}
-                                            <i class="fas fa-star"></i> Destaque
+                                            <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 180px;">
+                                                <i class="fas fa-briefcase fa-4x text-secondary"></i>
+                                            </div>
                                         {% endif %}
+                                        <div class="card-body">
+                                            <span class="badge bg-secondary mb-2">{{ servico.categoria }}</span>
+                                            <h5 class="card-title">{{ servico.titulo[:50] }}</h5>
+                                            <p class="card-text small text-muted">{{ servico.descricao[:80] }}...</p>
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                {% if servico.preco %}
+                                                    <span class="price">R$ {{ "%.2f"|format(servico.preco) }}</span>
+                                                {% endif %}
+                                                <a href="/servico/{{ servico.id }}" class="btn btn-sm btn-primary">Ver detalhes</a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            {% else %}
-                                <div class="card-img-top-wrapper bg-gradient-primary">
-                                    <div class="card-img-placeholder">
-                                        <i class="fas fa-tools fa-4x text-white"></i>
-                                    </div>
-                                    <div class="featured-badge">
-                                        {% if servico.destaque_pago and servico.destaque_data_fim and servico.destaque_data_fim > now %}
-                                            <i class="fas fa-crown"></i> Premium
-                                        {% else %}
-                                            <i class="fas fa-star"></i> Destaque
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% endif %}
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span class="badge bg-info">{{ servico.categoria }}</span>
-                                    {% if servico.preco %}
-                                        <span class="price-tag">R$ {{ "%.2f"|format(servico.preco) }}</span>
-                                    {% endif %}
-                                </div>
-                                <h5 class="card-title">{{ servico.titulo }}</h5>
-                                <p class="card-text text-muted">{{ servico.descricao[:100] }}{% if servico.descricao|length > 100 %}...{% endif %}</p>
-                                
-                                <!-- Avaliação real -->
-                                <div class="provider-info">
-                                    <i class="fas fa-user-circle"></i> {{ servico.prestador.nome }}
-                                </div>
-                                <div class="rating mb-3">
-                                    {% set media = servico.prestador.media_avaliacoes() %}
-                                    {% for i in range(5) %}
-                                        {% if i < media|round(0, 'floor') %}
-                                            <i class="fas fa-star text-warning"></i>
-                                        {% elif i < media %}
-                                            <i class="fas fa-star-half-alt text-warning"></i>
-                                        {% else %}
-                                            <i class="far fa-star text-warning"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <span class="text-muted ms-2">
-                                        ({{ servico.prestador.total_avaliacoes() }} avaliações)
-                                    </span>
-                                </div>
-                                
-                                <div class="d-flex gap-2 mt-3">
-                                    <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-primary flex-grow-1">
-                                        <i class="fas fa-eye me-1"></i> Detalhes
-                                    </a>
-                                    {% if current_user.is_authenticated %}
-                                        <a href="javascript:void(0)" class="btn btn-outline-info" 
-                                           onclick="iniciarChat({{ servico.prestador.id }}, '{{ servico.prestador.nome }}')">
-                                            <i class="fas fa-comments"></i>
-                                        </a>
-                                    {% endif %}
-                                </div>
+                    {% if loop.index0 % 3 == 2 or loop.last %}
                             </div>
                         </div>
-                    </div>
+                    {% endif %}
                 {% endfor %}
             </div>
-        {% else %}
-            <div class="alert alert-info text-center">
-                <i class="fas fa-info-circle"></i> Nenhum serviço em destaque no momento. 
-                {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
-                    <a href="{{ url_for('servico.cadastro') }}" class="alert-link">Cadastre um serviço agora!</a>
-                {% else %}
-                    <a href="{{ url_for('auth.cadastro') }}" class="alert-link">Cadastre-se como prestador!</a>
-                {% endif %}
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- Categorias Populares com contagem real -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="section-title mb-4">
-                <i class="fas fa-th-large text-primary me-2"></i> Categorias Populares
-            </h2>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselDestaques" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselDestaques" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
         </div>
-        
-        <div class="row g-3">
+    {% else %}
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle"></i> Nenhum serviço em destaque no momento.
+            {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
+                <a href="/cadastro/servico" class="alert-link">Cadastre um serviço agora!</a>
+            {% else %}
+                <a href="/cadastro" class="alert-link">Cadastre-se como prestador!</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Seção: Categorias Populares (com fundo alternado e cores) -->
+<div class="section-alt">
+    <div class="container">
+        <h2 class="section-title">📌 Categorias populares</h2>
+        <div class="row g-4">
             {% if categorias_com_contagem %}
                 {% for cat in categorias_com_contagem %}
                     <div class="col-md-4 col-lg-2">
-                        <a href="{{ url_for('servico.lista') }}?categoria={{ cat.categoria }}" class="text-decoration-none">
-                            <div class="category-card text-center">
-                                <div class="category-icon bg-{{ get_cor_categoria(cat.categoria) }} text-white">
-                                    <i class="fas {{ get_icone_categoria(cat.categoria) }} fa-2x"></i>
+                        <a href="/servicos?categoria={{ cat.categoria }}" class="text-decoration-none">
+                            <div class="category-card text-center" data-color="{{ cat.categoria|lower }}">
+                                <div class="category-icon mx-auto">
+                                    <i class="fas {{ get_icone_categoria(cat.categoria) }} fa-2x text-white"></i>
                                 </div>
                                 <h6 class="mt-3 mb-1">{{ cat.categoria }}</h6>
                                 <small class="text-muted">{{ cat.total }} serviços</small>
@@ -208,22 +164,29 @@
                     </div>
                 {% endfor %}
             {% else %}
-                {% set categorias = [
-                    {'nome': 'Tecnologia', 'icone': 'fa-laptop-code', 'cor': 'primary'},
-                    {'nome': 'Construção', 'icone': 'fa-hard-hat', 'cor': 'success'},
-                    {'nome': 'Limpeza', 'icone': 'fa-broom', 'cor': 'info'},
-                    {'nome': 'Educação', 'icone': 'fa-chalkboard-user', 'cor': 'warning'},
-                    {'nome': 'Saúde', 'icone': 'fa-heartbeat', 'cor': 'danger'},
-                    {'nome': 'Marketing', 'icone': 'fa-chart-line', 'cor': 'secondary'}
-                ] %}
-                {% for cat in categorias %}
+                <!-- Fallback estático com cores variadas -->
+                {% set cores = {
+                    'Tecnologia': '#3b82f6',
+                    'Construção': '#f59e0b',
+                    'Design': '#ec4899',
+                    'Educação': '#10b981',
+                    'Saúde': '#ef4444',
+                    'Marketing': '#8b5cf6'
+                } %}
+                {% for nome, cor in cores.items() %}
                     <div class="col-md-4 col-lg-2">
-                        <a href="{{ url_for('servico.lista') }}?categoria={{ cat.nome }}" class="text-decoration-none">
+                        <a href="/servicos?categoria={{ nome }}" class="text-decoration-none">
                             <div class="category-card text-center">
-                                <div class="category-icon bg-{{ cat.cor }} text-white">
-                                    <i class="fas {{ cat.icone }} fa-2x"></i>
+                                <div class="category-icon mx-auto" style="background: {{ cor }};">
+                                    <i class="fas 
+                                        {% if nome == 'Tecnologia' %}fa-laptop-code
+                                        {% elif nome == 'Construção' %}fa-hard-hat
+                                        {% elif nome == 'Design' %}fa-paintbrush
+                                        {% elif nome == 'Educação' %}fa-chalkboard-user
+                                        {% elif nome == 'Saúde' %}fa-heartbeat
+                                        {% else %}fa-chart-line{% endif %} fa-2x text-white"></i>
                                 </div>
-                                <h6 class="mt-3 mb-1">{{ cat.nome }}</h6>
+                                <h6 class="mt-3 mb-1">{{ nome }}</h6>
                                 <small class="text-muted">Serviços</small>
                             </div>
                         </a>
@@ -232,18 +195,17 @@
             {% endif %}
         </div>
     </div>
+</div>
 
-    <!-- Últimos Serviços Adicionados -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="section-title">
-                    <i class="fas fa-clock text-success me-2"></i> Últimos Serviços
-                </h2>
-                <a href="{{ url_for('servico.lista') }}" class="text-decoration-none">Ver todos <i class="fas fa-arrow-right"></i></a>
-            </div>
+<!-- Seção: Últimos Serviços (com fundo alternado) -->
+<div class="section-alt">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title">
+                <i class="fas fa-clock text-success me-2"></i> Últimos Serviços
+            </h2>
+            <a href="/servicos" class="text-decoration-none">Ver todos <i class="fas fa-arrow-right"></i></a>
         </div>
-        
         <div class="row g-4">
             {% if servicos_recentes %}
                 {% for servico in servicos_recentes[:4] %}
@@ -253,31 +215,25 @@
                                 <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
                                      class="card-img-top" 
                                      alt="{{ servico.titulo }}"
-                                     style="height: 150px; object-fit: cover;"
-                                     loading="lazy">
+                                     style="height: 150px; object-fit: cover;">
                             {% else %}
-                                <div class="card-img-placeholder-small bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 150px;">
                                     <i class="fas fa-image fa-3x text-secondary"></i>
                                 </div>
                             {% endif %}
                             <div class="card-body">
                                 <span class="badge bg-secondary mb-2">{{ servico.categoria }}</span>
-                                <h6 class="card-title">{{ servico.titulo[:50] }}{% if servico.titulo|length > 50 %}...{% endif %}</h6>
+                                <h6 class="card-title">{{ servico.titulo[:50] }}</h6>
                                 <p class="card-text small text-muted">
                                     <i class="fas fa-user"></i> {{ servico.prestador.nome }}
                                 </p>
-                                <p class="card-text small text-muted">
-                                    <i class="fas fa-calendar-alt"></i> {{ servico.data_postagem.strftime('%d/%m/%Y') }}
-                                </p>
                                 <div class="d-flex justify-content-between align-items-center mt-2">
                                     {% if servico.preco %}
-                                        <span class="text-success fw-bold">R$ {{ "%.2f"|format(servico.preco) }}</span>
+                                        <span class="price">R$ {{ "%.2f"|format(servico.preco) }}</span>
                                     {% else %}
                                         <span class="text-muted small">Preço sob consulta</span>
                                     {% endif %}
-                                    <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-sm btn-outline-primary">
-                                        Ver
-                                    </a>
+                                    <a href="/servico/{{ servico.id }}" class="btn btn-sm btn-outline-primary">Ver</a>
                                 </div>
                             </div>
                         </div>
@@ -286,11 +242,11 @@
             {% else %}
                 <div class="col-12">
                     <div class="alert alert-info text-center">
-                        <i class="fas fa-info-circle"></i> Nenhum serviço cadastrado ainda. 
+                        <i class="fas fa-info-circle"></i> Nenhum serviço cadastrado ainda.
                         {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
-                            <a href="{{ url_for('servico.cadastro') }}" class="alert-link">Seja o primeiro a cadastrar!</a>
+                            <a href="/cadastro/servico" class="alert-link">Seja o primeiro a cadastrar!</a>
                         {% else %}
-                            <a href="{{ url_for('auth.cadastro') }}" class="alert-link">Cadastre-se como prestador!</a>
+                            <a href="/cadastro" class="alert-link">Cadastre-se como prestador!</a>
                         {% endif %}
                     </div>
                 </div>
@@ -299,67 +255,52 @@
     </div>
 </div>
 
-<!-- Seção de Depoimentos -->
-<div class="testimonials-section py-5">
+<!-- Seção: Depoimentos (com fundo alternado) -->
+<div class="section-alt">
     <div class="container">
-        <h2 class="text-center mb-5">
+        <h2 class="section-title text-center" style="display: block; text-align: center;">
             <i class="fas fa-quote-left me-2 text-primary"></i> O que dizem nossos clientes
         </h2>
-        <div class="row g-4">
+        <div class="row g-4 mt-2">
             <div class="col-md-4">
                 <div class="testimonial-card">
                     <div class="stars mb-3">
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i>
                         <i class="fas fa-star text-warning"></i>
                     </div>
-                    <p class="testimonial-text">"Excelente plataforma! Encontrei um profissional qualificado em poucos minutos. Recomendo!"</p>
-                    <div class="testimonial-author">
+                    <p>"Excelente plataforma! Encontrei um profissional qualificado em poucos minutos. Recomendo!"</p>
+                    <div class="testimonial-author d-flex align-items-center mt-3">
                         <i class="fas fa-user-circle fa-2x me-2"></i>
-                        <div>
-                            <strong>Maria Silva</strong>
-                            <small class="text-muted">Cliente</small>
-                        </div>
+                        <div><strong>Maria Silva</strong><br><small>Cliente</small></div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="testimonial-card">
                     <div class="stars mb-3">
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i>
                         <i class="fas fa-star text-warning"></i>
                     </div>
-                    <p class="testimonial-text">"Como prestador, consegui vários clientes através da plataforma. Ótimo sistema de chat!"</p>
-                    <div class="testimonial-author">
+                    <p>"Como prestador, consegui vários clientes através da plataforma. Ótimo sistema de chat!"</p>
+                    <div class="testimonial-author d-flex align-items-center mt-3">
                         <i class="fas fa-user-circle fa-2x me-2"></i>
-                        <div>
-                            <strong>João Santos</strong>
-                            <small class="text-muted">Prestador</small>
-                        </div>
+                        <div><strong>João Santos</strong><br><small>Prestador</small></div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="testimonial-card">
                     <div class="stars mb-3">
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i><i class="fas fa-star text-warning"></i>
                         <i class="fas fa-star-half-alt text-warning"></i>
                     </div>
-                    <p class="testimonial-text">"Interface intuitiva e fácil de usar. O suporte é rápido e eficiente. Estou muito satisfeito!"</p>
-                    <div class="testimonial-author">
+                    <p>"Interface intuitiva e fácil de usar. O suporte é rápido e eficiente. Estou muito satisfeito!"</p>
+                    <div class="testimonial-author d-flex align-items-center mt-3">
                         <i class="fas fa-user-circle fa-2x me-2"></i>
-                        <div>
-                            <strong>Ana Oliveira</strong>
-                            <small class="text-muted">Cliente</small>
-                        </div>
+                        <div><strong>Ana Oliveira</strong><br><small>Cliente</small></div>
                     </div>
                 </div>
             </div>
@@ -367,7 +308,7 @@
     </div>
 </div>
 
-<!-- Como Funciona -->
+<!-- Seção: Como Funciona (fundo escuro mantido) -->
 <div class="how-it-works mt-5">
     <div class="container">
         <h2 class="text-center text-white mb-5">Como Funciona</h2>
@@ -405,20 +346,19 @@
         if (prestadorId) {
             sessionStorage.setItem('chat_with_id', prestadorId);
             sessionStorage.setItem('chat_with_name', prestadorNome);
-            window.location.href = "{{ url_for('chat.index') }}";
+            window.location.href = '/chat';
         }
     }
-    
+
     document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
         const usuarioId = urlParams.get('usuario');
-        
         if (usuarioId) {
             sessionStorage.setItem('chat_with_id', usuarioId);
-            window.location.href = "{{ url_for('chat.index') }}";
+            window.location.href = '/chat';
         }
-        
-        // Animação para os cards ao rolar a página
+
+        // Animação de entrada nos cards
         const cards = document.querySelectorAll('.featured-card, .category-card, .recent-card');
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -428,7 +368,6 @@
                 }
             });
         }, { threshold: 0.1 });
-        
         cards.forEach(card => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';

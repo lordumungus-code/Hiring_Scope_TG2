@@ -1,262 +1,80 @@
 {% extends "base.html" %}
-
+{% block search_bar_desktop %}{% endblock %}
+{% block search_bar_mobile %}{% endblock %}
 {% block title %}Meus Serviços - PrestaServiços{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
+    <!-- Cabeçalho da página -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="page-title">
-            <i class="fas fa-briefcase text-primary me-2"></i> Meus Serviços
-        </h1>
-        <a href="{{ url_for('servico.cadastro') }}" class="btn btn-success btn-cadastrar">
+        <h2 class="section-title mb-0">
+            <i class="fas fa-briefcase me-2"></i> Meus Serviços
+        </h2>
+        <a href="/cadastro/servico" class="btn btn-primary-custom">
             <i class="fas fa-plus-circle me-2"></i> Novo Serviço
         </a>
     </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
+    <!-- Lista de serviços -->
     {% if servicos %}
         <div class="row g-4">
             {% for servico in servicos %}
                 <div class="col-md-6 col-lg-4">
-                    <div class="card service-card h-100">
-                        <!-- Imagem do serviço -->
-                        <div class="card-img-wrapper">
-                            {% if servico.imagem_base64 %}
-                                <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
-                                     alt="{{ servico.titulo }}">
+                    <div class="card shadow-sm border-0 rounded-4 h-100 overflow-hidden position-relative">
+                        <!-- Badge de destaque -->
+                        {% if servico.destaque %}
+                            <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill">
+                                <i class="fas fa-star me-1"></i> Destaque
+                            </span>
+                        {% endif %}
+
+                        <!-- Imagem ou placeholder -->
+                        {% if servico.imagem_base64 %}
+                            <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
+                                 class="card-img-top" 
+                                 alt="{{ servico.titulo }}"
+                                 style="height: 160px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 160px;">
+                                <i class="fas fa-image fa-3x text-secondary"></i>
+                            </div>
+                        {% endif %}
+
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-bold">{{ servico.titulo }}</h5>
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-tag me-1"></i> {{ servico.categoria }}
+                            </p>
+                            <p class="card-text text-muted">{{ servico.descricao[:100] }}...</p>
+                            
+                            {% if servico.preco %}
+                                <div class="price mt-2 mb-3">R$ {{ "%.2f"|format(servico.preco) }}</div>
                             {% else %}
-                                <div class="d-flex align-items-center justify-content-center h-100">
-                                    <i class="fas fa-tools fa-4x text-white opacity-50"></i>
-                                </div>
+                                <div class="text-muted small mb-3">Preço sob consulta</div>
                             {% endif %}
-                            {% if servico.destaque %}
-                                <span class="destaque-badge">
-                                    <i class="fas fa-star me-1"></i> Destaque
-                                </span>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="categoria-badge 
-                                    {% if servico.categoria == 'Tecnologia' %}tec
-                                    {% elif servico.categoria == 'Construção' %}const
-                                    {% elif servico.categoria == 'Limpeza' %}limp
-                                    {% elif servico.categoria == 'Educação' %}edu
-                                    {% elif servico.categoria == 'Saúde' %}saude
-                                    {% elif servico.categoria == 'Marketing' %}market
-                                    {% else %}default{% endif %}">
-                                    <i class="fas fa-tag me-1"></i> {{ servico.categoria }}
-                                </span>
-                                {% if servico.preco %}
-                                    <span class="price-tag">R$ {{ "%.2f"|format(servico.preco) }}</span>
-                                {% endif %}
-                            </div>
                             
-                            <h5 class="card-title mb-2">{{ servico.titulo }}</h5>
-                            <p class="card-text text-muted small mb-3">{{ servico.descricao[:100] }}{% if servico.descricao|length > 100 %}...{% endif %}</p>
-                            
-                            <div class="service-stats mb-3">
-                                <span class="me-3">
-                                    <i class="fas fa-calendar-alt me-1 text-muted"></i>
-                                    <small>{{ servico.data_postagem.strftime('%d/%m/%Y') }}</small>
-                                </span>
-                                <span>
-                                    <i class="fas fa-envelope me-1 text-muted"></i>
-                                    <small>{{ servico.solicitacoes|length }} solicitações</small>
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="card-footer bg-transparent border-top-0 pb-3">
-                            <div class="d-flex gap-2">
-                                <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-primary flex-grow-1">
-                                    <i class="fas fa-eye me-1"></i> Detalhes
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt me-1"></i> {{ servico.data_postagem.strftime('%d/%m/%Y') }}
+                                </small>
+                                <a href="/servico/{{ servico.id }}" class="btn btn-sm btn-primary-custom rounded-pill px-3">
+                                    Ver detalhes
                                 </a>
-                                <a href="{{ url_for('servico.editar', id=servico.id) }}" class="btn btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button onclick="confirmarExclusao({{ servico.id }})" class="btn btn-danger">
-                                    <i class="fas fa-trash"></i>
-                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
-        
-        <div class="text-center mt-4">
-            <a href="{{ url_for('servico.cadastro') }}" class="btn btn-outline-success">
-                <i class="fas fa-plus-circle me-2"></i> Cadastrar mais serviços
-            </a>
-        </div>
     {% else %}
-        <div class="empty-state">
-            <i class="fas fa-briefcase fa-5x text-muted mb-4"></i>
-            <h4>Nenhum serviço cadastrado</h4>
-            <p class="text-muted">Você ainda não cadastrou nenhum serviço. Comece agora mesmo!</p>
-            <a href="{{ url_for('servico.cadastro') }}" class="btn btn-success btn-lg mt-3">
-                <i class="fas fa-plus-circle me-2"></i> Cadastrar Primeiro Serviço
+        <div class="alert alert-info rounded-4 text-center p-5 mt-4">
+            <i class="fas fa-info-circle fa-3x mb-3"></i>
+            <h4 class="alert-heading">Nenhum serviço cadastrado!</h4>
+            <p>Você ainda não cadastrou nenhum serviço. Clique no botão "Novo Serviço" para começar.</p>
+            <a href="/cadastro/servico" class="btn btn-primary-custom mt-2">
+                <i class="fas fa-plus-circle me-2"></i> Cadastrar meu primeiro serviço
             </a>
         </div>
     {% endif %}
 </div>
-
-<style>
-    .page-title {
-        font-size: 1.8rem;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0;
-    }
-    
-    .btn-cadastrar {
-        background: linear-gradient(45deg, #28a745, #20c997);
-        border: none;
-        padding: 10px 24px;
-        border-radius: 25px;
-        font-weight: 600;
-        transition: all 0.3s;
-    }
-    
-    .btn-cadastrar:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
-    }
-    
-    .service-card {
-        border: none;
-        border-radius: 15px;
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        background: white;
-    }
-    
-    .service-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-    }
-    
-    .card-img-wrapper {
-        position: relative;
-        height: 180px;
-        overflow: hidden;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .card-img-wrapper img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.4s ease;
-    }
-    
-    .service-card:hover .card-img-wrapper img {
-        transform: scale(1.05);
-    }
-    
-    .destaque-badge {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: gold;
-        color: #333;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: bold;
-        z-index: 2;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    
-    .categoria-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-    }
-    
-    .categoria-badge.tec { background: #e3f2fd; color: #1976d2; }
-    .categoria-badge.const { background: #fff3e0; color: #f57c00; }
-    .categoria-badge.limp { background: #e8f5e9; color: #388e3c; }
-    .categoria-badge.edu { background: #f3e5f5; color: #7b1fa2; }
-    .categoria-badge.saude { background: #ffebee; color: #c62828; }
-    .categoria-badge.market { background: #e0f2fe; color: #0284c7; }
-    .categoria-badge.default { background: #f5f5f5; color: #666; }
-    
-    .price-tag {
-        background: #28a745;
-        color: white;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: bold;
-    }
-    
-    .service-stats {
-        font-size: 0.8rem;
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    }
-    
-    @media (max-width: 768px) {
-        .page-title {
-            font-size: 1.4rem;
-        }
-        
-        .btn-cadastrar {
-            padding: 8px 16px;
-            font-size: 0.9rem;
-        }
-        
-        .service-card {
-            margin-bottom: 1rem;
-        }
-    }
-</style>
-
-<script>
-    function confirmarExclusao(servicoId) {
-        if (confirm('Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita.')) {
-            fetch(`/servico/excluir/${servicoId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Erro ao excluir serviço: ' + (data.error || 'Tente novamente'));
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao excluir serviço. Tente novamente.');
-            });
-        }
-    }
-</script>
 {% endblock %}

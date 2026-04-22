@@ -1,31 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Serviços Disponíveis - PrestaServiços{% endblock %}
+{% block title %}
+    {% if categoria %}
+        Serviços de {{ categoria }} - PrestaServiços
+    {% else %}
+        Todos os Serviços - PrestaServiços
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-        <h1 class="page-title">
+    <!-- Cabeçalho da página -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h2 class="section-title mb-0">
+            <i class="fas fa-briefcase me-2"></i>
             {% if categoria %}
-                <i class="fas fa-tag text-primary me-2"></i> Serviços de {{ categoria }}
+                Serviços de {{ categoria }}
             {% else %}
-                <i class="fas fa-briefcase text-primary me-2"></i> Todos os Serviços
+                Todos os Serviços
             {% endif %}
-        </h1>
-        <a href="{{ url_for('main.index') }}" class="btn btn-voltar">
-            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </h2>
+        <a href="/" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="fas fa-arrow-left me-2"></i> Voltar
         </a>
     </div>
     
     <!-- Filtros -->
-    <div class="filter-card card">
-        <div class="card-body">
-            <form method="GET" action="{{ url_for('servico.lista') }}" class="row g-3 align-items-end">
+    <div class="card shadow-sm border-0 rounded-4 mb-5 overflow-hidden">
+        <div class="card-body p-4">
+            <form method="GET" class="row g-3 align-items-end">
                 <div class="col-md-4">
-                    <label for="categoria" class="form-label fw-bold">
+                    <label for="categoria" class="form-label fw-semibold">
                         <i class="fas fa-filter me-1"></i> Filtrar por Categoria
                     </label>
-                    <select class="form-select" id="categoria" name="categoria" onchange="this.form.submit()" style="border-radius: 10px;">
+                    <select class="form-select rounded-pill" id="categoria" name="categoria" onchange="this.form.submit()">
                         <option value="">Todas as categorias</option>
                         <option value="Tecnologia" {% if categoria == 'Tecnologia' %}selected{% endif %}>💻 Tecnologia</option>
                         <option value="Construção" {% if categoria == 'Construção' %}selected{% endif %}>🏗️ Construção</option>
@@ -37,7 +45,7 @@
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary w-100" style="border-radius: 10px;">
+                    <button type="submit" class="btn btn-primary-custom rounded-pill w-100">
                         <i class="fas fa-search me-2"></i> Aplicar Filtro
                     </button>
                 </div>
@@ -45,73 +53,70 @@
         </div>
     </div>
     
+    <!-- Lista de serviços -->
     {% if servicos %}
         <div class="row g-4">
             {% for servico in servicos %}
                 <div class="col-md-6 col-lg-4">
-                    <div class="service-card">
+                    <div class="card shadow-sm border-0 rounded-4 h-100 overflow-hidden position-relative">
                         <!-- Imagem do serviço -->
-                        <div class="card-img-wrapper">
+                        <div class="card-img-top position-relative" style="height: 200px; overflow: hidden; background: var(--gradient-main);">
                             {% if servico.imagem_base64 %}
                                 <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
-                                     alt="{{ servico.titulo }}">
+                                     alt="{{ servico.titulo }}"
+                                     style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
                             {% else %}
                                 <div class="d-flex align-items-center justify-content-center h-100">
                                     <i class="fas fa-tools fa-4x text-white opacity-50"></i>
                                 </div>
                             {% endif %}
                             {% if servico.destaque %}
-                                <span class="destaque-badge">
+                                <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill">
                                     <i class="fas fa-star me-1"></i> Destaque
                                 </span>
                             {% endif %}
                         </div>
                         
                         <div class="card-body p-4">
-                            <!-- Categoria -->
                             <div class="mb-2">
-                                <span class="categoria-badge 
-                                    {% if servico.categoria == 'Tecnologia' %}tec
-                                    {% elif servico.categoria == 'Construção' %}const
-                                    {% elif servico.categoria == 'Limpeza' %}limp
-                                    {% elif servico.categoria == 'Educação' %}edu
-                                    {% elif servico.categoria == 'Saúde' %}saude
-                                    {% elif servico.categoria == 'Marketing' %}market
-                                    {% else %}default{% endif %}">
+                                <span class="badge-categoria rounded-pill px-3 py-2 fs-8"
+                                      data-categoria="{{ servico.categoria }}">
                                     <i class="fas fa-tag me-1"></i> {{ servico.categoria }}
                                 </span>
                             </div>
                             
-                            <h5 class="card-title mb-2">{{ servico.titulo }}</h5>
+                            <h5 class="card-title fw-bold mb-2">{{ servico.titulo }}</h5>
                             <p class="card-text text-muted small mb-3">{{ servico.descricao[:100] }}{% if servico.descricao|length > 100 %}...{% endif %}</p>
                             
                             <!-- Preço -->
                             <div class="mb-3">
                                 {% if servico.preco %}
-                                    <span class="preco-tag">
+                                    <span class="price-tag d-inline-block rounded-pill px-3 py-2 bg-success text-white fs-6">
                                         <i class="fas fa-dollar-sign me-1"></i> R$ {{ "%.2f"|format(servico.preco) }}
                                     </span>
                                 {% else %}
-                                    <span class="preco-consulta">
+                                    <span class="bg-secondary text-white rounded-pill px-3 py-2 fs-6">
                                         <i class="fas fa-comments me-1"></i> Preço sob consulta
                                     </span>
                                 {% endif %}
                             </div>
                             
-                            <!-- Prestador -->
-                            <div class="provider-info">
-                                <i class="fas fa-user-circle me-2"></i>
-                                <strong>{{ servico.prestador.nome }}</strong>
-                                <br>
-                                <small class="text-muted">
-                                    <i class="fas fa-calendar-alt me-1"></i> 
-                                    {{ servico.data_postagem.strftime('%d/%m/%Y') }}
-                                </small>
+                            <!-- Prestador e data -->
+                            <div class="border-top pt-3 mt-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-user-circle fa-lg text-primary"></i>
+                                    <div>
+                                        <strong>{{ servico.prestador.nome }}</strong><br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar-alt me-1"></i> {{ servico.data_postagem.strftime('%d/%m/%Y') }}
+                                        </small>
+                                    </div>
+                                </div>
                             </div>
                             
-                            <!-- Botão de detalhes -->
+                            <!-- Botão detalhes -->
                             <div class="mt-3">
-                                <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-detalhes btn-primary w-100">
+                                <a href="/servico/{{ servico.id }}" class="btn btn-primary-custom w-100 rounded-pill">
                                     <i class="fas fa-eye me-2"></i> Ver Detalhes
                                 </a>
                             </div>
@@ -121,172 +126,44 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="no-results">
-            <i class="fas fa-search"></i>
-            <h4>Nenhum serviço encontrado</h4>
-            <p class="text-muted">Não encontramos serviços nesta categoria.</p>
-            <a href="{{ url_for('servico.lista') }}" class="btn btn-primary mt-3">
-                <i class="fas fa-sync-alt me-2"></i> Limpar filtros
-            </a>
+        <div class="text-center py-5">
+            <div class="card shadow-sm border-0 rounded-4 p-5">
+                <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                <h4>Nenhum serviço encontrado</h4>
+                <p class="text-muted">Não encontramos serviços nesta categoria.</p>
+                <a href="/servicos" class="btn btn-primary-custom rounded-pill mt-2 align-self-center">
+                    <i class="fas fa-sync-alt me-2"></i> Limpar filtros
+                </a>
+            </div>
         </div>
     {% endif %}
 </div>
 
 <style>
-    .page-title {
-        font-size: 2rem;
+    .badge-categoria {
+        display: inline-block;
+        font-size: 0.75rem;
         font-weight: 600;
-        color: #333;
-        margin-bottom: 0;
+        background: #f1f5f9;
+        color: #1e293b;
     }
+    .badge-categoria[data-categoria="Tecnologia"] { background: #e0f2fe; color: #0369a1; }
+    .badge-categoria[data-categoria="Construção"] { background: #ffedd5; color: #c2410c; }
+    .badge-categoria[data-categoria="Limpeza"] { background: #dcfce7; color: #15803d; }
+    .badge-categoria[data-categoria="Educação"] { background: #f3e8ff; color: #6b21a5; }
+    .badge-categoria[data-categoria="Saúde"] { background: #ffe4e6; color: #be123c; }
+    .badge-categoria[data-categoria="Marketing"] { background: #dbeafe; color: #1d4ed8; }
+    .badge-categoria[data-categoria="Design"] { background: #fce7f3; color: #be185d; }
     
-    .filter-card {
-        background: white;
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        margin-bottom: 30px;
+    .price-tag, .bg-secondary {
+        font-size: 0.85rem;
+        font-weight: 600;
     }
-    
-    .service-card {
-        border: none;
-        border-radius: 15px;
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        background: white;
-        height: 100%;
-    }
-    
-    .service-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    }
-    
-    .card-img-wrapper {
-        position: relative;
-        height: 200px;
-        overflow: hidden;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .card-img-wrapper img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.4s ease;
-    }
-    
-    .service-card:hover .card-img-wrapper img {
+    .card-img-top img:hover {
         transform: scale(1.05);
     }
-    
-    .destaque-badge {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: gold;
-        color: #333;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: bold;
-        z-index: 2;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    
-    .categoria-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-        margin-bottom: 10px;
-    }
-    
-    .categoria-badge.tec { background: #e3f2fd; color: #1976d2; }
-    .categoria-badge.const { background: #fff3e0; color: #f57c00; }
-    .categoria-badge.limp { background: #e8f5e9; color: #388e3c; }
-    .categoria-badge.edu { background: #f3e5f5; color: #7b1fa2; }
-    .categoria-badge.saude { background: #ffebee; color: #c62828; }
-    .categoria-badge.market { background: #e0f2fe; color: #0284c7; }
-    .categoria-badge.default { background: #f5f5f5; color: #666; }
-    
-    .preco-tag {
-        background: #28a745;
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: bold;
-        display: inline-block;
-    }
-    
-    .preco-consulta {
-        background: #6c757d;
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        display: inline-block;
-    }
-    
-    .provider-info {
-        color: #6c757d;
-        font-size: 14px;
-        margin-top: 10px;
-        padding-top: 10px;
-        border-top: 1px solid #eee;
-    }
-    
-    .btn-detalhes {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        padding: 8px 20px;
-        border-radius: 25px;
-        transition: transform 0.2s;
-    }
-    
-    .btn-detalhes:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    .btn-voltar {
-        background: #6c757d;
-        border: none;
-        border-radius: 25px;
-        padding: 8px 20px;
-        transition: all 0.2s;
-    }
-    
-    .btn-voltar:hover {
-        background: #5a6268;
-        transform: translateY(-2px);
-    }
-    
-    .no-results {
-        text-align: center;
-        padding: 60px 20px;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    
-    .no-results i {
-        font-size: 64px;
-        color: #cbd5e1;
-        margin-bottom: 20px;
-    }
-    
-    @media (max-width: 768px) {
-        .page-title {
-            font-size: 1.5rem;
-        }
-        
-        .card-img-wrapper {
-            height: 160px;
-        }
+    .fs-8 {
+        font-size: 0.75rem;
     }
 </style>
 {% endblock %}

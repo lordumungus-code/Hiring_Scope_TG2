@@ -4,60 +4,34 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="page-title">
-            <i class="fas fa-users text-primary me-2"></i> Clientes Cadastrados
-        </h1>
-        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h2 class="section-title mb-0">
+            <i class="fas fa-users me-2"></i> Clientes Cadastrados
+        </h2>
+        <a href="/" class="btn btn-outline-secondary rounded-pill px-4">
             <i class="fas fa-arrow-left me-2"></i> Voltar ao Início
         </a>
     </div>
-    
+
     {% if clientes %}
         <div class="row g-4">
             {% for cliente in clientes %}
                 <div class="col-md-6 col-lg-4">
-                    <div class="card client-card h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                {% if cliente.foto_url %}
-                                    <img src="{{ cliente.foto_url }}" class="rounded-circle me-3" width="50" height="50" style="object-fit: cover;">
-                                {% elif cliente.foto_perfil and cliente.foto_perfil != 'default.jpg' %}
-                                    <img src="data:image/jpeg;base64,{{ cliente.foto_perfil }}" class="rounded-circle me-3" width="50" height="50" style="object-fit: cover;">
-                                {% else %}
-                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                        <span class="text-white fw-bold fs-4">{{ cliente.nome[0]|upper }}</span>
-                                    </div>
-                                {% endif %}
+                    <div class="card shadow-sm border-0 rounded-4 h-100 overflow-hidden">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <span class="text-white fw-bold fs-4">{{ cliente.nome[0]|upper }}</span>
+                                </div>
                                 <div>
-                                    <h5 class="card-title mb-0">{{ cliente.nome }}</h5>
-                                    <small class="text-muted">
-                                        <i class="fas fa-calendar-alt me-1"></i> 
-                                        {{ cliente.data_cadastro.strftime('%d/%m/%Y') }}
-                                    </small>
+                                    <h5 class="card-title fw-bold mb-0">{{ cliente.nome }}</h5>
+                                    <small class="text-muted">Membro desde {{ cliente.data_cadastro.strftime('%d/%m/%Y') }}</small>
                                 </div>
                             </div>
-                            
-                            <p class="card-text">
-                                <strong><i class="fas fa-envelope me-2 text-primary"></i> Email:</strong><br>
-                                {{ cliente.email }}
-                            </p>
-                            <p class="card-text">
-                                <strong><i class="fas fa-phone me-2 text-primary"></i> Telefone:</strong><br>
-                                {{ cliente.telefone or 'Não informado' }}
-                            </p>
-                            <hr>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="fas fa-briefcase text-primary me-1"></i>
-                                    <strong>{{ cliente.servicos|length }}</strong>
-                                    <small class="text-muted">serviços</small>
-                                </div>
-                                {% if cliente.servicos|length > 0 %}
-                                    <a href="{{ url_for('servico.lista') }}?cliente={{ cliente.id }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-eye me-1"></i> Ver serviços
-                                    </a>
-                                {% endif %}
+                            <div class="border-top pt-3 mt-2">
+                                <p class="mb-2"><i class="fas fa-envelope me-2 text-primary"></i> {{ cliente.email }}</p>
+                                <p class="mb-2"><i class="fas fa-phone me-2 text-primary"></i> {{ cliente.telefone or 'Não informado' }}</p>
+                                <p class="mb-0"><i class="fas fa-briefcase me-2 text-primary"></i> Total de serviços: <strong>{{ cliente.servicos|length }}</strong></p>
                             </div>
                         </div>
                     </div>
@@ -65,54 +39,16 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="empty-state">
-            <i class="fas fa-users fa-5x text-muted mb-4"></i>
-            <h4>Nenhum cliente cadastrado</h4>
-            <p class="text-muted">Ainda não há clientes na plataforma.</p>
-            <a href="{{ url_for('auth.cadastro') }}" class="btn btn-primary mt-3">
-                <i class="fas fa-user-plus me-2"></i> Convidar um cliente
-            </a>
+        <div class="text-center py-5">
+            <div class="card shadow-sm border-0 rounded-4 p-5">
+                <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                <h4>Nenhum cliente cadastrado ainda</h4>
+                <p class="text-muted">Seja o primeiro a se cadastrar como cliente!</p>
+                <a href="/cadastro" class="btn btn-primary-custom rounded-pill mt-2 align-self-center">
+                    <i class="fas fa-user-plus me-2"></i> Cadastrar agora
+                </a>
+            </div>
         </div>
     {% endif %}
 </div>
-
-<style>
-    .page-title {
-        font-size: 1.8rem;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0;
-    }
-    
-    .client-card {
-        border: none;
-        border-radius: 15px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        background: white;
-    }
-    
-    .client-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    }
-    
-    @media (max-width: 768px) {
-        .page-title {
-            font-size: 1.4rem;
-        }
-        
-        .client-card {
-            margin-bottom: 1rem;
-        }
-    }
-</style>
 {% endblock %}

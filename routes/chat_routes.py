@@ -11,6 +11,7 @@ chat_bp = Blueprint('chat', __name__, url_prefix='/chat')
 def index():
     """Página principal do chat"""
     try:
+        # Busca usuários que já trocaram mensagem com o current_user
         usuarios_chat = db.session.query(Usuario).distinct().join(
             Mensagem,
             ((Mensagem.remetente_id == Usuario.id) & (Mensagem.destinatario_id == current_user.id)) |
