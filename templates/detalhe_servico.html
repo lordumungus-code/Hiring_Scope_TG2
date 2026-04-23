@@ -4,7 +4,6 @@
 
 {% block content %}
 <style>
-    /* Estilos originais */
     .servico-detalhe {
         background: white;
         border-radius: 15px;
@@ -17,7 +16,6 @@
         padding: 20px;
         margin-top: 20px;
     }
-    /* Botão Solicitar (verde gradiente, mantido) */
     .btn-solicitar {
         background: linear-gradient(45deg, #28a745, #20c997);
         border: none;
@@ -26,8 +24,13 @@
         border-radius: 50px;
         width: 100%;
         color: white;
+        transition: all 0.3s ease;
     }
-    /* Botão Chat (agora com gradiente azul do sistema) */
+    .btn-solicitar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+        color: white;
+    }
     .btn-chat {
         background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
         border: none;
@@ -36,12 +39,13 @@
         border-radius: 50px;
         width: 100%;
         color: white;
+        transition: all 0.3s ease;
     }
     .btn-chat:hover {
-        background: linear-gradient(135deg, #0a2a5a, #144e75);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(11,43,92,0.3);
         color: white;
     }
-    /* Botão Editar (laranja, mas ajustado para tom mais suave) */
     .btn-editar {
         background: linear-gradient(45deg, #f59e0b, #d97706);
         border: none;
@@ -51,17 +55,31 @@
         width: 100%;
         color: white;
         font-weight: bold;
+        transition: all 0.3s ease;
     }
     .btn-editar:hover {
-        background: linear-gradient(45deg, #d97706, #b45309);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(245,158,11,0.3);
+        color: white;
+    }
+    .preco-card {
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        border-radius: 15px;
+        padding: 15px;
+        margin: 15px 0;
+    }
+    .badge-preco {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+        background: #10b981;
         color: white;
     }
 </style>
 
 <div class="container mt-5">
     <div class="mb-3">
-        <a href="javascript:history.back()" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Voltar
+        <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-pill">
+            <i class="fas fa-arrow-left me-2"></i> Voltar
         </a>
     </div>
 
@@ -69,20 +87,23 @@
         <div class="row">
             <div class="col-md-8">
                 <h1 class="mb-3">{{ servico.titulo }}</h1>
+                
                 {% if servico.imagem_base64 %}
                 <div class="text-center mb-4">
                     <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
                         alt="{{ servico.titulo }}" 
-                        style="max-width: 100%; max-height: 300px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                        class="img-fluid rounded-4 shadow-sm"
+                        style="max-height: 300px; width: auto;">
                 </div>
                 {% endif %}
+                
                 <div class="mb-3">
                     {% if servico.destaque %}
-                        <span class="badge bg-warning text-dark">
-                            <i class="fas fa-star"></i> Serviço em Destaque
+                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill me-2">
+                            <i class="fas fa-star"></i> Destaque
                         </span>
                     {% endif %}
-                    <span class="badge bg-info">
+                    <span class="badge bg-info px-3 py-2 rounded-pill">
                         <i class="fas fa-tag"></i> {{ servico.categoria }}
                     </span>
                 </div>
@@ -90,33 +111,119 @@
                 <h5 class="mb-3">Descrição do Serviço:</h5>
                 <p class="mb-4">{{ servico.descricao }}</p>
 
-                {% if servico.preco %}
-                    <div class="mb-4">
-                        <h4 class="text-success">
-                            <i class="fas fa-dollar-sign"></i> R$ {{ "%.2f"|format(servico.preco) }}
-                        </h4>
-                        <small class="text-muted">*Valor a combinar com o prestador</small>
+                <!-- ============================================ -->
+                <!-- PREÇO DINÂMICO - Tipos de precificação -->
+                <!-- ============================================ -->
+                {% if servico.tipo_preco and servico.tipo_preco != 'consulta' %}
+                <div class="preco-card mb-4">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                        <div>
+                            <span class="badge-preco rounded-pill">
+                                {% if servico.tipo_preco == 'fixo' %}
+                                    <i class="fas fa-tag me-1"></i> PREÇO FIXO
+                                {% elif servico.tipo_preco == 'hora' %}
+                                    <i class="fas fa-clock me-1"></i> PREÇO POR HORA
+                                {% elif servico.tipo_preco == 'dia' %}
+                                    <i class="fas fa-calendar-day me-1"></i> PREÇO POR DIA
+                                {% elif servico.tipo_preco == 'metro' %}
+                                    <i class="fas fa-ruler-combined me-1"></i> PREÇO POR M²
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <h2 class="text-success mb-0">
+                                <i class="fas fa-dollar-sign"></i> R$ {{ "%.2f"|format(servico.preco) }}
+                                {% if servico.tipo_preco == 'hora' %}
+                                    <small class="text-muted fs-6">/hora</small>
+                                {% elif servico.tipo_preco == 'dia' %}
+                                    <small class="text-muted fs-6">/dia</small>
+                                {% elif servico.tipo_preco == 'metro' %}
+                                    <small class="text-muted fs-6">/m²</small>
+                                {% endif %}
+                            </h2>
+                            <small class="text-muted">
+                                {% if servico.tipo_preco == 'fixo' %}
+                                    *Valor fixo pelo serviço completo
+                                {% elif servico.tipo_preco == 'hora' %}
+                                    *Valor cobrado por hora trabalhada
+                                {% elif servico.tipo_preco == 'dia' %}
+                                    *Valor por diária (8h de trabalho)
+                                {% elif servico.tipo_preco == 'metro' %}
+                                    *Valor por metro quadrado
+                                {% endif %}
+                            </small>
+                        </div>
                     </div>
+                </div>
+                {% elif servico.tipo_preco == 'consulta' %}
+                <div class="preco-card mb-4 bg-info bg-opacity-25">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                        <div>
+                            <span class="badge bg-info rounded-pill">
+                                <i class="fas fa-comments me-1"></i> SOB CONSULTA
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <h3 class="text-info mb-0">
+                                <i class="fas fa-handshake"></i> Orçamento Personalizado
+                            </h3>
+                            <small class="text-muted">*Entre em contato para solicitar orçamento</small>
+                        </div>
+                    </div>
+                </div>
+                {% elif servico.preco %}
+                <div class="preco-card mb-4">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                        <div>
+                            <span class="badge-preco rounded-pill">
+                                <i class="fas fa-tag me-1"></i> VALOR
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <h2 class="text-success mb-0">
+                                <i class="fas fa-dollar-sign"></i> R$ {{ "%.2f"|format(servico.preco) }}
+                            </h2>
+                            <small class="text-muted">*Valor a combinar com o prestador</small>
+                        </div>
+                    </div>
+                </div>
                 {% endif %}
             </div>
 
             <div class="col-md-4">
-                <div class="prestador-info">
-                    <h5 class="mb-3"><i class="fas fa-user-tie"></i> Sobre o Prestador</h5>
+                <div class="prestador-info rounded-4">
+                    <h5 class="mb-3"><i class="fas fa-user-tie text-primary"></i> Sobre o Prestador</h5>
                     <p><strong>Nome:</strong> {{ servico.prestador.nome }}</p>
-                    <p><strong>Telefone:</strong> {{ servico.prestador.telefone }}</p>
+                    <p><strong>Telefone:</strong> {{ servico.prestador.telefone or 'Não informado' }}</p>
                     <p><strong>Email:</strong> {{ servico.prestador.email }}</p>
                     <p><strong>Membro desde:</strong> {{ servico.prestador.data_cadastro.strftime('%d/%m/%Y') }}</p>
+                    
+                    {% if servico.prestador.media_avaliacoes() > 0 %}
                     <hr>
-                    <p class="mb-0"><strong>Total de serviços:</strong> {{ servico.prestador.servicos_oferecidos|length }}</p>
+                    <div class="text-center">
+                        <strong>Avaliação:</strong>
+                        <div class="rating">
+                            {% for i in range(5) %}
+                                {% if i < servico.prestador.media_avaliacoes()|round(0, 'floor') %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% elif i < servico.prestador.media_avaliacoes() %}
+                                    <i class="fas fa-star-half-alt text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-2">({{ servico.prestador.total_avaliacoes() }} avaliações)</span>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
 
-                <!-- Botão Chat com aspas simples e escape manual -->
+                <!-- Botão Chat -->
                 {% if current_user.is_authenticated %}
                     <div class="mt-3">
                         <button onclick="iniciarChat({{ servico.prestador.id }}, '{{ servico.prestador.nome|replace("'", "\\'") }}')" 
-                                class="btn btn-info btn-chat">
-                            <i class="fas fa-comments"></i> Conversar com o Prestador
+                                class="btn btn-chat">
+                            <i class="fas fa-comments me-2"></i> Conversar com o Prestador
                         </button>
                     </div>
                 {% endif %}
@@ -124,24 +231,24 @@
                 <!-- Botão Solicitar -->
                 {% if current_user.is_authenticated and current_user.tipo == 'cliente' %}
                     <div class="mt-3">
-                        <button type="button" class="btn btn-success btn-solicitar" data-bs-toggle="modal" data-bs-target="#solicitarModal">
-                            <i class="fas fa-paper-plane"></i> Solicitar este Serviço
+                        <button type="button" class="btn btn-solicitar" data-bs-toggle="modal" data-bs-target="#solicitarModalNovo">
+                            <i class="fas fa-handshake me-2"></i> Solicitar Este Serviço
                         </button>
                     </div>
                 {% elif not current_user.is_authenticated %}
                     <div class="mt-3">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i>
-                            <a href="/login">Faça login</a> como cliente para solicitar este serviço.
+                        <div class="alert alert-info rounded-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <a href="/login" class="alert-link">Faça login</a> como cliente para solicitar este serviço.
                         </div>
                     </div>
                 {% endif %}
 
-                <!-- Botão Editar -->
+                <!-- Botão Editar (apenas para o prestador dono do serviço) -->
                 {% if current_user.is_authenticated and current_user.id == servico.prestador_id %}
                     <div class="mt-3">
-                        <a href="/servico/editar/{{ servico.id }}" class="btn btn-warning w-100 btn-editar">
-                            <i class="fas fa-edit"></i> Editar Serviço
+                        <a href="/servico/editar/{{ servico.id }}" class="btn btn-editar">
+                            <i class="fas fa-edit me-2"></i> Editar Serviço
                         </a>
                     </div>
                 {% endif %}
@@ -150,31 +257,56 @@
     </div>
 </div>
 
-<!-- Modal Solicitar -->
+<!-- MODAL DE SOLICITAÇÃO -->
 {% if current_user.is_authenticated and current_user.tipo == 'cliente' %}
-<div class="modal fade" id="solicitarModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="fas fa-paper-plane"></i> Solicitar Serviço</h5>
+<div class="modal fade" id="solicitarModalNovo" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-file-contract me-2"></i>Solicitar Serviço
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/solicitar/{{ servico.id }}" method="POST">
+            <form action="{{ url_for('contrato.solicitar_servico', servico_id=servico.id) }}" method="POST">
                 <div class="modal-body">
-                    <p>Você está solicitando o serviço: <strong>{{ servico.titulo }}</strong></p>
-                    <p><small class="text-muted">Prestador: {{ servico.prestador.nome }}</small></p>
-                    <div class="mb-3">
-                        <label for="mensagem" class="form-label">Mensagem (opcional):</label>
-                        <textarea class="form-control" id="mensagem" name="mensagem" rows="4" 
-                                  placeholder="Descreva suas necessidades..."></textarea>
+                    <div class="bg-light p-3 rounded-3 mb-3">
+                        <p class="mb-1"><strong>📋 Serviço:</strong> {{ servico.titulo }}</p>
+                        <p class="mb-1"><strong>👤 Prestador:</strong> {{ servico.prestador.nome }}</p>
+                        {% if servico.tipo_preco and servico.tipo_preco != 'consulta' %}
+                            <p class="mb-0">
+                                <strong>💰 Preço:</strong> 
+                                R$ {{ "%.2f"|format(servico.preco) }}
+                                {% if servico.tipo_preco == 'hora' %}/hora{% elif servico.tipo_preco == 'dia' %}/dia{% elif servico.tipo_preco == 'metro' %}/m²{% endif %}
+                            </p>
+                        {% elif servico.tipo_preco == 'consulta' %}
+                            <p class="mb-0"><strong>💰 Preço:</strong> Sob consulta - orçamento personalizado</p>
+                        {% elif servico.preco %}
+                            <p class="mb-0"><strong>💰 Preço:</strong> R$ {{ "%.2f"|format(servico.preco) }}</p>
+                        {% endif %}
                     </div>
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> O prestador será notificado.
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mensagem para o prestador</label>
+                        <textarea name="mensagem" class="form-control rounded-3" rows="4" 
+                                  placeholder="Descreva o que você precisa, prazo desejado, endereço, etc..."></textarea>
+                        <small class="text-muted">Opcional, mas recomendado para agilizar seu atendimento.</small>
+                    </div>
+                    
+                    <div class="alert alert-info small rounded-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Como funciona?</strong><br>
+                        1. Você solicita o serviço<br>
+                        2. O prestador analisa e aceita<br>
+                        3. Combinam os detalhes pelo chat<br>
+                        4. Após conclusão, você poderá avaliar o serviço ⭐
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Enviar Solicitação</button>
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill">
+                        <i class="fas fa-paper-plane me-2"></i> Enviar Solicitação
+                    </button>
                 </div>
             </form>
         </div>

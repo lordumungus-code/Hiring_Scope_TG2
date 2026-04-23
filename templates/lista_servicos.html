@@ -1,169 +1,228 @@
 {% extends "base.html" %}
 
-{% block title %}
-    {% if categoria %}
-        Serviços de {{ categoria }} - PrestaServiços
-    {% else %}
-        Todos os Serviços - PrestaServiços
-    {% endif %}
-{% endblock %}
+{% block title %}Serviços - PrestaServiços{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <!-- Cabeçalho da página -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h2 class="section-title mb-0">
-            <i class="fas fa-briefcase me-2"></i>
-            {% if categoria %}
-                Serviços de {{ categoria }}
-            {% else %}
-                Todos os Serviços
+    <!-- Cabeçalho -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">
+                <i class="fas fa-search text-primary me-2"></i>
+                {% if termo_busca %}
+                    Resultados para: "{{ termo_busca }}"
+                {% elif categoria %}
+                    Categoria: {{ categoria }}
+                {% else %}
+                    Todos os Serviços
+                {% endif %}
+            </h2>
+            {% if termo_busca %}
+                <p class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Encontramos {{ servicos|length }} serviço(s) para sua busca
+                    <a href="/servicos" class="ms-3">Limpar busca →</a>
+                </p>
             {% endif %}
-        </h2>
-        <a href="/" class="btn btn-outline-secondary rounded-pill px-4">
-            <i class="fas fa-arrow-left me-2"></i> Voltar
-        </a>
-    </div>
-    
-    <!-- Filtros -->
-    <div class="card shadow-sm border-0 rounded-4 mb-5 overflow-hidden">
-        <div class="card-body p-4">
-            <form method="GET" class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label for="categoria" class="form-label fw-semibold">
-                        <i class="fas fa-filter me-1"></i> Filtrar por Categoria
-                    </label>
-                    <select class="form-select rounded-pill" id="categoria" name="categoria" onchange="this.form.submit()">
-                        <option value="">Todas as categorias</option>
-                        <option value="Tecnologia" {% if categoria == 'Tecnologia' %}selected{% endif %}>💻 Tecnologia</option>
-                        <option value="Construção" {% if categoria == 'Construção' %}selected{% endif %}>🏗️ Construção</option>
-                        <option value="Limpeza" {% if categoria == 'Limpeza' %}selected{% endif %}>🧹 Limpeza</option>
-                        <option value="Educação" {% if categoria == 'Educação' %}selected{% endif %}>📚 Educação</option>
-                        <option value="Saúde" {% if categoria == 'Saúde' %}selected{% endif %}>🏥 Saúde</option>
-                        <option value="Marketing" {% if categoria == 'Marketing' %}selected{% endif %}>📊 Marketing</option>
-                        <option value="Design" {% if categoria == 'Design' %}selected{% endif %}>🎨 Design</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary-custom rounded-pill w-100">
-                        <i class="fas fa-search me-2"></i> Aplicar Filtro
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
-    
-    <!-- Lista de serviços -->
-    {% if servicos %}
-        <div class="row g-4">
-            {% for servico in servicos %}
+
+    <div class="row">
+        <!-- Sidebar com Filtros -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-3">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-filter me-2"></i>Filtros
+                    </h6>
+                    
+                    <!-- Busca rápida na sidebar -->
+                    <div class="mb-3">
+                        <form action="/servicos" method="GET" class="d-flex gap-1">
+                            <input type="text" name="q" class="form-control form-control-sm rounded-pill" 
+                                   placeholder="Buscar serviço ou prestador..." value="{{ termo_busca }}">
+                            <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Categorias -->
+                    <h6 class="fw-bold mb-2">
+                        <i class="fas fa-tags me-2"></i>Categorias
+                    </h6>
+                    <div class="list-group list-group-flush">
+                        <a href="/servicos" class="list-group-item list-group-item-action {% if not categoria %}active{% endif %}">
+                            <i class="fas fa-star me-2"></i> Todos
+                            <span class="badge bg-secondary float-end">{{ servicos|length }}</span>
+                        </a>
+                        {% for cat in categorias %}
+                        <a href="/servicos?categoria={{ cat.categoria }}" 
+                           class="list-group-item list-group-item-action {% if categoria == cat.categoria %}active{% endif %}">
+                            <i class="fas {{ get_icone_categoria(cat.categoria) }} me-2"></i> 
+                            {{ cat.categoria }}
+                            <span class="badge bg-secondary float-end">{{ cat.total }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dica de busca -->
+            <div class="card mt-3 shadow-sm border-0 rounded-4 bg-light">
+                <div class="card-body p-3">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                    <strong>Dica:</strong>
+                    <small class="text-muted d-block mt-1">
+                        Você pode buscar por:<br>
+                        • Nome do serviço (ex: "pintura")<br>
+                        • Nome do prestador (ex: "João")<br>
+                        • Palavras-chave da descrição
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Serviços -->
+        <div class="col-md-9">
+            {% if servicos %}
+            <div class="row g-4">
+                {% for servico in servicos %}
                 <div class="col-md-6 col-lg-4">
-                    <div class="card shadow-sm border-0 rounded-4 h-100 overflow-hidden position-relative">
-                        <!-- Imagem do serviço -->
-                        <div class="card-img-top position-relative" style="height: 200px; overflow: hidden; background: var(--gradient-main);">
-                            {% if servico.imagem_base64 %}
-                                <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
-                                     alt="{{ servico.titulo }}"
-                                     style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;">
-                            {% else %}
-                                <div class="d-flex align-items-center justify-content-center h-100">
-                                    <i class="fas fa-tools fa-4x text-white opacity-50"></i>
-                                </div>
-                            {% endif %}
-                            {% if servico.destaque %}
-                                <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill">
-                                    <i class="fas fa-star me-1"></i> Destaque
-                                </span>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="card-body p-4">
-                            <div class="mb-2">
-                                <span class="badge-categoria rounded-pill px-3 py-2 fs-8"
-                                      data-categoria="{{ servico.categoria }}">
-                                    <i class="fas fa-tag me-1"></i> {{ servico.categoria }}
-                                </span>
+                    <div class="card h-100 border-0 rounded-4 shadow-sm overflow-hidden transition">
+                        {% if servico.imagem_base64 %}
+                            <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
+                                 class="card-img-top" 
+                                 alt="{{ servico.titulo }}"
+                                 style="height: 160px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 160px;">
+                                <i class="fas fa-briefcase fa-4x text-primary opacity-50"></i>
                             </div>
-                            
-                            <h5 class="card-title fw-bold mb-2">{{ servico.titulo }}</h5>
-                            <p class="card-text text-muted small mb-3">{{ servico.descricao[:100] }}{% if servico.descricao|length > 100 %}...{% endif %}</p>
-                            
-                            <!-- Preço -->
-                            <div class="mb-3">
-                                {% if servico.preco %}
-                                    <span class="price-tag d-inline-block rounded-pill px-3 py-2 bg-success text-white fs-6">
-                                        <i class="fas fa-dollar-sign me-1"></i> R$ {{ "%.2f"|format(servico.preco) }}
-                                    </span>
-                                {% else %}
-                                    <span class="bg-secondary text-white rounded-pill px-3 py-2 fs-6">
-                                        <i class="fas fa-comments me-1"></i> Preço sob consulta
+                        {% endif %}
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-info px-3 py-2 rounded-pill">{{ servico.categoria }}</span>
+                                {% if servico.destaque %}
+                                    <span class="badge bg-warning text-dark rounded-pill">
+                                        <i class="fas fa-star"></i> Destaque
                                     </span>
                                 {% endif %}
                             </div>
                             
-                            <!-- Prestador e data -->
-                            <div class="border-top pt-3 mt-2">
-                                <div class="d-flex align-items-center gap-2">
-                                    <i class="fas fa-user-circle fa-lg text-primary"></i>
-                                    <div>
-                                        <strong>{{ servico.prestador.nome }}</strong><br>
-                                        <small class="text-muted">
-                                            <i class="fas fa-calendar-alt me-1"></i> {{ servico.data_postagem.strftime('%d/%m/%Y') }}
-                                        </small>
-                                    </div>
+                            <h5 class="card-title fw-bold mb-2">{{ servico.titulo }}</h5>
+                            <p class="card-text small text-muted">{{ servico.descricao[:80] }}...</p>
+                            
+                            <div class="mb-2">
+                                <a href="/perfil/{{ servico.prestador.id }}" class="text-decoration-none">
+                                    <i class="fas fa-user-circle text-primary"></i>
+                                    <small class="text-muted">{{ servico.prestador.nome }}</small>
+                                </a>
+                                <div class="rating small mt-1">
+                                    {% set media = servico.prestador.media_avaliacoes() %}
+                                    {% for i in range(5) %}
+                                        {% if i < media|round(0, 'floor') %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% elif i < media %}
+                                            <i class="fas fa-star-half-alt text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="text-muted ms-1">({{ servico.prestador.total_avaliacoes() }})</span>
                                 </div>
                             </div>
                             
-                            <!-- Botão detalhes -->
-                            <div class="mt-3">
-                                <a href="/servico/{{ servico.id }}" class="btn btn-primary-custom w-100 rounded-pill">
-                                    <i class="fas fa-eye me-2"></i> Ver Detalhes
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    {% if servico.tipo_preco and servico.tipo_preco != 'consulta' %}
+                                        <span class="fw-bold text-primary fs-5">
+                                            R$ {{ "%.2f"|format(servico.preco) }}
+                                        </span>
+                                        <small class="text-muted">
+                                            {% if servico.tipo_preco == 'hora' %}/hora
+                                            {% elif servico.tipo_preco == 'dia' %}/dia
+                                            {% elif servico.tipo_preco == 'metro' %}/m²
+                                            {% endif %}
+                                        </small>
+                                    {% elif servico.tipo_preco == 'consulta' %}
+                                        <span class="badge bg-info">Sob Consulta</span>
+                                    {% elif servico.preco %}
+                                        <span class="fw-bold text-primary">R$ {{ "%.2f"|format(servico.preco) }}</span>
+                                    {% else %}
+                                        <span class="text-muted small">Sob consulta</span>
+                                    {% endif %}
+                                </div>
+                                <a href="/servico/{{ servico.id }}" class="btn btn-primary btn-sm rounded-pill px-3">
+                                    Ver detalhes
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="text-center py-5">
-            <div class="card shadow-sm border-0 rounded-4 p-5">
-                <i class="fas fa-search fa-4x text-muted mb-3"></i>
-                <h4>Nenhum serviço encontrado</h4>
-                <p class="text-muted">Não encontramos serviços nesta categoria.</p>
-                <a href="/servicos" class="btn btn-primary-custom rounded-pill mt-2 align-self-center">
-                    <i class="fas fa-sync-alt me-2"></i> Limpar filtros
-                </a>
+                {% endfor %}
             </div>
+            {% else %}
+            <div class="alert alert-info text-center rounded-4">
+                <i class="fas fa-search fa-3x mb-3 opacity-50"></i>
+                <h5>Nenhum serviço encontrado</h5>
+                <p class="mb-0">
+                    {% if termo_busca %}
+                        Não encontramos resultados para "{{ termo_busca }}".
+                        <br> Tente outros termos ou 
+                        <a href="/servicos" class="alert-link">limpe a busca</a>.
+                    {% else %}
+                        Ainda não há serviços cadastrados nesta categoria.
+                    {% endif %}
+                </p>
+                {% if termo_busca %}
+                    <div class="mt-3">
+                        <small class="text-muted">Sugestões:</small>
+                        <ul class="list-unstyled mt-2">
+                            <li>• Verifique a ortografia</li>
+                            <li>• Use termos mais genéricos</li>
+                            <li>• Busque pelo nome do prestador</li>
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
-    {% endif %}
+    </div>
 </div>
 
 <style>
-    .badge-categoria {
-        display: inline-block;
-        font-size: 0.75rem;
-        font-weight: 600;
-        background: #f1f5f9;
-        color: #1e293b;
+    .transition {
+        transition: all 0.3s ease;
     }
-    .badge-categoria[data-categoria="Tecnologia"] { background: #e0f2fe; color: #0369a1; }
-    .badge-categoria[data-categoria="Construção"] { background: #ffedd5; color: #c2410c; }
-    .badge-categoria[data-categoria="Limpeza"] { background: #dcfce7; color: #15803d; }
-    .badge-categoria[data-categoria="Educação"] { background: #f3e8ff; color: #6b21a5; }
-    .badge-categoria[data-categoria="Saúde"] { background: #ffe4e6; color: #be123c; }
-    .badge-categoria[data-categoria="Marketing"] { background: #dbeafe; color: #1d4ed8; }
-    .badge-categoria[data-categoria="Design"] { background: #fce7f3; color: #be185d; }
     
-    .price-tag, .bg-secondary {
-        font-size: 0.85rem;
-        font-weight: 600;
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.1) !important;
     }
-    .card-img-top img:hover {
-        transform: scale(1.05);
+    
+    .list-group-item.active {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        border-color: #0b2b5c;
     }
-    .fs-8 {
-        font-size: 0.75rem;
+    
+    .list-group-item-action:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+    
+    .rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+    }
+    
+    @media (max-width: 768px) {
+        .col-md-3 {
+            margin-bottom: 20px;
+        }
     }
 </style>
 {% endblock %}

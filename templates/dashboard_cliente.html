@@ -1,179 +1,283 @@
 {% extends "base.html" %}
-{% block search_bar_desktop %}{% endblock %}
-{% block search_bar_mobile %}{% endblock %}
-{% block title %}Dashboard Cliente - PrestaServiços{% endblock %}
+
+{% block title %}Dashboard do Cliente - PrestaServiços{% endblock %}
 
 {% block content %}
-<style>
-    /* Estilos específicos do dashboard do cliente (apenas cores e cards) */
-    .stat-card {
-        border-radius: 15px;
-        border: none;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        transition: transform 0.3s;
-    }
-    .stat-card:hover {
-        transform: translateY(-5px);
-    }
-    /* Botão "Explorar Serviços" (gradiente azul padrão) */
-    .btn-primary {
-        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
-        border: none;
-        padding: 12px 30px;
-        border-radius: 25px;
-        font-weight: 600;
-        color: white;
-    }
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #0a2a5a, #144e75);
-    }
-    /* Cabeçalho da tabela */
-    .card-header {
-        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
-        color: white;
-        border-bottom: none;
-    }
-    /* Badges de status */
-    .badge.bg-warning {
-        background: #f59e0b !important;
-        color: #000;
-    }
-    .badge.bg-success {
-        background: #10b981 !important;
-    }
-    .badge.bg-danger {
-        background: #ef4444 !important;
-    }
-    /* Cores dos cards de estatística */
-    .stat-card.bg-info {
-        background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
-    }
-    .stat-card.bg-success {
-        background: linear-gradient(135deg, #10b981, #059669) !important;
-    }
-    /* Ajuste de cor primária para ícone de boas-vindas */
-    .text-primary {
-        color: #0b2b5c !important;
-    }
-</style>
-
 <div class="container mt-4">
-    <!-- Mensagens Flash (o base.html já exibe, mas mantive para garantir) -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h2 class="mb-0">
+            <i class="fas fa-user-friends me-2 text-primary"></i>
+            Painel do Cliente
+        </h2>
+        <a href="/servicos" class="btn btn-primary rounded-pill px-4">
+            <i class="fas fa-search me-2"></i> Explorar Serviços
+        </a>
+    </div>
 
-    <!-- Boas-vindas -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2>
-                <i class="fas fa-tachometer-alt text-primary"></i> 
-                Painel do Cliente
-            </h2>
-            <p class="text-muted">Acompanhe suas solicitações e encontre novos serviços</p>
+    <!-- Cards de Estatísticas -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-4 bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-paper-plane fa-3x mb-2 opacity-75"></i>
+                    <h3 class="mb-0">{{ total_contratos|default(contratos|length) }}</h3>
+                    <small>Solicitações Enviadas</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-4 bg-warning text-dark">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-3x mb-2 opacity-75"></i>
+                    <h3 class="mb-0">{{ contratos_pendentes|length }}</h3>
+                    <small>Pendentes</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-4 bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-3x mb-2 opacity-75"></i>
+                    <h3 class="mb-0">{{ contratos_concluidos|length }}</h3>
+                    <small>Concluídos</small>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Botões de Ação -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <a href="/servicos" class="btn btn-primary">
-                <i class="fas fa-search"></i> Explorar Serviços
+    <!-- CONTRATOS EM ANDAMENTO -->
+    {% if contratos_andamento %}
+    <div class="card shadow-sm border-0 rounded-4 mb-5">
+        <div class="card-header bg-primary text-white rounded-top-4 py-3">
+            <h5 class="mb-0">
+                <i class="fas fa-spinner fa-spin me-2"></i>
+                Serviços em Andamento
+                <span class="badge bg-light text-primary ms-2">{{ contratos_andamento|length }}</span>
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Serviço</th>
+                            <th>Prestador</th>
+                            <th>Status</th>
+                            <th>Início</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contrato in contratos_andamento %}
+                        <tr>
+                            <td>{{ contrato.servico.titulo }}</td>
+                            <td>{{ contrato.prestador.nome }}</td>
+                            <td>
+                                <span class="badge bg-warning rounded-pill">
+                                    <i class="fas fa-play me-1"></i>
+                                    Em andamento
+                                </span>
+                            </td>
+                            <td>{{ contrato.data_inicio.strftime('%d/%m/%Y') if contrato.data_inicio else '-' }}</td>
+                            <td>
+                                <button onclick="iniciarChat({{ contrato.prestador.id }}, '{{ contrato.prestador.nome|replace("'", "\\'") }}')" 
+                                        class="btn btn-sm btn-info rounded-pill">
+                                    <i class="fas fa-comments me-1"></i> Conversar
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ALERTA: SERVIÇOS CONCLUÍDOS AGUARDANDO AVALIAÇÃO -->
+    {% set aguardando_avaliacao = [] %}
+    {% for contrato in contratos_concluidos %}
+        {% if not contrato.avaliacao %}
+            {% set _ = aguardando_avaliacao.append(contrato) %}
+        {% endif %}
+    {% endfor %}
+
+    {% if aguardando_avaliacao %}
+    <div class="alert alert-warning shadow-sm rounded-4 mb-4 border-0" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-star fa-2x me-3 text-warning"></i>
+            <div>
+                <h5 class="mb-1">🎉 Serviços concluídos aguardando sua avaliação!</h5>
+                <p class="mb-0">Avalie os prestadores e ajude outros clientes a escolherem os melhores profissionais.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- CONTRATOS CONCLUÍDOS (COM OPÇÃO DE AVALIAR) -->
+    {% if contratos_concluidos %}
+    <div class="card shadow-sm border-0 rounded-4 mb-5">
+        <div class="card-header bg-success text-white rounded-top-4 py-3">
+            <h5 class="mb-0">
+                <i class="fas fa-history me-2"></i>
+                Serviços Concluídos
+                <span class="badge bg-light text-success ms-2">{{ contratos_concluidos|length }}</span>
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Serviço</th>
+                            <th>Prestador</th>
+                            <th>Data Conclusão</th>
+                            <th>Sua Avaliação</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contrato in contratos_concluidos %}
+                        <tr class="{% if not contrato.avaliacao %}table-warning{% endif %}">
+                            <td>{{ contrato.servico.titulo }}</td>
+                            <td>{{ contrato.prestador.nome }}</td>
+                            <td>{{ contrato.data_conclusao.strftime('%d/%m/%Y') if contrato.data_conclusao else '-' }}</td>
+                            <td>
+                                {% if contrato.avaliacao %}
+                                    <div class="rating">
+                                        {% for i in range(5) %}
+                                            {% if i < contrato.avaliacao.nota %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-warning"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span class="ms-2 small text-muted">{{ contrato.avaliacao.nota }}/5</span>
+                                        {% if contrato.avaliacao.pode_editar(current_user.id) %}
+                                            <a href="{{ url_for('contrato.editar_avaliacao', avaliacao_id=contrato.avaliacao.id) }}" class="ms-2 small">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-star me-1"></i> Pendente
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not contrato.avaliacao %}
+                                    <a href="{{ url_for('contrato.avaliar_servico', contrato_id=contrato.id) }}" 
+                                       class="btn btn-sm btn-warning rounded-pill">
+                                        <i class="fas fa-star me-1"></i> Avaliar ⭐
+                                    </a>
+                                {% else %}
+                                    <button onclick="iniciarChat({{ contrato.prestador.id }}, '{{ contrato.prestador.nome|replace("'", "\\'") }}')" 
+                                            class="btn btn-sm btn-outline-info rounded-pill">
+                                        <i class="fas fa-comments me-1"></i> Conversar
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SOLICITAÇÕES PENDENTES (AGUARDANDO RESPOSTA DO PRESTADOR) -->
+    {% if contratos_pendentes %}
+    <div class="card shadow-sm border-0 rounded-4 mb-5">
+        <div class="card-header bg-warning text-dark rounded-top-4 py-3">
+            <h5 class="mb-0">
+                <i class="fas fa-hourglass-half me-2"></i>
+                Aguardando Resposta do Prestador
+                <span class="badge bg-dark text-warning ms-2">{{ contratos_pendentes|length }}</span>
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Serviço</th>
+                            <th>Prestador</th>
+                            <th>Data Solicitação</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contrato in contratos_pendentes %}
+                        <tr>
+                            <td>{{ contrato.servico.titulo }}</td>
+                            <td>{{ contrato.prestador.nome }}</td>
+                            <td>{{ contrato.data_solicitacao.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <span class="badge bg-secondary rounded-pill">
+                                    <i class="fas fa-clock me-1"></i> Pendente
+                                </span>
+                            </td>
+                            <td>
+                                <button onclick="iniciarChat({{ contrato.prestador.id }}, '{{ contrato.prestador.nome|replace("'", "\\'") }}')" 
+                                        class="btn btn-sm btn-info rounded-pill">
+                                    <i class="fas fa-comments me-1"></i> Conversar
+                                </button>
+                                <form action="{{ url_for('contrato.atualizar_status', contrato_id=contrato.id) }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="status" value="cancelado">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Tem certeza que deseja cancelar?')">
+                                        <i class="fas fa-times me-1"></i> Cancelar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- MENSAGEM QUANDO NÃO HÁ NENHUM CONTRATO -->
+    {% if not contratos %}
+    <div class="card shadow-sm border-0 rounded-4 text-center py-5">
+        <div class="card-body">
+            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+            <h5>Você ainda não fez nenhuma solicitação</h5>
+            <p class="text-muted">Explore os serviços disponíveis e solicite o que precisar!</p>
+            <a href="/servicos" class="btn btn-primary rounded-pill px-4 mt-2">
+                <i class="fas fa-search me-2"></i> Explorar Serviços
             </a>
         </div>
     </div>
-
-    <!-- Estatísticas -->
-    <div class="row mb-4">
-        <div class="col-md-6 mb-3">
-            <div class="card stat-card bg-info text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-0">Solicitações Enviadas</h6>
-                            <h2 class="mt-2 mb-0">{{ solicitacoes|length }}</h2>
-                        </div>
-                        <i class="fas fa-paper-plane fa-3x opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 mb-3">
-            <div class="card stat-card bg-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-0">Solicitações Pendentes</h6>
-                            <h2 class="mt-2 mb-0">{{ solicitacoes|selectattr('status', 'equalto', 'pendente')|list|length }}</h2>
-                        </div>
-                        <i class="fas fa-clock fa-3x opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Minhas Solicitações -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Minhas Solicitações</h5>
-                </div>
-                <div class="card-body">
-                    {% if solicitacoes %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Serviço</th>
-                                        <th>Prestador</th>
-                                        <th>Status</th>
-                                        <th>Data</th>
-                                        <th>Mensagem</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for sol in solicitacoes %}
-                                    <tr>
-                                        <td>{{ sol.servico.titulo }}</td>
-                                        <td>{{ sol.servico.prestador.nome }}</td>
-                                        <td>
-                                            {% if sol.status == 'pendente' %}
-                                                <span class="badge bg-warning">Pendente</span>
-                                            {% elif sol.status == 'aceito' %}
-                                                <span class="badge bg-success">Aceito</span>
-                                            {% elif sol.status == 'recusado' %}
-                                                <span class="badge bg-danger">Recusado</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ sol.data_solicitacao.strftime('%d/%m/%Y') }}</td>
-                                        <td>{{ sol.mensagem[:50] }}{% if sol.mensagem|length > 50 %}...{% endif %}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
-                            <h5>Você ainda não fez nenhuma solicitação</h5>
-                            <p class="text-muted">Explore os serviços disponíveis e solicite o que precisar!</p>
-                            <a href="/servicos" class="btn btn-primary">
-                                <i class="fas fa-search"></i> Explorar Serviços
-                            </a>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+    {% endif %}
 </div>
+
+<style>
+    .table td, .table th {
+        vertical-align: middle;
+    }
+    .rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+    }
+    .alert-warning {
+        background: linear-gradient(135deg, #fff3cd, #ffe69b);
+        border-left: 4px solid #ffc107;
+    }
+</style>
+
+<script>
+    function iniciarChat(usuarioId, usuarioNome) {
+        if (usuarioId) {
+            sessionStorage.setItem('chat_with_id', usuarioId);
+            sessionStorage.setItem('chat_with_name', usuarioNome);
+            window.location.href = '/chat';
+        }
+    }
+</script>
 {% endblock %}

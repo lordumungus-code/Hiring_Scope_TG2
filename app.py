@@ -5,6 +5,7 @@ import base64
 import os
 import secrets
 
+from routes.contrato_routes import contrato_bp
 # Importa as extensões
 from extensions import db, login_manager, socketio
 
@@ -35,6 +36,8 @@ socketio.init_app(app, cors_allowed_origins="*")
 
 # Registra os blueprints
 app.register_blueprint(chat_bp)
+
+app.register_blueprint(contrato_bp)
 
 # Configurações Firebase para os templates
 app.config['FIREBASE_API_KEY'] = os.environ.get('FIREBASE_API_KEY')
@@ -100,12 +103,78 @@ with app.app_context():
 
 @app.route('/')
 def index():
+    from models import Servico, Usuario, Avaliacao, Contrato
+    from sqlalchemy import func, desc
+    
     servicos_destaque = Servico.query.filter_by(destaque=True).order_by(Servico.data_postagem.desc()).limit(6).all()
     servicos_recentes = Servico.query.order_by(Servico.data_postagem.desc()).limit(8).all()
+    
+    # ============================================
+    # DEPOIMENTOS REAIS (AVALIAÇÕES NOTA 4 OU 5)
+    # ============================================
+    depoimentos = Avaliacao.query.filter(
+        Avaliacao.nota >= 4,  # Apenas notas 4 ou 5
+        Avaliacao.comentario.isnot(None),  # Tem comentário
+        Avaliacao.comentario != ''  # Comentário não vazio
+    ).order_by(desc(Avaliacao.data_avaliacao)).limit(6).all()
+    
+    # Se não houver avaliações reais, mostrar depoimentos padrão
+    if not depoimentos:
+        # Depoimentos padrão (fallback)
+        depoimentos = [
+            {'nome': 'Maria Silva', 'texto': 'Excelente plataforma! Encontrei um profissional qualificado em poucos minutos. Recomendo!', 'nota': 5, 'tipo': 'Cliente'},
+            {'nome': 'João Santos', 'texto': 'Como prestador, consegui vários clientes através da plataforma. Ótimo sistema de chat!', 'nota': 5, 'tipo': 'Prestador'},
+            {'nome': 'Ana Oliveira', 'texto': 'Interface intuitiva e fácil de usar. O suporte é rápido e eficiente. Estou muito satisfeito!', 'nota': 4, 'tipo': 'Cliente'}
+        ]
+    else:
+        # Converter avaliações para formato do template
+        depoimentos = [{
+            'nome': d.cliente.nome if d.cliente else 'Cliente',
+            'texto': d.comentario,
+            'nota': d.nota,
+            'tipo': 'Cliente',
+            'data': d.data_avaliacao.strftime('%d/%m/%Y')
+        } for d in depoimentos]
+    
+    # ============================================
+    # TOP 10 PRESTADORES COM MELHORES AVALIAÇÕES
+    # ============================================
+    prestadores_com_avaliacoes = Usuario.query.filter(
+        Usuario.tipo == 'prestador',
+        Usuario.avaliacoes_recebidas.any()
+    ).all()
+    
+    top_prestadores = []
+    for prestador in prestadores_com_avaliacoes:
+        media = prestador.media_avaliacoes()
+        total = prestador.total_avaliacoes()
+        if media > 0:
+            top_prestadores.append({
+                'prestador': prestador,
+                'media': media,
+                'total_avaliacoes': total,
+                'servicos_count': len(prestador.servicos_oferecidos)
+            })
+    
+    top_prestadores = sorted(top_prestadores, key=lambda x: x['media'], reverse=True)[:10]
+    
+    # Estatísticas
+    total_usuarios = Usuario.query.count()
+    total_servicos = Servico.query.count()
+    total_avaliacoes = Avaliacao.query.count()
+    
+    # Serviços concluídos (via contratos)
+    servicos_concluidos = Contrato.query.filter_by(status='concluido').count() if 'Contrato' in locals() else 0
+    
     return render_template('index.html', 
                          servicos_destaque=servicos_destaque,
-                         servicos_recentes=servicos_recentes)
-
+                         servicos_recentes=servicos_recentes,
+                         top_prestadores=top_prestadores,
+                         depoimentos=depoimentos,
+                         total_usuarios=total_usuarios,
+                         total_servicos=total_servicos,
+                         total_avaliacoes=total_avaliacoes,
+                         servicos_concluidos=servicos_concluidos)
 # ============================================
 # ROTAS DE AUTENTICAÇÃO COM FIREBASE
 # ============================================
@@ -272,13 +341,36 @@ def cadastro():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    from models import Contrato
+    
     if current_user.tipo == 'prestador':
         servicos = Servico.query.filter_by(prestador_id=current_user.id).order_by(Servico.data_postagem.desc()).all()
-        return render_template('dashboard_prestador.html', servicos=servicos)
+        contratos = Contrato.query.filter_by(prestador_id=current_user.id).order_by(Contrato.data_solicitacao.desc()).all()
+        
+        contratos_pendentes = [c for c in contratos if c.status == 'pendente']
+        contratos_andamento = [c for c in contratos if c.status in ['aceito', 'em_andamento']]
+        contratos_concluidos = [c for c in contratos if c.status == 'concluido']
+        media_avaliacoes = current_user.media_avaliacoes()
+        
+        return render_template('dashboard_prestador.html',
+                             servicos=servicos,
+                             contratos=contratos,
+                             contratos_pendentes=contratos_pendentes,
+                             contratos_andamento=contratos_andamento,
+                             contratos_concluidos=contratos_concluidos,
+                             media_avaliacoes=media_avaliacoes)
     else:
-        solicitacoes = Solicitacao.query.filter_by(cliente_id=current_user.id).all()
-        return render_template('dashboard_cliente.html', solicitacoes=solicitacoes)
-
+        contratos = Contrato.query.filter_by(cliente_id=current_user.id).order_by(Contrato.data_solicitacao.desc()).all()
+        contratos_pendentes = [c for c in contratos if c.status == 'pendente']
+        contratos_andamento = [c for c in contratos if c.status in ['aceito', 'em_andamento']]
+        contratos_concluidos = [c for c in contratos if c.status == 'concluido']
+        
+        return render_template('dashboard_cliente.html',
+                             contratos=contratos,
+                             contratos_pendentes=contratos_pendentes,
+                             contratos_andamento=contratos_andamento,
+                             contratos_concluidos=contratos_concluidos,
+                             total_contratos=len(contratos))
 # ============================================
 # ROTAS DE SERVIÇOS
 # ============================================
@@ -332,17 +424,52 @@ def meus_servicos():
 
 @app.route('/servicos')
 def lista_servicos():
+    from models import Servico, Usuario
+    from sqlalchemy import or_, func
+    
+    # Parâmetros de busca
     categoria = request.args.get('categoria')
+    q = request.args.get('q', '').strip()  # Termo de busca
+    prestador_id = request.args.get('prestador')
+    
+    # Query base
+    query = Servico.query
+    
+    # Filtro por categoria
     if categoria:
-        servicos = Servico.query.filter_by(categoria=categoria).order_by(Servico.data_postagem.desc()).all()
-    else:
-        servicos = Servico.query.order_by(Servico.data_postagem.desc()).all()
-    return render_template('lista_servicos.html', servicos=servicos, categoria=categoria)
-
-@app.route('/servico/<int:id>')
-def detalhe_servico(id):
-    servico = Servico.query.get_or_404(id)
-    return render_template('detalhe_servico.html', servico=servico)
+        query = query.filter_by(categoria=categoria)
+    
+    # Filtro por prestador específico
+    if prestador_id:
+        query = query.filter_by(prestador_id=prestador_id)
+    
+    # ============================================
+    # BUSCA AVANÇADA: título, descrição ou nome do prestador
+    # ============================================
+    if q:
+        # Busca por título OU descrição OU nome do prestador
+        query = query.join(Usuario).filter(
+            or_(
+                Servico.titulo.ilike(f'%{q}%'),
+                Servico.descricao.ilike(f'%{q}%'),
+                Usuario.nome.ilike(f'%{q}%')  # Nome do prestador
+            )
+        )
+    
+    # Ordenar por mais recentes primeiro
+    servicos = query.order_by(Servico.data_postagem.desc()).all()
+    
+    # Buscar categorias distintas para o filtro
+    categorias = db.session.query(Servico.categoria, func.count(Servico.id).label('total')).group_by(Servico.categoria).all()
+    
+    # Salvar termo de busca para exibir no template
+    termo_busca = q
+    
+    return render_template('lista_servicos.html', 
+                         servicos=servicos, 
+                         categoria=categoria, 
+                         categorias=categorias,
+                         termo_busca=termo_busca)
 
 # ============================================
 # EDIÇÃO DE SERVIÇOS
@@ -510,6 +637,172 @@ def test_firebase():
         return "✅ Firebase Admin SDK está funcionando!"
     except Exception as e:
         return f"❌ Erro: {e}"
+
+
+# ============================================
+# ROTAS ADICIONAIS PARA SISTEMA DE CONTRATOS
+# ============================================
+
+@app.route('/meus-contratos')
+@login_required
+def meus_contratos():
+    """Redireciona para a página de contratos do blueprint"""
+    return redirect(url_for('contrato.meus_contratos'))
+
+@app.route('/avaliar/<int:contrato_id>', methods=['GET', 'POST'])
+@login_required
+def avaliar_contrato(contrato_id):
+    """Redireciona para avaliação do blueprint"""
+    return redirect(url_for('contrato.avaliar_servico', contrato_id=contrato_id))
+
+# ============================================
+# CONTEXT PROCESSOR - Variáveis globais para templates
+# ============================================
+
+@app.context_processor
+def utility_processor():
+    """Adiciona funções utilitárias a todos os templates"""
+    from models import Contrato, Avaliacao
+    
+    def get_icone_categoria(categoria):
+        """Retorna o ícone Font Awesome para cada categoria"""
+        icons = {
+            'Tecnologia': 'fa-laptop-code',
+            'Construção': 'fa-hard-hat',
+            'Design': 'fa-paintbrush',
+            'Educação': 'fa-chalkboard-user',
+            'Saúde': 'fa-heartbeat',
+            'Marketing': 'fa-chart-line',
+            'Limpeza': 'fa-broom',
+            'Segurança': 'fa-shield-alt',
+            'Jardinagem': 'fa-leaf',
+            'Fotografia': 'fa-camera',
+            'Tradução': 'fa-language',
+            'Consultoria': 'fa-briefcase'
+        }
+        return icons.get(categoria, 'fa-tools')
+    
+    def get_cor_categoria(categoria):
+        """Retorna a cor Bootstrap para cada categoria"""
+        colors = {
+            'Tecnologia': 'primary',
+            'Construção': 'warning',
+            'Design': 'danger',
+            'Educação': 'success',
+            'Saúde': 'info',
+            'Marketing': 'secondary'
+        }
+        return colors.get(categoria, 'dark')
+    
+    return {
+        'get_icone_categoria': get_icone_categoria,
+        'get_cor_categoria': get_cor_categoria,
+        'now': datetime.utcnow()
+    }
+
+# ============================================
+# ROTAS PARA DASHBOARD COM CONTRATOS
+# ============================================
+
+@app.route('/dashboard/prestador')
+@login_required
+def dashboard_prestador_completo():
+    """Dashboard completo para prestador com contratos"""
+    if current_user.tipo != 'prestador':
+        flash('Acesso negado', 'danger')
+        return redirect(url_for('index'))
+    
+    from models import Contrato
+    
+    servicos = Servico.query.filter_by(prestador_id=current_user.id).all()
+    contratos = Contrato.query.filter_by(prestador_id=current_user.id).order_by(Contrato.data_solicitacao.desc()).all()
+    
+    # Estatísticas
+    total_servicos = len(servicos)
+    total_contratos = len(contratos)
+    contratos_pendentes = [c for c in contratos if c.status == 'pendente']
+    contratos_andamento = [c for c in contratos if c.status in ['aceito', 'em_andamento']]
+    contratos_concluidos = [c for c in contratos if c.status == 'concluido']
+    media_avaliacoes = current_user.media_avaliacoes()
+    
+    return render_template('dashboard_prestador.html',
+                         servicos=servicos,
+                         contratos=contratos,
+                         contratos_pendentes=contratos_pendentes,
+                         contratos_andamento=contratos_andamento,
+                         contratos_concluidos=contratos_concluidos,
+                         total_servicos=total_servicos,
+                         total_contratos=total_contratos,
+                         media_avaliacoes=media_avaliacoes)
+
+@app.route('/dashboard/cliente')
+@login_required
+def dashboard_cliente_completo():
+    """Dashboard completo para cliente com contratos"""
+    if current_user.tipo != 'cliente':
+        flash('Acesso negado', 'danger')
+        return redirect(url_for('index'))
+    
+    from models import Contrato
+    
+    contratos = Contrato.query.filter_by(cliente_id=current_user.id).order_by(Contrato.data_solicitacao.desc()).all()
+    
+    # Estatísticas
+    contratos_pendentes = [c for c in contratos if c.status == 'pendente']
+    contratos_andamento = [c for c in contratos if c.status in ['aceito', 'em_andamento']]
+    contratos_concluidos = [c for c in contratos if c.status == 'concluido']
+    total_contratos = len(contratos)
+    
+    return render_template('dashboard_cliente.html',
+                         contratos=contratos,
+                         contratos_pendentes=contratos_pendentes,
+                         contratos_andamento=contratos_andamento,
+                         contratos_concluidos=contratos_concluidos,
+                         total_contratos=total_contratos)
+
+@app.route('/prestadores')
+def lista_prestadores():
+    """Lista todos os prestadores com ranking"""
+    from models import Usuario, Contrato
+    from sqlalchemy import func, desc
+    
+    prestadores = Usuario.query.filter_by(tipo='prestador').all()
+    
+    # Calcular média para cada prestador
+    ranking = []
+    for p in prestadores:
+        # Contar contratos concluídos
+        contratos_concluidos = Contrato.query.filter_by(
+            prestador_id=p.id,
+            status='concluido'
+        ).count()
+        
+        ranking.append({
+            'prestador': p,
+            'media': p.media_avaliacoes(),
+            'total_avaliacoes': p.total_avaliacoes(),
+            'total_servicos': len(p.servicos_oferecidos),
+            'total_concluidos': contratos_concluidos
+        })
+    
+    # Ordenar por média (maior primeiro)
+    ranking = sorted(ranking, key=lambda x: x['media'], reverse=True)
+    
+    return render_template('prestadores.html', ranking=ranking)
+
+@app.route('/perfil/<int:prestador_id>')
+def perfil_prestador(prestador_id):
+    """Página de perfil do prestador"""
+    from models import Usuario
+    
+    prestador = Usuario.query.get_or_404(prestador_id)
+    
+    # Verificar se é um prestador
+    if prestador.tipo != 'prestador':
+        flash('Usuário não é um prestador de serviços', 'warning')
+        return redirect(url_for('index'))
+    
+    return render_template('perfil_prestador.html', prestador=prestador)
 
 # ============================================
 # INICIALIZAÇÃO DO SERVIDOR

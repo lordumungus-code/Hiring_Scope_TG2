@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Avaliar Serviço - PrestaServiços{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 700px;">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4 py-3">
+            <h4 class="mb-0">
+                <i class="fas fa-star me-2"></i>
+                Avaliar Serviço
+            </h4>
+        </div>
+        <div class="card-body p-4">
+            <div class="mb-4 text-center">
+                <div class="bg-light rounded-4 p-3">
+                    <h5 class="mb-2">{{ contrato.servico.titulo }}</h5>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-user me-1"></i>
+                        Prestador: {{ contrato.prestador.nome }}
+                    </p>
+                </div>
+            </div>
+            
+            <form method="POST">
+                <div class="mb-4 text-center">
+                    <label class="form-label fw-bold mb-3 d-block">
+                        ⭐ Nota Geral para o Serviço
+                    </label>
+                    <div class="rating-stars mb-2">
+                        <input type="hidden" name="nota" id="nota" value="5">
+                        <i class="fas fa-star fa-2x star-rating" data-value="1"></i>
+                        <i class="fas fa-star fa-2x star-rating" data-value="2"></i>
+                        <i class="fas fa-star fa-2x star-rating" data-value="3"></i>
+                        <i class="fas fa-star fa-2x star-rating" data-value="4"></i>
+                        <i class="fas fa-star fa-2x star-rating" data-value="5"></i>
+                    </div>
+                    <small class="text-muted">Clique nas estrelas para avaliar</small>
+                </div>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Qualidade do Serviço</label>
+                        <select name="qualidade" class="form-select rounded-pill">
+                            <option value="0">Selecione</option>
+                            <option value="5">Excelente (5)</option>
+                            <option value="4">Muito Bom (4)</option>
+                            <option value="3">Bom (3)</option>
+                            <option value="2">Regular (2)</option>
+                            <option value="1">Ruim (1)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Pontualidade</label>
+                        <select name="pontualidade" class="form-select rounded-pill">
+                            <option value="0">Selecione</option>
+                            <option value="5">Excelente (5)</option>
+                            <option value="4">Muito Bom (4)</option>
+                            <option value="3">Bom (3)</option>
+                            <option value="2">Regular (2)</option>
+                            <option value="1">Ruim (1)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Comunicação</label>
+                        <select name="comunicacao" class="form-select rounded-pill">
+                            <option value="0">Selecione</option>
+                            <option value="5">Excelente (5)</option>
+                            <option value="4">Muito Bom (4)</option>
+                            <option value="3">Bom (3)</option>
+                            <option value="2">Regular (2)</option>
+                            <option value="1">Ruim (1)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Custo-Benefício</label>
+                        <select name="preco" class="form-select rounded-pill">
+                            <option value="0">Selecione</option>
+                            <option value="5">Excelente (5)</option>
+                            <option value="4">Muito Bom (4)</option>
+                            <option value="3">Bom (3)</option>
+                            <option value="2">Regular (2)</option>
+                            <option value="1">Ruim (1)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label">Seu Comentário (opcional)</label>
+                    <textarea name="comentario" class="form-control rounded-3" rows="4" 
+                              placeholder="Compartilhe sua experiência com este profissional..."></textarea>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1 py-2 rounded-pill">
+                        <i class="fas fa-paper-plane me-2"></i> Enviar Avaliação
+                    </button>
+                    <a href="{{ url_for('contrato.detalhe_contrato', contrato_id=contrato.id) }}" 
+                       class="btn btn-outline-secondary rounded-pill px-4">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .star-rating {
+        cursor: pointer;
+        color: #ddd;
+        transition: all 0.2s;
+        margin: 0 3px;
+    }
+    .star-rating:hover,
+    .star-rating.active {
+        color: #fbbf24;
+        transform: scale(1.1);
+    }
+    .rating-stars {
+        display: inline-flex;
+    }
+</style>
+
+<script>
+    const stars = document.querySelectorAll('.star-rating');
+    const notaInput = document.getElementById('nota');
+    
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const value = parseInt(this.dataset.value);
+            notaInput.value = value;
+            stars.forEach((s, index) => {
+                if (index < value) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        });
+        
+        star.addEventListener('mouseenter', function() {
+            const value = parseInt(this.dataset.value);
+            stars.forEach((s, index) => {
+                if (index < value) {
+                    s.style.color = '#fbbf24';
+                } else {
+                    s.style.color = '#ddd';
+                }
+            });
+        });
+        
+        star.addEventListener('mouseleave', function() {
+            stars.forEach(s => {
+                if (s.classList.contains('active')) {
+                    s.style.color = '#fbbf24';
+                } else {
+                    s.style.color = '#ddd';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

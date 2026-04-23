@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}{{ prestador.nome }} - Perfil do Prestador{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Informações do Prestador -->
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-body text-center p-4">
+                    <!-- Avatar -->
+                    <div class="prestador-avatar mx-auto mb-3">
+                        {% if prestador.foto_url %}
+                            <img src="{{ prestador.foto_url }}" alt="{{ prestador.nome }}" 
+                                 class="rounded-circle shadow-sm" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% elif prestador.foto_perfil and prestador.foto_perfil != 'default.jpg' %}
+                            <img src="data:image/jpeg;base64,{{ prestador.foto_perfil }}" alt="{{ prestador.nome }}" 
+                                 class="rounded-circle shadow-sm" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto" 
+                                 style="width: 150px; height: 150px; background: linear-gradient(135deg, #0b2b5c, #1a6d8f);">
+                                <span class="text-white fs-1 fw-bold">{{ prestador.nome[0]|upper }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <h2 class="mb-2">{{ prestador.nome }}</h2>
+                    
+                    <!-- Avaliação -->
+                    <div class="rating mb-2">
+                        {% set media = prestador.media_avaliacoes() %}
+                        {% for i in range(5) %}
+                            {% if i < media|round(0, 'floor') %}
+                                <i class="fas fa-star text-warning"></i>
+                            {% elif i < media %}
+                                <i class="fas fa-star-half-alt text-warning"></i>
+                            {% else %}
+                                <i class="far fa-star text-warning"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="ms-2">{{ media }}/5 ({{ prestador.total_avaliacoes() }} avaliações)</span>
+                    </div>
+                    
+                    <!-- Contato -->
+                    <div class="mt-3 text-start">
+                        {% if prestador.telefone %}
+                            <p class="mb-2">
+                                <i class="fas fa-phone text-primary me-2"></i> 
+                                <strong>Telefone:</strong> {{ prestador.telefone }}
+                            </p>
+                        {% endif %}
+                        <p class="mb-2">
+                            <i class="fas fa-envelope text-primary me-2"></i> 
+                            <strong>Email:</strong> {{ prestador.email }}
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-calendar-alt text-primary me-2"></i> 
+                            <strong>Membro desde:</strong> {{ prestador.data_cadastro.strftime('%d/%m/%Y') }}
+                        </p>
+                    </div>
+                    
+                    <!-- Botão Chat -->
+                    {% if current_user.is_authenticated and current_user.id != prestador.id %}
+                        <button onclick="iniciarChat({{ prestador.id }}, '{{ prestador.nome|replace("'", "\\'") }}')" 
+                                class="btn btn-primary w-100 rounded-pill py-2 mt-3">
+                            <i class="fas fa-comments me-2"></i> Conversar com {{ prestador.nome.split()[0] }}
+                        </button>
+                    {% elif not current_user.is_authenticated %}
+                        <a href="/login" class="btn btn-outline-primary w-100 rounded-pill py-2 mt-3">
+                            <i class="fas fa-sign-in-alt me-2"></i> Faça login para conversar
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <!-- Descrição -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="mb-3">
+                        <i class="fas fa-user-tie text-primary me-2"></i>
+                        Sobre {{ prestador.nome.split()[0] }}
+                    </h4>
+                    {% if prestador.descricao %}
+                        <p class="text-muted">{{ prestador.descricao }}</p>
+                    {% else %}
+                        <p class="text-muted fst-italic">Este prestador ainda não adicionou uma descrição.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Estatísticas -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 rounded-4 text-center p-3">
+                        <i class="fas fa-briefcase fa-2x text-primary mb-2"></i>
+                        <h3 class="mb-0">{{ prestador.servicos_oferecidos|length }}</h3>
+                        <small class="text-muted">Serviços Oferecidos</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 rounded-4 text-center p-3">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                        <h3 class="mb-0">{{ prestador.contratos_como_prestador|selectattr('status', 'equalto', 'concluido')|list|length }}</h3>
+                        <small class="text-muted">Serviços Concluídos</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 rounded-4 text-center p-3">
+                        <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                        <h3 class="mb-0">{{ prestador.total_avaliacoes() }}</h3>
+                        <small class="text-muted">Avaliações Recebidas</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Avaliações dos Clientes -->
+            {% if prestador.avaliacoes_recebidas %}
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h4 class="mb-0">
+                        <i class="fas fa-comments text-primary me-2"></i>
+                        O que os clientes dizem
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% for avaliacao in prestador.avaliacoes_recebidas[:5] %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ avaliacao.cliente.nome }}</strong>
+                                <div class="rating small">
+                                    {% for i in range(5) %}
+                                        {% if i < avaliacao.nota %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ avaliacao.data_avaliacao.strftime('%d/%m/%Y') }}</small>
+                        </div>
+                        <p class="mb-0 mt-2">{{ avaliacao.comentario or 'Sem comentário.' }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Serviços do Prestador -->
+    <div class="mb-5">
+        <h3 class="mb-4">
+            <i class="fas fa-tools text-primary me-2"></i>
+            Serviços de {{ prestador.nome.split()[0] }}
+        </h3>
+        
+        {% if prestador.servicos_oferecidos %}
+        <div class="row g-4">
+            {% for servico in prestador.servicos_oferecidos %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 rounded-4 shadow-sm overflow-hidden transition">
+                    {% if servico.imagem_base64 %}
+                        <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
+                             class="card-img-top" 
+                             alt="{{ servico.titulo }}"
+                             style="height: 180px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 180px;">
+                            <i class="fas fa-briefcase fa-4x text-primary opacity-50"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body p-3">
+                        <span class="badge bg-info mb-2">{{ servico.categoria }}</span>
+                        <h5 class="card-title">{{ servico.titulo }}</h5>
+                        <p class="card-text small text-muted">{{ servico.descricao[:80] }}...</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            {% if servico.preco %}
+                                <span class="price fw-bold text-primary">R$ {{ "%.2f"|format(servico.preco) }}</span>
+                            {% else %}
+                                <span class="text-muted small">Preço sob consulta</span>
+                            {% endif %}
+                            <a href="/servico/{{ servico.id }}" class="btn btn-sm btn-primary rounded-pill px-3">
+                                Ver detalhes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info text-center rounded-4">
+            <i class="fas fa-info-circle me-2"></i>
+            Este prestador ainda não cadastrou nenhum serviço.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .transition {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.1) !important;
+    }
+    
+    .prestador-avatar {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+    }
+    
+    .rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+    }
+    
+    @media (max-width: 768px) {
+        .prestador-avatar {
+            width: 100px;
+            height: 100px;
+        }
+    }
+</style>
+
+<script>
+    function iniciarChat(prestadorId, prestadorNome) {
+        if (prestadorId) {
+            sessionStorage.setItem('chat_with_id', prestadorId);
+            sessionStorage.setItem('chat_with_name', prestadorNome);
+            window.location.href = '/chat';
+        }
+    }
+</script>
+{% endblock %}

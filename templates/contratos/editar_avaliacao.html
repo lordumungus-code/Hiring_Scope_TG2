@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Avaliação - PrestaServiços{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 700px;">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-warning text-dark rounded-top-4 py-3">
+            <h4 class="mb-0">
+                <i class="fas fa-edit me-2"></i>
+                Editar Avaliação
+            </h4>
+        </div>
+        <div class="card-body p-4">
+            <div class="alert alert-info rounded-3">
+                <i class="fas fa-info-circle me-2"></i>
+                Você pode editar sua avaliação apenas nos primeiros 7 dias após a criação.
+            </div>
+            
+            <form method="POST">
+                <div class="mb-4 text-center">
+                    <label class="form-label fw-bold mb-3 d-block">
+                        ⭐ Nota Geral
+                    </label>
+                    <div class="rating-stars mb-2">
+                        <input type="hidden" name="nota" id="nota" value="{{ avaliacao.nota }}">
+                        <i class="fas fa-star fa-2x star-rating {% if 1 <= avaliacao.nota %}active{% endif %}" data-value="1"></i>
+                        <i class="fas fa-star fa-2x star-rating {% if 2 <= avaliacao.nota %}active{% endif %}" data-value="2"></i>
+                        <i class="fas fa-star fa-2x star-rating {% if 3 <= avaliacao.nota %}active{% endif %}" data-value="3"></i>
+                        <i class="fas fa-star fa-2x star-rating {% if 4 <= avaliacao.nota %}active{% endif %}" data-value="4"></i>
+                        <i class="fas fa-star fa-2x star-rating {% if 5 <= avaliacao.nota %}active{% endif %}" data-value="5"></i>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label">Seu Comentário</label>
+                    <textarea name="comentario" class="form-control rounded-3" rows="4">{{ avaliacao.comentario or '' }}</textarea>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-warning flex-grow-1 py-2 rounded-pill">
+                        <i class="fas fa-save me-2"></i> Salvar Alterações
+                    </button>
+                    <a href="{{ url_for('contrato.detalhe_contrato', contrato_id=avaliacao.contrato_id) }}" 
+                       class="btn btn-outline-secondary rounded-pill px-4">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .star-rating {
+        cursor: pointer;
+        color: #ddd;
+        transition: all 0.2s;
+        margin: 0 3px;
+    }
+    .star-rating:hover,
+    .star-rating.active {
+        color: #fbbf24;
+        transform: scale(1.1);
+    }
+    .rating-stars {
+        display: inline-flex;
+    }
+</style>
+
+<script>
+    const stars = document.querySelectorAll('.star-rating');
+    const notaInput = document.getElementById('nota');
+    
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const value = parseInt(this.dataset.value);
+            notaInput.value = value;
+            stars.forEach((s, index) => {
+                if (index < value) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

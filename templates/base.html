@@ -8,35 +8,174 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    
+    <style>
+        /* Apenas melhorias na barra de busca */
+        .search-bar-desktop {
+            flex: 0 0 380px;
+            margin: 0 20px;
+        }
+        
+        .search-bar-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border-radius: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .search-bar-wrapper:focus-within {
+            background: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-bar-wrapper:focus-within .search-icon {
+            color: #0b2b5c;
+        }
+        
+        .search-icon {
+            padding: 0 16px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .search-input {
+            flex: 1;
+            border: none;
+            padding: 12px 0;
+            font-size: 0.9rem;
+            outline: none;
+            background: transparent;
+            color: white;
+        }
+        
+        .search-bar-wrapper:focus-within .search-input {
+            color: #1a2c3e;
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .search-bar-wrapper:focus-within .search-input::placeholder {
+            color: #94a3b8;
+        }
+        
+        .search-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: none;
+            color: white;
+            padding: 8px 28px;
+            font-weight: 600;
+            border-radius: 60px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 4px;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3);
+        }
+        
+        /* Search Mobile */
+        .search-bar-mobile {
+            padding: 0 16px;
+            margin: 12px 0;
+        }
+        
+        .search-bar-mobile .search-bar-wrapper {
+            background: white;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .search-bar-mobile .search-icon {
+            color: #94a3b8;
+        }
+        
+        .search-bar-mobile .search-input {
+            color: #1a2c3e;
+        }
+        
+        .search-bar-mobile .search-input::placeholder {
+            color: #94a3b8;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .user-avatar-nav {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .user-avatar-nav-placeholder {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .search-bar-desktop { flex: 0 0 280px; }
+            .search-btn { padding: 6px 18px; font-size: 0.85rem; }
+        }
+    </style>
 </head>
 <body>
         <div id="loader">
             <img src="{{ url_for('static', filename='img/logo.png') }}" class="loader-logo">
-            
             <div class="loader-text">Carregando...</div>
-
             <div class="loader-bar">
                 <span></span>
             </div>
         </div>
-            <!-- Navbar -->
+        
+        <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
-       <a class="navbar-brand" href="/">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" 
-                alt="PrestaServiços" 
-                class="navbar-logo"
-                onerror="this.onerror=null; this.parentNode.innerHTML='<i class=\'fas fa-tools me-2\'></i> PrestaServiços';">
-       </a>
-        {% block search_bar_desktop %}
-        <div class="search-bar-desktop d-none d-lg-block">
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" 
+                    alt="PrestaServiços" 
+                    class="navbar-logo"
+                    style="height: 42px;"
+                    onerror="this.onerror=null; this.parentNode.innerHTML='<i class=\'fas fa-tools me-2\'></i> PrestaServiços';">
+            </a>
+            
+            <!-- Search Desktop Melhorada -->
+            {% block search_bar_desktop %}
+          <!-- Search Desktop -->
+            <div class="search-bar-desktop d-none d-lg-block">
                 <div class="search-bar-wrapper">
-                <div class="search-icon"><i class="fas fa-search"></i></div>
-                <input type="text" id="globalSearchInput" class="search-input" placeholder="Buscar serviços...">
-                <button id="globalSearchBtn" class="search-btn">Buscar</button>
+                    <div class="search-icon"><i class="fas fa-search"></i></div>
+                    <input type="text" id="globalSearchInput" class="search-input" placeholder="Buscar serviços ou prestadores...">
+                    <button id="globalSearchBtn" class="search-btn">Buscar</button>
+                </div>
             </div>
-        </div>
-        {% endblock %}
+            {% endblock %}
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -50,7 +189,7 @@
                     
                     {% if current_user.is_authenticated %}
                         <!-- Chat com sino de notificação -->
-                        <li class="nav-item">
+                        <li class="nav-item position-relative">
                             <a class="nav-link chat-link" href="/chat">
                                 <i class="fas fa-comments me-1"></i> Chat
                                 <span class="notification-badge" id="chatNotificationBadge" style="display: none;">0</span>
@@ -64,27 +203,15 @@
                                 <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown">
-                                <li>
-                                    <h6 class="dropdown-header">
-                                        <i class="fas fa-bell me-1"></i> Notificações
-                                    </h6>
-                                </li>
-                                <li>
-                                    <div id="notificationList" style="max-height: 300px; overflow-y: auto;">
-                                        <div class="text-center p-3 text-muted">
-                                            <i class="fas fa-bell-slash fa-2x mb-2"></i>
-                                            <p class="mb-0">Nenhuma notificação</p>
-                                        </div>
+                                <li><h6 class="dropdown-header"><i class="fas fa-bell me-1"></i> Notificações</h6></li>
+                                <li><div id="notificationList" style="max-height: 300px; overflow-y: auto;">
+                                    <div class="text-center p-3 text-muted">
+                                        <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                        <p class="mb-0">Nenhuma notificação</p>
                                     </div>
-                                </li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li>
-                                    <a class="dropdown-item text-center" href="/chat">
-                                        <i class="fas fa-comments me-1"></i> Ver todas as mensagens
-                                    </a>
-                                </li>
+                                </div></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-center" href="/chat">Ver todas as mensagens →</a></li>
                             </ul>
                         </li>
                         
@@ -105,19 +232,17 @@
                                     <img src="data:image/jpeg;base64,{{ current_user.foto_perfil }}" class="user-avatar-nav" alt="Avatar" onerror="this.style.display='none'; this.parentNode.querySelector('.user-avatar-nav-placeholder').style.display='inline-flex';">
                                     <div class="user-avatar-nav-placeholder" style="display: none;">{{ current_user.nome[0]|upper }}</div>
                                 {% else %}
-                                    <div class="user-avatar-nav-placeholder">
-                                        {{ current_user.nome[0]|upper }}
-                                    </div>
+                                    <div class="user-avatar-nav-placeholder">{{ current_user.nome[0]|upper }}</div>
                                 {% endif %}
                                 <span class="user-name-nav ms-1">{{ current_user.nome.split()[0] }}</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <li class="user-dropdown-header">
+                                <li class="user-dropdown-header px-3 py-2 border-bottom">
                                     <div class="d-flex align-items-center">
                                         {% if current_user.foto_url %}
-                                            <img src="{{ current_user.foto_url }}" class="rounded-circle me-2" width="40" height="40" onerror="this.style.display='none'">
+                                            <img src="{{ current_user.foto_url }}" class="rounded-circle me-2" width="40" height="40">
                                         {% elif current_user.foto_perfil and current_user.foto_perfil != 'default.jpg' %}
-                                            <img src="data:image/jpeg;base64,{{ current_user.foto_perfil }}" class="rounded-circle me-2" width="40" height="40" onerror="this.style.display='none'">
+                                            <img src="data:image/jpeg;base64,{{ current_user.foto_perfil }}" class="rounded-circle me-2" width="40" height="40">
                                         {% else %}
                                             <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
                                                 <span class="text-white fw-bold">{{ current_user.nome[0]|upper }}</span>
@@ -129,30 +254,14 @@
                                         </div>
                                     </div>
                                 </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/perfil">
-                                        <i class="fas fa-user me-2"></i> Meu Perfil
-                                    </a>
-                                </li>
+                                <li><hr class="dropdown-divider m-0"></li>
+                                <li><a class="dropdown-item py-2" href="/perfil"><i class="fas fa-user me-2"></i> Meu Perfil</a></li>
                                 {% if current_user.tipo == 'prestador' %}
-                                <li>
-                                    <a class="dropdown-item" href="/meus-servicos">
-                                        <i class="fas fa-briefcase me-2"></i> Meus Serviços
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="/cadastro/servico">
-                                        <i class="fas fa-plus-circle me-2"></i> Novo Serviço
-                                    </a>
-                                </li>
+                                <li><a class="dropdown-item py-2" href="/meus-servicos"><i class="fas fa-briefcase me-2"></i> Meus Serviços</a></li>
+                                <li><a class="dropdown-item py-2" href="/cadastro/servico"><i class="fas fa-plus-circle me-2"></i> Novo Serviço</a></li>
                                 {% endif %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item text-danger" href="/logout">
-                                        <i class="fas fa-sign-out-alt me-2"></i> Sair
-                                    </a>
-                                </li>
+                                <li><hr class="dropdown-divider m-0"></li>
+                                <li><a class="dropdown-item py-2 text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Sair</a></li>
                             </ul>
                         </li>
                         
@@ -171,15 +280,17 @@
                 </ul>
             </div>
         </div>
-  {% block search_bar_mobile %}
-<div class="search-bar-mobile container mt-2 d-md-none">
-    <div class="search-bar-wrapper">
-        <div class="search-icon"><i class="fas fa-search"></i></div>
-        <input type="text" id="globalSearchInputMobile" class="search-input" placeholder="Buscar serviços...">
-        <button id="globalSearchBtnMobile" class="search-btn">Buscar</button>
-    </div>
-</div>
-{% endblock %}
+        
+        <!-- Search Mobile -->
+        {% block search_bar_mobile %}
+        <div class="search-bar-mobile container mt-2 d-md-none">
+            <div class="search-bar-wrapper">
+                <div class="search-icon"><i class="fas fa-search"></i></div>
+                <input type="text" id="globalSearchInputMobile" class="search-input" placeholder="Buscar serviços...">
+                <button id="globalSearchBtnMobile" class="search-btn">Buscar</button>
+            </div>
+        </div>
+        {% endblock %}
     </nav>
 
     <!-- Container para notificações toast -->
@@ -207,72 +318,67 @@
 
     <!-- Footer -->
     <footer class="footer pt-5 pb-4">
-    <div class="container">
-        <div class="row gy-4">
-            <!-- Coluna 1: Sobre -->
-            <div class="col-md-4">
-                <h5 class="fw-bold mb-3">
-                    <i class="fas fa-tools me-2"></i> PrestaServiços
-                </h5>
-                <p class="text-white-50 small">
-                    Conectamos clientes e prestadores de serviços de forma simples, rápida e segura.
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-tools me-2"></i> PrestaServiços
+                    </h5>
+                    <p class="text-white-50 small">
+                        Conectamos clientes e prestadores de serviços de forma simples, rápida e segura.
+                    </p>
+                    <div class="social-links mt-3">
+                        <a href="#" class="me-2"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="me-2"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="me-2"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="me-2"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <h5 class="fw-bold mb-3">Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="/" class="text-white-50 text-decoration-none"><i class="fas fa-home me-2"></i>Início</a></li>
+                        <li class="mb-2"><a href="/servicos" class="text-white-50 text-decoration-none"><i class="fas fa-search me-2"></i>Serviços</a></li>
+                        {% if current_user.is_authenticated %}
+                            <li class="mb-2"><a href="/dashboard" class="text-white-50 text-decoration-none"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                        {% else %}
+                            <li class="mb-2"><a href="/cadastro" class="text-white-50 text-decoration-none"><i class="fas fa-user-plus me-2"></i>Cadastro</a></li>
+                            <li class="mb-2"><a href="/login" class="text-white-50 text-decoration-none"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-3">Atendimento</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2 text-white-50"><i class="fas fa-envelope me-2"></i> contato@prestaservicos.com</li>
+                        <li class="mb-2 text-white-50"><i class="fas fa-phone me-2"></i> (11) 4000-0000</li>
+                        <li class="mb-2 text-white-50"><i class="fas fa-clock me-2"></i> Seg - Sex: 9h às 18h</li>
+                    </ul>
+                </div>
+
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-3">Newsletter</h5>
+                    <p class="text-white-50 small">Receba novidades e ofertas exclusivas</p>
+                    <div class="input-group">
+                        <input type="email" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Seu e-mail">
+                        <button class="btn btn-primary btn-sm" type="button">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4 border-secondary opacity-50">
+            <div class="text-center">
+                <p class="mb-0 text-white-50 small">
+                    &copy; 2024 PrestaServiços. Todos os direitos reservados. 
+                    Desenvolvido com <i class="fas fa-heart text-danger"></i> para conectar profissionais.
                 </p>
-                <div class="social-links mt-3">
-                    <a href="#" class="me-2"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="me-2"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="me-2"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="me-2"><i class="fab fa-linkedin-in"></i></a>
-                </div>
-            </div>
-
-            <!-- Coluna 2: Links Rápidos -->
-            <div class="col-md-2">
-                <h5 class="fw-bold mb-3">Links Rápidos</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="/" class="text-white-50 text-decoration-none"><i class="fas fa-home me-2"></i>Início</a></li>
-                    <li class="mb-2"><a href="/servicos" class="text-white-50 text-decoration-none"><i class="fas fa-search me-2"></i>Serviços</a></li>
-                    {% if current_user.is_authenticated %}
-                        <li class="mb-2"><a href="/dashboard" class="text-white-50 text-decoration-none"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-                    {% else %}
-                        <li class="mb-2"><a href="/cadastro" class="text-white-50 text-decoration-none"><i class="fas fa-user-plus me-2"></i>Cadastro</a></li>
-                        <li class="mb-2"><a href="/login" class="text-white-50 text-decoration-none"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
-                    {% endif %}
-                </ul>
-            </div>
-
-            <!-- Coluna 3: Atendimento -->
-            <div class="col-md-3">
-                <h5 class="fw-bold mb-3">Atendimento</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2 text-white-50"><i class="fas fa-envelope me-2"></i> contato@prestaservicos.com</li>
-                    <li class="mb-2 text-white-50"><i class="fas fa-phone me-2"></i> (11) 4000-0000</li>
-                    <li class="mb-2 text-white-50"><i class="fas fa-clock me-2"></i> Seg - Sex: 9h às 18h</li>
-                </ul>
-            </div>
-
-            <!-- Coluna 4: Newsletter -->
-            <div class="col-md-3">
-                <h5 class="fw-bold mb-3">Newsletter</h5>
-                <p class="text-white-50 small">Receba novidades e ofertas exclusivas</p>
-                <div class="input-group">
-                    <input type="email" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Seu e-mail">
-                    <button class="btn btn-primary btn-sm" type="button">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
             </div>
         </div>
-
-        <!-- Linha divisória com copyright centralizado -->
-        <hr class="my-4 border-secondary opacity-50">
-        <div class="text-center">
-            <p class="mb-0 text-white-50 small">
-                &copy; 2024 PrestaServiços. Todos os direitos reservados. 
-                Desenvolvido com <i class="fas fa-heart text-danger"></i> para conectar profissionais.
-            </p>
-        </div>
-    </div>
-</footer>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -501,14 +607,13 @@
         }
     }
 
-  function performSearch() {
+    function performSearch() {
         const queryDesktop = document.getElementById('globalSearchInput')?.value.trim();
         const queryMobile = document.getElementById('globalSearchInputMobile')?.value.trim();
         const query = queryDesktop || queryMobile;
         window.location.href = query ? "/servicos?q=" + encodeURIComponent(query) : "/servicos";
     }
 
-    
     const searchBtn = document.getElementById('globalSearchBtn');
     const searchInput = document.getElementById('globalSearchInput');
     if (searchBtn) searchBtn.addEventListener('click', performSearch);

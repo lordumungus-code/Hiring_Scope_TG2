@@ -1,192 +1,282 @@
 {% extends "base.html" %}
-{% block search_bar_desktop %}{% endblock %}
-{% block search_bar_mobile %}{% endblock %}
-{% block title %}Cadastrar Serviço - PrestaServiços{% endblock %}
+
+{% block title %}Cadastrar Novo Serviço - PrestaServiços{% endblock %}
 
 {% block content %}
-<style>
-    /* Estilos específicos para a página de cadastro de serviço */
-    .card-header-custom {
-        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
-        color: white;
-        border-bottom: none;
-        border-radius: 1rem 1rem 0 0;
-        padding: 1.2rem;
-    }
-    .btn-cadastrar {
-        background: linear-gradient(135deg, #10b981, #059669);
-        border: none;
-        border-radius: 60px;
-        padding: 10px 24px;
-        font-weight: 600;
-        transition: all 0.2s;
-        color: white;
-    }
-    .btn-cadastrar:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 18px rgba(16,185,129,0.3);
-        background: linear-gradient(135deg, #059669, #047857);
-    }
-    .btn-cancelar {
-        background: #64748b;
-        border: none;
-        border-radius: 60px;
-        padding: 10px 24px;
-        font-weight: 600;
-        transition: all 0.2s;
-        color: white;
-    }
-    .btn-cancelar:hover {
-        background: #475569;
-        transform: translateY(-2px);
-    }
-    .form-control:focus, .form-select:focus {
-        border-color: #0b2b5c;
-        box-shadow: 0 0 0 3px rgba(11,43,92,0.15);
-    }
-    .alert {
-        border-radius: 1rem;
-    }
-    #preview {
-        max-width: 200px;
-        max-height: 200px;
-        border-radius: 1rem;
-        border: 2px solid #1a6d8f;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-</style>
-
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-                <div class="card-header-custom">
-                    <h4 class="mb-0 fw-semibold">
-                        <i class="fas fa-plus-circle me-2"></i> Cadastrar Novo Serviço
-                    </h4>
+<div class="container mt-4" style="max-width: 800px;">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4 py-3">
+            <h4 class="mb-0">
+                <i class="fas fa-plus-circle me-2"></i>
+                Cadastrar Novo Serviço
+            </h4>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+                <!-- Título do Serviço -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-tag text-primary me-1"></i>
+                        Título do Serviço <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" name="titulo" class="form-control rounded-3" 
+                           placeholder="Ex: Limpeza Completa, Aulas de Inglês, Consultoria em Marketing"
+                           required>
                 </div>
-                <div class="card-body p-4">
-                    <!-- Mensagens Flash -->
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    
-                    <form method="POST" enctype="multipart/form-data" id="servicoForm">
-                        <div class="mb-3">
-                            <label for="titulo" class="form-label fw-semibold">
-                                <i class="fas fa-heading me-1 text-primary"></i> Título do Serviço
-                            </label>
-                            <input type="text" class="form-control rounded-pill" id="titulo" name="titulo" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="categoria" class="form-label fw-semibold">
-                                <i class="fas fa-tag me-1 text-primary"></i> Categoria
-                            </label>
-                            <select class="form-select rounded-pill" id="categoria" name="categoria" required>
-                                <option value="">Selecione...</option>
-                                <option value="Construção">🏗️ Construção</option>
-                                <option value="Limpeza">🧹 Limpeza</option>
-                                <option value="Tecnologia">💻 Tecnologia</option>
-                                <option value="Educação">📚 Educação</option>
-                                <option value="Saúde">🏥 Saúde</option>
-                                <option value="Marketing">📊 Marketing</option>
-                                <option value="Design">🎨 Design</option>
-                                <option value="Outros">📌 Outros</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="preco" class="form-label fw-semibold">
-                                <i class="fas fa-dollar-sign me-1 text-primary"></i> Preço (opcional)
-                            </label>
-                            <input type="number" class="form-control rounded-pill" id="preco" name="preco" step="0.01" min="0" placeholder="Ex: 150.00">
-                            <small class="text-muted">Deixe em branco se for "preço sob consulta"</small>
-                        </div>
-                        
-                        <!-- Upload de imagem com preview -->
-                        <div class="mb-3">
-                            <label for="imagem" class="form-label fw-semibold">
-                                <i class="fas fa-image me-1 text-primary"></i> Imagem do Serviço (opcional)
-                            </label>
-                            <input type="file" class="form-control rounded-pill" id="imagem" name="imagem" accept="image/*" onchange="previewImage(event)">
-                            <small class="text-muted">Formatos: JPG, PNG, GIF. Máx: 5MB</small>
-                            
-                            <div id="imagePreview" class="mt-3 text-center" style="display: none;">
-                                <img id="preview" src="#" alt="Preview">
-                                <br>
-                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill mt-2" onclick="removeImage()">
-                                    <i class="fas fa-times me-1"></i> Remover imagem
-                                </button>
+
+                <!-- Categoria -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-folder text-primary me-1"></i>
+                        Categoria <span class="text-danger">*</span>
+                    </label>
+                    <select name="categoria" class="form-select rounded-3" required>
+                        <option value="">Selecione uma categoria...</option>
+                        <option value="Tecnologia">💻 Tecnologia</option>
+                        <option value="Construção">🏗️ Construção</option>
+                        <option value="Design">🎨 Design</option>
+                        <option value="Limpeza">🧹 Limpeza</option>
+                        <option value="Jardinagem">🌿 Jardinagem</option>
+                        <option value="Educação">📚 Educação</option>
+                        <option value="Saúde">💊 Saúde</option>
+                        <option value="Marketing">📈 Marketing</option>
+                        <option value="Fotografia">📷 Fotografia</option>
+                        <option value="Tradução">🌐 Tradução</option>
+                        <option value="Segurança">🔒 Segurança</option>
+                        <option value="Eventos">🎉 Eventos</option>
+                    </select>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- SISTEMA DE PRECIFICAÇÃO FLEXÍVEL -->
+                <!-- ============================================ -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-dollar-sign text-primary me-1"></i>
+                        Tipo de Precificação
+                    </label>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="form-check p-3 border rounded-3 cursor-pointer hover-bg-light" onclick="selecionarTipoPreco('fixo')">
+                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoFixo" value="fixo" checked>
+                                <label class="form-check-label w-100 cursor-pointer" for="precoFixo">
+                                    <i class="fas fa-tag text-primary me-2"></i>
+                                    <strong>Preço Fixo</strong>
+                                    <br>
+                                    <small class="text-muted">Valor único pelo serviço completo</small>
+                                </label>
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="descricao" class="form-label fw-semibold">
-                                <i class="fas fa-align-left me-1 text-primary"></i> Descrição do Serviço
-                            </label>
-                            <textarea class="form-control rounded-4" id="descricao" name="descricao" rows="5" required placeholder="Descreva detalhadamente o serviço oferecido..."></textarea>
+                        <div class="col-md-6">
+                            <div class="form-check p-3 border rounded-3 cursor-pointer hover-bg-light" onclick="selecionarTipoPreco('hora')">
+                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoHora" value="hora">
+                                <label class="form-check-label w-100 cursor-pointer" for="precoHora">
+                                    <i class="fas fa-clock text-primary me-2"></i>
+                                    <strong>Preço por Hora</strong>
+                                    <br>
+                                    <small class="text-muted">Valor cobrado por hora trabalhada</small>
+                                </label>
+                            </div>
                         </div>
-                        
-                        <div class="d-flex gap-2 mt-4">
-                            <button type="submit" class="btn btn-cadastrar">
-                                <i class="fas fa-check me-2"></i> Cadastrar Serviço
-                            </button>
-                            <a href="/dashboard" class="btn btn-cancelar">
-                                <i class="fas fa-arrow-left me-2"></i> Cancelar
-                            </a>
+                        <div class="col-md-6">
+                            <div class="form-check p-3 border rounded-3 cursor-pointer hover-bg-light" onclick="selecionarTipoPreco('dia')">
+                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoDia" value="dia">
+                                <label class="form-check-label w-100 cursor-pointer" for="precoDia">
+                                    <i class="fas fa-calendar-day text-primary me-2"></i>
+                                    <strong>Preço por Dia</strong>
+                                    <br>
+                                    <small class="text-muted">Valor por diária de trabalho</small>
+                                </label>
+                            </div>
                         </div>
-                    </form>
+                        <div class="col-md-6">
+                            <div class="form-check p-3 border rounded-3 cursor-pointer hover-bg-light" onclick="selecionarTipoPreco('metro')">
+                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoMetro" value="metro">
+                                <label class="form-check-label w-100 cursor-pointer" for="precoMetro">
+                                    <i class="fas fa-ruler-combined text-primary me-2"></i>
+                                    <strong>Preço por m²</strong>
+                                    <br>
+                                    <small class="text-muted">Ideal para construção/limpeza</small>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check p-3 border rounded-3 cursor-pointer hover-bg-light" onclick="selecionarTipoPreco('consulta')">
+                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoConsulta" value="consulta">
+                                <label class="form-check-label w-100 cursor-pointer" for="precoConsulta">
+                                    <i class="fas fa-comments text-primary me-2"></i>
+                                    <strong>Sob Consulta</strong>
+                                    <br>
+                                    <small class="text-muted">Orçamento personalizado</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Campo de Valor (dinâmico) -->
+                <div class="mb-3" id="campoValorContainer">
+                    <label class="form-label fw-bold" id="labelValor">
+                        <i class="fas fa-dollar-sign text-primary me-1"></i>
+                        Valor do Serviço
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text">R$</span>
+                        <input type="number" name="preco" id="precoInput" class="form-control rounded-3" 
+                               step="0.01" placeholder="Ex: 150.00">
+                        <span class="input-group-text" id="unidadePreco"></span>
+                    </div>
+                    <small class="text-muted" id="descricaoPreco">Valor fixo pelo serviço completo</small>
+                </div>
+
+                <!-- Imagem do Serviço -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-image text-primary me-1"></i>
+                        Imagem do Serviço (opcional)
+                    </label>
+                    <div class="border rounded-3 p-3 text-center">
+                        <div class="mb-2">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-muted"></i>
+                        </div>
+                        <input type="file" name="imagem" id="imagemInput" class="d-none" accept="image/*">
+                        <button type="button" class="btn btn-outline-primary rounded-pill" onclick="document.getElementById('imagemInput').click()">
+                            <i class="fas fa-folder-open me-2"></i> Escolher arquivo
+                        </button>
+                        <span id="nomeArquivo" class="ms-2 text-muted small">Nenhum arquivo escolhido</span>
+                        <div id="previewImagem" class="mt-3" style="display: none;">
+                            <img id="previewImg" src="#" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 10px;">
+                        </div>
+                        <small class="text-muted d-block mt-2">Formatos: JPG, PNG, GIF. Máx: 5MB</small>
+                    </div>
+                </div>
+
+                <!-- Descrição -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-align-left text-primary me-1"></i>
+                        Descrição do Serviço <span class="text-danger">*</span>
+                    </label>
+                    <textarea name="descricao" class="form-control rounded-3" rows="5" 
+                              placeholder="Descreva detalhadamente o serviço oferecido, incluindo:
+• O que está incluso
+• Materiais necessários (se houver)
+• Prazo estimado
+• Local de atendimento
+• Diferenciais do seu serviço"
+                              required></textarea>
+                    <small class="text-muted">Mínimo 20 caracteres. Seja detalhista para atrair mais clientes.</small>
+                </div>
+
+                <!-- Botões -->
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary flex-grow-1 py-2 rounded-pill">
+                        <i class="fas fa-save me-2"></i> Cadastrar Serviço
+                    </button>
+                    <a href="/meus-servicos" class="btn btn-outline-secondary px-4 rounded-pill">
+                        <i class="fas fa-times me-2"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dicas -->
+    <div class="card mt-4 border-0 bg-light rounded-4">
+        <div class="card-body">
+            <h6 class="mb-2">
+                <i class="fas fa-lightbulb text-warning me-2"></i>
+                Dicas para um bom anúncio:
+            </h6>
+            <ul class="text-muted small mb-0">
+                <li>✓ Seja específico no título e descrição</li>
+                <li>✓ Adicione fotos do seu trabalho (antes/depois)</li>
+                <li>✓ Escolha o tipo de precificação mais adequado</li>
+                <li>✓ Seja transparente sobre o que está incluso</li>
+                <li>✓ Atualize sua disponibilidade regularmente</li>
+            </ul>
         </div>
     </div>
 </div>
 
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    .hover-bg-light:hover {
+        background-color: #f8f9fa;
+    }
+    .form-check {
+        transition: all 0.2s ease;
+    }
+    .form-check:has(input:checked) {
+        background-color: #e7f1ff;
+        border-color: #0b2b5c !important;
+    }
+</style>
+
 <script>
-    // Preview da imagem (mantido igual)
-    function previewImage(event) {
-        const input = event.target;
-        const preview = document.getElementById('preview');
-        const previewDiv = document.getElementById('imagePreview');
+    function selecionarTipoPreco(tipo) {
+        const label = document.getElementById('labelValor');
+        const input = document.getElementById('precoInput');
+        const unidade = document.getElementById('unidadePreco');
+        const descricao = document.getElementById('descricaoPreco');
         
-        if (input.files && input.files[0]) {
+        if (tipo === 'fixo') {
+            label.innerHTML = '<i class="fas fa-dollar-sign text-primary me-1"></i> Valor do Serviço';
+            input.placeholder = 'Ex: 150.00';
+            unidade.textContent = '(fixo)';
+            descricao.textContent = 'Valor fixo pelo serviço completo';
+        } else if (tipo === 'hora') {
+            label.innerHTML = '<i class="fas fa-clock text-primary me-1"></i> Valor por Hora';
+            input.placeholder = 'Ex: 50.00';
+            unidade.textContent = 'por hora';
+            descricao.textContent = 'Valor cobrado por cada hora de trabalho';
+        } else if (tipo === 'dia') {
+            label.innerHTML = '<i class="fas fa-calendar-day text-primary me-1"></i> Valor por Dia';
+            input.placeholder = 'Ex: 300.00';
+            unidade.textContent = 'por dia';
+            descricao.textContent = 'Valor por diária de trabalho (8h)';
+        } else if (tipo === 'metro') {
+            label.innerHTML = '<i class="fas fa-ruler-combined text-primary me-1"></i> Valor por m²';
+            input.placeholder = 'Ex: 15.00';
+            unidade.textContent = 'por m²';
+            descricao.textContent = 'Valor por metro quadrado - ideal para pintura, limpeza, etc.';
+        } else if (tipo === 'consulta') {
+            label.innerHTML = '<i class="fas fa-comments text-primary me-1"></i> Orçamento';
+            input.placeholder = 'Deixe em branco';
+            input.disabled = true;
+            input.value = '';
+            unidade.textContent = '(sob consulta)';
+            descricao.textContent = 'Preço a ser combinado diretamente com o cliente';
+            return;
+        }
+        
+        input.disabled = false;
+    }
+    
+    // Preview de imagem
+    document.getElementById('imagemInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const nomeArquivo = document.getElementById('nomeArquivo');
+        const previewDiv = document.getElementById('previewImagem');
+        const previewImg = document.getElementById('previewImg');
+        
+        if (file) {
+            nomeArquivo.textContent = file.name;
             const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.src = e.target.result;
+            reader.onload = function(event) {
+                previewImg.src = event.target.result;
                 previewDiv.style.display = 'block';
             }
-            reader.readAsDataURL(input.files[0]);
+            reader.readAsDataURL(file);
+        } else {
+            nomeArquivo.textContent = 'Nenhum arquivo escolhido';
+            previewDiv.style.display = 'none';
         }
-    }
+    });
     
-    // Remover imagem selecionada
-    function removeImage() {
-        const input = document.getElementById('imagem');
-        const previewDiv = document.getElementById('imagePreview');
-        input.value = '';
-        previewDiv.style.display = 'none';
-    }
-    
-    // Validação do tamanho da imagem (5MB)
-    const imagemInput = document.getElementById('imagem');
-    if (imagemInput) {
-        imagemInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file && file.size > 5 * 1024 * 1024) {
-                alert('A imagem deve ter no máximo 5MB');
-                this.value = '';
-                document.getElementById('imagePreview').style.display = 'none';
-            }
-        });
-    }
+    // Inicializar com seleção fixa
+    document.getElementById('precoFixo').checked = true;
 </script>
 {% endblock %}

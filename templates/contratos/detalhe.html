@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Detalhe do Contrato - PrestaServiços{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-3">
+        <a href="{{ url_for('contrato.meus_contratos') }}" class="btn btn-outline-secondary rounded-pill">
+            <i class="fas fa-arrow-left me-2"></i> Voltar para meus contratos
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4 py-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <h4 class="mb-0">
+                    <i class="fas fa-file-contract me-2"></i>
+                    Contrato #{{ contrato.id }}
+                </h4>
+                <span class="badge bg-{{ contrato.get_status_color() }} px-3 py-2 rounded-pill">
+                    <i class="fas {{ contrato.get_status_icon() }} me-1"></i>
+                    {{ contrato.status|replace('_', ' ')|title }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="card-body p-4">
+            <!-- Informações do Serviço -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h5 class="mb-3">
+                        <i class="fas fa-briefcase text-primary me-2"></i>
+                        Serviço Contratado
+                    </h5>
+                    <div class="bg-light p-3 rounded-3">
+                        <h6 class="mb-2">{{ contrato.servico.titulo }}</h6>
+                        <p class="text-muted small mb-2">{{ contrato.servico.descricao[:150] }}...</p>
+                        <span class="badge bg-info rounded-pill">{{ contrato.servico.categoria }}</span>
+                        {% if contrato.preco_acordado %}
+                            <span class="badge bg-success rounded-pill ms-2">
+                                R$ {{ "%.2f"|format(contrato.preco_acordado) }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card bg-light border-0 rounded-3">
+                        <div class="card-body text-center">
+                            {% if current_user.id == contrato.cliente_id %}
+                                <i class="fas fa-user-tie fa-3x text-primary mb-2"></i>
+                                <h6 class="mb-1">{{ contrato.prestador.nome }}</h6>
+                                <small class="text-muted">Prestador</small>
+                            {% else %}
+                                <i class="fas fa-user fa-3x text-success mb-2"></i>
+                                <h6 class="mb-1">{{ contrato.cliente.nome }}</h6>
+                                <small class="text-muted">Cliente</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datas importantes -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="text-center p-3 bg-light rounded-3">
+                        <small class="text-muted">Solicitado em</small>
+                        <p class="mb-0 fw-bold">{{ contrato.data_solicitacao.strftime('%d/%m/%Y') }}</p>
+                    </div>
+                </div>
+                {% if contrato.data_aceite %}
+                <div class="col-md-3">
+                    <div class="text-center p-3 bg-light rounded-3">
+                        <small class="text-muted">Aceito em</small>
+                        <p class="mb-0 fw-bold">{{ contrato.data_aceite.strftime('%d/%m/%Y') }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                {% if contrato.data_conclusao %}
+                <div class="col-md-3">
+                    <div class="text-center p-3 bg-light rounded-3">
+                        <small class="text-muted">Concluído em</small>
+                        <p class="mb-0 fw-bold">{{ contrato.data_conclusao.strftime('%d/%m/%Y') }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Mensagens -->
+            {% if contrato.mensagem_cliente %}
+            <div class="mb-4">
+                <h6 class="mb-2">
+                    <i class="fas fa-envelope text-primary me-2"></i>
+                    Mensagem do Cliente
+                </h6>
+                <div class="bg-light p-3 rounded-3">
+                    {{ contrato.mensagem_cliente }}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if contrato.mensagem_prestador %}
+            <div class="mb-4">
+                <h6 class="mb-2">
+                    <i class="fas fa-reply text-primary me-2"></i>
+                    Resposta do Prestador
+                </h6>
+                <div class="bg-light p-3 rounded-3">
+                    {{ contrato.mensagem_prestador }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Ações conforme o status -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="d-flex gap-2 flex-wrap justify-content-center">
+                        
+                        <!-- Botão Chat -->
+                        <button onclick="iniciarChat({{ contrato.prestador_id if current_user.id == contrato.cliente_id else contrato.cliente_id }}, '{{ (contrato.prestador.nome if current_user.id == contrato.cliente_id else contrato.cliente.nome)|replace("'", "\\'") }}')" 
+                                class="btn btn-info rounded-pill px-4">
+                            <i class="fas fa-comments me-2"></i> Conversar
+                        </button>
+
+                        <!-- Ações para o Prestador -->
+                        {% if current_user.id == contrato.prestador_id %}
+                            {% if contrato.status == 'pendente' %}
+                                <form action="{{ url_for('contrato.atualizar_status', contrato_id=contrato.id) }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="status" value="aceito">
+                                    <button type="submit" class="btn btn-success rounded-pill px-4">
+                                        <i class="fas fa-check-circle me-2"></i> Aceitar Serviço
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('contrato.atualizar_status', contrato_id=contrato.id) }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="status" value="cancelado">
+                                    <button type="submit" class="btn btn-danger rounded-pill px-4" onclick="return confirm('Tem certeza que deseja cancelar?')">
+                                        <i class="fas fa-times-circle me-2"></i> Recusar
+                                    </button>
+                                </form>
+                            {% elif contrato.status == 'aceito' %}
+                                <form action="{{ url_for('contrato.atualizar_status', contrato_id=contrato.id) }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="status" value="em_andamento">
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                        <i class="fas fa-play me-2"></i> Iniciar Serviço
+                                    </button>
+                                </form>
+                            {% elif contrato.status == 'em_andamento' %}
+                                <form action="{{ url_for('contrato.atualizar_status', contrato_id=contrato.id) }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="status" value="concluido">
+                                    <button type="submit" class="btn btn-success rounded-pill px-4">
+                                        <i class="fas fa-flag-checkered me-2"></i> Concluir Serviço
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+
+                        <!-- Avaliação (para o cliente, quando concluído) -->
+                        {% if current_user.id == contrato.cliente_id and contrato.status == 'concluido' %}
+                            {% if not avaliacao %}
+                                <a href="{{ url_for('contrato.avaliar_servico', contrato_id=contrato.id) }}" class="btn btn-warning rounded-pill px-4">
+                                    <i class="fas fa-star me-2"></i> Avaliar Serviço ⭐
+                                </a>
+                            {% else %}
+                                <div class="alert alert-success rounded-pill px-4 mb-0">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Você já avaliou este serviço! Nota: {{ avaliacao.nota }}/5
+                                    {% if avaliacao.pode_editar(current_user.id) %}
+                                        <a href="{{ url_for('contrato.editar_avaliacao', avaliacao_id=avaliacao.id) }}" class="alert-link ms-2">
+                                            Editar avaliação
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function iniciarChat(usuarioId, usuarioNome) {
+        if (usuarioId) {
+            sessionStorage.setItem('chat_with_id', usuarioId);
+            sessionStorage.setItem('chat_with_name', usuarioNome);
+            window.location.href = '/chat';
+        }
+    }
+</script>
+{% endblock %}

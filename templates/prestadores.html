@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Top Prestadores - PrestaServiços{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Cabeçalho -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold mb-3">
+            <i class="fas fa-trophy text-warning me-2"></i>
+            Top Prestadores
+        </h1>
+        <p class="lead text-muted">
+            Conheça os profissionais mais bem avaliados da nossa plataforma
+        </p>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-md-6 mx-auto">
+            <div class="input-group shadow-sm rounded-pill overflow-hidden">
+                <span class="input-group-text bg-white border-0">
+                    <i class="fas fa-search text-primary"></i>
+                </span>
+                <input type="text" id="searchInput" class="form-control border-0 py-2" 
+                       placeholder="Buscar prestador por nome...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Ranking dos Prestadores -->
+    {% if ranking %}
+    <div class="row g-4" id="prestadoresList">
+        {% for item in ranking %}
+        <div class="col-md-6 col-lg-4 prestador-item" data-nome="{{ item.prestador.nome|lower }}">
+            <div class="card h-100 border-0 rounded-4 shadow-sm overflow-hidden transition">
+                <div class="card-body p-4">
+                    <!-- Posição no Ranking -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="ranking-badge">
+                            {% if loop.index == 1 %}
+                                <span class="badge bg-warning rounded-pill px-3 py-2 fs-6">
+                                    <i class="fas fa-crown me-1"></i> #1 - TOP da Semana
+                                </span>
+                            {% elif loop.index == 2 %}
+                                <span class="badge bg-secondary rounded-pill px-3 py-2 fs-6">
+                                    <i class="fas fa-medal me-1"></i> #2 - Destaque
+                                </span>
+                            {% elif loop.index == 3 %}
+                                <span class="badge rounded-pill px-3 py-2 fs-6" style="background: #cd7f32; color: white;">
+                                    <i class="fas fa-medal me-1"></i> #3 - Bronze
+                                </span>
+                            {% else %}
+                                <span class="badge bg-light text-dark rounded-pill px-3 py-2 fs-6">
+                                    #{{ loop.index }}º Lugar
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div class="text-end">
+                            <div class="rating">
+                                {% for i in range(5) %}
+                                    {% if i < item.media|round(0, 'floor') %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% elif i < item.media %}
+                                        <i class="fas fa-star-half-alt text-warning"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted">{{ item.media }}/5 ({{ item.total_avaliacoes }} avaliações)</small>
+                        </div>
+                    </div>
+
+                    <!-- Perfil do Prestador -->
+                    <div class="text-center mb-3">
+                        <div class="prestador-avatar mx-auto mb-3">
+                            {% if item.prestador.foto_url %}
+                                <img src="{{ item.prestador.foto_url }}" alt="{{ item.prestador.nome }}" 
+                                     class="rounded-circle shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
+                            {% elif item.prestador.foto_perfil and item.prestador.foto_perfil != 'default.jpg' %}
+                                <img src="data:image/jpeg;base64,{{ item.prestador.foto_perfil }}" alt="{{ item.prestador.nome }}" 
+                                     class="rounded-circle shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto" 
+                                     style="width: 100px; height: 100px; background: linear-gradient(135deg, #0b2b5c, #1a6d8f);">
+                                    <span class="text-white fs-1 fw-bold">{{ item.prestador.nome[0]|upper }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <h3 class="mb-1">{{ item.prestador.nome }}</h3>
+                        {% if item.prestador.descricao %}
+                            <p class="text-muted small">{{ item.prestador.descricao[:100] }}{% if item.prestador.descricao|length > 100 %}...{% endif %}</p>
+                        {% else %}
+                            <p class="text-muted small"><i class="fas fa-info-circle"></i> Sem descrição ainda</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Estatísticas -->
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <div class="bg-light rounded-3 p-2">
+                                <i class="fas fa-briefcase text-primary"></i>
+                                <h5 class="mb-0">{{ item.total_servicos }}</h5>
+                                <small class="text-muted">Serviços</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded-3 p-2">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <h5 class="mb-0">{{ item.prestador.contratos_como_prestador|selectattr('status', 'equalto', 'concluido')|list|length }}</h5>
+                                <small class="text-muted">Concluídos</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Serviços -->
+                    {% if item.prestador.servicos_oferecidos[:3] %}
+                    <div class="mb-3">
+                        <h6 class="mb-2"><i class="fas fa-tags me-1"></i> Serviços oferecidos:</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for servico in item.prestador.servicos_oferecidos[:3] %}
+                                <span class="badge bg-primary rounded-pill px-2 py-1">
+                                    {{ servico.titulo[:20] }}{% if servico.titulo|length > 20 %}...{% endif %}
+                                </span>
+                            {% endfor %}
+                            {% if item.prestador.servicos_oferecidos|length > 3 %}
+                                <span class="badge bg-secondary rounded-pill px-2 py-1">
+                                    +{{ item.prestador.servicos_oferecidos|length - 3 }} outros
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Botões de Ação -->
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="/servicos?prestador={{ item.prestador.id }}" class="btn btn-outline-primary flex-grow-1 rounded-pill">
+                            <i class="fas fa-briefcase me-1"></i> Ver Serviços
+                        </a>
+                        <a href="/perfil/{{ item.prestador.id }}" class="btn btn-outline-info rounded-pill">
+                            <i class="fas fa-user me-1"></i> Perfil
+                        </a>
+                        {% if current_user.is_authenticated and current_user.id != item.prestador.id %}
+                            <button onclick="iniciarChat({{ item.prestador.id }}, '{{ item.prestador.nome|replace("'", "\\'") }}')" 
+                                    class="btn btn-primary rounded-pill">
+                                <i class="fas fa-comments"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Mensagem quando não há prestadores -->
+    {% else %}
+    <div class="alert alert-info text-center rounded-4 py-5">
+        <i class="fas fa-info-circle fa-3x mb-3"></i>
+        <h4>Nenhum prestador cadastrado ainda</h4>
+        <p class="mb-0">Seja o primeiro a se cadastrar como prestador!</p>
+        <a href="/cadastro" class="btn btn-primary rounded-pill mt-3">
+            <i class="fas fa-user-plus me-2"></i> Cadastrar como Prestador
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .transition {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+    }
+    
+    .prestador-avatar {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto;
+    }
+    
+    .rating {
+        display: inline-flex;
+        gap: 2px;
+    }
+    
+    .ranking-badge .badge {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+        .prestador-avatar {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .display-5 {
+            font-size: 1.8rem;
+        }
+        
+        .card-body {
+            padding: 1rem !important;
+        }
+    }
+</style>
+
+<script>
+    function iniciarChat(prestadorId, prestadorNome) {
+        if (prestadorId) {
+            sessionStorage.setItem('chat_with_id', prestadorId);
+            sessionStorage.setItem('chat_with_name', prestadorNome);
+            window.location.href = '/chat';
+        }
+    }
+
+    // Filtro de busca
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const prestadores = document.querySelectorAll('.prestador-item');
+        
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                
+                prestadores.forEach(prestador => {
+                    const nome = prestador.dataset.nome || '';
+                    if (nome.includes(searchTerm) || searchTerm === '') {
+                        prestador.style.display = '';
+                    } else {
+                        prestador.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}
