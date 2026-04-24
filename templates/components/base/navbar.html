@@ -1,0 +1,129 @@
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('main.index') }}">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" 
+                 alt="PrestaServiços" 
+                 class="navbar-logo"
+                 style="height: 42px;"
+                 onerror="this.onerror=null; this.parentNode.innerHTML='<i class=\'fas fa-tools me-2\'></i> PrestaServiços';">
+        </a>
+        
+        <!-- Search Desktop -->
+        <div class="search-bar-desktop d-none d-lg-block">
+            <div class="search-bar-wrapper">
+                <div class="search-icon"><i class="fas fa-search"></i></div>
+                <input type="text" id="globalSearchInput" class="search-input" placeholder="Buscar serviços ou prestadores...">
+                <button id="globalSearchBtn" class="search-btn">Buscar</button>
+            </div>
+        </div>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('servico.lista') }}">
+                        <i class="fas fa-search me-1"></i> Serviços
+                    </a>
+                </li>
+                
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                        <i class="fas fa-shield-alt me-1"></i> Admin
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item position-relative">
+                        <a class="nav-link chat-link" href="{{ url_for('chat.index') }}">
+                            <i class="fas fa-comments me-1"></i> Chat
+                            <span class="notification-badge" id="chatNotificationBadge" style="display: none;">0</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
+                            <li><h6 class="dropdown-header"><i class="fas fa-bell me-1"></i> Notificações</h6></li>
+                            <li><div id="notificationList" style="max-height: 300px; overflow-y: auto;">
+                                <div class="text-center p-3 text-muted">
+                                    <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                    <p class="mb-0">Nenhuma notificação</p>
+                                </div>
+                            </div></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-center" href="{{ url_for('chat.index') }}">Ver todas as mensagens →</a></li>
+                        </ul>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            {% if current_user.foto_url %}
+                                <img src="{{ current_user.foto_url }}" class="user-avatar-nav" alt="Avatar" onerror="this.style.display='none'; this.parentNode.querySelector('.user-avatar-nav-placeholder').style.display='inline-flex';">
+                                <div class="user-avatar-nav-placeholder" style="display: none;">{{ current_user.nome[0]|upper }}</div>
+                            {% elif current_user.foto_perfil and current_user.foto_perfil != 'default.jpg' %}
+                                <img src="data:image/jpeg;base64,{{ current_user.foto_perfil }}" class="user-avatar-nav" alt="Avatar" onerror="this.style.display='none'; this.parentNode.querySelector('.user-avatar-nav-placeholder').style.display='inline-flex';">
+                                <div class="user-avatar-nav-placeholder" style="display: none;">{{ current_user.nome[0]|upper }}</div>
+                            {% else %}
+                                <div class="user-avatar-nav-placeholder">{{ current_user.nome[0]|upper }}</div>
+                            {% endif %}
+                            <span class="user-name-nav ms-1">{{ current_user.nome.split()[0] }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li class="user-dropdown-header px-3 py-2 border-bottom">
+                                <div class="d-flex align-items-center">
+                                    {% if current_user.foto_url %}
+                                        <img src="{{ current_user.foto_url }}" class="rounded-circle me-2" width="40" height="40">
+                                    {% elif current_user.foto_perfil and current_user.foto_perfil != 'default.jpg' %}
+                                        <img src="data:image/jpeg;base64,{{ current_user.foto_perfil }}" class="rounded-circle me-2" width="40" height="40">
+                                    {% else %}
+                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                                            <span class="text-white fw-bold">{{ current_user.nome[0]|upper }}</span>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ current_user.nome }}</strong><br>
+                                        <small class="text-muted">{{ current_user.email }}</small>
+                                    </div>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider m-0"></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('main.perfil') }}"><i class="fas fa-user me-2"></i> Meu Perfil</a></li>
+                            {% if current_user.tipo == 'prestador' %}
+                            <li><a class="dropdown-item py-2" href="{{ url_for('servico.meus_servicos') }}"><i class="fas fa-briefcase me-2"></i> Meus Serviços</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('servico.cadastro') }}"><i class="fas fa-plus-circle me-2"></i> Novo Serviço</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider m-0"></li>
+                            <li><a class="dropdown-item py-2 text-danger" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Sair</a></li>
+                        </ul>
+                    </li>
+                    
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link btn-login" href="{{ url_for('auth.login') }}">
+                            <i class="fas fa-sign-in-alt me-1"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn-cadastro-destaque" href="{{ url_for('auth.cadastro') }}">
+                            <i class="fas fa-user-plus me-1"></i> Cadastrar
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
