@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Cadastrar Novo Serviço - PrestaServiços{% endblock %}
+{% block title %}Cadastrar Serviço - PrestaServiços{% endblock %}
 
 {% block content %}
 <div class="container mt-4" style="max-width: 800px;">
@@ -13,25 +13,17 @@
         </div>
         <div class="card-body p-4">
             <form method="POST" enctype="multipart/form-data">
-                <!-- Título do Serviço -->
+                <!-- Título -->
                 <div class="mb-3">
-                    <label class="form-label fw-bold">
-                        <i class="fas fa-tag text-primary me-1"></i>
-                        Título do Serviço <span class="text-danger">*</span>
-                    </label>
-                    <input type="text" name="titulo" class="form-control rounded-3" 
-                           placeholder="Ex: Limpeza Completa, Aulas de Inglês, Consultoria em Marketing"
-                           required>
+                    <label class="form-label fw-bold">Título do Serviço <span class="text-danger">*</span></label>
+                    <input type="text" name="titulo" class="form-control rounded-3" required>
                 </div>
 
                 <!-- Categoria -->
                 <div class="mb-3">
-                    <label class="form-label fw-bold">
-                        <i class="fas fa-folder text-primary me-1"></i>
-                        Categoria <span class="text-danger">*</span>
-                    </label>
+                    <label class="form-label fw-bold">Categoria <span class="text-danger">*</span></label>
                     <select name="categoria" class="form-select rounded-3" required>
-                        <option value="">Selecione uma categoria...</option>
+                        <option value="">Selecione...</option>
                         <option value="Tecnologia">💻 Tecnologia</option>
                         <option value="Construção">🏗️ Construção</option>
                         <option value="Design">🎨 Design</option>
@@ -41,111 +33,82 @@
                         <option value="Saúde">💊 Saúde</option>
                         <option value="Marketing">📈 Marketing</option>
                         <option value="Fotografia">📷 Fotografia</option>
-                        <option value="Tradução">🌐 Tradução</option>
                         <option value="Segurança">🔒 Segurança</option>
-                        <option value="Eventos">🎉 Eventos</option>
                     </select>
                 </div>
 
-                <!-- ============================================ -->
-                <!-- SISTEMA DE PRECIFICAÇÃO FLEXÍVEL -->
-                <!-- ============================================ -->
+                <!-- Tipo de Precificação -->
                 <div class="mb-3">
-                    <label class="form-label fw-bold">
-                        <i class="fas fa-dollar-sign text-primary me-1"></i>
-                        Tipo de Precificação
-                    </label>
+                    <label class="form-label fw-bold">Tipo de Precificação</label>
                     <div class="row g-2">
-                        <div class="col-md-6">
-                            <div class="form-check p-3 border rounded-3 cursor-pointer hover-bg-light" onclick="selecionarTipoPreco('fixo')">
+                        <div class="col-md-4">
+                            <div class="form-check p-2 border rounded-3">
                                 <input class="form-check-input" type="radio" name="tipo_preco" id="precoFixo" value="fixo" checked>
-                                <label class="form-check-label w-100 cursor-pointer" for="precoFixo">
-                                    <i class="fas fa-tag text-primary me-2"></i>
-                                    <strong>Preço Fixo</strong>
-                                    <br>
-                                    <small class="text-muted">Valor único pelo serviço completo</small>
-                                </label>
+                                <label class="form-check-label" for="precoFixo">💰 Preço Fixo</label>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-check p-3 border rounded-3 cursor-pointer hover-bg-light" onclick="selecionarTipoPreco('hora')">
+                        <div class="col-md-4">
+                            <div class="form-check p-2 border rounded-3">
                                 <input class="form-check-input" type="radio" name="tipo_preco" id="precoHora" value="hora">
-                                <label class="form-check-label w-100 cursor-pointer" for="precoHora">
-                                    <i class="fas fa-clock text-primary me-2"></i>
-                                    <strong>Preço por Hora</strong>
-                                    <br>
-                                    <small class="text-muted">Valor cobrado por hora trabalhada</small>
-                                </label>
+                                <label class="form-check-label" for="precoHora">⏰ Por Hora</label>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-check p-3 border rounded-3 cursor-pointer hover-bg-light" onclick="selecionarTipoPreco('dia')">
+                        <div class="col-md-4">
+                            <div class="form-check p-2 border rounded-3">
                                 <input class="form-check-input" type="radio" name="tipo_preco" id="precoDia" value="dia">
-                                <label class="form-check-label w-100 cursor-pointer" for="precoDia">
-                                    <i class="fas fa-calendar-day text-primary me-2"></i>
-                                    <strong>Preço por Dia</strong>
-                                    <br>
-                                    <small class="text-muted">Valor por diária de trabalho</small>
-                                </label>
+                                <label class="form-check-label" for="precoDia">📅 Por Dia</label>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-check p-3 border rounded-3 cursor-pointer hover-bg-light" onclick="selecionarTipoPreco('metro')">
+                        <div class="col-md-4">
+                            <div class="form-check p-2 border rounded-3">
                                 <input class="form-check-input" type="radio" name="tipo_preco" id="precoMetro" value="metro">
-                                <label class="form-check-label w-100 cursor-pointer" for="precoMetro">
-                                    <i class="fas fa-ruler-combined text-primary me-2"></i>
-                                    <strong>Preço por m²</strong>
-                                    <br>
-                                    <small class="text-muted">Ideal para construção/limpeza</small>
-                                </label>
+                                <label class="form-check-label" for="precoMetro">📏 Por m²</label>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-check p-3 border rounded-3 cursor-pointer hover-bg-light" onclick="selecionarTipoPreco('consulta')">
+                        <div class="col-md-4">
+                            <div class="form-check p-2 border rounded-3">
                                 <input class="form-check-input" type="radio" name="tipo_preco" id="precoConsulta" value="consulta">
-                                <label class="form-check-label w-100 cursor-pointer" for="precoConsulta">
-                                    <i class="fas fa-comments text-primary me-2"></i>
-                                    <strong>Sob Consulta</strong>
-                                    <br>
-                                    <small class="text-muted">Orçamento personalizado</small>
-                                </label>
+                                <label class="form-check-label" for="precoConsulta">💬 Sob Consulta</label>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Campo de Valor (dinâmico) -->
-                <div class="mb-3" id="campoValorContainer">
-                    <label class="form-label fw-bold" id="labelValor">
-                        <i class="fas fa-dollar-sign text-primary me-1"></i>
-                        Valor do Serviço
-                    </label>
+                <!-- Preço -->
+                <div class="mb-3" id="campoPreco">
+                    <label class="form-label fw-bold">Valor</label>
                     <div class="input-group">
                         <span class="input-group-text">R$</span>
-                        <input type="number" name="preco" id="precoInput" class="form-control rounded-3" 
-                               step="0.01" placeholder="Ex: 150.00">
+                        <input type="number" name="preco" id="precoInput" class="form-control rounded-3" step="0.01" placeholder="Ex: 150.00">
                         <span class="input-group-text" id="unidadePreco"></span>
                     </div>
-                    <small class="text-muted" id="descricaoPreco">Valor fixo pelo serviço completo</small>
+                    <small class="text-muted" id="descricaoPreco">Deixe em branco se for "preço sob consulta"</small>
                 </div>
 
-                <!-- Imagem do Serviço -->
+                <!-- Destaque -->
                 <div class="mb-3">
-                    <label class="form-label fw-bold">
-                        <i class="fas fa-image text-primary me-1"></i>
-                        Imagem do Serviço (opcional)
-                    </label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="destaque" id="destaqueCheck">
+                        <label class="form-check-label fw-bold" for="destaqueCheck">
+                            <i class="fas fa-star text-warning me-1"></i> Serviço em Destaque
+                        </label>
+                        <br>
+                        <small class="text-muted">Serviços em destaque aparecem na página inicial</small>
+                    </div>
+                </div>
+
+                <!-- Imagem -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Imagem do Serviço (opcional)</label>
                     <div class="border rounded-3 p-3 text-center">
-                        <div class="mb-2">
-                            <i class="fas fa-cloud-upload-alt fa-3x text-muted"></i>
-                        </div>
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
                         <input type="file" name="imagem" id="imagemInput" class="d-none" accept="image/*">
                         <button type="button" class="btn btn-outline-primary rounded-pill" onclick="document.getElementById('imagemInput').click()">
                             <i class="fas fa-folder-open me-2"></i> Escolher arquivo
                         </button>
                         <span id="nomeArquivo" class="ms-2 text-muted small">Nenhum arquivo escolhido</span>
                         <div id="previewImagem" class="mt-3" style="display: none;">
-                            <img id="previewImg" src="#" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 10px;">
+                            <img id="previewImg" src="#" alt="Preview" style="max-width: 100%; max-height: 150px; border-radius: 10px;">
                         </div>
                         <small class="text-muted d-block mt-2">Formatos: JPG, PNG, GIF. Máx: 5MB</small>
                     </div>
@@ -153,19 +116,9 @@
 
                 <!-- Descrição -->
                 <div class="mb-3">
-                    <label class="form-label fw-bold">
-                        <i class="fas fa-align-left text-primary me-1"></i>
-                        Descrição do Serviço <span class="text-danger">*</span>
-                    </label>
-                    <textarea name="descricao" class="form-control rounded-3" rows="5" 
-                              placeholder="Descreva detalhadamente o serviço oferecido, incluindo:
-• O que está incluso
-• Materiais necessários (se houver)
-• Prazo estimado
-• Local de atendimento
-• Diferenciais do seu serviço"
-                              required></textarea>
-                    <small class="text-muted">Mínimo 20 caracteres. Seja detalhista para atrair mais clientes.</small>
+                    <label class="form-label fw-bold">Descrição do Serviço <span class="text-danger">*</span></label>
+                    <textarea name="descricao" class="form-control rounded-3" rows="5" required></textarea>
+                    <small class="text-muted">Descreva detalhadamente o serviço oferecido</small>
                 </div>
 
                 <!-- Botões -->
@@ -173,88 +126,16 @@
                     <button type="submit" class="btn btn-primary flex-grow-1 py-2 rounded-pill">
                         <i class="fas fa-save me-2"></i> Cadastrar Serviço
                     </button>
-                    <a href="/meus-servicos" class="btn btn-outline-secondary px-4 rounded-pill">
-                        <i class="fas fa-times me-2"></i> Cancelar
+                    <a href="{{ url_for('servico.meus_servicos') }}" class="btn btn-outline-secondary px-4 rounded-pill">
+                        Cancelar
                     </a>
                 </div>
             </form>
         </div>
     </div>
-
-    <!-- Dicas -->
-    <div class="card mt-4 border-0 bg-light rounded-4">
-        <div class="card-body">
-            <h6 class="mb-2">
-                <i class="fas fa-lightbulb text-warning me-2"></i>
-                Dicas para um bom anúncio:
-            </h6>
-            <ul class="text-muted small mb-0">
-                <li>✓ Seja específico no título e descrição</li>
-                <li>✓ Adicione fotos do seu trabalho (antes/depois)</li>
-                <li>✓ Escolha o tipo de precificação mais adequado</li>
-                <li>✓ Seja transparente sobre o que está incluso</li>
-                <li>✓ Atualize sua disponibilidade regularmente</li>
-            </ul>
-        </div>
-    </div>
 </div>
 
-<style>
-    .cursor-pointer {
-        cursor: pointer;
-    }
-    .hover-bg-light:hover {
-        background-color: #f8f9fa;
-    }
-    .form-check {
-        transition: all 0.2s ease;
-    }
-    .form-check:has(input:checked) {
-        background-color: #e7f1ff;
-        border-color: #0b2b5c !important;
-    }
-</style>
-
 <script>
-    function selecionarTipoPreco(tipo) {
-        const label = document.getElementById('labelValor');
-        const input = document.getElementById('precoInput');
-        const unidade = document.getElementById('unidadePreco');
-        const descricao = document.getElementById('descricaoPreco');
-        
-        if (tipo === 'fixo') {
-            label.innerHTML = '<i class="fas fa-dollar-sign text-primary me-1"></i> Valor do Serviço';
-            input.placeholder = 'Ex: 150.00';
-            unidade.textContent = '(fixo)';
-            descricao.textContent = 'Valor fixo pelo serviço completo';
-        } else if (tipo === 'hora') {
-            label.innerHTML = '<i class="fas fa-clock text-primary me-1"></i> Valor por Hora';
-            input.placeholder = 'Ex: 50.00';
-            unidade.textContent = 'por hora';
-            descricao.textContent = 'Valor cobrado por cada hora de trabalho';
-        } else if (tipo === 'dia') {
-            label.innerHTML = '<i class="fas fa-calendar-day text-primary me-1"></i> Valor por Dia';
-            input.placeholder = 'Ex: 300.00';
-            unidade.textContent = 'por dia';
-            descricao.textContent = 'Valor por diária de trabalho (8h)';
-        } else if (tipo === 'metro') {
-            label.innerHTML = '<i class="fas fa-ruler-combined text-primary me-1"></i> Valor por m²';
-            input.placeholder = 'Ex: 15.00';
-            unidade.textContent = 'por m²';
-            descricao.textContent = 'Valor por metro quadrado - ideal para pintura, limpeza, etc.';
-        } else if (tipo === 'consulta') {
-            label.innerHTML = '<i class="fas fa-comments text-primary me-1"></i> Orçamento';
-            input.placeholder = 'Deixe em branco';
-            input.disabled = true;
-            input.value = '';
-            unidade.textContent = '(sob consulta)';
-            descricao.textContent = 'Preço a ser combinado diretamente com o cliente';
-            return;
-        }
-        
-        input.disabled = false;
-    }
-    
     // Preview de imagem
     document.getElementById('imagemInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -275,8 +156,41 @@
             previewDiv.style.display = 'none';
         }
     });
-    
-    // Inicializar com seleção fixa
-    document.getElementById('precoFixo').checked = true;
+
+    // Gerenciar tipo de preço
+    const precoInput = document.getElementById('precoInput');
+    const unidade = document.getElementById('unidadePreco');
+    const descricao = document.getElementById('descricaoPreco');
+
+    function updateTipoPreco() {
+        const selected = document.querySelector('input[name="tipo_preco"]:checked').value;
+        
+        if (selected === 'consulta') {
+            precoInput.disabled = true;
+            precoInput.value = '';
+            unidade.textContent = '(sob consulta)';
+            descricao.textContent = 'Preço a ser combinado diretamente com o cliente';
+        } else {
+            precoInput.disabled = false;
+            if (selected === 'fixo') {
+                unidade.textContent = '(fixo)';
+                descricao.textContent = 'Valor fixo pelo serviço completo';
+            } else if (selected === 'hora') {
+                unidade.textContent = 'por hora';
+                descricao.textContent = 'Valor cobrado por hora trabalhada';
+            } else if (selected === 'dia') {
+                unidade.textContent = 'por dia';
+                descricao.textContent = 'Valor por diária (8h de trabalho)';
+            } else if (selected === 'metro') {
+                unidade.textContent = 'por m²';
+                descricao.textContent = 'Valor por metro quadrado';
+            }
+        }
+    }
+
+    document.querySelectorAll('input[name="tipo_preco"]').forEach(radio => {
+        radio.addEventListener('change', updateTipoPreco);
+    });
+    updateTipoPreco();
 </script>
 {% endblock %}

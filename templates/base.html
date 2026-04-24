@@ -10,7 +10,7 @@
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
     
     <style>
-        /* Apenas melhorias na barra de busca */
+        /* Melhorias na barra de busca */
         .search-bar-desktop {
             flex: 0 0 380px;
             margin: 0 20px;
@@ -145,18 +145,18 @@
     </style>
 </head>
 <body>
-        <div id="loader">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" class="loader-logo">
-            <div class="loader-text">Carregando...</div>
-            <div class="loader-bar">
-                <span></span>
-            </div>
+    <div id="loader">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" class="loader-logo">
+        <div class="loader-text">Carregando...</div>
+        <div class="loader-bar">
+            <span></span>
         </div>
-        
-        <!-- Navbar -->
+    </div>
+    
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="/">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
                 <img src="{{ url_for('static', filename='img/logo.png') }}" 
                     alt="PrestaServiços" 
                     class="navbar-logo"
@@ -164,9 +164,7 @@
                     onerror="this.onerror=null; this.parentNode.innerHTML='<i class=\'fas fa-tools me-2\'></i> PrestaServiços';">
             </a>
             
-            <!-- Search Desktop Melhorada -->
-            {% block search_bar_desktop %}
-          <!-- Search Desktop -->
+            <!-- Search Desktop -->
             <div class="search-bar-desktop d-none d-lg-block">
                 <div class="search-bar-wrapper">
                     <div class="search-icon"><i class="fas fa-search"></i></div>
@@ -174,29 +172,36 @@
                     <button id="globalSearchBtn" class="search-btn">Buscar</button>
                 </div>
             </div>
-            {% endblock %}
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/servicos">
+                        <a class="nav-link" href="{{ url_for('servico.lista') }}">
                             <i class="fas fa-search me-1"></i> Serviços
                         </a>
                     </li>
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                            <i class="fas fa-shield-alt me-1"></i> Admin
+                        </a>
+                    </li>
+                    {% endif %}
                     
                     {% if current_user.is_authenticated %}
-                        <!-- Chat com sino de notificação -->
+                        <!-- Chat -->
                         <li class="nav-item position-relative">
-                            <a class="nav-link chat-link" href="/chat">
+                            <a class="nav-link chat-link" href="{{ url_for('chat.index') }}">
                                 <i class="fas fa-comments me-1"></i> Chat
                                 <span class="notification-badge" id="chatNotificationBadge" style="display: none;">0</span>
                             </a>
                         </li>
                         
-                        <!-- Sino de notificações -->
+                        <!-- Notificações -->
                         <li class="nav-item dropdown">
                             <a class="nav-link" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-bell"></i>
@@ -211,18 +216,18 @@
                                     </div>
                                 </div></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-center" href="/chat">Ver todas as mensagens →</a></li>
+                                <li><a class="dropdown-item text-center" href="{{ url_for('chat.index') }}">Ver todas as mensagens →</a></li>
                             </ul>
                         </li>
                         
                         <!-- Dashboard -->
                         <li class="nav-item">
-                            <a class="nav-link" href="/dashboard">
-                                <i class="fas fa-tachometer-alt me-1"></i> Dashboard
-                            </a>
+                                <a class="nav-link" href="{{ url_for('main.dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                                </a>
                         </li>
                         
-                        <!-- Dropdown do Usuário com Avatar e Nome -->
+                        <!-- Dropdown do Usuário -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {% if current_user.foto_url %}
@@ -255,43 +260,41 @@
                                     </div>
                                 </li>
                                 <li><hr class="dropdown-divider m-0"></li>
-                                <li><a class="dropdown-item py-2" href="/perfil"><i class="fas fa-user me-2"></i> Meu Perfil</a></li>
+                                <li><a class="dropdown-item py-2" href="{{ url_for('main.perfil') }}"><i class="fas fa-user me-2"></i> Meu Perfil</a></li>
                                 {% if current_user.tipo == 'prestador' %}
-                                <li><a class="dropdown-item py-2" href="/meus-servicos"><i class="fas fa-briefcase me-2"></i> Meus Serviços</a></li>
-                                <li><a class="dropdown-item py-2" href="/cadastro/servico"><i class="fas fa-plus-circle me-2"></i> Novo Serviço</a></li>
+                                <li><a class="dropdown-item py-2" href="{{ url_for('servico.meus_servicos') }}"><i class="fas fa-briefcase me-2"></i> Meus Serviços</a></li>
+                                <li><a class="dropdown-item py-2" href="{{ url_for('servico.cadastro') }}"><i class="fas fa-plus-circle me-2"></i> Novo Serviço</a></li>
                                 {% endif %}
                                 <li><hr class="dropdown-divider m-0"></li>
-                                <li><a class="dropdown-item py-2 text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Sair</a></li>
+                                <li><a class="dropdown-item py-2 text-danger" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Sair</a></li>
                             </ul>
                         </li>
                         
                     {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link btn-login" href="/login">
-                            <i class="fas fa-sign-in-alt me-1"></i> Login
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link btn-cadastro-destaque" href="/cadastro">
-                            <i class="fas fa-user-plus me-1"></i> Cadastrar
-                        </a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn-login" href="{{ url_for('auth.login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn-cadastro-destaque" href="{{ url_for('auth.cadastro') }}">
+                                <i class="fas fa-user-plus me-1"></i> Cadastrar
+                            </a>
+                        </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
-        
-        <!-- Search Mobile -->
-        {% block search_bar_mobile %}
-        <div class="search-bar-mobile container mt-2 d-md-none">
-            <div class="search-bar-wrapper">
-                <div class="search-icon"><i class="fas fa-search"></i></div>
-                <input type="text" id="globalSearchInputMobile" class="search-input" placeholder="Buscar serviços...">
-                <button id="globalSearchBtnMobile" class="search-btn">Buscar</button>
-            </div>
-        </div>
-        {% endblock %}
     </nav>
+    
+    <!-- Search Mobile -->
+    <div class="search-bar-mobile container mt-2 d-md-none">
+        <div class="search-bar-wrapper">
+            <div class="search-icon"><i class="fas fa-search"></i></div>
+            <input type="text" id="globalSearchInputMobile" class="search-input" placeholder="Buscar serviços ou prestadores...">
+            <button id="globalSearchBtnMobile" class="search-btn">Buscar</button>
+        </div>
+    </div>
 
     <!-- Container para notificações toast -->
     <div id="toastContainer" class="toast-notification"></div>
@@ -338,13 +341,13 @@
                 <div class="col-md-2">
                     <h5 class="fw-bold mb-3">Links</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="/" class="text-white-50 text-decoration-none"><i class="fas fa-home me-2"></i>Início</a></li>
-                        <li class="mb-2"><a href="/servicos" class="text-white-50 text-decoration-none"><i class="fas fa-search me-2"></i>Serviços</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.index') }}" class="text-white-50 text-decoration-none"><i class="fas fa-home me-2"></i>Início</a></li>
+                        <li class="mb-2"><a href="{{ url_for('servico.lista') }}" class="text-white-50 text-decoration-none"><i class="fas fa-search me-2"></i>Serviços</a></li>
                         {% if current_user.is_authenticated %}
-                            <li class="mb-2"><a href="/dashboard" class="text-white-50 text-decoration-none"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                            <li class="mb-2"><a href="{{ url_for('main.dashboard') }}" class="text-white-50 text-decoration-none"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
                         {% else %}
-                            <li class="mb-2"><a href="/cadastro" class="text-white-50 text-decoration-none"><i class="fas fa-user-plus me-2"></i>Cadastro</a></li>
-                            <li class="mb-2"><a href="/login" class="text-white-50 text-decoration-none"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
+                            <li class="mb-2"><a href="{{ url_for('auth.cadastro') }}" class="text-white-50 text-decoration-none"><i class="fas fa-user-plus me-2"></i>Cadastro</a></li>
+                            <li class="mb-2"><a href="{{ url_for('auth.login') }}" class="text-white-50 text-decoration-none"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
                         {% endif %}
                     </ul>
                 </div>
@@ -440,7 +443,7 @@
             
             const notifItem = document.createElement('div');
             notifItem.className = 'notification-item unread';
-            notifItem.onclick = () => window.location.href = '/chat';
+            notifItem.onclick = () => window.location.href = "{{ url_for('chat.index') }}";
             
             const time = new Date().toLocaleTimeString();
             
@@ -548,7 +551,7 @@
         
         // Função para atualizar contador de não lidas
         function updateUnreadCount() {
-            fetch('/chat/nao-lidas')
+            fetch("{{ url_for('chat.nao_lidas') }}")
                 .then(response => response.json())
                 .then(data => {
                     if (data && data.count !== undefined) {
@@ -582,47 +585,47 @@
     
     {% block scripts %}{% endblock %}
     
-   <script>
-    const loaderShown = sessionStorage.getItem('loaderShown');
+    <script>
+        const loaderShown = sessionStorage.getItem('loaderShown');
 
-    if (!loaderShown) {
-        sessionStorage.setItem('loaderShown', 'true');
-        
-        window.addEventListener("load", function() {
+        if (!loaderShown) {
+            sessionStorage.setItem('loaderShown', 'true');
+            
+            window.addEventListener("load", function() {
+                const loader = document.getElementById("loader");
+                if (loader) {
+                    setTimeout(function() {
+                        loader.style.transition = "opacity 0.5s ease";
+                        loader.style.opacity = "0";
+                        setTimeout(function() {
+                            loader.style.display = "none";
+                        }, 500);
+                    }, 1000);
+                }
+            });
+        } else {
             const loader = document.getElementById("loader");
             if (loader) {
-                setTimeout(function() {
-                    loader.style.transition = "opacity 0.5s ease";
-                    loader.style.opacity = "0";
-                    setTimeout(function() {
-                        loader.style.display = "none";
-                    }, 500);
-                }, 1000); 
+                loader.style.display = "none";
             }
-        });
-    } else {
-        const loader = document.getElementById("loader");
-        if (loader) {
-            loader.style.display = "none";
         }
-    }
 
-    function performSearch() {
-        const queryDesktop = document.getElementById('globalSearchInput')?.value.trim();
-        const queryMobile = document.getElementById('globalSearchInputMobile')?.value.trim();
-        const query = queryDesktop || queryMobile;
-        window.location.href = query ? "/servicos?q=" + encodeURIComponent(query) : "/servicos";
-    }
+        function performSearch() {
+            const queryDesktop = document.getElementById('globalSearchInput')?.value.trim();
+            const queryMobile = document.getElementById('globalSearchInputMobile')?.value.trim();
+            const query = queryDesktop || queryMobile;
+            window.location.href = query ? "{{ url_for('servico.lista') }}?q=" + encodeURIComponent(query) : "{{ url_for('servico.lista') }}";
+        }
 
-    const searchBtn = document.getElementById('globalSearchBtn');
-    const searchInput = document.getElementById('globalSearchInput');
-    if (searchBtn) searchBtn.addEventListener('click', performSearch);
-    if (searchInput) searchInput.addEventListener('keypress', e => e.key === 'Enter' && performSearch());
+        const searchBtn = document.getElementById('globalSearchBtn');
+        const searchInput = document.getElementById('globalSearchInput');
+        if (searchBtn) searchBtn.addEventListener('click', performSearch);
+        if (searchInput) searchInput.addEventListener('keypress', e => e.key === 'Enter' && performSearch());
 
-    const searchBtnM = document.getElementById('globalSearchBtnMobile');
-    const searchInputM = document.getElementById('globalSearchInputMobile');
-    if (searchBtnM) searchBtnM.addEventListener('click', performSearch);
-    if (searchInputM) searchInputM.addEventListener('keypress', e => e.key === 'Enter' && performSearch());
-</script>
+        const searchBtnM = document.getElementById('globalSearchBtnMobile');
+        const searchInputM = document.getElementById('globalSearchInputMobile');
+        if (searchBtnM) searchBtnM.addEventListener('click', performSearch);
+        if (searchInputM) searchInputM.addEventListener('keypress', e => e.key === 'Enter' && performSearch());
+    </script>
 </body>
 </html>

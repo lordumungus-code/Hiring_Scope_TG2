@@ -12,20 +12,21 @@ class Usuario(UserMixin, db.Model):
     senha_hash = db.Column(db.String(200), nullable=False)
     telefone = db.Column(db.String(20))
     tipo = db.Column(db.String(20), nullable=False)  # cliente, prestador
+    is_admin = db.Column(db.Boolean, default=False)  # NOVO CAMPO
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
     foto_perfil = db.Column(db.String(200), default='default.jpg')
     foto_url = db.Column(db.String(500), nullable=True)  # URL da foto do Google
     descricao = db.Column(db.Text)
     
-    # Relacionamentos
-    servicos_oferecidos = db.relationship('Servico', backref='prestador_rel', lazy=True)
-    avaliacoes_recebidas = db.relationship('Avaliacao', foreign_keys='Avaliacao.prestador_id', backref='avaliado_rel', lazy=True)
-    avaliacoes_feitas = db.relationship('Avaliacao', foreign_keys='Avaliacao.cliente_id', backref='avaliador_rel', lazy=True)
-    favoritos = db.relationship('Favorito', foreign_keys='Favorito.cliente_id', backref='cliente_rel', lazy=True)
+    # Relacionamentos - CORRIGIDOS (removidas relações duplicadas)
+    servicos_oferecidos = db.relationship('Servico', back_populates='prestador', lazy=True, overlaps='prestador_rel')
+    avaliacoes_recebidas = db.relationship('Avaliacao', foreign_keys='Avaliacao.prestador_id', back_populates='prestador', lazy=True, overlaps='avaliado_rel')
+    avaliacoes_feitas = db.relationship('Avaliacao', foreign_keys='Avaliacao.cliente_id', back_populates='cliente', lazy=True, overlaps='avaliador_rel')
+    favoritos = db.relationship('Favorito', foreign_keys='Favorito.cliente_id', back_populates='cliente', lazy=True, overlaps='cliente_rel')
     
-    # NOVOS RELACIONAMENTOS PARA CONTRATOS
-    contratos_como_cliente = db.relationship('Contrato', foreign_keys='Contrato.cliente_id', backref='cliente_rel', lazy=True)
-    contratos_como_prestador = db.relationship('Contrato', foreign_keys='Contrato.prestador_id', backref='prestador_rel', lazy=True)
+    # Relacionamentos para contratos - CORRIGIDOS
+    contratos_como_cliente = db.relationship('Contrato', foreign_keys='Contrato.cliente_id', back_populates='cliente', lazy=True, overlaps='cliente_rel')
+    contratos_como_prestador = db.relationship('Contrato', foreign_keys='Contrato.prestador_id', back_populates='prestador', lazy=True, overlaps='prestador_rel')
     
     def set_password(self, password):
         self.senha_hash = generate_password_hash(password)
@@ -67,9 +68,9 @@ class Usuario(UserMixin, db.Model):
     
     def pode_avaliar(self, contrato_id):
         """Verifica se o cliente pode avaliar um contrato específico"""
+        from models import Contrato, Avaliacao
         contrato = Contrato.query.get(contrato_id)
         if contrato and contrato.cliente_id == self.id and contrato.status == 'concluido':
-            # Verifica se já não avaliou
             avaliacao_existente = Avaliacao.query.filter_by(
                 contrato_id=contrato_id,
                 cliente_id=self.id
@@ -100,11 +101,11 @@ class Servico(db.Model):
     data_postagem = db.Column(db.DateTime, default=datetime.utcnow)
     imagem_base64 = db.Column(db.Text, nullable=True)
     
-    # Relacionamentos
+    # Relacionamentos - CORRIGIDOS
     prestador = db.relationship('Usuario', foreign_keys=[prestador_id], back_populates='servicos_oferecidos')
-    solicitacoes = db.relationship('Solicitacao', backref='servico_rel', lazy=True)
-    avaliacoes = db.relationship('Avaliacao', backref='servico_rel', lazy=True)
-    contratos = db.relationship('Contrato', backref='servico_rel', lazy=True)
+    solicitacoes = db.relationship('Solicitacao', back_populates='servico', lazy=True, overlaps='servico_rel')
+    avaliacoes = db.relationship('Avaliacao', back_populates='servico', lazy=True, overlaps='servico_rel')
+    contratos = db.relationship('Contrato', back_populates='servico', lazy=True, overlaps='servico_rel')
     
     def is_destaque_ativo(self):
         """Verifica se o destaque pago ainda está ativo"""
@@ -136,9 +137,9 @@ class Solicitacao(db.Model):
     status = db.Column(db.String(20), default='pendente')  # pendente, aceito, recusado
     data_solicitacao = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relacionamentos
+    # Relacionamentos - CORRIGIDOS
     cliente = db.relationship('Usuario', foreign_keys=[cliente_id])
-    servico = db.relationship('Servico', foreign_keys=[servico_id])
+    servico = db.relationship('Servico', foreign_keys=[servico_id], back_populates='solicitacoes')
     
     def __repr__(self):
         return f'<Solicitacao {self.id}>'
@@ -169,11 +170,11 @@ class Contrato(db.Model):
     mensagem_prestador = db.Column(db.Text, nullable=True)
     preco_acordado = db.Column(db.Float, nullable=True)
     
-    # Relacionamentos
+    # Relacionamentos - CORRIGIDOS
     cliente = db.relationship('Usuario', foreign_keys=[cliente_id], back_populates='contratos_como_cliente')
     prestador = db.relationship('Usuario', foreign_keys=[prestador_id], back_populates='contratos_como_prestador')
     servico = db.relationship('Servico', foreign_keys=[servico_id], back_populates='contratos')
-    avaliacao = db.relationship('Avaliacao', backref='contrato', uselist=False, cascade='all, delete-orphan')
+    avaliacao = db.relationship('Avaliacao', back_populates='contrato', uselist=False, cascade='all, delete-orphan')
     
     def __repr__(self):
         return f'<Contrato {self.id} - {self.status}>'
@@ -204,7 +205,7 @@ class Contrato(db.Model):
         """Verifica se o usuário pode avaliar este contrato"""
         if self.status == 'concluido':
             if self.cliente_id == usuario_id:
-                # Verifica se já não avaliou
+                from models import Avaliacao
                 avaliacao_existente = Avaliacao.query.filter_by(
                     contrato_id=self.id,
                     cliente_id=usuario_id
@@ -240,17 +241,18 @@ class Avaliacao(db.Model):
     editado = db.Column(db.Boolean, default=False)
     data_edicao = db.Column(db.DateTime, nullable=True)
     
-    # Relacionamentos
+    # Relacionamentos - CORRIGIDOS
     cliente = db.relationship('Usuario', foreign_keys=[cliente_id], back_populates='avaliacoes_feitas')
     prestador = db.relationship('Usuario', foreign_keys=[prestador_id], back_populates='avaliacoes_recebidas')
-    servico = db.relationship('Servico', foreign_keys=[servico_id])
+    servico = db.relationship('Servico', foreign_keys=[servico_id], back_populates='avaliacoes')
+    contrato = db.relationship('Contrato', foreign_keys=[contrato_id], back_populates='avaliacao')
     
     def __repr__(self):
         return f'<Avaliacao {self.id} - Nota: {self.nota}>'
     
     def pode_editar(self, usuario_id):
         """Verifica se a avaliação pode ser editada (até 7 dias após criação)"""
-        if self.cliente_id == usuario_id:  # Mude de avaliador_id para cliente_id
+        if self.cliente_id == usuario_id:
             dias_passados = (datetime.utcnow() - self.data_avaliacao).days
             return dias_passados <= 7
         return False
@@ -301,8 +303,8 @@ class Favorito(db.Model):
     prestador_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     data_adicao = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relacionamentos
-    cliente = db.relationship('Usuario', foreign_keys=[cliente_id])
+    # Relacionamentos - CORRIGIDOS
+    cliente = db.relationship('Usuario', foreign_keys=[cliente_id], back_populates='favoritos')
     prestador = db.relationship('Usuario', foreign_keys=[prestador_id])
     
     __table_args__ = (db.UniqueConstraint('cliente_id', 'prestador_id', name='unique_favorito'),)

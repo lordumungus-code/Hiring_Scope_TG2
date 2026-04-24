@@ -3,245 +3,131 @@
 {% block title %}Meu Perfil - PrestaServiços{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <!-- COLUNA ESQUERDA -->
-        <div class="col-md-4 mb-4">
-            <!-- Card do Perfil -->
-            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-                <div class="card-header-gradient">
-                    <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-user-circle me-2"></i> Meu Perfil
-                    </h5>
-                </div>
-                <div class="card-body text-center p-4">
-                    <div class="position-relative d-inline-block mb-3">
-                        {% if usuario.foto_url %}
-                            <img src="{{ usuario.foto_url }}" 
-                                 class="rounded-circle avatar-border" 
-                                 style="width: 120px; height: 120px; object-fit: cover;">
-                        {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
-                            <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" 
-                                 class="rounded-circle avatar-border" 
-                                 style="width: 120px; height: 120px; object-fit: cover;">
-                        {% else %}
-                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto"
-                                 style="width: 120px; height: 120px;">
-                                <span class="text-white display-4">{{ usuario.nome[0]|upper }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-                    <h4 class="fw-bold">{{ usuario.nome }}</h4>
-                    <p class="text-muted"><i class="fas fa-envelope me-1"></i> {{ usuario.email }}</p>
-                    <p>
-                        <span class="badge {% if usuario.tipo == 'prestador' %}bg-primary{% else %}bg-info{% endif %} px-3 py-2 rounded-pill">
-                            <i class="fas {% if usuario.tipo == 'prestador' %}fa-briefcase{% else %}fa-user{% endif %} me-1"></i>
-                            {{ 'Prestador' if usuario.tipo == 'prestador' else 'Cliente' }}
-                        </span>
-                    </p>
-                    <p class="text-muted small">
-                        <i class="fas fa-calendar-alt me-1"></i> 
-                        Membro desde: {{ usuario.data_cadastro.strftime('%d/%m/%Y') }}
-                    </p>
-                </div>
-            </div>
-            
-            <!-- Card de Estatísticas (prestador) -->
-            {% if usuario.tipo == 'prestador' %}
-            <div class="card mt-4 shadow-sm border-0 rounded-4">
-                <div class="card-header-gradient">
-                    <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-chart-line me-2"></i> Estatísticas
-                    </h5>
-                </div>
-                <div class="card-body p-4">
-                    <div class="row text-center">
-                        <div class="col-6 mb-3">
-                            <div class="stat-number text-primary">{{ usuario.servicos_oferecidos|length }}</div>
-                            <div class="stat-label">Serviços</div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="stat-number text-accent">{{ usuario.media_avaliacoes()|round(1) }}</div>
-                            <div class="stat-label">Avaliação Média</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="stat-number text-info">{{ usuario.total_avaliacoes() }}</div>
-                            <div class="stat-label">Avaliações</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="stat-number text-primary">{{ usuario.servicos_oferecidos|selectattr('destaque', 'equalto', true)|list|length }}</div>
-                            <div class="stat-label">Destaques</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
+<div class="container mt-4" style="max-width: 800px;">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4 py-3">
+            <h4 class="mb-0">
+                <i class="fas fa-user-circle me-2"></i>
+                Meu Perfil
+            </h4>
         </div>
-        
-        <!-- COLUNA DIREITA -->
-        <div class="col-md-8">
-            <!-- Formulário de Edição -->
-            <div class="card shadow-sm border-0 rounded-4 mb-4">
-                <div class="card-header-gradient">
-                    <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-edit me-2"></i> Editar Perfil
-                    </h5>
-                </div>
-                <div class="card-body p-4">
-                    <form method="POST" enctype="multipart/form-data" id="perfilForm">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="nome" class="form-label fw-semibold">Nome Completo</label>
-                                <input type="text" class="form-control rounded-pill" id="nome" name="nome" value="{{ usuario.nome }}" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="email" class="form-label fw-semibold">E-mail</label>
-                                <input type="email" class="form-control rounded-pill" id="email" name="email" value="{{ usuario.email }}" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="telefone" class="form-label fw-semibold">Telefone</label>
-                                <input type="tel" class="form-control rounded-pill" id="telefone" name="telefone" value="{{ usuario.telefone }}">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="foto_perfil" class="form-label fw-semibold">Foto de Perfil</label>
-                                <input type="file" class="form-control rounded-pill" id="foto_perfil" name="foto_perfil" accept="image/*" onchange="previewFoto(event)">
-                                <small class="text-muted">Formatos: JPG, PNG. Máx: 5MB</small>
-                                <div id="fotoPreview" class="mt-2 text-center" style="display: none;">
-                                    <img id="previewImg" src="#" alt="Preview" class="rounded-circle avatar-border" style="width: 100px; height: 100px; object-fit: cover;">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="descricao" class="form-label fw-semibold">Sobre mim</label>
-                            <textarea class="form-control rounded-4" id="descricao" name="descricao" rows="4" placeholder="Conte um pouco sobre você...">{{ usuario.descricao or '' }}</textarea>
-                            <small class="text-muted">Compartilhe suas experiências, habilidades e áreas de atuação</small>
-                        </div>
-                        {% if usuario.tipo == 'prestador' %}
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Especialidades</label>
-                            <div class="row">
-                                <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="especialidades" value="Tecnologia" id="tec"><label class="form-check-label" for="tec">Tecnologia</label></div></div>
-                                <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="especialidades" value="Construção" id="const"><label class="form-check-label" for="const">Construção</label></div></div>
-                                <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="especialidades" value="Educação" id="edu"><label class="form-check-label" for="edu">Educação</label></div></div>
-                                <div class="col-md-4 mt-2"><div class="form-check"><input class="form-check-input" type="checkbox" name="especialidades" value="Saúde" id="saude"><label class="form-check-label" for="saude">Saúde</label></div></div>
-                                <div class="col-md-4 mt-2"><div class="form-check"><input class="form-check-input" type="checkbox" name="especialidades" value="Marketing" id="marketing"><label class="form-check-label" for="marketing">Marketing</label></div></div>
-                                <div class="col-md-4 mt-2"><div class="form-check"><input class="form-check-input" type="checkbox" name="especialidades" value="Design" id="design"><label class="form-check-label" for="design">Design</label></div></div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        <div class="alert alert-info mt-3 rounded-4">
-                            <i class="fas fa-info-circle me-2"></i> <strong>Dica:</strong> Mantenha seus dados atualizados.
-                        </div>
-                        <div class="d-flex gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary-custom px-4"><i class="fas fa-save me-2"></i> Salvar Alterações</button>
-                            <a href="/dashboard" class="btn btn-outline-secondary rounded-pill px-4"><i class="fas fa-arrow-left me-2"></i> Cancelar</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- Card de Segurança (sem amarelo) -->
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-header-gradient">
-                    <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-lock me-2"></i> Segurança
-                    </h5>
-                </div>
-                <div class="card-body p-4">
-                    <div class="row">
-                        <div class="col-md-6 mb-2 mb-md-0">
-                            <button class="btn btn-outline-primary w-100 rounded-pill" data-bs-toggle="modal" data-bs-target="#alterarSenhaModal">
-                                <i class="fas fa-key me-2"></i> Alterar Senha
-                            </button>
-                        </div>
-                        <div class="col-md-6">
-                            <a href="/logout" class="btn btn-outline-danger w-100 rounded-pill">
-                                <i class="fas fa-sign-out-alt me-2"></i> Sair da Conta
-                            </a>
-                        </div>
+        <div class="card-body p-4">
+            <form method="POST" action="{{ url_for('main.perfil') }}" enctype="multipart/form-data">
+                <!-- Informações básicas -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Nome completo</label>
+                        <input type="text" name="nome" class="form-control rounded-3" 
+                               value="{{ usuario.nome }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">E-mail</label>
+                        <input type="email" name="email" class="form-control rounded-3" 
+                               value="{{ usuario.email }}" required>
                     </div>
                 </div>
-            </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Telefone</label>
+                        <input type="text" name="telefone" class="form-control rounded-3" 
+                               value="{{ usuario.telefone or '' }}" placeholder="(00) 00000-0000">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Tipo de conta</label>
+                        <input type="text" class="form-control rounded-3" 
+                               value="{{ 'Prestador de Serviços' if usuario.tipo == 'prestador' else 'Cliente' }}" disabled>
+                    </div>
+                </div>
+
+                <!-- Foto de perfil -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Foto de Perfil</label>
+                    <div class="border rounded-3 p-3 text-center">
+                        <div class="mb-2">
+                            {% if usuario.foto_url %}
+                                <img src="{{ usuario.foto_url }}" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                            {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
+                                <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 100px; height: 100px;">
+                                    <span class="text-white fs-1 fw-bold">{{ usuario.nome[0]|upper }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <input type="file" name="foto_perfil" id="fotoPerfil" class="d-none" accept="image/*">
+                        <button type="button" class="btn btn-outline-primary rounded-pill" onclick="document.getElementById('fotoPerfil').click()">
+                            <i class="fas fa-camera me-2"></i> Escolher foto
+                        </button>
+                        <span id="nomeArquivo" class="ms-2 text-muted small">Nenhum arquivo escolhido</span>
+                        <small class="text-muted d-block mt-2">Formatos: JPG, PNG. Máx: 5MB</small>
+                    </div>
+                </div>
+
+                <!-- Descrição (apenas para prestadores) -->
+                {% if usuario.tipo == 'prestador' %}
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Sobre mim</label>
+                    <textarea name="descricao" class="form-control rounded-3" rows="4" 
+                              placeholder="Conte um pouco sobre você, suas experiências, habilidades e áreas de atuação...">{{ usuario.descricao or '' }}</textarea>
+                    <small class="text-muted">Compartilhe suas experiências, habilidades e áreas de atuação</small>
+                </div>
+                {% endif %}
+
+                <!-- Botões -->
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary flex-grow-1 py-2 rounded-pill">
+                        <i class="fas fa-save me-2"></i> Salvar Alterações
+                    </button>
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary px-4 rounded-pill">
+                        <i class="fas fa-times me-2"></i> Cancelar
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
-</div>
 
-<!-- Modal Alterar Senha (cabeçalho agora azul) -->
-<div class="modal fade" id="alterarSenhaModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content rounded-4">
-            <div class="modal-header bg-primary text-white border-0">
-                <h5 class="modal-title fw-semibold"><i class="fas fa-key me-2"></i> Alterar Senha</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="/alterar-senha" method="POST">
-                <div class="modal-body">
-                    <div class="mb-3"><label for="senha_atual" class="form-label">Senha Atual</label><input type="password" class="form-control rounded-pill" id="senha_atual" name="senha_atual" required></div>
-                    <div class="mb-3"><label for="nova_senha" class="form-label">Nova Senha</label><input type="password" class="form-control rounded-pill" id="nova_senha" name="nova_senha" required minlength="6"></div>
-                    <div class="mb-3"><label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label><input type="password" class="form-control rounded-pill" id="confirmar_senha" name="confirmar_senha" required></div>
+    <!-- Seção de segurança (apenas para usuários com senha) -->
+    <div class="card mt-4 shadow-sm border-0 rounded-4">
+        <div class="card-header bg-secondary text-white rounded-top-4 py-3">
+            <h5 class="mb-0">
+                <i class="fas fa-shield-alt me-2"></i>
+                Segurança
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST" action="{{ url_for('main.alterar_senha') }}">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Senha atual</label>
+                        <input type="password" name="senha_atual" class="form-control rounded-3" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Nova senha</label>
+                        <input type="password" name="nova_senha" class="form-control rounded-3" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Confirmar nova senha</label>
+                        <input type="password" name="confirmar_senha" class="form-control rounded-3" required>
+                    </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4">Alterar Senha</button>
-                </div>
+                <button type="submit" class="btn btn-warning rounded-pill px-4">
+                    <i class="fas fa-key me-2"></i> Alterar Senha
+                </button>
             </form>
         </div>
     </div>
 </div>
 
 <script>
-    // Máscara para telefone
-    const telefoneInput = document.getElementById('telefone');
-    if (telefoneInput) {
-        telefoneInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length <= 10) value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-            else value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-            e.target.value = value;
-        });
-    }
-    
-    // Preview da foto
-    function previewFoto(event) {
-        const input = event.target;
-        const previewDiv = document.getElementById('fotoPreview');
-        const previewImg = document.getElementById('previewImg');
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewImg.src = e.target.result;
-                previewDiv.style.display = 'block';
-            }
-            reader.readAsDataURL(input.files[0]);
+    document.getElementById('fotoPerfil')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const nomeArquivo = document.getElementById('nomeArquivo');
+        if (file) {
+            nomeArquivo.textContent = file.name;
+        } else {
+            nomeArquivo.textContent = 'Nenhum arquivo escolhido';
         }
-    }
-    
-    // Validação do tamanho da foto
-    const fotoInput = document.getElementById('foto_perfil');
-    if (fotoInput) {
-        fotoInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file && file.size > 5 * 1024 * 1024) {
-                alert('A imagem deve ter no máximo 5MB');
-                this.value = '';
-                document.getElementById('fotoPreview').style.display = 'none';
-            }
-        });
-    }
-    
-    // Validação de senha no modal
-    const senhaForm = document.querySelector('#alterarSenhaModal form');
-    if (senhaForm) {
-        senhaForm.addEventListener('submit', function(e) {
-            const novaSenha = document.getElementById('nova_senha').value;
-            const confirmarSenha = document.getElementById('confirmar_senha').value;
-            if (novaSenha !== confirmarSenha) {
-                e.preventDefault();
-                alert('As senhas não coincidem!');
-            }
-        });
-    }
+    });
 </script>
 {% endblock %}

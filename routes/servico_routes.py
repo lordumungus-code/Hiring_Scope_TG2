@@ -1,8 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Servico, Solicitacao
+from extensions import db
+from models import Servico, Usuario, Solicitacao
+from sqlalchemy import or_, func
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta
 
 servico_bp = Blueprint('servico', __name__, url_prefix='/servico')
 
@@ -17,7 +19,9 @@ def cadastro():
         titulo = request.form.get('titulo')
         descricao = request.form.get('descricao')
         categoria = request.form.get('categoria')
+        tipo_preco = request.form.get('tipo_preco', 'fixo')
         preco = request.form.get('preco')
+        destaque = request.form.get('destaque') == 'on'
         
         imagem_base64 = None
         if 'imagem' in request.files:
@@ -31,9 +35,10 @@ def cadastro():
             titulo=titulo,
             descricao=descricao,
             categoria=categoria,
-            preco=float(preco) if preco else None,
+            tipo_preco=tipo_preco,
+            preco=float(preco) if preco and tipo_preco != 'consulta' else None,
             imagem_base64=imagem_base64,
-            destaque=False,
+            destaque=destaque,
             data_postagem=datetime.utcnow()
         )
         
@@ -45,6 +50,7 @@ def cadastro():
     
     return render_template('cadastro_servico.html')
 
+
 @servico_bp.route('/meus-servicos')
 @login_required
 def meus_servicos():
@@ -55,23 +61,93 @@ def meus_servicos():
     servicos = Servico.query.filter_by(prestador_id=current_user.id).order_by(Servico.data_postagem.desc()).all()
     return render_template('meus_servicos.html', servicos=servicos)
 
+
 @servico_bp.route('/')
 @servico_bp.route('/lista')
 def lista():
-    """Lista todos os serviços disponíveis"""
-    categoria = request.args.get('categoria', '')
+    categoria = request.args.get('categoria')
+    q = request.args.get('q', '').strip()
+    prestador_id = request.args.get('prestador')
+    
+    query = Servico.query
     if categoria:
-        servicos = Servico.query.filter_by(categoria=categoria).order_by(Servico.data_postagem.desc()).all()
-    else:
-        servicos = Servico.query.order_by(Servico.data_postagem.desc()).all()
-    return render_template('lista_servicos.html', servicos=servicos, categoria=categoria)
+        query = query.filter_by(categoria=categoria)
+    if prestador_id:
+        query = query.filter_by(prestador_id=prestador_id)
+    if q:
+        query = query.join(Usuario).filter(
+            or_(Servico.titulo.ilike(f'%{q}%'),
+                Servico.descricao.ilike(f'%{q}%'),
+                Usuario.nome.ilike(f'%{q}%'))
+        )
+    
+    servicos = query.order_by(Servico.data_postagem.desc()).all()
+    categorias = db.session.query(Servico.categoria, func.count(Servico.id).label('total')).group_by(Servico.categoria).all()
+    
+    return render_template('lista_servicos.html',
+                         servicos=servicos, categoria=categoria,
+                         categorias=categorias, termo_busca=q)
 
-# ROTA DE DETALHE - ESSA É A QUE ESTAVA FALTANDO
+
+# ============================================
+# ROTA DE DETALHE DO SERVIÇO (ADICIONAR ESTA!)
+# ============================================
+
 @servico_bp.route('/<int:id>')
 def detalhe(id):
-    """Detalhes de um serviço específico"""
+    """Exibe os detalhes de um serviço específico"""
     servico = Servico.query.get_or_404(id)
     return render_template('detalhe_servico.html', servico=servico)
+
+
+@servico_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editar(id):
+    servico = Servico.query.get_or_404(id)
+    
+    if servico.prestador_id != current_user.id:
+        flash('Você não tem permissão para editar este serviço', 'danger')
+        return redirect(url_for('servico.detalhe', id=id))
+    
+    if request.method == 'POST':
+        servico.titulo = request.form.get('titulo')
+        servico.descricao = request.form.get('descricao')
+        servico.categoria = request.form.get('categoria')
+        servico.tipo_preco = request.form.get('tipo_preco', 'fixo')
+        
+        preco = request.form.get('preco')
+        if servico.tipo_preco != 'consulta' and preco:
+            servico.preco = float(preco)
+        else:
+            servico.preco = None
+        
+        servico.destaque = request.form.get('destaque') == 'on'
+        
+        destaque_pago = request.form.get('destaque_pago') == 'on'
+        if destaque_pago and not servico.destaque_pago:
+            servico.destaque_pago = True
+            servico.destaque_data_fim = datetime.utcnow() + timedelta(days=30)
+            servico.destaque = True
+            flash('Destaque Premium ativado! Seu serviço ficará em destaque por 30 dias.', 'success')
+        elif not destaque_pago:
+            servico.destaque_pago = False
+            servico.destaque_data_fim = None
+        
+        if request.form.get('remover_imagem') == 'true':
+            servico.imagem_base64 = None
+        
+        if 'imagem' in request.files:
+            file = request.files['imagem']
+            if file and file.filename != '':
+                file_data = file.read()
+                servico.imagem_base64 = base64.b64encode(file_data).decode('utf-8')
+        
+        db.session.commit()
+        flash('Serviço atualizado com sucesso!', 'success')
+        return redirect(url_for('servico.detalhe', id=servico.id))
+    
+    return render_template('editar_servico.html', servico=servico, now=datetime.utcnow())
+
 
 @servico_bp.route('/solicitar/<int:servico_id>', methods=['POST'])
 @login_required
@@ -81,11 +157,9 @@ def solicitar(servico_id):
         return redirect(url_for('servico.detalhe', id=servico_id))
     
     servico = Servico.query.get_or_404(servico_id)
-    mensagem = request.form.get('mensagem')
     
     solicitacao_existente = Solicitacao.query.filter_by(
-        cliente_id=current_user.id,
-        servico_id=servico_id
+        cliente_id=current_user.id, servico_id=servico_id
     ).first()
     
     if solicitacao_existente:
@@ -93,13 +167,9 @@ def solicitar(servico_id):
         return redirect(url_for('servico.detalhe', id=servico_id))
     
     solicitacao = Solicitacao(
-        cliente_id=current_user.id,
-        servico_id=servico_id,
-        mensagem=mensagem,
-        status='pendente',
-        data_solicitacao=datetime.utcnow()
+        cliente_id=current_user.id, servico_id=servico_id,
+        mensagem=request.form.get('mensagem'), data_solicitacao=datetime.utcnow()
     )
-    
     db.session.add(solicitacao)
     db.session.commit()
     

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Estatísticas - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">
+        <i class="fas fa-chart-line text-primary me-2"></i>
+        Estatísticas e Relatórios
+    </h2>
+
+    <div class="row">
+        <!-- Usuários por mês -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-primary text-white rounded-top-4">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i> Usuários por Mês</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="usuariosChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Serviços por categoria -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-success text-white rounded-top-4">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i> Serviços por Categoria</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoriasChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contratos por status -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-warning text-dark rounded-top-4">
+                    <h5 class="mb-0"><i class="fas fa-chart-donut me-2"></i> Contratos por Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="contratosChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards de resumo -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-info text-white rounded-top-4">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Resumo da Plataforma</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="bg-light rounded-3 p-3">
+                                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                                <h3 class="mb-0">{{ total_usuarios }}</h3>
+                                <small>Usuários</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="bg-light rounded-3 p-3">
+                                <i class="fas fa-briefcase fa-2x text-success mb-2"></i>
+                                <h3 class="mb-0">{{ total_servicos }}</h3>
+                                <small>Serviços</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded-3 p-3">
+                                <i class="fas fa-file-contract fa-2x text-warning mb-2"></i>
+                                <h3 class="mb-0">{{ total_contratos }}</h3>
+                                <small>Contratos</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded-3 p-3">
+                                <i class="fas fa-star fa-2x text-info mb-2"></i>
+                                <h3 class="mb-0">{{ total_avaliacoes }}</h3>
+                                <small>Avaliações</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de usuários por mês
+    const usuariosCtx = document.getElementById('usuariosChart').getContext('2d');
+    new Chart(usuariosCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for item in usuarios_por_mes %}'{{ item.mes }}',{% endfor %}],
+            datasets: [{
+                label: 'Novos Usuários',
+                data: [{% for item in usuarios_por_mes %}{{ item.total }},{% endfor %}],
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Gráfico de serviços por categoria
+    const categoriasCtx = document.getElementById('categoriasChart').getContext('2d');
+    new Chart(categoriasCtx, {
+        type: 'pie',
+        data: {
+            labels: [{% for item in servicos_por_categoria %}'{{ item.categoria }}',{% endfor %}],
+            datasets: [{
+                data: [{% for item in servicos_por_categoria %}{{ item.total }},{% endfor %}],
+                backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#06b6d4']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true
+        }
+    });
+
+    // Gráfico de contratos por status
+    const contratosCtx = document.getElementById('contratosChart').getContext('2d');
+    new Chart(contratosCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for item in contratos_por_status %}'{{ item.status|replace('_', ' ')|title }}',{% endfor %}],
+            datasets: [{
+                data: [{% for item in contratos_por_status %}{{ item.total }},{% endfor %}],
+                backgroundColor: ['#fbbf24', '#3b82f6', '#f59e0b', '#10b981', '#ef4444']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true
+        }
+    });
+</script>
+{% endblock %}

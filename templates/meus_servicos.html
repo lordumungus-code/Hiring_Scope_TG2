@@ -1,80 +1,110 @@
 {% extends "base.html" %}
-{% block search_bar_desktop %}{% endblock %}
-{% block search_bar_mobile %}{% endblock %}
+
 {% block title %}Meus Serviços - PrestaServiços{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <!-- Cabeçalho da página -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="section-title mb-0">
-            <i class="fas fa-briefcase me-2"></i> Meus Serviços
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h2>
+            <i class="fas fa-briefcase text-primary me-2"></i>
+            Meus Serviços
         </h2>
-        <a href="/cadastro/servico" class="btn btn-primary-custom">
+        <a href="{{ url_for('servico.cadastro') }}" class="btn btn-primary rounded-pill px-4">
             <i class="fas fa-plus-circle me-2"></i> Novo Serviço
         </a>
     </div>
 
-    <!-- Lista de serviços -->
     {% if servicos %}
-        <div class="row g-4">
-            {% for servico in servicos %}
-                <div class="col-md-6 col-lg-4">
-                    <div class="card shadow-sm border-0 rounded-4 h-100 overflow-hidden position-relative">
-                        <!-- Badge de destaque -->
+    <div class="row g-4">
+        {% for servico in servicos %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 rounded-4 shadow-sm overflow-hidden transition">
+                {% if servico.imagem_base64 %}
+                    <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
+                         class="card-img-top" 
+                         alt="{{ servico.titulo }}"
+                         style="height: 180px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 180px;">
+                        <i class="fas fa-image fa-4x text-secondary opacity-50"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-info px-3 py-2 rounded-pill">{{ servico.categoria }}</span>
                         {% if servico.destaque %}
-                            <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill">
-                                <i class="fas fa-star me-1"></i> Destaque
+                            <span class="badge bg-warning text-dark rounded-pill">
+                                <i class="fas fa-star"></i> Destaque
                             </span>
                         {% endif %}
-
-                        <!-- Imagem ou placeholder -->
-                        {% if servico.imagem_base64 %}
-                            <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
-                                 class="card-img-top" 
-                                 alt="{{ servico.titulo }}"
-                                 style="height: 160px; object-fit: cover;">
-                        {% else %}
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 160px;">
-                                <i class="fas fa-image fa-3x text-secondary"></i>
-                            </div>
-                        {% endif %}
-
-                        <div class="card-body p-4">
-                            <h5 class="card-title fw-bold">{{ servico.titulo }}</h5>
-                            <p class="text-muted small mb-2">
-                                <i class="fas fa-tag me-1"></i> {{ servico.categoria }}
-                            </p>
-                            <p class="card-text text-muted">{{ servico.descricao[:100] }}...</p>
-                            
-                            {% if servico.preco %}
-                                <div class="price mt-2 mb-3">R$ {{ "%.2f"|format(servico.preco) }}</div>
-                            {% else %}
-                                <div class="text-muted small mb-3">Preço sob consulta</div>
-                            {% endif %}
-                            
-                            <div class="d-flex justify-content-between align-items-center mt-3">
+                    </div>
+                    
+                    <h5 class="card-title fw-bold mb-2">{{ servico.titulo }}</h5>
+                    <p class="card-text small text-muted">{{ servico.descricao[:100] }}...</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            {% if servico.tipo_preco and servico.tipo_preco != 'consulta' %}
+                                <span class="fw-bold text-primary fs-5">
+                                    R$ {{ "%.2f"|format(servico.preco) }}
+                                </span>
                                 <small class="text-muted">
-                                    <i class="fas fa-calendar-alt me-1"></i> {{ servico.data_postagem.strftime('%d/%m/%Y') }}
+                                    {% if servico.tipo_preco == 'hora' %}/hora
+                                    {% elif servico.tipo_preco == 'dia' %}/dia
+                                    {% elif servico.tipo_preco == 'metro' %}/m²
+                                    {% endif %}
                                 </small>
-                                <a href="/servico/{{ servico.id }}" class="btn btn-sm btn-primary-custom rounded-pill px-3">
-                                    Ver detalhes
-                                </a>
-                            </div>
+                            {% elif servico.tipo_preco == 'consulta' %}
+                                <span class="badge bg-info">Sob Consulta</span>
+                            {% elif servico.preco %}
+                                <span class="fw-bold text-primary">R$ {{ "%.2f"|format(servico.preco) }}</span>
+                            {% else %}
+                                <span class="text-muted small">Sob consulta</span>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-sm btn-outline-primary rounded-pill">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ url_for('servico.editar', id=servico.id) }}" class="btn btn-sm btn-outline-warning rounded-pill">
+                                <i class="fas fa-edit"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
-            {% endfor %}
+                <div class="card-footer bg-white border-0 pb-3">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Publicado em {{ servico.data_postagem.strftime('%d/%m/%Y') }}
+                    </small>
+                </div>
+            </div>
         </div>
+        {% endfor %}
+    </div>
     {% else %}
-        <div class="alert alert-info rounded-4 text-center p-5 mt-4">
-            <i class="fas fa-info-circle fa-3x mb-3"></i>
-            <h4 class="alert-heading">Nenhum serviço cadastrado!</h4>
-            <p>Você ainda não cadastrou nenhum serviço. Clique no botão "Novo Serviço" para começar.</p>
-            <a href="/cadastro/servico" class="btn btn-primary-custom mt-2">
+    <div class="card shadow-sm border-0 rounded-4 text-center py-5">
+        <div class="card-body">
+            <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+            <h4>Nenhum serviço cadastrado!</h4>
+            <p class="text-muted">Você ainda não cadastrou nenhum serviço.</p>
+            <p class="text-muted mb-4">Clique no botão abaixo para começar a oferecer seus serviços.</p>
+            <a href="{{ url_for('servico.cadastro') }}" class="btn btn-primary rounded-pill px-4 py-2">
                 <i class="fas fa-plus-circle me-2"></i> Cadastrar meu primeiro serviço
             </a>
         </div>
+    </div>
     {% endif %}
 </div>
+
+<style>
+    .transition {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.1) !important;
+    }
+</style>
 {% endblock %}

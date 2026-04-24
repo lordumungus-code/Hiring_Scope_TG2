@@ -1,250 +1,219 @@
 {% extends "base.html" %}
-{% block search_bar_desktop %}{% endblock %}
-{% block search_bar_mobile %}{% endblock %}
-{% block title %}Editar Serviço - {{ servico.titulo }}{% endblock %}
+
+{% block title %}Editar Serviço - PrestaServiços{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-                <div class="card-header-gradient">
-                    <h2 class="h4 mb-0 fw-semibold">
-                        <i class="fas fa-edit me-2"></i> Editar Serviço
-                    </h2>
-                    <p class="mb-0 mt-1 opacity-75 small">Atualize as informações do seu serviço</p>
+<div class="container mt-4" style="max-width: 800px;">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-warning text-dark rounded-top-4 py-3">
+            <h4 class="mb-0">
+                <i class="fas fa-edit me-2"></i>
+                Editar Serviço
+            </h4>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+                <!-- Título -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Título do Serviço <span class="text-danger">*</span></label>
+                    <input type="text" name="titulo" class="form-control rounded-3" value="{{ servico.titulo }}" required>
                 </div>
-                
-                <div class="card-body p-4">
-                    <!-- Mensagens Flash (já estilizadas globalmente, mas mantemos a estrutura) -->
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category }} alert-dismissible fade show rounded-3" role="alert">
-                                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            {% endfor %}
+
+                <!-- Categoria -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Categoria <span class="text-danger">*</span></label>
+                    <select name="categoria" class="form-select rounded-3" required>
+                        <option value="">Selecione...</option>
+                        <option value="Tecnologia" {% if servico.categoria == 'Tecnologia' %}selected{% endif %}>💻 Tecnologia</option>
+                        <option value="Construção" {% if servico.categoria == 'Construção' %}selected{% endif %}>🏗️ Construção</option>
+                        <option value="Design" {% if servico.categoria == 'Design' %}selected{% endif %}>🎨 Design</option>
+                        <option value="Limpeza" {% if servico.categoria == 'Limpeza' %}selected{% endif %}>🧹 Limpeza</option>
+                        <option value="Jardinagem" {% if servico.categoria == 'Jardinagem' %}selected{% endif %}>🌿 Jardinagem</option>
+                        <option value="Educação" {% if servico.categoria == 'Educação' %}selected{% endif %}>📚 Educação</option>
+                        <option value="Saúde" {% if servico.categoria == 'Saúde' %}selected{% endif %}>💊 Saúde</option>
+                        <option value="Marketing" {% if servico.categoria == 'Marketing' %}selected{% endif %}>📈 Marketing</option>
+                        <option value="Fotografia" {% if servico.categoria == 'Fotografia' %}selected{% endif %}>📷 Fotografia</option>
+                        <option value="Segurança" {% if servico.categoria == 'Segurança' %}selected{% endif %}>🔒 Segurança</option>
+                    </select>
+                </div>
+
+                <!-- Tipo de Precificação -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tipo de Precificação</label>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <div class="form-check p-2 border rounded-3">
+                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoFixo" value="fixo" {% if servico.tipo_preco == 'fixo' or not servico.tipo_preco %}checked{% endif %}>
+                                <label class="form-check-label" for="precoFixo">💰 Preço Fixo</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check p-2 border rounded-3">
+                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoHora" value="hora" {% if servico.tipo_preco == 'hora' %}checked{% endif %}>
+                                <label class="form-check-label" for="precoHora">⏰ Por Hora</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check p-2 border rounded-3">
+                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoDia" value="dia" {% if servico.tipo_preco == 'dia' %}checked{% endif %}>
+                                <label class="form-check-label" for="precoDia">📅 Por Dia</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check p-2 border rounded-3">
+                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoMetro" value="metro" {% if servico.tipo_preco == 'metro' %}checked{% endif %}>
+                                <label class="form-check-label" for="precoMetro">📏 Por m²</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check p-2 border rounded-3">
+                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoConsulta" value="consulta" {% if servico.tipo_preco == 'consulta' %}checked{% endif %}>
+                                <label class="form-check-label" for="precoConsulta">💬 Sob Consulta</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preço -->
+                <div class="mb-3" id="campoPreco">
+                    <label class="form-label fw-bold">Valor</label>
+                    <div class="input-group">
+                        <span class="input-group-text">R$</span>
+                        <input type="number" name="preco" id="precoInput" class="form-control rounded-3" step="0.01" value="{{ servico.preco }}" placeholder="Ex: 150.00">
+                        <span class="input-group-text" id="unidadePreco"></span>
+                    </div>
+                    <small class="text-muted" id="descricaoPreco">Deixe em branco se for "preço sob consulta"</small>
+                </div>
+
+                <!-- Destaque -->
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="destaque" id="destaqueCheck" {% if servico.destaque %}checked{% endif %}>
+                        <label class="form-check-label fw-bold" for="destaqueCheck">
+                            <i class="fas fa-star text-warning me-1"></i> Serviço em Destaque
+                        </label>
+                        <br>
+                        <small class="text-muted">Serviços em destaque aparecem na página inicial</small>
+                    </div>
+                </div>
+
+                <!-- Destaque Pago (Premium) -->
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="destaque_pago" id="destaquePagoCheck" {% if servico.destaque_pago and servico.destaque_data_fim and servico.destaque_data_fim > now %}checked{% endif %}>
+                        <label class="form-check-label fw-bold text-danger" for="destaquePagoCheck">
+                            <i class="fas fa-crown me-1"></i> Destaque Premium (R$ 9,90/mês)
+                        </label>
+                        <br>
+                        <small class="text-muted">Seu serviço fica no topo das buscas e na página inicial</small>
+                    </div>
+                </div>
+
+                <!-- Imagem -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Imagem do Serviço</label>
+                    <div class="border rounded-3 p-3 text-center">
+                        {% if servico.imagem_base64 %}
+                            <div class="mb-3">
+                                <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" style="max-width: 200px; max-height: 150px; border-radius: 10px;">
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="remover_imagem" id="removerImagem" value="true">
+                                <label class="form-check-label text-danger" for="removerImagem">
+                                    <i class="fas fa-trash me-1"></i> Remover imagem atual
+                                </label>
+                            </div>
                         {% endif %}
-                    {% endwith %}
-                    
-                    <form method="POST" enctype="multipart/form-data">
-                        <!-- Título -->
-                        <div class="mb-4">
-                            <label for="titulo" class="form-label fw-semibold">
-                                <i class="fas fa-heading text-primary me-1"></i> Título do Serviço
-                            </label>
-                            <input type="text" class="form-control rounded-pill" id="titulo" name="titulo" 
-                                   value="{{ servico.titulo }}" required>
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
+                        <input type="file" name="imagem" id="imagemInput" class="d-none" accept="image/*">
+                        <button type="button" class="btn btn-outline-primary rounded-pill" onclick="document.getElementById('imagemInput').click()">
+                            <i class="fas fa-folder-open me-2"></i> Escolher nova imagem
+                        </button>
+                        <span id="nomeArquivo" class="ms-2 text-muted small">Nenhum arquivo escolhido</span>
+                        <div id="previewImagem" class="mt-3" style="display: none;">
+                            <img id="previewImg" src="#" alt="Preview" style="max-width: 100%; max-height: 150px; border-radius: 10px;">
                         </div>
-                        
-                        <!-- Categoria -->
-                        <div class="mb-4">
-                            <label for="categoria" class="form-label fw-semibold">
-                                <i class="fas fa-tag text-primary me-1"></i> Categoria
-                            </label>
-                            <select class="form-select rounded-pill" id="categoria" name="categoria" required>
-                                <option value="">Selecione uma categoria</option>
-                                <option value="Tecnologia" {% if servico.categoria == 'Tecnologia' %}selected{% endif %}>💻 Tecnologia</option>
-                                <option value="Construção" {% if servico.categoria == 'Construção' %}selected{% endif %}>🏗️ Construção</option>
-                                <option value="Limpeza" {% if servico.categoria == 'Limpeza' %}selected{% endif %}>🧹 Limpeza</option>
-                                <option value="Educação" {% if servico.categoria == 'Educação' %}selected{% endif %}>📚 Educação</option>
-                                <option value="Saúde" {% if servico.categoria == 'Saúde' %}selected{% endif %}>🏥 Saúde</option>
-                                <option value="Marketing" {% if servico.categoria == 'Marketing' %}selected{% endif %}>📊 Marketing</option>
-                                <option value="Design" {% if servico.categoria == 'Design' %}selected{% endif %}>🎨 Design</option>
-                                <option value="Outros" {% if servico.categoria == 'Outros' %}selected{% endif %}>📌 Outros</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Preço -->
-                        <div class="mb-4">
-                            <label for="preco" class="form-label fw-semibold">
-                                <i class="fas fa-dollar-sign text-primary me-1"></i> Preço (opcional)
-                            </label>
-                            <input type="number" class="form-control rounded-pill" id="preco" name="preco" 
-                                   step="0.01" min="0" value="{{ servico.preco }}">
-                            <small class="text-muted">Deixe em branco se for "preço sob consulta"</small>
-                        </div>
-                        
-                        <!-- Imagem -->
-                        <div class="mb-4">
-                            <label for="imagem" class="form-label fw-semibold">
-                                <i class="fas fa-image text-primary me-1"></i> Imagem do Serviço
-                            </label>
-                            <input type="file" class="form-control rounded-pill" id="imagem" name="imagem" 
-                                   accept="image/*" onchange="previewImage(event)">
-                            <small class="text-muted">Formatos: JPG, PNG, GIF. Máx: 5MB. Deixe em branco para manter a imagem atual.</small>
-                            
-                            <!-- Preview da imagem atual -->
-                            <div class="mt-3">
-                                <p class="mb-2 fw-semibold">Imagem atual:</p>
-                                {% if servico.imagem_base64 %}
-                                    <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
-                                         alt="Imagem atual" 
-                                         class="img-thumbnail rounded-4"
-                                         style="max-width: 180px; max-height: 180px; object-fit: cover;"
-                                         id="currentImage">
-                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill ms-2" onclick="removerImagemAtual()">
-                                        <i class="fas fa-trash me-1"></i> Remover imagem
-                                    </button>
-                                {% else %}
-                                    <div class="alert alert-secondary rounded-3">
-                                        <i class="fas fa-info-circle"></i> Nenhuma imagem cadastrada
-                                    </div>
-                                {% endif %}
-                            </div>
-                            
-                            <!-- Preview da nova imagem -->
-                            <div id="newImagePreview" style="display: none;" class="mt-3">
-                                <p class="mb-2 fw-semibold">Nova imagem:</p>
-                                <img id="preview" src="#" alt="Preview" class="img-thumbnail rounded-4" style="max-width: 180px; max-height: 180px; object-fit: cover;">
-                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill mt-2" onclick="cancelarNovaImagem()">
-                                    <i class="fas fa-times me-1"></i> Cancelar
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Descrição -->
-                        <div class="mb-4">
-                            <label for="descricao" class="form-label fw-semibold">
-                                <i class="fas fa-align-left text-primary me-1"></i> Descrição do Serviço
-                            </label>
-                            <textarea class="form-control rounded-4" id="descricao" name="descricao" 
-                                      rows="6" required>{{ servico.descricao }}</textarea>
-                            <small class="text-muted">Descreva detalhadamente o serviço oferecido</small>
-                        </div>
-                        
-                        <!-- Destaque (switch moderno) -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-star text-primary me-1"></i> Serviço em Destaque
-                            </label>
-                            <div class="d-flex align-items-center">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="destaque" name="destaque" 
-                                           style="width: 50px; height: 24px; cursor: pointer;"
-                                           {% if servico.destaque %}checked{% endif %}>
-                                    <label class="form-check-label destaque-label ms-2" for="destaque">
-                                        {% if servico.destaque %}
-                                            <i class="fas fa-star text-warning me-1"></i> Serviço está em destaque
-                                        {% else %}
-                                            <i class="far fa-star text-muted me-1"></i> Serviço não está em destaque
-                                        {% endif %}
-                                    </label>
-                                </div>
-                            </div>
-                            <small class="text-muted">Serviços em destaque aparecem na página inicial</small>
-                        </div>
-                        
-                        <!-- Botões -->
-                        <div class="d-flex gap-3 mt-4">
-                            <button type="submit" class="btn btn-primary-custom px-4 rounded-pill">
-                                <i class="fas fa-save me-2"></i> Salvar Alterações
-                            </button>
-                            <a href="/servico/{{ servico.id }}" class="btn btn-outline-secondary rounded-pill px-4">
-                                <i class="fas fa-times me-2"></i> Cancelar
-                            </a>
-                        </div>
-                    </form>
+                        <small class="text-muted d-block mt-2">Formatos: JPG, PNG, GIF. Máx: 5MB</small>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Descrição -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Descrição do Serviço <span class="text-danger">*</span></label>
+                    <textarea name="descricao" class="form-control rounded-3" rows="5" required>{{ servico.descricao }}</textarea>
+                    <small class="text-muted">Descreva detalhadamente o serviço oferecido</small>
+                </div>
+
+                <!-- Botões -->
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary flex-grow-1 py-2 rounded-pill">
+                        <i class="fas fa-save me-2"></i> Salvar Alterações
+                    </button>
+                    <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-outline-secondary px-4 rounded-pill">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<style>
-    /* Estilos específicos para o switch (pois o Bootstrap pode não ter o estilo exato) */
-    .form-switch .form-check-input {
-        background-color: #cbd5e1;
-        border: none;
-        background-image: none;
-    }
-    .form-switch .form-check-input:checked {
-        background-color: #10b981;
-        border-color: #10b981;
-    }
-    .img-thumbnail {
-        border: 2px solid var(--primary-light);
-        padding: 0.25rem;
-    }
-</style>
-
 <script>
-    // Preview da nova imagem
-    function previewImage(event) {
-        const input = event.target;
-        const previewDiv = document.getElementById('newImagePreview');
-        const previewImg = document.getElementById('preview');
-        const currentImage = document.getElementById('currentImage');
+    // Preview de imagem
+    document.getElementById('imagemInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const nomeArquivo = document.getElementById('nomeArquivo');
+        const previewDiv = document.getElementById('previewImagem');
+        const previewImg = document.getElementById('previewImg');
         
-        if (input.files && input.files[0]) {
+        if (file) {
+            nomeArquivo.textContent = file.name;
             const reader = new FileReader();
-            reader.onload = function(e) {
-                previewImg.src = e.target.result;
+            reader.onload = function(event) {
+                previewImg.src = event.target.result;
                 previewDiv.style.display = 'block';
-                if (currentImage) currentImage.style.opacity = '0.5';
             }
-            reader.readAsDataURL(input.files[0]);
+            reader.readAsDataURL(file);
+        } else {
+            nomeArquivo.textContent = 'Nenhum arquivo escolhido';
+            previewDiv.style.display = 'none';
         }
-    }
-    
-    // Cancelar nova imagem
-    function cancelarNovaImagem() {
-        const input = document.getElementById('imagem');
-        const previewDiv = document.getElementById('newImagePreview');
-        const currentImage = document.getElementById('currentImage');
+    });
+
+    // Gerenciar tipo de preço
+    const precoInput = document.getElementById('precoInput');
+    const unidade = document.getElementById('unidadePreco');
+    const descricao = document.getElementById('descricaoPreco');
+
+    function updateTipoPreco() {
+        const selected = document.querySelector('input[name="tipo_preco"]:checked').value;
         
-        input.value = '';
-        previewDiv.style.display = 'none';
-        if (currentImage) currentImage.style.opacity = '1';
-    }
-    
-    // Remover imagem atual
-    function removerImagemAtual() {
-        if (confirm('Deseja remover a imagem atual?')) {
-            let hiddenInput = document.querySelector('input[name="remover_imagem"]');
-            if (!hiddenInput) {
-                hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'remover_imagem';
-                document.forms[0].appendChild(hiddenInput);
+        if (selected === 'consulta') {
+            precoInput.disabled = true;
+            precoInput.value = '';
+            unidade.textContent = '(sob consulta)';
+            descricao.textContent = 'Preço a ser combinado diretamente com o cliente';
+        } else {
+            precoInput.disabled = false;
+            if (selected === 'fixo') {
+                unidade.textContent = '(fixo)';
+                descricao.textContent = 'Valor fixo pelo serviço completo';
+            } else if (selected === 'hora') {
+                unidade.textContent = 'por hora';
+                descricao.textContent = 'Valor cobrado por hora trabalhada';
+            } else if (selected === 'dia') {
+                unidade.textContent = 'por dia';
+                descricao.textContent = 'Valor por diária (8h de trabalho)';
+            } else if (selected === 'metro') {
+                unidade.textContent = 'por m²';
+                descricao.textContent = 'Valor por metro quadrado';
             }
-            hiddenInput.value = 'true';
-            
-            const currentImage = document.getElementById('currentImage');
-            if (currentImage) currentImage.style.display = 'none';
-            
-            const removerBtn = document.querySelector('button[onclick="removerImagemAtual()"]');
-            if (removerBtn) removerBtn.style.display = 'none';
         }
     }
-    
-    // Atualizar texto do switch de destaque
-    const destaqueCheckbox = document.getElementById('destaque');
-    const destaqueLabel = document.querySelector('.destaque-label');
-    
-    if (destaqueCheckbox) {
-        destaqueCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                destaqueLabel.innerHTML = '<i class="fas fa-star text-warning me-1"></i> Serviço está em destaque';
-            } else {
-                destaqueLabel.innerHTML = '<i class="far fa-star text-muted me-1"></i> Serviço não está em destaque';
-            }
-        });
-    }
-    
-    // Validação do tamanho da imagem
-    const imagemInput = document.getElementById('imagem');
-    if (imagemInput) {
-        imagemInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file && file.size > 5 * 1024 * 1024) {
-                alert('A imagem deve ter no máximo 5MB');
-                this.value = '';
-                document.getElementById('newImagePreview').style.display = 'none';
-            }
-        });
-    }
+
+    document.querySelectorAll('input[name="tipo_preco"]').forEach(radio => {
+        radio.addEventListener('change', updateTipoPreco);
+    });
+    updateTipoPreco();
 </script>
 {% endblock %}

@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Usuários - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h2>
+            <i class="fas fa-users text-primary me-2"></i>
+            Gerenciar Usuários
+        </h2>
+        <div>
+            <form method="GET" class="d-flex gap-2">
+                <input type="text" name="search" class="form-control rounded-pill" placeholder="Buscar por nome ou email..." value="{{ search }}">
+                <select name="tipo" class="form-select rounded-pill" style="width: auto;">
+                    <option value="todos" {% if tipo == 'todos' or not tipo %}selected{% endif %}>Todos</option>
+                    <option value="prestador" {% if tipo == 'prestador' %}selected{% endif %}>Prestadores</option>
+                    <option value="cliente" {% if tipo == 'cliente' %}selected{% endif %}>Clientes</option>
+                    <option value="admin" {% if tipo == 'admin' %}selected{% endif %}>Administradores</option>
+                </select>
+                <button type="submit" class="btn btn-primary rounded-pill">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Avatar</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Tipo</th>
+                            <th>Admin</th>
+                            <th>Data Cadastro</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios.items %}
+                        <tr>
+                            <td>{{ usuario.id }}</td>
+                            <td>
+                                {% if usuario.foto_url %}
+                                    <img src="{{ usuario.foto_url }}" class="rounded-circle" width="35" height="35">
+                                {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
+                                    <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" class="rounded-circle" width="35" height="35">
+                                {% else %}
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                        <span class="text-white small">{{ usuario.nome[0]|upper }}</span>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>{{ usuario.nome }}</td>
+                            <td>{{ usuario.email }}</td>
+                            <td>
+                                {% if usuario.tipo == 'prestador' %}
+                                    <span class="badge bg-info">Prestador</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Cliente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if usuario.is_admin %}
+                                    <span class="badge bg-danger">Sim</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">Não</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ usuario.data_cadastro.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.usuario_detalhe', user_id=usuario.id) }}" class="btn btn-sm btn-outline-primary rounded-pill">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if usuarios.pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if usuarios.has_prev %}
+                <li class="page-item"><a class="page-link rounded-pill mx-1" href="{{ url_for('admin.usuarios', page=usuarios.prev_num, search=search, tipo=tipo) }}">Anterior</a></li>
+            {% endif %}
+            
+            {% for page in usuarios.iter_pages() %}
+                {% if page %}
+                    <li class="page-item {% if page == usuarios.page %}active{% endif %}">
+                        <a class="page-link rounded-pill mx-1" href="{{ url_for('admin.usuarios', page=page, search=search, tipo=tipo) }}">{{ page }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if usuarios.has_next %}
+                <li class="page-item"><a class="page-link rounded-pill mx-1" href="{{ url_for('admin.usuarios', page=usuarios.next_num, search=search, tipo=tipo) }}">Próximo</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

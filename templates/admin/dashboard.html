@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Admin - PrestaServiços{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Menu lateral -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Menu Admin
+                    </h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('admin.usuarios') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-users me-2"></i> Usuários
+                    </a>
+                    <a href="{{ url_for('admin.servicos') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-briefcase me-2"></i> Serviços
+                    </a>
+                    <a href="{{ url_for('admin.avaliacoes') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-star me-2"></i> Avaliações
+                    </a>
+                    <a href="{{ url_for('admin.contratos') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-contract me-2"></i> Contratos
+                    </a>
+                    <a href="{{ url_for('admin.estatisticas') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-line me-2"></i> Estatísticas
+                    </a>
+                </div>
+            </div>
+
+            <!-- Links rápidos -->
+            <div class="card mt-3 shadow-sm border-0 rounded-4">
+                <div class="card-body p-3">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                    <strong>Links Rápidos</strong>
+                    <div class="mt-2">
+                        <a href="{{ url_for('main.index') }}" class="d-block text-decoration-none small mb-1">
+                            <i class="fas fa-home me-1"></i> Ir para o site
+                        </a>
+                        <a href="{{ url_for('servico.lista') }}" class="d-block text-decoration-none small mb-1">
+                            <i class="fas fa-search me-1"></i> Ver serviços
+                        </a>
+                        <a href="{{ url_for('auth.cadastro') }}" class="d-block text-decoration-none small">
+                            <i class="fas fa-user-plus me-1"></i> Novo usuário
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div class="col-md-9">
+            <h2 class="mb-4">
+                <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                Painel do Administrador
+            </h2>
+
+            <!-- Cards de estatísticas -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-3 col-6">
+                    <a href="{{ url_for('admin.usuarios') }}" class="text-decoration-none">
+                        <div class="card shadow-sm border-0 rounded-4 bg-primary text-white">
+                            <div class="card-body text-center py-3">
+                                <i class="fas fa-users fa-2x mb-2 opacity-75"></i>
+                                <h3 class="mb-0">{{ total_usuarios }}</h3>
+                                <small>Total de Usuários</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 col-6">
+                    <a href="{{ url_for('admin.servicos') }}" class="text-decoration-none">
+                        <div class="card shadow-sm border-0 rounded-4 bg-success text-white">
+                            <div class="card-body text-center py-3">
+                                <i class="fas fa-briefcase fa-2x mb-2 opacity-75"></i>
+                                <h3 class="mb-0">{{ total_servicos }}</h3>
+                                <small>Serviços</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 col-6">
+                    <a href="{{ url_for('admin.contratos') }}" class="text-decoration-none">
+                        <div class="card shadow-sm border-0 rounded-4 bg-warning text-dark">
+                            <div class="card-body text-center py-3">
+                                <i class="fas fa-file-contract fa-2x mb-2 opacity-75"></i>
+                                <h3 class="mb-0">{{ total_contratos }}</h3>
+                                <small>Contratos</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 col-6">
+                    <a href="{{ url_for('admin.avaliacoes') }}" class="text-decoration-none">
+                        <div class="card shadow-sm border-0 rounded-4 bg-info text-white">
+                            <div class="card-body text-center py-3">
+                                <i class="fas fa-star fa-2x mb-2 opacity-75"></i>
+                                <h3 class="mb-0">{{ total_avaliacoes }}</h3>
+                                <small>Avaliações</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Detalhamento de usuários -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-4 col-6">
+                    <a href="{{ url_for('admin.usuarios') }}?tipo=prestador" class="text-decoration-none">
+                        <div class="card shadow-sm border-0 rounded-4">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-tie fa-2x text-primary mb-2"></i>
+                                <h4>{{ total_prestadores }}</h4>
+                                <small class="text-muted">Prestadores</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-6">
+                    <a href="{{ url_for('admin.usuarios') }}?tipo=cliente" class="text-decoration-none">
+                        <div class="card shadow-sm border-0 rounded-4">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user fa-2x text-success mb-2"></i>
+                                <h4>{{ total_clientes }}</h4>
+                                <small class="text-muted">Clientes</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-6">
+                    <a href="{{ url_for('admin.usuarios') }}?tipo=admin" class="text-decoration-none">
+                        <div class="card shadow-sm border-0 rounded-4">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-shield fa-2x text-danger mb-2"></i>
+                                <h4>{{ total_admins }}</h4>
+                                <small class="text-muted">Administradores</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Status dos contratos -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <a href="{{ url_for('admin.contratos') }}?status=pendente" class="text-decoration-none">
+                        <div class="card shadow-sm border-0 rounded-4">
+                            <div class="card-header bg-warning text-dark rounded-top-4">
+                                <i class="fas fa-clock me-2"></i> Pendentes
+                            </div>
+                            <div class="card-body text-center">
+                                <h2 class="mb-0">{{ contratos_pendentes }}</h2>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{{ url_for('admin.contratos') }}?status=em_andamento" class="text-decoration-none">
+                        <div class="card shadow-sm border-0 rounded-4">
+                            <div class="card-header bg-primary text-white rounded-top-4">
+                                <i class="fas fa-spinner me-2"></i> Em Andamento
+                            </div>
+                            <div class="card-body text-center">
+                                <h2 class="mb-0">{{ contratos_andamento }}</h2>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{{ url_for('admin.contratos') }}?status=concluido" class="text-decoration-none">
+                        <div class="card shadow-sm border-0 rounded-4">
+                            <div class="card-header bg-success text-white rounded-top-4">
+                                <i class="fas fa-check-circle me-2"></i> Concluídos
+                            </div>
+                            <div class="card-body text-center">
+                                <h2 class="mb-0">{{ contratos_concluidos }}</h2>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Usuários recentes -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header bg-dark text-white rounded-top-4 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i> Últimos Usuários Cadastrados
+                    </h5>
+                    <a href="{{ url_for('admin.usuarios') }}" class="btn btn-sm btn-outline-light rounded-pill">
+                        Ver todos <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Tipo</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for usuario in usuarios_recentes %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if usuario.foto_url %}
+                                                <img src="{{ usuario.foto_url }}" class="rounded-circle" width="30" height="30">
+                                            {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
+                                                <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" class="rounded-circle" width="30" height="30">
+                                            {% else %}
+                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                                    <span class="text-white small">{{ usuario.nome[0]|upper }}</span>
+                                                </div>
+                                            {% endif %}
+                                            {{ usuario.nome }}
+                                        </div>
+                                    </td>
+                                    <td>{{ usuario.email }}</td>
+                                    <td>
+                                        {% if usuario.tipo == 'prestador' %}
+                                            <span class="badge bg-info">Prestador</span>
+                                        {% elif usuario.is_admin %}
+                                            <span class="badge bg-danger">Admin</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Cliente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ usuario.data_cadastro.strftime('%d/%m/%Y') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin.usuario_detalhe', user_id=usuario.id) }}" class="btn btn-sm btn-outline-primary rounded-pill">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Serviços recentes -->
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-secondary text-white rounded-top-4 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-briefcase me-2"></i> Últimos Serviços Cadastrados
+                    </h5>
+                    <a href="{{ url_for('admin.servicos') }}" class="btn btn-sm btn-outline-light rounded-pill">
+                        Ver todos <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Prestador</th>
+                                    <th>Categoria</th>
+                                    <th>Preço</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for servico in servicos_recentes %}
+                                <tr>
+                                    <td>{{ servico.titulo[:40] }}{% if servico.titulo|length > 40 %}...{% endif %}</td>
+                                    <td>{{ servico.prestador.nome }}</td>
+                                    <td>{{ servico.categoria }}</td>
+                                    <td>R$ {{ "%.2f"|format(servico.preco) if servico.preco else 'Sob consulta' }}</td>
+                                    <td>{{ servico.data_postagem.strftime('%d/%m/%Y') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-sm btn-outline-primary rounded-pill" target="_blank">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .list-group-item.active {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        border-color: #0b2b5c;
+    }
+    .list-group-item-action:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+    .card {
+        transition: all 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-3px);
+    }
+    a.text-decoration-none .card:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>
+{% endblock %}

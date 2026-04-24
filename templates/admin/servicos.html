@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Serviços - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h2>
+            <i class="fas fa-briefcase text-primary me-2"></i>
+            Gerenciar Serviços
+        </h2>
+        <div>
+            <form method="GET" class="d-flex gap-2">
+                <input type="text" name="search" class="form-control rounded-pill" placeholder="Buscar serviços..." value="{{ search }}">
+                <select name="categoria" class="form-select rounded-pill" style="width: auto;">
+                    <option value="">Todas categorias</option>
+                    {% for cat in categorias %}
+                        <option value="{{ cat.categoria }}" {% if categoria == cat.categoria %}selected{% endif %}>{{ cat.categoria }}</option>
+                    {% endfor %}
+                </select>
+                <select name="destaque" class="form-select rounded-pill" style="width: auto;">
+                    <option value="">Todos</option>
+                    <option value="true" {% if destaque == 'true' %}selected{% endif %}>Com Destaque</option>
+                    <option value="false" {% if destaque == 'false' %}selected{% endif %}>Sem Destaque</option>
+                </select>
+                <button type="submit" class="btn btn-primary rounded-pill">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Imagem</th>
+                            <th>Título</th>
+                            <th>Prestador</th>
+                            <th>Categoria</th>
+                            <th>Preço</th>
+                            <th>Destaque</th>
+                            <th>Data</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for servico in servicos.items %}
+                        <tr>
+                            <td>{{ servico.id }}</td>
+                            <td>
+                                {% if servico.imagem_base64 %}
+                                    <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px;">
+                                {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-image text-secondary"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>{{ servico.titulo[:40] }}{% if servico.titulo|length > 40 %}...{% endif %}</td>
+                            <td>{{ servico.prestador.nome }}</td>
+                            <td>{{ servico.categoria }}</td>
+                            <td>R$ {{ "%.2f"|format(servico.preco) if servico.preco else 'Sob consulta' }}</td>
+                            <td>
+                                {% if servico.destaque %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-star"></i> Destaque
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Normal</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ servico.data_postagem.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-sm btn-outline-primary rounded-pill" target="_blank">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <form action="{{ url_for('admin.toggle_destaque', servico_id=servico.id) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm {% if servico.destaque %}btn-outline-warning{% else %}btn-outline-success{% endif %} rounded-pill">
+                                            <i class="fas {% if servico.destaque %}fa-star{% else %}fa-star-of-life{% endif %}"></i>
+                                        </button>
+                                    </form>
+                                    <form action="{{ url_for('admin.delete_servico', servico_id=servico.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja remover este serviço?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if servicos.pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if servicos.has_prev %}
+                <li class="page-item"><a class="page-link rounded-pill mx-1" href="{{ url_for('admin.servicos', page=servicos.prev_num, search=search, categoria=categoria, destaque=destaque) }}">Anterior</a></li>
+            {% endif %}
+            
+            {% for page in servicos.iter_pages() %}
+                {% if page %}
+                    <li class="page-item {% if page == servicos.page %}active{% endif %}">
+                        <a class="page-link rounded-pill mx-1" href="{{ url_for('admin.servicos', page=page, search=search, categoria=categoria, destaque=destaque) }}">{{ page }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if servicos.has_next %}
+                <li class="page-item"><a class="page-link rounded-pill mx-1" href="{{ url_for('admin.servicos', page=servicos.next_num, search=search, categoria=categoria, destaque=destaque) }}">Próximo</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

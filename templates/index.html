@@ -16,10 +16,10 @@
                 </p>
                 {% if not current_user.is_authenticated %}
                     <div class="d-flex justify-content-center gap-3 flex-wrap animate__animated animate__fadeInUp animate__delay-2s">
-                        <a href="/cadastro" class="btn btn-light btn-lg px-4 py-3 rounded-pill fw-semibold shadow-sm" style="font-size: clamp(0.9rem, 3vw, 1rem);">
+                        <a href="{{ url_for('auth.cadastro') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill fw-semibold shadow-sm" style="font-size: clamp(0.9rem, 3vw, 1rem);">
                             <i class="fas fa-user-plus me-2"></i>Criar Conta
                         </a>
-                        <a href="/servicos" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill fw-semibold" style="font-size: clamp(0.9rem, 3vw, 1rem);">
+                        <a href="{{ url_for('servico.lista') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill fw-semibold" style="font-size: clamp(0.9rem, 3vw, 1rem);">
                             <i class="fas fa-search me-2"></i>Explorar Serviços
                         </a>
                     </div>
@@ -30,7 +30,7 @@
         <div class="row mt-5">
             <div class="col-md-8 mx-auto">
                 <div class="search-box">
-                    <form action="/servicos" method="GET" class="d-flex gap-2 flex-column flex-sm-row">
+                    <form action="{{ url_for('servico.lista') }}" method="GET" class="d-flex gap-2 flex-column flex-sm-row">
                         <input type="text" 
                                name="q" 
                                class="form-control form-control-lg rounded-pill border-0 shadow-sm" 
@@ -87,58 +87,101 @@
             <i class="fas fa-star text-warning me-2"></i> Serviços em Destaque
             <span class="badge bg-danger ms-2 px-2 px-md-3 py-2 rounded-pill" style="font-size: clamp(0.7rem, 3vw, 0.9rem);">Premium</span>
         </h2>
-        <a href="/servicos" class="text-decoration-none fw-semibold" style="font-size: clamp(0.8rem, 3vw, 1rem);">Ver todos <i class="fas fa-arrow-right ms-1"></i></a>
+        <a href="{{ url_for('servico.lista') }}" class="text-decoration-none fw-semibold" style="font-size: clamp(0.8rem, 3vw, 1rem);">Ver todos <i class="fas fa-arrow-right ms-1"></i></a>
     </div>
+
     {% if servicos_destaque %}
-        <div id="carouselDestaques" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000" data-bs-pause="hover">
-            <div class="carousel-inner">
-                {% for servico in servicos_destaque %}
-                    {% if loop.index0 % 3 == 0 %}
+        {% if servicos_destaque|length > 3 %}
+            <!-- Carrossel apenas se houver mais de 3 serviços -->
+            <div id="carouselDestaques" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000" data-bs-pause="hover">
+                <div class="carousel-inner">
+                    {% for i in range(0, servicos_destaque|length, 3) %}
                         <div class="carousel-item {% if loop.first %}active{% endif %}">
                             <div class="row g-4">
-                    {% endif %}
-                                <div class="col-12 col-md-4">
-                                    <div class="card featured-card h-100 border-0 rounded-4 shadow-sm overflow-hidden transition">
-                                        {% if servico.imagem_base64 %}
-                                            <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" class="card-img-top" style="height: 180px; object-fit: cover;">
-                                        {% else %}
-                                            <div class="card-img-top d-flex align-items-center justify-content-center bg-gradient" style="height: 180px; background: linear-gradient(135deg, #e0e7ff, #f3e8ff);">
-                                                <i class="fas fa-briefcase fa-4x text-primary opacity-50"></i>
-                                            </div>
-                                        {% endif %}
-                                        <div class="card-body p-3 p-md-4">
-                                            <span class="badge bg-primary mb-2 px-2 px-md-3 py-2 rounded-pill" style="font-size: clamp(0.7rem, 3vw, 0.85rem);">{{ servico.categoria }}</span>
-                                            <h5 class="card-title fw-bold mb-2" style="font-size: clamp(1rem, 4vw, 1.25rem);">{{ servico.titulo[:50] }}</h5>
-                                            <p class="card-text text-muted small mb-2">{{ servico.descricao[:80] }}...</p>
-                                            <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-                                                {% if servico.preco %}
-                                                    <span class="price fw-bold text-primary" style="font-size: clamp(1rem, 4vw, 1.25rem);">R$ {{ "%.2f"|format(servico.preco) }}</span>
-                                                {% endif %}
-                                                <a href="/servico/{{ servico.id }}" class="btn btn-primary btn-sm rounded-pill px-3" style="font-size: clamp(0.75rem, 3vw, 0.85rem);">Ver detalhes</a>
+                                {% for servico in servicos_destaque[i:i+3] %}
+                                    <div class="col-12 col-md-4">
+                                        <div class="card featured-card h-100 border-0 rounded-4 shadow-sm overflow-hidden transition">
+                                            {% if servico.imagem_base64 %}
+                                                <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="card-img-top d-flex align-items-center justify-content-center bg-gradient" style="height: 180px; background: linear-gradient(135deg, #e0e7ff, #f3e8ff);">
+                                                    <i class="fas fa-briefcase fa-4x text-primary opacity-50"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div class="card-body p-3 p-md-4">
+                                                <span class="badge bg-primary mb-2 px-2 px-md-3 py-2 rounded-pill" style="font-size: clamp(0.7rem, 3vw, 0.85rem);">{{ servico.categoria }}</span>
+                                                <h5 class="card-title fw-bold mb-2" style="font-size: clamp(1rem, 4vw, 1.25rem);">{{ servico.titulo[:50] }}</h5>
+                                                <p class="card-text text-muted small mb-2">{{ servico.descricao[:80] }}...</p>
+                                                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                                                    {% if servico.preco %}
+                                                        <span class="price fw-bold text-primary" style="font-size: clamp(1rem, 4vw, 1.25rem);">R$ {{ "%.2f"|format(servico.preco) }}</span>
+                                                    {% endif %}
+                                                    <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-primary btn-sm rounded-pill px-3" style="font-size: clamp(0.75rem, 3vw, 0.85rem);">Ver detalhes</a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                    {% if loop.index0 % 3 == 2 or loop.last %}
+                                {% endfor %}
                             </div>
                         </div>
-                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Controles do carrossel -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselDestaques" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon bg-dark rounded-circle p-2 p-md-3" style="background-size: 50%; width: 35px; height: 35px;"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselDestaques" data-bs-slide="next">
+                    <span class="carousel-control-next-icon bg-dark rounded-circle p-2 p-md-3" style="background-size: 50%; width: 35px; height: 35px;"></span>
+                    <span class="visually-hidden">Próximo</span>
+                </button>
+
+                <!-- Indicadores -->
+                <div class="carousel-indicators position-relative mt-4">
+                    {% for i in range(0, servicos_destaque|length, 3) %}
+                        <button type="button" data-bs-target="#carouselDestaques" data-bs-slide-to="{{ loop.index0 }}" 
+                                class="{% if loop.first %}active{% endif %}" 
+                                style="width: 10px; height: 10px; border-radius: 50%; margin: 0 5px;"></button>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <!-- Mostrar como grid normal se tiver 3 ou menos serviços -->
+            <div class="row g-4">
+                {% for servico in servicos_destaque %}
+                    <div class="col-12 col-md-4">
+                        <div class="card featured-card h-100 border-0 rounded-4 shadow-sm overflow-hidden transition">
+                            {% if servico.imagem_base64 %}
+                                <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top d-flex align-items-center justify-content-center bg-gradient" style="height: 180px; background: linear-gradient(135deg, #e0e7ff, #f3e8ff);">
+                                    <i class="fas fa-briefcase fa-4x text-primary opacity-50"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body p-3 p-md-4">
+                                <span class="badge bg-primary mb-2 px-2 px-md-3 py-2 rounded-pill" style="font-size: clamp(0.7rem, 3vw, 0.85rem);">{{ servico.categoria }}</span>
+                                <h5 class="card-title fw-bold mb-2" style="font-size: clamp(1rem, 4vw, 1.25rem);">{{ servico.titulo[:50] }}</h5>
+                                <p class="card-text text-muted small mb-2">{{ servico.descricao[:80] }}...</p>
+                                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                                    {% if servico.preco %}
+                                        <span class="price fw-bold text-primary" style="font-size: clamp(1rem, 4vw, 1.25rem);">R$ {{ "%.2f"|format(servico.preco) }}</span>
+                                    {% endif %}
+                                    <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-primary btn-sm rounded-pill px-3" style="font-size: clamp(0.75rem, 3vw, 0.85rem);">Ver detalhes</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 {% endfor %}
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselDestaques" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon bg-dark rounded-circle p-2 p-md-3" style="background-size: 50%; width: 35px; height: 35px;"></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselDestaques" data-bs-slide="next">
-                <span class="carousel-control-next-icon bg-dark rounded-circle p-2 p-md-3" style="background-size: 50%; width: 35px; height: 35px;"></span>
-            </button>
-        </div>
+        {% endif %}
     {% else %}
         <div class="alert alert-info text-center rounded-4">
             <i class="fas fa-info-circle"></i> Nenhum serviço em destaque no momento.
             {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
-                <a href="/cadastro/servico" class="alert-link">Cadastre um serviço agora!</a>
+                <a href="{{ url_for('servico.cadastro') }}" class="alert-link">Cadastre um serviço agora!</a>
             {% else %}
-                <a href="/cadastro" class="alert-link">Cadastre-se como prestador!</a>
+                <a href="{{ url_for('auth.cadastro') }}" class="alert-link">Cadastre-se como prestador!</a>
             {% endif %}
         </div>
     {% endif %}
@@ -153,7 +196,7 @@
             <i class="fas fa-trophy text-warning me-2"></i> Top Prestadores
             <span class="badge bg-primary ms-2 px-2 px-md-3 py-2 rounded-pill" style="font-size: clamp(0.7rem, 3vw, 0.9rem);">Mais Bem Avaliados</span>
         </h2>
-        <a href="/prestadores" class="text-decoration-none fw-semibold" style="font-size: clamp(0.8rem, 3vw, 1rem);">Ver todos <i class="fas fa-arrow-right ms-1"></i></a>
+        <a href="{{ url_for('main.lista_prestadores') }}" class="text-decoration-none fw-semibold" style="font-size: clamp(0.8rem, 3vw, 1rem);">Ver todos <i class="fas fa-arrow-right ms-1"></i></a>
     </div>
 
     {% if top_prestadores %}
@@ -200,7 +243,7 @@
                     </div>
 
                     <!-- Nome - CLICÁVEL -->
-                    <a href="/perfil/{{ item.prestador.id }}" class="text-decoration-none">
+                    <a href="{{ url_for('main.perfil_prestador', prestador_id=item.prestador.id) }}" class="text-decoration-none">
                         <h5 class="card-title mb-1 fw-bold text-dark hover-primary">{{ item.prestador.nome }}</h5>
                     </a>
                     
@@ -237,7 +280,7 @@
                     {% endif %}
 
                     <div class="d-flex gap-2 mt-3">
-                        <a href="/servicos?prestador={{ item.prestador.id }}" class="btn btn-outline-primary btn-sm rounded-pill flex-grow-1">
+                        <a href="{{ url_for('servico.lista') }}?prestador={{ item.prestador.id }}" class="btn btn-outline-primary btn-sm rounded-pill flex-grow-1">
                             <i class="fas fa-briefcase me-1"></i> Ver Serviços
                         </a>
                         {% if current_user.is_authenticated and current_user.id != item.prestador.id %}
@@ -269,7 +312,7 @@
             {% if categorias_com_contagem %}
                 {% for cat in categorias_com_contagem %}
                     <div class="col-6 col-md-4 col-lg-2">
-                        <a href="/servicos?categoria={{ cat.categoria }}" class="text-decoration-none">
+                        <a href="{{ url_for('servico.lista') }}?categoria={{ cat.categoria }}" class="text-decoration-none">
                             <div class="category-card text-center p-3 p-md-4 rounded-4 shadow-sm bg-white transition h-100">
                                 <div class="category-icon mx-auto mb-2 mb-md-3 rounded-circle d-flex align-items-center justify-content-center" style="width: clamp(50px, 12vw, 70px); height: clamp(50px, 12vw, 70px); background: linear-gradient(135deg, #0b2b5c, #1a6d8f);">
                                     <i class="fas {{ get_icone_categoria(cat.categoria) }} fa-1x fa-md-2x text-white" style="font-size: clamp(1.2rem, 5vw, 1.8rem);"></i>
@@ -291,7 +334,7 @@
                 } %}
                 {% for nome, cor in cores.items() %}
                     <div class="col-6 col-md-4 col-lg-2">
-                        <a href="/servicos?categoria={{ nome }}" class="text-decoration-none">
+                        <a href="{{ url_for('servico.lista') }}?categoria={{ nome }}" class="text-decoration-none">
                             <div class="category-card text-center p-3 p-md-4 rounded-4 shadow-sm bg-white transition h-100">
                                 <div class="category-icon mx-auto mb-2 mb-md-3 rounded-circle d-flex align-items-center justify-content-center" style="width: clamp(50px, 12vw, 70px); height: clamp(50px, 12vw, 70px); background: {{ cor }};">
                                     <i class="fas 
@@ -320,7 +363,7 @@
             <h2 class="section-title" style="font-size: clamp(1.3rem, 5vw, 2rem);">
                 <i class="fas fa-clock text-success me-2"></i> Últimos Serviços
             </h2>
-            <a href="/servicos" class="text-decoration-none fw-semibold" style="font-size: clamp(0.8rem, 3vw, 1rem);">Ver todos <i class="fas fa-arrow-right ms-1"></i></a>
+            <a href="{{ url_for('servico.lista') }}" class="text-decoration-none fw-semibold" style="font-size: clamp(0.8rem, 3vw, 1rem);">Ver todos <i class="fas fa-arrow-right ms-1"></i></a>
         </div>
         <div class="row g-3 g-md-4">
             {% if servicos_recentes %}
@@ -342,7 +385,7 @@
                                 <h6 class="card-title fw-bold mb-2" style="font-size: clamp(0.85rem, 3.5vw, 1rem);">{{ servico.titulo[:50] }}</h6>
                                 <p class="card-text small text-muted mb-2">
                                     <i class="fas fa-user me-1"></i> 
-                                    <a href="/perfil/{{ servico.prestador.id }}" class="text-decoration-none text-dark hover-primary">
+                                    <a href="{{ url_for('main.perfil_prestador', prestador_id=servico.prestador.id) }}" class="text-decoration-none text-dark hover-primary">
                                         {{ servico.prestador.nome[:20] }}
                                     </a>
                                 </p>
@@ -352,7 +395,7 @@
                                     {% else %}
                                         <span class="text-muted small">Preço sob consulta</span>
                                     {% endif %}
-                                    <a href="/servico/{{ servico.id }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: clamp(0.7rem, 2.5vw, 0.8rem);">Ver</a>
+                                    <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: clamp(0.7rem, 2.5vw, 0.8rem);">Ver</a>
                                 </div>
                             </div>
                         </div>
@@ -363,9 +406,9 @@
                     <div class="alert alert-info text-center rounded-4">
                         <i class="fas fa-info-circle"></i> Nenhum serviço cadastrado ainda.
                         {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
-                            <a href="/cadastro/servico" class="alert-link">Seja o primeiro a cadastrar!</a>
+                            <a href="{{ url_for('servico.cadastro') }}" class="alert-link">Seja o primeiro a cadastrar!</a>
                         {% else %}
-                            <a href="/cadastro" class="alert-link">Cadastre-se como prestador!</a>
+                            <a href="{{ url_for('auth.cadastro') }}" class="alert-link">Cadastre-se como prestador!</a>
                         {% endif %}
                     </div>
                 </div>
@@ -422,7 +465,7 @@
             <i class="fas fa-info-circle me-2"></i>
             Seja o primeiro a avaliar um prestador! Sua opinião é muito importante.
             <div class="mt-3">
-                <a href="/servicos" class="btn btn-primary rounded-pill px-4">
+                <a href="{{ url_for('servico.lista') }}" class="btn btn-primary rounded-pill px-4">
                     <i class="fas fa-search me-2"></i> Explorar Serviços
                 </a>
             </div>
@@ -605,7 +648,7 @@
         if (prestadorId) {
             sessionStorage.setItem('chat_with_id', prestadorId);
             sessionStorage.setItem('chat_with_name', prestadorNome);
-            window.location.href = '/chat';
+            window.location.href = "{{ url_for('chat.index') }}";
         }
     }
 
@@ -614,7 +657,7 @@
         const usuarioId = urlParams.get('usuario');
         if (usuarioId) {
             sessionStorage.setItem('chat_with_id', usuarioId);
-            window.location.href = '/chat';
+            window.location.href = "{{ url_for('chat.index') }}";
         }
 
         // Animação de entrada nos cards

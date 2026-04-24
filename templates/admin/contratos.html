@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Contratos - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h2>
+            <i class="fas fa-file-contract text-primary me-2"></i>
+            Gerenciar Contratos
+        </h2>
+        <div>
+            <form method="GET" class="d-flex gap-2">
+                <select name="status" class="form-select rounded-pill">
+                    <option value="">Todos os status</option>
+                    {% for s in status_list %}
+                        <option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s|replace('_', ' ')|title }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary rounded-pill">
+                    <i class="fas fa-search"></i> Filtrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Serviço</th>
+                            <th>Cliente</th>
+                            <th>Prestador</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                            <th>Solicitação</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contrato in contratos.items %}
+                        <tr>
+                            <td>{{ contrato.id }}</td>
+                            <td>{{ contrato.servico.titulo[:30] }}{% if contrato.servico.titulo|length > 30 %}...{% endif %}</td>
+                            <td>{{ contrato.cliente.nome }}</td>
+                            <td>{{ contrato.prestador.nome }}</td>
+                            <td>R$ {{ "%.2f"|format(contrato.preco_acordado) if contrato.preco_acordado else 'Sob consulta' }}</td>
+                            <td>
+                                <span class="badge bg-{{ contrato.get_status_color() }} rounded-pill">
+                                    <i class="fas {{ contrato.get_status_icon() }} me-1"></i>
+                                    {{ contrato.status|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>{{ contrato.data_solicitacao.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <a href="{{ url_for('contrato.detalhe_contrato', contrato_id=contrato.id) }}" class="btn btn-sm btn-outline-primary rounded-pill" target="_blank">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if contratos.pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if contratos.has_prev %}
+                <li class="page-item"><a class="page-link rounded-pill mx-1" href="{{ url_for('admin.contratos', page=contratos.prev_num, status=status) }}">Anterior</a></li>
+            {% endif %}
+            
+            {% for page in contratos.iter_pages() %}
+                {% if page %}
+                    <li class="page-item {% if page == contratos.page %}active{% endif %}">
+                        <a class="page-link rounded-pill mx-1" href="{{ url_for('admin.contratos', page=page, status=status) }}">{{ page }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if contratos.has_next %}
+                <li class="page-item"><a class="page-link rounded-pill mx-1" href="{{ url_for('admin.contratos', page=contratos.next_num, status=status) }}">Próximo</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
