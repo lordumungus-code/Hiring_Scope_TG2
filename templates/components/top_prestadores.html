@@ -1,0 +1,114 @@
+<!-- Seção: Top Prestadores -->
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h2 class="section-title" style="font-size: clamp(1.3rem, 5vw, 2rem);">
+            <i class="fas fa-trophy text-warning me-2"></i> Top Prestadores
+            <span class="badge bg-primary ms-2 px-2 px-md-3 py-2 rounded-pill" style="font-size: clamp(0.7rem, 3vw, 0.9rem);">Mais Bem Avaliados</span>
+        </h2>
+        <a href="{{ url_for('main.lista_prestadores') }}" class="text-decoration-none fw-semibold" style="font-size: clamp(0.8rem, 3vw, 1rem);">Ver todos <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+
+    {% if top_prestadores %}
+        <div class="row g-4">
+            {% for item in top_prestadores %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card top-prestador-card h-100 border-0 rounded-4 shadow-sm overflow-hidden transition position-relative">
+                    <div class="card-body text-center p-4">
+                        <!-- Medalha de posição -->
+                        <div class="medalha position-absolute top-0 start-0 m-2">
+                            {% if loop.index == 1 %}
+                                <span class="badge bg-warning rounded-pill px-3 py-2 shadow-sm">
+                                    <i class="fas fa-crown me-1"></i> #1
+                                </span>
+                            {% elif loop.index == 2 %}
+                                <span class="badge bg-secondary rounded-pill px-3 py-2 shadow-sm">
+                                    <i class="fas fa-medal me-1"></i> #2
+                                </span>
+                            {% elif loop.index == 3 %}
+                                <span class="badge rounded-pill px-3 py-2 shadow-sm" style="background: #cd7f32; color: white;">
+                                    <i class="fas fa-medal me-1"></i> #3
+                                </span>
+                            {% else %}
+                                <span class="badge bg-light text-dark rounded-pill px-3 py-2 shadow-sm">
+                                    #{{ loop.index }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Avatar -->
+                        <div class="prestador-avatar mx-auto mb-3">
+                            {% if item.prestador.foto_url %}
+                                <img src="{{ item.prestador.foto_url }}" alt="{{ item.prestador.nome }}" 
+                                     class="rounded-circle shadow-sm" style="width: 85px; height: 85px; object-fit: cover;">
+                            {% elif item.prestador.foto_perfil and item.prestador.foto_perfil != 'default.jpg' %}
+                                <img src="data:image/jpeg;base64,{{ item.prestador.foto_perfil }}" alt="{{ item.prestador.nome }}" 
+                                     class="rounded-circle shadow-sm" style="width: 85px; height: 85px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto" 
+                                     style="width: 85px; height: 85px; background: linear-gradient(135deg, #0b2b5c, #1a6d8f);">
+                                    <span class="text-white fs-1 fw-bold">{{ item.prestador.nome[0]|upper }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Nome -->
+                        <a href="{{ url_for('main.perfil_prestador', prestador_id=item.prestador.id) }}" class="text-decoration-none">
+                            <h5 class="card-title mb-1 fw-bold text-dark hover-primary">{{ item.prestador.nome }}</h5>
+                        </a>
+                        
+                        <!-- Avaliação com estrelas -->
+                        <div class="rating mb-2">
+                            {% set media = item.media %}
+                            {% for i in range(5) %}
+                                {% if i < media|round(0, 'floor') %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% elif i < media %}
+                                    <i class="fas fa-star-half-alt text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-2 text-muted small fw-bold">{{ "%.1f"|format(media) }}/5</span>
+                        </div>
+                        
+                        <p class="small text-muted mb-2">
+                            <i class="fas fa-star me-1 text-warning"></i> {{ item.total_avaliacoes }} avaliações
+                            <br>
+                            <i class="fas fa-briefcase me-1 text-primary"></i> {{ item.servicos_count }} serviços
+                        </p>
+
+                        <!-- Serviços mais populares -->
+                        {% if item.prestador.servicos_oferecidos[:2] %}
+                            <div class="servicos-mini mt-2 mb-3">
+                                {% for servico in item.prestador.servicos_oferecidos[:2] %}
+                                    <span class="badge bg-light text-dark rounded-pill me-1 mb-1 px-3 py-2">
+                                        <i class="fas fa-tag me-1 text-muted"></i> {{ servico.titulo|truncate(20) }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="d-flex gap-2 mt-3">
+                            <a href="{{ url_for('servico.lista') }}?prestador={{ item.prestador.id }}" class="btn btn-outline-primary btn-sm rounded-pill flex-grow-1">
+                                <i class="fas fa-briefcase me-1"></i> Ver Serviços
+                            </a>
+                            {% if current_user.is_authenticated and current_user.id != item.prestador.id %}
+                                <button onclick="iniciarChat({{ item.prestador.id }}, '{{ item.prestador.nome|replace("'", "\\'") }}')" 
+                                        class="btn btn-primary btn-sm rounded-pill px-3">
+                                    <i class="fas fa-comments"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center rounded-4">
+            <i class="fas fa-info-circle me-2"></i>
+            Ainda não há avaliações suficientes para mostrar o ranking. 
+            Seja o primeiro a avaliar um prestador!
+        </div>
+    {% endif %}
+</div>

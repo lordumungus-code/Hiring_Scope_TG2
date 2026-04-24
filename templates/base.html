@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
     <style>
         /* Melhorias na barra de busca */
@@ -144,6 +145,7 @@
         }
     </style>
 </head>
+
 <body>
     <div id="loader">
         <img src="{{ url_for('static', filename='img/logo.png') }}" class="loader-logo">
@@ -313,7 +315,7 @@
             {% endif %}
         {% endwith %}
     </div>
-
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
     <!-- Conteúdo principal -->
     <main>
         {% block content %}{% endblock %}

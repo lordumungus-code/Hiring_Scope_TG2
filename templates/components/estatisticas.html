@@ -1,0 +1,33 @@
+<!-- Estatísticas com cards modernos -->
+<div class="container mt-5">
+    <div class="row mb-5 g-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card text-center p-3 p-md-4 rounded-4 shadow-sm bg-white border-0 transition h-100">
+                <i class="fas fa-users fa-2x fa-md-3x mb-2 mb-md-3" style="background: linear-gradient(135deg, #0b2b5c, #1a6d8f); -webkit-background-clip: text; background-clip: text; color: transparent;"></i>
+                <h3 class="mb-0 fw-bold" style="font-size: clamp(1.5rem, 5vw, 2.5rem);">{{ total_usuarios|default(0) }}</h3>
+                <p class="text-muted mb-0 small">Usuários Ativos</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card text-center p-3 p-md-4 rounded-4 shadow-sm bg-white border-0 transition h-100">
+                <i class="fas fa-briefcase fa-2x fa-md-3x mb-2 mb-md-3" style="background: linear-gradient(135deg, #10b981, #059669); -webkit-background-clip: text; background-clip: text; color: transparent;"></i>
+                <h3 class="mb-0 fw-bold" style="font-size: clamp(1.5rem, 5vw, 2.5rem);">{{ total_servicos|default(0) }}</h3>
+                <p class="text-muted mb-0 small">Serviços Oferecidos</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card text-center p-3 p-md-4 rounded-4 shadow-sm bg-white border-0 transition h-100">
+                <i class="fas fa-star fa-2x fa-md-3x mb-2 mb-md-3" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); -webkit-background-clip: text; background-clip: text; color: transparent;"></i>
+                <h3 class="mb-0 fw-bold" style="font-size: clamp(1.5rem, 5vw, 2.5rem);">{{ total_avaliacoes|default(0) }}</h3>
+                <p class="text-muted mb-0 small">Avaliações</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card text-center p-3 p-md-4 rounded-4 shadow-sm bg-white border-0 transition h-100">
+                <i class="fas fa-calendar-check fa-2x fa-md-3x mb-2 mb-md-3" style="background: linear-gradient(135deg, #06b6d4, #0891b2); -webkit-background-clip: text; background-clip: text; color: transparent;"></i>
+                <h3 class="mb-0 fw-bold" style="font-size: clamp(1.5rem, 5vw, 2.5rem);">{{ servicos_concluidos|default(0) }}</h3>
+                <p class="text-muted mb-0 small">Serviços Concluídos</p>
+            </div>
+        </div>
+    </div>
+</div>

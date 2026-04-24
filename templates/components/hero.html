@@ -1,0 +1,42 @@
+<!-- Hero Section Melhorada -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center text-white">
+                <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInUp" style="font-size: clamp(1.8rem, 5vw, 3.5rem);">
+                    Encontre os melhores prestadores de serviços
+                </h1>
+                <p class="lead mb-5 animate__animated animate__fadeInUp animate__delay-1s" style="font-size: clamp(1rem, 4vw, 1.25rem);">
+                    Conectamos clientes e prestadores de forma simples, rápida e segura
+                </p>
+                {% if not current_user.is_authenticated %}
+                    <div class="d-flex justify-content-center gap-3 flex-wrap animate__animated animate__fadeInUp animate__delay-2s">
+                        <a href="{{ url_for('auth.cadastro') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill fw-semibold shadow-sm" style="font-size: clamp(0.9rem, 3vw, 1rem);">
+                            <i class="fas fa-user-plus me-2"></i>Criar Conta
+                        </a>
+                        <a href="{{ url_for('servico.lista') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill fw-semibold" style="font-size: clamp(0.9rem, 3vw, 1rem);">
+                            <i class="fas fa-search me-2"></i>Explorar Serviços
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Busca rápida estilizada -->
+        <div class="row mt-5">
+            <div class="col-md-8 mx-auto">
+                <div class="search-box">
+                    <form action="{{ url_for('servico.lista') }}" method="GET" class="d-flex gap-2 flex-column flex-sm-row">
+                        <input type="text" 
+                               name="q" 
+                               class="form-control form-control-lg rounded-pill border-0 shadow-sm" 
+                               placeholder="🔍 O que você está procurando? Ex: pintor, encanador, designer..."
+                               style="padding: 12px 20px; font-size: clamp(0.9rem, 4vw, 1rem);">
+                        <button type="submit" class="btn btn-light btn-lg px-4 rounded-pill shadow-sm" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; font-size: clamp(0.9rem, 4vw, 1rem);">
+                            <i class="fas fa-search me-2"></i>Buscar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -868,3 +868,147 @@ textarea.rounded-4 {
     font-size: 0.9rem;
     font-weight: 500;
 }
+
+/* ============================================
+   HOME - ANIMAÇÕES E CARDS (INDEX)
+   ============================================ */
+
+.transition {
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover,
+.category-card:hover,
+.testimonial-card:hover,
+.recent-card:hover,
+.featured-card:hover,
+.top-prestador-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1) !important;
+}
+
+/* Botão principal padrão do sistema */
+.btn-primary {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1a6d8f, #2d8fb2);
+    transform: translateY(-2px);
+}
+
+/* Títulos com linha */
+.section-title {
+    font-weight: 700;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-radius: 3px;
+}
+
+.section-title.text-center:after {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* ============================================
+   TOP PRESTADORES
+   ============================================ */
+
+.medalha {
+    z-index: 10;
+}
+
+.prestador-avatar {
+    width: 85px;
+    height: 85px;
+    margin: 0 auto;
+}
+
+.servicos-mini {
+    min-height: 55px;
+}
+
+/* Hover links */
+.hover-primary:hover {
+    color: #0b2b5c !important;
+    text-decoration: underline !important;
+}
+
+/* Estrelas */
+.rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+/* ============================================
+   RESPONSIVO HOME
+   ============================================ */
+
+@media (max-width: 768px) {
+    .carousel-control-prev,
+    .carousel-control-next {
+        opacity: 0.8;
+    }
+
+    .carousel-item .row {
+        margin: 0;
+    }
+
+    .carousel-item .col-12 {
+        padding: 0 8px;
+    }
+
+    .section-title:after {
+        width: 40px;
+    }
+
+    .prestador-avatar {
+        width: 65px;
+        height: 65px;
+    }
+
+    .prestador-avatar img,
+    .prestador-avatar div {
+        width: 65px !important;
+        height: 65px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .stat-card,
+    .category-card,
+    .testimonial-card,
+    .step-card {
+        padding: 0.75rem !important;
+    }
+
+    .top-prestador-card .card-body {
+        padding: 1rem !important;
+    }
+
+    .servicos-mini span {
+        font-size: 0.7rem !important;
+    }
+
+    .testimonial-card {
+        padding: 1rem !important;
+    }
+}

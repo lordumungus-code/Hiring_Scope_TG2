@@ -1,0 +1,52 @@
+<!-- Seção: Categorias Populares -->
+<div class="section-alt py-4 py-md-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-4 mb-md-5" style="font-size: clamp(1.3rem, 5vw, 2rem);">📌 Categorias Populares</h2>
+        <div class="row g-3 g-md-4">
+            {% if categorias_com_contagem %}
+                {% for cat in categorias_com_contagem %}
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="{{ url_for('servico.lista') }}?categoria={{ cat.categoria }}" class="text-decoration-none">
+                            <div class="category-card text-center p-3 p-md-4 rounded-4 shadow-sm bg-white transition h-100">
+                                <div class="category-icon mx-auto mb-2 mb-md-3 rounded-circle d-flex align-items-center justify-content-center" style="width: clamp(50px, 12vw, 70px); height: clamp(50px, 12vw, 70px); background: linear-gradient(135deg, #0b2b5c, #1a6d8f);">
+                                    <i class="fas {{ get_icone_categoria(cat.categoria) }} fa-1x fa-md-2x text-white" style="font-size: clamp(1.2rem, 5vw, 1.8rem);"></i>
+                                </div>
+                                <h6 class="mt-2 mb-1 fw-bold" style="font-size: clamp(0.8rem, 3.5vw, 1rem);">{{ cat.categoria }}</h6>
+                                <small class="text-muted" style="font-size: clamp(0.65rem, 2.5vw, 0.8rem);">{{ cat.total }} serviços</small>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <!-- Fallback estático -->
+                {% set cores = {
+                    'Tecnologia': '#3b82f6',
+                    'Construção': '#f59e0b',
+                    'Design': '#ec4899',
+                    'Educação': '#10b981',
+                    'Saúde': '#ef4444',
+                    'Marketing': '#8b5cf6'
+                } %}
+                {% for nome, cor in cores.items() %}
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="{{ url_for('servico.lista') }}?categoria={{ nome }}" class="text-decoration-none">
+                            <div class="category-card text-center p-3 p-md-4 rounded-4 shadow-sm bg-white transition h-100">
+                                <div class="category-icon mx-auto mb-2 mb-md-3 rounded-circle d-flex align-items-center justify-content-center" style="width: clamp(50px, 12vw, 70px); height: clamp(50px, 12vw, 70px); background: {{ cor }};">
+                                    <i class="fas 
+                                        {% if nome == 'Tecnologia' %}fa-laptop-code
+                                        {% elif nome == 'Construção' %}fa-hard-hat
+                                        {% elif nome == 'Design' %}fa-paintbrush
+                                        {% elif nome == 'Educação' %}fa-chalkboard-user
+                                        {% elif nome == 'Saúde' %}fa-heartbeat
+                                        {% else %}fa-chart-line{% endif %} text-white" style="font-size: clamp(1.2rem, 5vw, 1.8rem);"></i>
+                                </div>
+                                <h6 class="mt-2 mb-1 fw-bold" style="font-size: clamp(0.8rem, 3.5vw, 1rem);">{{ nome }}</h6>
+                                <small class="text-muted" style="font-size: clamp(0.65rem, 2.5vw, 0.8rem);">Serviços</small>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>

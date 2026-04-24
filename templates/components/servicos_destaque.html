@@ -1,0 +1,64 @@
+<!-- Seção: Serviços em Destaque (carrossel responsivo) -->
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h2 class="section-title" style="font-size: clamp(1.3rem, 5vw, 2rem);">
+            <i class="fas fa-star text-warning me-2"></i> Serviços em Destaque
+            <span class="badge bg-danger ms-2 px-2 px-md-3 py-2 rounded-pill" style="font-size: clamp(0.7rem, 3vw, 0.9rem);">Premium</span>
+        </h2>
+        <a href="{{ url_for('servico.lista') }}" class="text-decoration-none fw-semibold" style="font-size: clamp(0.8rem, 3vw, 1rem);">Ver todos <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+
+    {% if servicos_destaque %}
+        {% if servicos_destaque|length > 3 %}
+            <!-- Carrossel -->
+            <div id="carouselDestaques" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000" data-bs-pause="hover">
+                <div class="carousel-inner">
+                    {% for i in range(0, servicos_destaque|length, 3) %}
+                        <div class="carousel-item {% if loop.first %}active{% endif %}">
+                            <div class="row g-4">
+                                {% for servico in servicos_destaque[i:i+3] %}
+                                    <div class="col-12 col-md-4">
+                                        {% include "components/_card_servico.html" %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselDestaques" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon bg-dark rounded-circle p-2 p-md-3" style="background-size: 50%; width: 35px; height: 35px;"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselDestaques" data-bs-slide="next">
+                    <span class="carousel-control-next-icon bg-dark rounded-circle p-2 p-md-3" style="background-size: 50%; width: 35px; height: 35px;"></span>
+                    <span class="visually-hidden">Próximo</span>
+                </button>
+                <div class="carousel-indicators position-relative mt-4">
+                    {% for i in range(0, servicos_destaque|length, 3) %}
+                        <button type="button" data-bs-target="#carouselDestaques" data-bs-slide-to="{{ loop.index0 }}" 
+                                class="{% if loop.first %}active{% endif %}" 
+                                style="width: 10px; height: 10px; border-radius: 50%; margin: 0 5px;"></button>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <!-- Grid normal -->
+            <div class="row g-4">
+                {% for servico in servicos_destaque %}
+                    <div class="col-12 col-md-4">
+                        {% include "components/_card_servico.html" %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info text-center rounded-4">
+            <i class="fas fa-info-circle"></i> Nenhum serviço em destaque no momento.
+            {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
+                <a href="{{ url_for('servico.cadastro') }}" class="alert-link">Cadastre um serviço agora!</a>
+            {% else %}
+                <a href="{{ url_for('auth.cadastro') }}" class="alert-link">Cadastre-se como prestador!</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
