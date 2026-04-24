@@ -1,5 +1,5 @@
 // ============================================
-// BASE.JS - Versão Corrigida e Simplificada
+// BASE.JS - Versão Corrigida
 // ============================================
 
 // Variáveis globais
@@ -43,34 +43,34 @@ function initLoader() {
 }
 
 // ============================================
-// BUSCA
+// BUSCA - CORRIGIDA
 // ============================================
 
 function initSearch() {
     console.log('📌 Inicializando sistema de busca...');
     
     function performSearch() {
-    const desktopInput = document.getElementById('globalSearchInput');
-    const mobileInput = document.getElementById('globalSearchInputMobile');
-    let query = '';
-    
-    if (desktopInput) {
-        query = desktopInput.value.trim();
+        const desktopInput = document.getElementById('globalSearchInput');
+        const mobileInput = document.getElementById('globalSearchInputMobile');
+        let query = '';
+        
+        if (desktopInput) {
+            query = desktopInput.value.trim();
+        }
+        
+        if (!query && mobileInput) {
+            query = mobileInput.value.trim();
+        }
+        
+        console.log('🔍 Buscando por:', query || '(vazio)');
+        
+        // CORRIGIDO: Usar a rota correta do blueprint
+        if (query) {
+            window.location.href = "/servico/lista?q=" + encodeURIComponent(query);
+        } else {
+            window.location.href = "/servico/lista";
+        }
     }
-    
-    if (!query && mobileInput) {
-        query = mobileInput.value.trim();
-    }
-    
-    console.log('🔍 Buscando por:', query || '(vazio)');
-    
-    if (query) {
-        // URL absoluta direta
-        window.location.href = "/servico/lista?q=" + encodeURIComponent(query);
-    } else {
-        window.location.href = "/servico/lista";
-    }
-}
     
     // Busca Desktop
     const btnDesktop = document.getElementById('globalSearchBtn');
@@ -202,7 +202,6 @@ function initNotifications() {
     console.log('📌 Inicializando sistema de notificações...');
     
     if (typeof currentUserId !== 'undefined' && currentUserId && currentUserId !== 'null') {
-        // Atualiza contador a cada 10 segundos
         setInterval(updateUnreadCount, 10000);
         setTimeout(updateUnreadCount, 1000);
     }
@@ -379,7 +378,7 @@ function initImages() {
 }
 
 // ============================================
-// FUNÇÕES EXPORTADAS (para uso em outros scripts)
+// FUNÇÕES EXPORTADAS
 // ============================================
 
 window.showToast = showToast;
