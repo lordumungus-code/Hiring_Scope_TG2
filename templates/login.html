@@ -3,67 +3,365 @@
 {% block title %}Login - PrestaServiços{% endblock %}
 {% block search_bar_desktop %}{% endblock %}
 {% block search_bar_mobile %}{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-                <div class="card-header-gradient text-center py-4">
-                    <h4 class="mb-0 fw-semibold">
-                        <i class="fas fa-sign-in-alt me-2"></i> Login
-                    </h4>
-                </div>
-                <div class="card-body p-4">
-                    <!-- Mensagens Flash (já estilizadas no base.html, mas mantive para garantir) -->
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category }} alert-dismissible fade show rounded-3" role="alert">
-                                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    
-                    <!-- Formulário de Login Tradicional -->
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label for="email" class="form-label fw-semibold">
-                                <i class="fas fa-envelope me-1"></i> E-mail
-                            </label>
-                            <input type="email" class="form-control rounded-pill" id="email" name="email" required>
+<div class="login-page">
+    <div class="container mt-5 pt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <!-- Card Principal -->
+                <div class="login-card shadow-lg border-0 rounded-4 overflow-hidden">
+                    <div class="login-header text-center py-4">
+                        <div class="logo-icon mb-3">
+                            <i class="fas fa-tools fa-3x text-white"></i>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="senha" class="form-label fw-semibold">
-                                <i class="fas fa-lock me-1"></i> Senha
-                            </label>
-                            <input type="password" class="form-control rounded-pill" id="senha" name="senha" required>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary-custom w-100 rounded-pill py-2 mb-3">
-                            <i class="fas fa-sign-in-alt me-2"></i> Entrar
-                        </button>
-                    </form>
-                    
-                    <div class="text-center mb-3 position-relative">
-                        <hr class="my-3">
-                        <span class="px-3 bg-white position-relative" style="top: -12px;">ou</span>
+                        <h3 class="text-white mb-1 fw-bold">Bem-vindo de volta!</h3>
+                        <p class="text-white-50 small mb-0">Faça login para continuar</p>
                     </div>
                     
-                    <!-- Botão Login com Google -->
-                    <a href="/auth/firebase/google" class="btn btn-outline-danger w-100 rounded-pill py-2 mb-3">
-                        <i class="fab fa-google me-2"></i> Entrar com Google
-                    </a>
-                    
-                    <div class="text-center mt-3">
-                        <p class="mb-0">Não tem conta? <a href="/cadastro" class="text-primary fw-semibold text-decoration-none">Cadastre-se</a></p>
+                    <div class="card-body p-4 p-lg-5">
+                        <!-- Formulário de Login -->
+                        <form method="POST" id="loginForm">
+                            <div class="input-group-modern mb-4">
+                                <div class="input-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <input type="email" 
+                                       class="form-control form-control-lg rounded-pill" 
+                                       id="email" 
+                                       name="email" 
+                                       placeholder="Seu e-mail"
+                                       required>
+                            </div>
+                            
+                            <div class="input-group-modern mb-3">
+                                <div class="input-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <input type="password" 
+                                       class="form-control form-control-lg rounded-pill" 
+                                       id="senha" 
+                                       name="senha" 
+                                       placeholder="Sua senha"
+                                       required>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                                    <label class="form-check-label small" for="remember">Lembrar-me</label>
+                                </div>
+                                <a href="#" class="text-decoration-none small forgot-link">Esqueceu a senha?</a>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-login w-100 rounded-pill py-3 mb-4">
+                                <i class="fas fa-sign-in-alt me-2"></i> Entrar
+                                <span class="btn-loader d-none"><i class="fas fa-spinner fa-spin ms-2"></i></span>
+                            </button>
+                        </form>
+                        
+                        <!-- Divisor -->
+                        <div class="divider text-center my-4">
+                            <span class="divider-text">ou continue com</span>
+                        </div>
+                        
+                        <!-- Login Social -->
+                        <div class="social-login">
+                            <a href="/auth/firebase/google" class="btn btn-google w-100 rounded-pill py-2 mb-2">
+                                <i class="fab fa-google me-2"></i> Google
+                            </a>
+                            <button class="btn btn-facebook w-100 rounded-pill py-2" disabled>
+                                <i class="fab fa-facebook-f me-2"></i> Facebook (Em breve)
+                            </button>
+                        </div>
+                        
+                        <!-- Link Cadastro -->
+                        <div class="text-center mt-4 pt-2">
+                            <p class="mb-0 text-muted">
+                                Não tem uma conta? 
+                                <a href="{{ url_for('auth.cadastro') }}" class="text-primary fw-bold text-decoration-none signup-link">
+                                    Cadastre-se <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Feature Badges -->
+                <div class="feature-badges d-flex justify-content-center gap-3 mt-4">
+                    <div class="badge bg-light text-dark rounded-pill px-3 py-2">
+                        <i class="fas fa-shield-alt text-success me-1"></i> Seguro
+                    </div>
+                    <div class="badge bg-light text-dark rounded-pill px-3 py-2">
+                        <i class="fas fa-bolt text-warning me-1"></i> Rápido
+                    </div>
+                    <div class="badge bg-light text-dark rounded-pill px-3 py-2">
+                        <i class="fas fa-headset text-info me-1"></i> Suporte 24/7
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .login-page {
+        min-height: calc(100vh - 300px);
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Efeito decorativo de fundo */
+    .login-page::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -20%;
+        width: 80%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(11,43,92,0.05) 1%, transparent 1%);
+        background-size: 40px 40px;
+        pointer-events: none;
+    }
+    
+    .login-page::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        right: -10%;
+        width: 60%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(26,109,143,0.08) 0%, transparent 70%);
+        pointer-events: none;
+        border-radius: 50%;
+    }
+    
+    .login-card {
+        background: white;
+        position: relative;
+        z-index: 2;
+        transition: transform 0.3s ease;
+    }
+    
+    .login-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .login-header {
+        background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .login-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 150%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 1%);
+        background-size: 20px 20px;
+        pointer-events: none;
+    }
+    
+    .logo-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        backdrop-filter: blur(5px);
+    }
+    
+    .input-group-modern {
+        position: relative;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        color: #94a3b8;
+        font-size: 1rem;
+    }
+    
+    .input-group-modern .form-control {
+        padding-left: 50px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        background-color: #f8fafc;
+    }
+    
+    .input-group-modern .form-control:focus {
+        border-color: #0b2b5c;
+        box-shadow: 0 0 0 3px rgba(11, 43, 92, 0.1);
+        background-color: white;
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        border: none;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .btn-login:hover::before {
+        left: 100%;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(11, 43, 92, 0.3);
+    }
+    
+    .btn-google {
+        border: 1px solid #e2e8f0;
+        background: white;
+        color: #333;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-google:hover {
+        background: #f8f9fa;
+        border-color: #dc2626;
+        color: #dc2626;
+        transform: translateY(-2px);
+    }
+    
+    .btn-facebook {
+        border: 1px solid #e2e8f0;
+        background: white;
+        color: #333;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .divider {
+        position: relative;
+    }
+    
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+    }
+    
+    .divider-text {
+        background: white;
+        padding: 0 15px;
+        position: relative;
+        z-index: 1;
+        font-size: 0.85rem;
+        color: #94a3b8;
+    }
+    
+    .forgot-link {
+        color: #64748b;
+        transition: color 0.2s;
+    }
+    
+    .forgot-link:hover {
+        color: #0b2b5c;
+    }
+    
+    .signup-link {
+        transition: all 0.2s;
+    }
+    
+    .signup-link:hover {
+        letter-spacing: 0.5px;
+    }
+    
+    .feature-badges .badge {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: all 0.2s;
+    }
+    
+    .feature-badges .badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    /* Animações */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .login-card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @media (max-width: 768px) {
+        .login-card .card-body {
+            padding: 1.5rem !important;
+        }
+        
+        .logo-icon {
+            width: 55px;
+            height: 55px;
+        }
+        
+        .logo-icon i {
+            font-size: 2rem;
+        }
+        
+        .btn-login {
+            padding: 0.75rem !important;
+        }
+    }
+</style>
+
+<script>
+    document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+        const btn = this.querySelector('.btn-login');
+        const spinner = btn.querySelector('.btn-loader');
+        const btnText = btn.querySelector('i:first-child');
+        
+        btn.disabled = true;
+        spinner.classList.remove('d-none');
+        
+        // Se houver erro, reabilitar (o Flask já vai recarregar a página)
+        setTimeout(() => {
+            btn.disabled = false;
+            spinner.classList.add('d-none');
+        }, 5000);
+    });
+</script>
 {% endblock %}

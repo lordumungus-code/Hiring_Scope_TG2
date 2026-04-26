@@ -4,152 +4,177 @@
 {% block title %}Cadastro - PrestaServiços{% endblock %}
 
 {% block content %}
-<style>
-    /* Estilos específicos para a página de cadastro */
-    .card-header-custom {
-        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
-        color: white;
-        border-bottom: none;
-        border-radius: 1rem 1rem 0 0;
-        padding: 1.2rem;
-    }
-    .btn-cadastrar {
-        background: linear-gradient(135deg, #10b981, #059669);
-        border: none;
-        border-radius: 60px;
-        padding: 10px;
-        font-weight: 600;
-        transition: all 0.2s;
-    }
-    .btn-cadastrar:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 18px rgba(16,185,129,0.3);
-        background: linear-gradient(135deg, #059669, #047857);
-    }
-    .btn-google {
-        background: #db4437;
-        border: none;
-        border-radius: 60px;
-        padding: 10px;
-        font-weight: 600;
-        color: white;
-        transition: all 0.2s;
-    }
-    .btn-google:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 18px rgba(219,68,55,0.3);
-        background: #c53929;
-    }
-    .form-control:focus {
-        border-color: #0b2b5c;
-        box-shadow: 0 0 0 3px rgba(11,43,92,0.15);
-    }
-    .form-check-input:checked {
-        background-color: #0b2b5c;
-        border-color: #0b2b5c;
-    }
-    .alert {
-        border-radius: 1rem;
-    }
-</style>
-
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-                <div class="card-header-custom">
-                    <h4 class="mb-0 fw-semibold">
-                        <i class="fas fa-user-plus me-2"></i> Criar Conta
-                    </h4>
-                </div>
-                <div class="card-body p-4">
-                    <!-- Mensagens Flash -->
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    
-                    <form method="POST" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="nome" class="form-label fw-semibold">
-                                <i class="fas fa-user me-1 text-primary"></i> Nome Completo
-                            </label>
-                            <input type="text" class="form-control rounded-pill" id="nome" name="nome" required>
+<div class="register-page">
+    <div class="container mt-5 pt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <!-- Card Principal -->
+                <div class="register-card shadow-lg border-0 rounded-4 overflow-hidden">
+                    <div class="register-header text-center py-4">
+                        <div class="logo-icon mb-3">
+                            <i class="fas fa-user-plus fa-3x text-white"></i>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="email" class="form-label fw-semibold">
-                                <i class="fas fa-envelope me-1 text-primary"></i> E-mail
-                            </label>
-                            <input type="email" class="form-control rounded-pill" id="email" name="email" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="telefone" class="form-label fw-semibold">
-                                <i class="fas fa-phone me-1 text-primary"></i> Telefone
-                            </label>
-                            <input type="tel" class="form-control rounded-pill" id="telefone" name="telefone" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="senha" class="form-label fw-semibold">
-                                <i class="fas fa-lock me-1 text-primary"></i> Senha
-                            </label>
-                            <input type="password" class="form-control rounded-pill" id="senha" name="senha" required minlength="6">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="foto_perfil" class="form-label fw-semibold">
-                                <i class="fas fa-image me-1 text-primary"></i> Foto de Perfil (opcional)
-                            </label>
-                            <input type="file" class="form-control rounded-pill" id="foto_perfil" name="foto_perfil" accept="image/*" onchange="previewFoto(event)">
-                            <small class="text-muted">Formatos: JPG, PNG. Máx: 5MB</small>
-                            <div id="fotoPreview" class="mt-2 text-center" style="display: none;">
-                                <img id="previewImg" src="#" alt="Preview" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover; border: 2px solid var(--primary-light);">
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-user-tag me-1 text-primary"></i> Tipo de Conta
-                            </label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tipo" id="cliente" value="cliente" checked>
-                                <label class="form-check-label" for="cliente">
-                                    <i class="fas fa-user"></i> Cliente (quero contratar serviços)
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="tipo" id="prestador" value="prestador">
-                                <label class="form-check-label" for="prestador">
-                                    <i class="fas fa-briefcase"></i> Prestador (quero oferecer serviços)
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-cadastrar w-100 mb-3 text-white">
-                            <i class="fas fa-user-plus me-2"></i> Cadastrar
-                        </button>
-                    </form>
-                    
-                    <div class="text-center mb-3 position-relative">
-                        <hr class="my-3">
-                        <span class="px-3 bg-white position-relative" style="top: -12px;">ou</span>
+                        <h3 class="text-white mb-1 fw-bold">Crie sua conta</h3>
+                        <p class="text-white-50 small mb-0">Junte-se a milhares de profissionais e clientes</p>
                     </div>
                     
-                    <a href="/auth/firebase/google" class="btn btn-google w-100 mb-3">
-                        <i class="fab fa-google me-2"></i> Cadastrar com Google
-                    </a>
-                    
-                    <div class="text-center">
-                        <p>Já tem conta? <a href="/login" class="text-primary fw-semibold text-decoration-none">Faça login</a></p>
+                    <div class="card-body p-4 p-lg-5">
+                        <!-- Formulário -->
+                        <form method="POST" enctype="multipart/form-data" id="registerForm">
+                            <div class="row g-3">
+                                <!-- Nome -->
+                                <div class="col-12">
+                                    <div class="input-group-modern">
+                                        <div class="input-icon">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <input type="text" 
+                                               class="form-control form-control-lg rounded-pill" 
+                                               id="nome" 
+                                               name="nome" 
+                                               placeholder="Nome completo"
+                                               required>
+                                    </div>
+                                </div>
+                                
+                                <!-- Email -->
+                                <div class="col-12">
+                                    <div class="input-group-modern">
+                                        <div class="input-icon">
+                                            <i class="fas fa-envelope"></i>
+                                        </div>
+                                        <input type="email" 
+                                               class="form-control form-control-lg rounded-pill" 
+                                               id="email" 
+                                               name="email" 
+                                               placeholder="Seu melhor e-mail"
+                                               required>
+                                    </div>
+                                </div>
+                                
+                                <!-- Telefone -->
+                                <div class="col-12">
+                                    <div class="input-group-modern">
+                                        <div class="input-icon">
+                                            <i class="fas fa-phone"></i>
+                                        </div>
+                                        <input type="tel" 
+                                               class="form-control form-control-lg rounded-pill" 
+                                               id="telefone" 
+                                               name="telefone" 
+                                               placeholder="(00) 00000-0000"
+                                               required>
+                                    </div>
+                                </div>
+                                
+                                <!-- Senha -->
+                                <div class="col-12">
+                                    <div class="input-group-modern">
+                                        <div class="input-icon">
+                                            <i class="fas fa-lock"></i>
+                                        </div>
+                                        <input type="password" 
+                                               class="form-control form-control-lg rounded-pill" 
+                                               id="senha" 
+                                               name="senha" 
+                                               placeholder="Crie uma senha (mínimo 6 caracteres)"
+                                               required minlength="6">
+                                        <div class="input-eye" onclick="togglePassword('senha')">
+                                            <i class="fas fa-eye-slash"></i>
+                                        </div>
+                                    </div>
+                                    <div class="password-strength mt-2">
+                                        <div class="strength-bar"></div>
+                                        <small class="strength-text text-muted"></small>
+                                    </div>
+                                </div>
+                                
+                                <!-- Foto de Perfil -->
+                                <div class="col-12">
+                                    <div class="photo-upload">
+                                        <label class="form-label fw-semibold">
+                                            <i class="fas fa-camera me-2 text-primary"></i>Foto de Perfil
+                                        </label>
+                                        <div class="upload-area" onclick="document.getElementById('foto_perfil').click()">
+                                            <div class="upload-placeholder">
+                                                <i class="fas fa-cloud-upload-alt fa-3x text-muted"></i>
+                                                <p class="mb-0 mt-2">Clique para adicionar foto</p>
+                                                <small class="text-muted">Formatos: JPG, PNG. Máx: 5MB</small>
+                                            </div>
+                                            <div id="fotoPreview" class="preview-area" style="display: none;">
+                                                <img id="previewImg" src="#" alt="Preview">
+                                                <button type="button" class="remove-photo" onclick="removePhoto()">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <input type="file" class="d-none" id="foto_perfil" name="foto_perfil" accept="image/*" onchange="previewFoto(event)">
+                                    </div>
+                                </div>
+                                
+                                <!-- Tipo de Conta -->
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-user-tag me-2 text-primary"></i>Tipo de Conta
+                                    </label>
+                                    <div class="account-types">
+                                        <div class="type-option" onclick="selectType('cliente')">
+                                            <input type="radio" name="tipo" id="cliente" value="cliente" class="d-none" checked>
+                                            <div class="type-card">
+                                                <i class="fas fa-user fa-2x mb-2"></i>
+                                                <h6 class="mb-1">Cliente</h6>
+                                                <small class="text-muted">Quero contratar serviços</small>
+                                            </div>
+                                        </div>
+                                        <div class="type-option" onclick="selectType('prestador')">
+                                            <input type="radio" name="tipo" id="prestador" value="prestador" class="d-none">
+                                            <div class="type-card">
+                                                <i class="fas fa-briefcase fa-2x mb-2"></i>
+                                                <h6 class="mb-1">Prestador</h6>
+                                                <small class="text-muted">Quero oferecer serviços</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Termos -->
+                            <div class="form-check mt-4">
+                                <input type="checkbox" class="form-check-input" id="terms" required>
+                                <label class="form-check-label small" for="terms">
+                                    Concordo com os <a href="#" class="text-primary">Termos de Uso</a> e 
+                                    <a href="#" class="text-primary">Política de Privacidade</a>
+                                </label>
+                            </div>
+                            
+                            <!-- Botão Cadastrar -->
+                            <button type="submit" class="btn btn-register w-100 rounded-pill py-3 mt-4">
+                                <i class="fas fa-user-plus me-2"></i> Criar conta gratuita
+                                <span class="btn-loader d-none"><i class="fas fa-spinner fa-spin ms-2"></i></span>
+                            </button>
+                        </form>
+                        
+                        <!-- Divisor -->
+                        <div class="divider text-center my-4">
+                            <span class="divider-text">ou cadastre-se com</span>
+                        </div>
+                        
+                        <!-- Login Social -->
+                        <div class="social-register">
+                            <a href="/auth/firebase/google" class="btn btn-google w-100 rounded-pill py-2 mb-2">
+                                <i class="fab fa-google me-2"></i> Google
+                            </a>
+                        </div>
+                        
+                        <!-- Link Login -->
+                        <div class="text-center mt-4 pt-2">
+                            <p class="mb-0 text-muted">
+                                Já tem uma conta? 
+                                <a href="{{ url_for('auth.login') }}" class="text-primary fw-bold text-decoration-none login-link">
+                                    Faça login <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -157,8 +182,324 @@
     </div>
 </div>
 
+<style>
+    .register-page {
+        min-height: calc(100vh - 300px);
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        position: relative;
+        padding-bottom: 3rem;
+    }
+    
+    .register-page::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -20%;
+        width: 80%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(11,43,92,0.05) 1%, transparent 1%);
+        background-size: 40px 40px;
+        pointer-events: none;
+    }
+    
+    .register-card {
+        background: white;
+        position: relative;
+        z-index: 2;
+        transition: transform 0.3s ease;
+    }
+    
+    .register-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .register-header {
+        background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .register-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 150%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 1%);
+        background-size: 20px 20px;
+        pointer-events: none;
+    }
+    
+    .logo-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        backdrop-filter: blur(5px);
+    }
+    
+    /* Inputs modernos */
+    .input-group-modern {
+        position: relative;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        color: #94a3b8;
+        font-size: 1rem;
+    }
+    
+    .input-eye {
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #94a3b8;
+        z-index: 10;
+    }
+    
+    .input-eye:hover {
+        color: #0b2b5c;
+    }
+    
+    .input-group-modern .form-control {
+        padding-left: 50px;
+        padding-right: 45px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        background-color: #f8fafc;
+    }
+    
+    .input-group-modern .form-control:focus {
+        border-color: #0b2b5c;
+        box-shadow: 0 0 0 3px rgba(11, 43, 92, 0.1);
+        background-color: white;
+    }
+    
+    /* Força da senha */
+    .password-strength {
+        height: 4px;
+        margin-top: 8px;
+    }
+    
+    .strength-bar {
+        height: 4px;
+        width: 0%;
+        background: #e2e8f0;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    
+    /* Upload de foto */
+    .photo-upload {
+        margin-top: 0.5rem;
+    }
+    
+    .upload-area {
+        border: 2px dashed #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+    }
+    
+    .upload-area:hover {
+        border-color: #0b2b5c;
+        background: #f1f5f9;
+    }
+    
+    .preview-area {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .preview-area img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #0b2b5c;
+    }
+    
+    .remove-photo {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 25px;
+        height: 25px;
+        background: #ef4444;
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Tipos de conta */
+    .account-types {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+    
+    .type-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .type-option.active .type-card {
+        border-color: #0b2b5c;
+        background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    }
+    
+    .type-card:hover {
+        border-color: #0b2b5c;
+        transform: translateY(-3px);
+    }
+    
+    /* Botão cadastrar */
+    .btn-register {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-register::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .btn-register:hover::before {
+        left: 100%;
+    }
+    
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(16, 185, 129, 0.3);
+    }
+    
+    /* Botão Google */
+    .btn-google {
+        border: 1px solid #e2e8f0;
+        background: white;
+        color: #333;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-google:hover {
+        background: #f8f9fa;
+        border-color: #db4437;
+        color: #db4437;
+        transform: translateY(-2px);
+    }
+    
+    /* Divisor */
+    .divider {
+        position: relative;
+    }
+    
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+    }
+    
+    .divider-text {
+        background: white;
+        padding: 0 15px;
+        position: relative;
+        z-index: 1;
+        font-size: 0.85rem;
+        color: #94a3b8;
+    }
+    
+    .login-link {
+        transition: all 0.2s;
+    }
+    
+    .login-link:hover {
+        letter-spacing: 0.5px;
+    }
+    
+    /* Checkbox */
+    .form-check-input:checked {
+        background-color: #0b2b5c;
+        border-color: #0b2b5c;
+    }
+    
+    /* Animação */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .register-card {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @media (max-width: 768px) {
+        .register-card .card-body {
+            padding: 1.5rem !important;
+        }
+        
+        .logo-icon {
+            width: 55px;
+            height: 55px;
+        }
+        
+        .logo-icon i {
+            font-size: 2rem;
+        }
+        
+        .account-types {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
 <script>
-    // Máscara para telefone (mantida igual)
+    // Máscara para telefone
     const telefoneInput = document.getElementById('telefone');
     if (telefoneInput) {
         telefoneInput.addEventListener('input', function(e) {
@@ -172,22 +513,85 @@
         });
     }
     
-    // Preview da foto (mantido igual)
+    // Mostrar/esconder senha
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const eye = document.querySelector('.input-eye i');
+        if (field.type === 'password') {
+            field.type = 'text';
+            eye.classList.remove('fa-eye-slash');
+            eye.classList.add('fa-eye');
+        } else {
+            field.type = 'password';
+            eye.classList.remove('fa-eye');
+            eye.classList.add('fa-eye-slash');
+        }
+    }
+    
+    // Força da senha
+    const senhaInput = document.getElementById('senha');
+    const strengthBar = document.querySelector('.strength-bar');
+    const strengthText = document.querySelector('.strength-text');
+    
+    if (senhaInput) {
+        senhaInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 6) strength++;
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            const percentages = ['20%', '40%', '60%', '80%', '100%'];
+            const colors = ['#ef4444', '#f59e0b', '#fbbf24', '#10b981', '#059669'];
+            const texts = ['Muito fraca', 'Fraca', 'Média', 'Forte', 'Muito forte'];
+            
+            strengthBar.style.width = percentages[Math.min(strength, 4)];
+            strengthBar.style.background = colors[Math.min(strength, 4)];
+            strengthText.textContent = texts[Math.min(strength, 4)];
+        });
+    }
+    
+    // Preview da foto
     function previewFoto(event) {
         const input = event.target;
+        const uploadArea = document.querySelector('.upload-placeholder');
         const previewDiv = document.getElementById('fotoPreview');
         const previewImg = document.getElementById('previewImg');
+        
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 previewImg.src = e.target.result;
+                uploadArea.style.display = 'none';
                 previewDiv.style.display = 'block';
             }
             reader.readAsDataURL(input.files[0]);
         }
     }
     
-    // Validação do tamanho da foto (5MB) - mantido igual
+    function removePhoto() {
+        const fotoInput = document.getElementById('foto_perfil');
+        const uploadArea = document.querySelector('.upload-placeholder');
+        const previewDiv = document.getElementById('fotoPreview');
+        
+        fotoInput.value = '';
+        uploadArea.style.display = 'block';
+        previewDiv.style.display = 'none';
+    }
+    
+    // Selecionar tipo de conta
+    function selectType(type) {
+        document.querySelectorAll('.type-option').forEach(opt => {
+            opt.classList.remove('active');
+        });
+        event.currentTarget.classList.add('active');
+        document.getElementById(type).checked = true;
+    }
+    
+    // Validação do tamanho da foto
     const fotoInput = document.getElementById('foto_perfil');
     if (fotoInput) {
         fotoInput.addEventListener('change', function(e) {
@@ -195,9 +599,23 @@
             if (file && file.size > 5 * 1024 * 1024) {
                 alert('A imagem deve ter no máximo 5MB');
                 this.value = '';
-                document.getElementById('fotoPreview').style.display = 'none';
+                removePhoto();
             }
         });
     }
+    
+    // Submit com loading
+    document.getElementById('registerForm')?.addEventListener('submit', function(e) {
+        const btn = this.querySelector('.btn-register');
+        const spinner = btn.querySelector('.btn-loader');
+        
+        btn.disabled = true;
+        spinner.classList.remove('d-none');
+        
+        setTimeout(() => {
+            btn.disabled = false;
+            spinner.classList.add('d-none');
+        }, 5000);
+    });
 </script>
 {% endblock %}

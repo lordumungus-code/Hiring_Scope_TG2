@@ -1,38 +1,43 @@
-<!-- Hero Section Melhorada -->
-<div class="hero-section">
+<!-- Hero Section Minimalista -->
+<div class="hero-section-minimal">
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 mx-auto text-center text-white">
-                <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInUp" style="font-size: clamp(1.8rem, 5vw, 3.5rem);">
-                    Encontre os melhores prestadores de serviços
+            <div class="col-lg-8 mx-auto text-center">
+                <!-- Título -->
+                <h1 class="hero-title animate__animated animate__fadeInUp">
+                    Encontre <span class="highlight">profissionais qualificados</span><br>
+                    para qualquer serviço
                 </h1>
-                <p class="lead mb-5 animate__animated animate__fadeInUp animate__delay-1s" style="font-size: clamp(1rem, 4vw, 1.25rem);">
-                    Conectamos clientes e prestadores de forma simples, rápida e segura
+                
+                <p class="hero-description animate__animated animate__fadeInUp animate__delay-1s">
+                    Conectamos você aos melhores prestadores de serviços da sua região
                 </p>
+                
+                <!-- Botões CTA -->
                 {% if not current_user.is_authenticated %}
-                    <div class="d-flex justify-content-center gap-3 flex-wrap animate__animated animate__fadeInUp animate__delay-2s">
-                        <a href="{{ url_for('auth.cadastro') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill fw-semibold shadow-sm" style="font-size: clamp(0.9rem, 3vw, 1rem);">
+                    <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
+                        <a href="{{ url_for('auth.cadastro') }}" class="btn btn-primary btn-hero">
                             <i class="fas fa-user-plus me-2"></i>Criar Conta
                         </a>
-                        <a href="{{ url_for('servico.lista') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill fw-semibold" style="font-size: clamp(0.9rem, 3vw, 1rem);">
+                        <a href="{{ url_for('servico.lista') }}" class="btn btn-outline-light btn-hero-outline">
                             <i class="fas fa-search me-2"></i>Explorar Serviços
                         </a>
                     </div>
                 {% endif %}
-            </div>
-        </div>
-        <!-- Busca rápida estilizada -->
-        <div class="row mt-5">
-            <div class="col-md-8 mx-auto">
-                <div class="search-box">
-                    <form action="{{ url_for('servico.lista') }}" method="GET" class="d-flex gap-2 flex-column flex-sm-row">
-                        <input type="text" 
-                               name="q" 
-                               class="form-control form-control-lg rounded-pill border-0 shadow-sm" 
-                               placeholder="🔍 O que você está procurando? Ex: pintor, encanador, designer..."
-                               style="padding: 12px 20px; font-size: clamp(0.9rem, 4vw, 1rem);">
-                        <button type="submit" class="btn btn-light btn-lg px-4 rounded-pill shadow-sm" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; font-size: clamp(0.9rem, 4vw, 1rem);">
-                            <i class="fas fa-search me-2"></i>Buscar
+                
+                <!-- Busca Minimalista -->
+                <div class="search-wrapper animate__animated animate__fadeInUp animate__delay-2s">
+                    <form action="{{ url_for('servico.lista') }}" method="GET" class="search-form-minimal">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" 
+                                   name="q" 
+                                   class="search-input-minimal" 
+                                   placeholder="Buscar serviços... Ex: pintor, encanador, designer"
+                                   autocomplete="off">
+                        </div>
+                        <button type="submit" class="search-btn-minimal">
+                            Buscar
                         </button>
                     </form>
                 </div>
@@ -40,3 +45,222 @@
         </div>
     </div>
 </div>
+
+<style>
+    .hero-section-minimal {
+        background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%);
+        padding: 4rem 0 5rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Formas decorativas sutis */
+    .hero-section-minimal::before {
+        content: '';
+        position: absolute;
+        top: -30%;
+        right: -10%;
+        width: 60%;
+        height: 120%;
+        background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    
+    .hero-section-minimal::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 50%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    
+    /* Título */
+    .hero-title {
+        font-size: clamp(1.8rem, 5vw, 3rem);
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+    }
+    
+    .highlight {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+        display: inline-block;
+    }
+    
+    /* Descrição */
+    .hero-description {
+        font-size: clamp(0.95rem, 4vw, 1.1rem);
+        color: rgba(255, 255, 255, 0.85);
+        margin-bottom: 2rem;
+        max-width: 550px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* Botões */
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 2.5rem;
+    }
+    
+    .btn-hero {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        border: none;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .btn-hero:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.3);
+    }
+    
+    .btn-hero-outline {
+        border: 1.5px solid rgba(255, 255, 255, 0.6);
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border-radius: 50px;
+        background: transparent;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-hero-outline:hover {
+        background: white;
+        color: #0b2b5c;
+        border-color: white;
+        transform: translateY(-2px);
+    }
+    
+    /* Busca Minimalista */
+    .search-wrapper {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .search-form-minimal {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: white;
+        border-radius: 60px;
+        padding: 0.25rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .search-input-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        padding: 0 0 0 1rem;
+    }
+    
+    .search-icon {
+        color: #94a3b8;
+        font-size: 0.9rem;
+    }
+    
+    .search-input-minimal {
+        flex: 1;
+        border: none;
+        padding: 0.85rem 0.75rem;
+        font-size: 0.9rem;
+        outline: none;
+        background: transparent;
+        color: #1e293b;
+    }
+    
+    .search-input-minimal::placeholder {
+        color: #94a3b8;
+        font-weight: 400;
+    }
+    
+    .search-btn-minimal {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.75rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+    
+    .search-btn-minimal:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .hero-section-minimal {
+            padding: 3rem 0 3.5rem 0;
+        }
+        
+        .hero-buttons {
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-hero, .btn-hero-outline {
+            padding: 0.6rem 1.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .search-form-minimal {
+            flex-direction: column;
+            background: transparent;
+            box-shadow: none;
+            gap: 0.5rem;
+        }
+        
+        .search-input-wrapper {
+            background: white;
+            border-radius: 60px;
+            padding: 0 0 0 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-input-minimal {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .search-btn-minimal {
+            padding: 0.65rem 1.5rem;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .search-input-minimal {
+            font-size: 0.8rem;
+        }
+        
+        .search-icon {
+            font-size: 0.8rem;
+        }
+        
+        .search-btn-minimal {
+            padding: 0.6rem 1.25rem;
+        }
+    }
+</style>
