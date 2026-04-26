@@ -1,5 +1,5 @@
 <!-- Seção: Últimos Serviços -->
-<div class="section-alt py-4 py-md-5 bg-light">
+<div class="section-alt py-4 py-md-5 bg-light" id="ultimos-servicos-section">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <h2 class="section-title" style="font-size: clamp(1.3rem, 5vw, 2rem);">
@@ -7,10 +7,12 @@
             </h2>
             <a href="{{ url_for('servico.lista') }}" class="text-decoration-none fw-semibold" style="font-size: clamp(0.8rem, 3vw, 1rem);">Ver todos <i class="fas fa-arrow-right ms-1"></i></a>
         </div>
-        <div class="row g-3 g-md-4">
-            {% if servicos_recentes %}
-                {% for servico in servicos_recentes[:4] %}
-                    <div class="col-12 col-sm-6 col-lg-3">
+        
+        <!-- Container para os cards -->
+        <div class="row g-3 g-md-4" id="servicos-container">
+            {% if servicos_recentes and servicos_recentes|length > 0 %}
+                {% for servico in servicos_recentes %}  <!-- AGORA MOSTRA TODOS OS 50 -->
+                    <div class="col-12 col-sm-6 col-lg-3 servico-item" data-servico-id="{{ servico.id }}">
                         <div class="card recent-card h-100 border-0 rounded-4 shadow-sm overflow-hidden transition">
                             {% if servico.imagem_base64 %}
                                 <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
@@ -23,8 +25,8 @@
                                 </div>
                             {% endif %}
                             <div class="card-body p-3">
-                                <span class="badge bg-secondary mb-2 rounded-pill px-2 px-md-3" style="font-size: clamp(0.65rem, 2.5vw, 0.75rem);">{{ servico.categoria }}</span>
-                                <h6 class="card-title fw-bold mb-2" style="font-size: clamp(0.85rem, 3.5vw, 1rem);">{{ servico.titulo[:50] }}</h6>
+                                <span class="badge bg-secondary mb-2 rounded-pill px-2 px-md-3">{{ servico.categoria }}</span>
+                                <h6 class="card-title fw-bold mb-2">{{ servico.titulo[:50] }}</h6>
                                 <p class="card-text small text-muted mb-2">
                                     <i class="fas fa-user me-1"></i> 
                                     <a href="{{ url_for('main.perfil_prestador', prestador_id=servico.prestador.id) }}" class="text-decoration-none text-dark hover-primary">
@@ -33,11 +35,11 @@
                                 </p>
                                 <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
                                     {% if servico.preco %}
-                                        <span class="price fw-bold text-primary" style="font-size: clamp(0.85rem, 3.5vw, 1rem);">R$ {{ "%.2f"|format(servico.preco) }}</span>
+                                        <span class="price fw-bold text-primary">R$ {{ "%.2f"|format(servico.preco) }}</span>
                                     {% else %}
                                         <span class="text-muted small">Preço sob consulta</span>
                                     {% endif %}
-                                    <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: clamp(0.7rem, 2.5vw, 0.8rem);">Ver</a>
+                                    <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver</a>
                                 </div>
                             </div>
                         </div>
@@ -56,5 +58,122 @@
                 </div>
             {% endif %}
         </div>
+        
+        <!-- Botão Carregar Mais (se houver mais de 50 serviços) -->
+        {% if total_servicos and total_servicos > 50 %}
+        <div class="text-center mt-4" id="load-more-container">
+            <button id="btn-carregar-mais" class="btn btn-outline-primary rounded-pill px-5 py-2" data-offset="50">
+                <i class="fas fa-spinner fa-spin d-none me-2" id="loading-spinner"></i>
+                <span id="btn-text">Carregar mais serviços ({{ total_servicos - 50 }} restantes)</span>
+                <i class="fas fa-arrow-down ms-2"></i>
+            </button>
+        </div>
+        {% endif %}
     </div>
 </div>
+
+<script>
+    // ============================================
+    // CARREGAR MAIS SERVIÇOS (APÓS OS 50 INICIAIS)
+    // ============================================
+    (function() {
+        let offset = 50;  // Começa a partir do 51º serviço
+        let carregando = false;
+        let temMais = true;
+        let totalServicos = {{ total_servicos|default(0) }};
+        
+        const btn = document.getElementById('btn-carregar-mais');
+        if (!btn) return;
+        
+        // Se não houver serviços restantes, esconder botão
+        if (totalServicos <= 50) {
+            btn.style.display = 'none';
+        }
+        
+        async function carregarMais() {
+            if (carregando || !temMais) return;
+            
+            carregando = true;
+            const spinner = document.getElementById('loading-spinner');
+            const btnText = document.getElementById('btn-text');
+            
+            spinner.classList.remove('d-none');
+            btnText.textContent = 'Carregando...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch(`/servicos/recentes?offset=${offset}&limit=12`);
+                const data = await response.json();
+                
+                if (data.servicos && data.servicos.length > 0) {
+                    const container = document.getElementById('servicos-container');
+                    
+                    data.servicos.forEach(servico => {
+                        const colDiv = document.createElement('div');
+                        colDiv.className = 'col-12 col-sm-6 col-lg-3 servico-item';
+                        colDiv.innerHTML = `
+                            <div class="card recent-card h-100 border-0 rounded-4 shadow-sm overflow-hidden transition">
+                                ${servico.imagem_base64 ? 
+                                    `<img src="data:image/jpeg;base64,${servico.imagem_base64}" class="card-img-top" alt="${escapeHtml(servico.titulo)}" style="height: 140px; object-fit: cover;">` :
+                                    `<div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 140px;">
+                                        <i class="fas fa-image fa-3x text-secondary opacity-50"></i>
+                                    </div>`
+                                }
+                                <div class="card-body p-3">
+                                    <span class="badge bg-secondary mb-2 rounded-pill">${escapeHtml(servico.categoria)}</span>
+                                    <h6 class="card-title fw-bold mb-2">${escapeHtml(servico.titulo.substring(0, 50))}</h6>
+                                    <p class="card-text small text-muted mb-2">
+                                        <i class="fas fa-user me-1"></i> 
+                                        <a href="/perfil/${servico.prestador_id}" class="text-decoration-none text-dark">${escapeHtml(servico.prestador_nome.substring(0, 20))}</a>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
+                                        ${servico.preco ? 
+                                            `<span class="price fw-bold text-primary">R$ ${servico.preco.toFixed(2)}</span>` :
+                                            `<span class="text-muted small">Preço sob consulta</span>`
+                                        }
+                                        <a href="/servico/${servico.id}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver</a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(colDiv);
+                    });
+                    
+                    offset += data.servicos.length;
+                    const restantes = totalServicos - offset;
+                    
+                    if (data.servicos.length < 12 || restantes <= 0) {
+                        temMais = false;
+                        btnText.textContent = 'Todos os serviços carregados';
+                        btn.disabled = true;
+                        setTimeout(() => {
+                            btn.innerHTML = '<div class="text-muted small"><i class="fas fa-check-circle me-1"></i> Você já visualizou todos os serviços</div>';
+                        }, 1000);
+                    } else {
+                        btnText.textContent = `Carregar mais serviços (${restantes} restantes)`;
+                        btn.disabled = false;
+                    }
+                } else {
+                    temMais = false;
+                    btnText.textContent = 'Todos os serviços carregados';
+                    btn.disabled = true;
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                btnText.textContent = 'Tente novamente';
+            } finally {
+                carregando = false;
+                spinner.classList.add('d-none');
+            }
+        }
+        
+        btn.addEventListener('click', carregarMais);
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    })();
+</script>

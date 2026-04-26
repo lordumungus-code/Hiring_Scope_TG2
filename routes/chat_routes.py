@@ -104,7 +104,6 @@ def enviar_mensagem():
         # Emitir via socket
         from extensions import socketio
         
-        # Verificar se o socket está funcionando
         print(f"  Emitindo para room: user_{destinatario_id}")
         
         socketio.emit('new_private_message', {
@@ -143,3 +142,56 @@ def nao_lidas():
     except Exception as e:
         print(f"[CHAT] Erro não lidas: {e}")
         return jsonify({'count': 0})
+
+# ============================================
+# ROTA PARA BADGES POR CONVERSA (APENAS UMA VEZ!)
+# ============================================
+
+@chat_bp.route('/nao-lidas-por-conversa')
+@login_required
+def nao_lidas_por_conversa():
+    """Retorna número de mensagens não lidas por conversa"""
+    try:
+        from sqlalchemy import func
+        
+        resultados = db.session.query(
+            Mensagem.remetente_id,
+            func.count(Mensagem.id).label('total')
+        ).filter(
+            Mensagem.destinatario_id == current_user.id,
+            Mensagem.lida == False
+        ).group_by(Mensagem.remetente_id).all()
+        
+        conversas = {}
+        for r in resultados:
+            conversas[str(r.remetente_id)] = r.total
+        
+        return jsonify({'conversas': conversas})
+    except Exception as e:
+        print(f"Erro: {e}")
+        return jsonify({'conversas': {}})
+
+# ============================================
+# ROTA PARA MARCAR MENSAGENS COMO LIDAS
+# ============================================
+
+@chat_bp.route('/marcar-lidas/<int:usuario_id>', methods=['POST'])
+@login_required
+def marcar_lidas(usuario_id):
+    """Marca todas as mensagens de um usuário como lidas"""
+    try:
+        mensagens = Mensagem.query.filter_by(
+            remetente_id=usuario_id,
+            destinatario_id=current_user.id,
+            lida=False
+        ).all()
+        
+        for msg in mensagens:
+            msg.lida = True
+        
+        db.session.commit()
+        
+        return jsonify({'success': True, 'count': len(mensagens)})
+    except Exception as e:
+        print(f"Erro ao marcar lidas: {e}")
+        return jsonify({'success': False}), 500

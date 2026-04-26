@@ -232,13 +232,41 @@ async function updateUnreadCount() {
     try {
         const response = await fetch('/chat/nao-lidas');
         const data = await response.json();
+        console.log('📊 Atualizando badge:', data);
+        
         if (data && data.count !== undefined) {
             notificationCount = data.count;
             updateNotificationBadges();
+            
+            // 🔥 ATUALIZAR TAMBÉM O BADGE NA LISTA DE CONVERSAS
+            atualizarBadgesConversas();
         }
     } catch (error) {
         console.error('Erro ao buscar não lidas:', error);
     }
+}
+
+// Função para atualizar badges na lista de conversas
+function atualizarBadgesConversas() {
+    // Buscar mensagens não lidas por conversa
+    fetch('/chat/nao-lidas-por-conversa')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.conversas) {
+                for (const [usuarioId, count] of Object.entries(data.conversas)) {
+                    const badgeElement = document.getElementById(`badge-${usuarioId}`);
+                    if (badgeElement) {
+                        if (count > 0) {
+                            badgeElement.style.display = 'inline';
+                            badgeElement.textContent = count;
+                        } else {
+                            badgeElement.style.display = 'none';
+                        }
+                    }
+                }
+            }
+        })
+        .catch(err => console.error('Erro ao buscar badges:', err));
 }
 
 function addNotificationToList(data) {

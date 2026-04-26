@@ -9,8 +9,13 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
-    servicos_destaque = Servico.query.filter_by(destaque=True).order_by(Servico.data_postagem.desc()).limit(6).all()
-    servicos_recentes = Servico.query.order_by(Servico.data_postagem.desc()).limit(8).all()
+    servicos_destaque = Servico.query.filter_by(destaque=True).order_by(Servico.data_postagem.desc()).all()
+    
+    # Buscar 50 serviços para mostrar inicialmente
+    servicos_recentes = Servico.query.order_by(Servico.data_postagem.desc()).limit(50).all()
+    
+    # Total de serviços (para saber se tem mais)
+    total_servicos = Servico.query.count()
     
     # Depoimentos reais (notas 4 ou 5)
     depoimentos = Avaliacao.query.filter(
@@ -64,14 +69,13 @@ def index():
     return render_template('index.html',
                          servicos_destaque=servicos_destaque,
                          servicos_recentes=servicos_recentes,
+                         total_servicos=total_servicos,
                          top_prestadores=top_prestadores,
                          depoimentos=depoimentos,
                          categorias_com_contagem=categorias_com_contagem,
                          total_usuarios=Usuario.query.count(),
-                         total_servicos=Servico.query.count(),
                          total_avaliacoes=Avaliacao.query.count(),
                          servicos_concluidos=Contrato.query.filter_by(status='concluido').count())
-
 
 @main_bp.route('/dashboard')
 @login_required
@@ -189,3 +193,34 @@ def lista_prestadores():
         })
     ranking = sorted(ranking, key=lambda x: x['media'], reverse=True)
     return render_template('prestadores.html', ranking=ranking)
+
+@main_bp.route('/servicos/recentes')
+def servicos_recentes_api():
+    """API para carregar mais serviços (paginação)"""
+    from flask import request, jsonify
+    from models import Servico
+    
+    offset = request.args.get('offset', 0, type=int)
+    limit = request.args.get('limit', 8, type=int)  # Carrega 8 por vez
+    
+    servicos = Servico.query.order_by(Servico.data_postagem.desc()).offset(offset).limit(limit).all()
+    total = Servico.query.count()
+    
+    resultado = []
+    for servico in servicos:
+        resultado.append({
+            'id': servico.id,
+            'titulo': servico.titulo,
+            'categoria': servico.categoria,
+            'preco': servico.preco,
+            'prestador_id': servico.prestador_id,
+            'prestador_nome': servico.prestador.nome,
+            'imagem_base64': servico.imagem_base64
+        })
+    
+    return jsonify({
+        'servicos': resultado,
+        'total': total,
+        'offset': offset,
+        'limit': limit
+    })
