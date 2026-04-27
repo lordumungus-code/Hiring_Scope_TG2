@@ -239,7 +239,7 @@
                     <div class="mt-3">
                         <div class="alert alert-info rounded-4">
                             <i class="fas fa-info-circle me-2"></i>
-                            <a href="/login" class="alert-link">Faça login</a> como cliente para solicitar este serviço.
+                            <a href="{{ url_for('auth.login') }}" class="alert-link">Faça login</a> como cliente para solicitar este serviço.
                         </div>
                     </div>
                 {% endif %}
