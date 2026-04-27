@@ -175,3 +175,16 @@ def solicitar(servico_id):
     
     flash('Solicitação enviada com sucesso!', 'success')
     return redirect(url_for('servico.detalhe', id=servico_id))
+
+@servico_bp.route('/planos-destaque')
+@login_required
+def planos_destaque():
+    """Página de planos de destaque para prestadores"""
+    if current_user.tipo != 'prestador':
+        flash('Apenas prestadores podem acessar os planos de destaque', 'warning')
+        return redirect(url_for('main.index'))
+    
+    # Buscar serviços do prestador para informações adicionais
+    meus_servicos = Servico.query.filter_by(prestador_id=current_user.id).all()
+    
+    return render_template('servico/planos_destaque.html', meus_servicos=meus_servicos)

@@ -23,23 +23,15 @@
     </div>
 
     {% if servicos_destaque %}
-        {% if servicos_destaque|length > 3 %}
-            <!-- Carrossel Premium -->
-            <div id="carouselDestaques" class="carousel slide carousel-premium" data-bs-ride="carousel" data-bs-interval="5000" data-bs-pause="hover">
-                <!-- Indicadores modernos -->
-                <div class="carousel-indicators indicators-premium">
-                    {% for i in range(0, servicos_destaque|length, 3) %}
-                        <button type="button" data-bs-target="#carouselDestaques" data-bs-slide-to="{{ loop.index0 }}" 
-                                class="{% if loop.first %}active{% endif %}" 
-                                aria-current="true" aria-label="Slide {{ loop.index }}"></button>
-                    {% endfor %}
-                </div>
-                
-                <div class="carousel-inner">
-                    {% for i in range(0, servicos_destaque|length, 3) %}
-                        <div class="carousel-item {% if loop.first %}active{% endif %}">
-                            <div class="row g-4">
-                                {% for servico in servicos_destaque[i:i+3] %}
+        <!-- Carrossel Responsivo -->
+        <div id="carouselDestaques" class="carousel slide carousel-premium" data-bs-ride="carousel" data-bs-interval="5000" data-bs-pause="hover">
+            
+            <div class="carousel-inner">
+                {% for i in range(0, servicos_destaque|length, 3) %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                        <div class="row g-4">
+                            {% for j in range(i, i + 3) %}
+                                {% if j < servicos_destaque|length %}
                                     <div class="col-12 col-md-4">
                                         <div class="card featured-card-premium h-100 border-0 rounded-4 overflow-hidden transition">
                                             <!-- Badge de destaque -->
@@ -51,76 +43,75 @@
                                             
                                             <!-- Imagem ou placeholder -->
                                             <div class="card-img-wrapper">
-                                                {% if servico.imagem_base64 %}
-                                                    <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
+                                                {% if servicos_destaque[j].imagem_base64 %}
+                                                    <img src="data:image/jpeg;base64,{{ servicos_destaque[j].imagem_base64 }}" 
                                                          class="card-img-top" 
-                                                         alt="{{ servico.titulo }}"
+                                                         alt="{{ servicos_destaque[j].titulo }}"
                                                          style="height: 200px; width: 100%; object-fit: cover;">
                                                 {% else %}
                                                     <div class="card-img-placeholder d-flex align-items-center justify-content-center flex-column"
-                                                         style="height: 200px; background: linear-gradient(135deg, {{ get_cor_categoria(servico.categoria) }} 0%, #1a1a2e 100%);">
-                                                        <i class="fas {{ get_icone_categoria(servico.categoria) }} fa-4x text-white mb-2"></i>
-                                                        <span class="text-white small fw-bold">{{ servico.categoria }}</span>
+                                                         style="height: 200px; background: linear-gradient(135deg, {{ get_cor_categoria(servicos_destaque[j].categoria) }} 0%, #1a1a2e 100%);">
+                                                        <i class="fas {{ get_icone_categoria(servicos_destaque[j].categoria) }} fa-4x text-white mb-2"></i>
+                                                        <span class="text-white small fw-bold">{{ servicos_destaque[j].categoria }}</span>
                                                     </div>
                                                 {% endif %}
-                                                <!-- Overlay de gradiente -->
                                                 <div class="card-img-overlay-gradient"></div>
                                             </div>
                                             
                                             <div class="card-body p-4">
                                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                                     <span class="badge bg-gradient-primary px-3 py-2 rounded-pill">
-                                                        <i class="fas fa-tag me-1"></i> {{ servico.categoria }}
+                                                        <i class="fas fa-tag me-1"></i> {{ servicos_destaque[j].categoria }}
                                                     </span>
-                                                    {% if servico.preco %}
+                                                    {% if servicos_destaque[j].preco %}
                                                         <span class="price-badge">
                                                             <span class="small text-muted">a partir de</span>
-                                                            <strong class="text-primary fs-5">R$ {{ "%.2f"|format(servico.preco) }}</strong>
+                                                            <strong class="text-primary fs-5">R$ {{ "%.2f"|format(servicos_destaque[j].preco) }}</strong>
                                                         </span>
                                                     {% endif %}
                                                 </div>
                                                 
-                                                <h5 class="card-title fw-bold mb-2">{{ servico.titulo[:50] }}</h5>
-                                                <p class="card-text text-muted small mb-3">{{ servico.descricao[:80] }}...</p>
+                                                <h5 class="card-title fw-bold mb-2">{{ servicos_destaque[j].titulo[:50] }}</h5>
+                                                <p class="card-text text-muted small mb-3">{{ servicos_destaque[j].descricao[:80] }}...</p>
                                                 
                                                 <div class="provider-info mb-3">
                                                     <div class="d-flex align-items-center gap-2">
                                                         <div class="provider-avatar">
-                                                            {% if servico.prestador.foto_url %}
-                                                                <img src="{{ servico.prestador.foto_url }}" class="rounded-circle" width="30" height="30">
+                                                            {% if servicos_destaque[j].prestador.foto_url %}
+                                                                <img src="{{ servicos_destaque[j].prestador.foto_url }}" class="rounded-circle" width="30" height="30">
                                                             {% else %}
                                                                 <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
-                                                                    <span class="text-white small">{{ servico.prestador.nome[0]|upper }}</span>
+                                                                    <span class="text-white small">{{ servicos_destaque[j].prestador.nome[0]|upper }}</span>
                                                                 </div>
                                                             {% endif %}
                                                         </div>
                                                         <div>
                                                             <span class="small text-muted">por</span>
-                                                            <strong class="small">{{ servico.prestador.nome }}</strong>
+                                                            <strong class="small">{{ servicos_destaque[j].prestador.nome }}</strong>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 
                                                 <div class="rating mb-3">
-                                                    {% set media = servico.prestador.media_avaliacoes() %}
-                                                    {% for i in range(5) %}
-                                                        {% if i < media|round(0, 'floor') %}
+                                                    {% set media = servicos_destaque[j].prestador.media_avaliacoes() %}
+                                                    {% for k in range(5) %}
+                                                        {% if k < media|round(0, 'floor') %}
                                                             <i class="fas fa-star text-warning"></i>
-                                                        {% elif i < media %}
+                                                        {% elif k < media %}
                                                             <i class="fas fa-star-half-alt text-warning"></i>
                                                         {% else %}
                                                             <i class="far fa-star text-warning"></i>
                                                         {% endif %}
                                                     {% endfor %}
-                                                    <span class="ms-2 small text-muted">({{ servico.prestador.total_avaliacoes() }} avaliações)</span>
+                                                    <span class="ms-2 small text-muted">({{ servicos_destaque[j].prestador.total_avaliacoes() }} avaliações)</span>
                                                 </div>
                                                 
                                                 <div class="d-flex gap-2 mt-3">
-                                                    <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-primary flex-grow-1 rounded-pill">
+                                                    <a href="{{ url_for('servico.detalhe', id=servicos_destaque[j].id) }}" class="btn btn-primary flex-grow-1 rounded-pill">
                                                         <i class="fas fa-eye me-2"></i> Ver Detalhes
                                                     </a>
-                                                    {% if current_user.is_authenticated and current_user.id != servico.prestador.id %}
-                                                        <button onclick="iniciarChat({{ servico.prestador.id }}, '{{ servico.prestador.nome|replace("'", "\\'") }}')" 
+                                                    {% if current_user.is_authenticated and current_user.id != servicos_destaque[j].prestador.id %}
+                                                        <button onclick="iniciarChat({{ servicos_destaque[j].prestador.id }}, '{{ servicos_destaque[j].prestador.nome|replace("'", "\\'") }}')" 
                                                                 class="btn btn-outline-primary rounded-pill px-3">
                                                             <i class="fas fa-comments"></i>
                                                         </button>
@@ -129,34 +120,73 @@
                                             </div>
                                         </div>
                                     </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-                
-                <!-- Controles estilizados -->
-                <button class="carousel-control-prev custom-carousel-control" type="button" data-bs-target="#carouselDestaques" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon custom-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Anterior</span>
-                </button>
-                <button class="carousel-control-next custom-carousel-control" type="button" data-bs-target="#carouselDestaques" data-bs-slide="next">
-                    <span class="carousel-control-next-icon custom-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Próximo</span>
-                </button>
-            </div>
-        {% else %}
-            <!-- Grid normal -->
-            <div class="row g-4">
-                {% for servico in servicos_destaque %}
-                    <div class="col-12 col-md-4">
-                        <div class="card featured-card-premium h-100 border-0 rounded-4 overflow-hidden transition">
-                            <!-- mesmo card acima -->
+                                {% endif %}
+                            {% endfor %}
                         </div>
                     </div>
                 {% endfor %}
             </div>
-        {% endif %}
+            
+            <!-- Controles estilizados -->
+            <button class="carousel-control-prev custom-carousel-control" type="button" data-bs-target="#carouselDestaques" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon custom-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next custom-carousel-control" type="button" data-bs-target="#carouselDestaques" data-bs-slide="next">
+                <span class="carousel-control-next-icon custom-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Próximo</span>
+            </button>
+        </div>
+        
+        <!-- Indicadores -->
+        <div class="carousel-indicators indicators-premium mt-4 position-relative">
+            {% for i in range(0, servicos_destaque|length, 3) %}
+                <button type="button" data-bs-target="#carouselDestaques" data-bs-slide-to="{{ loop.index0 }}" 
+                        class="{% if loop.first %}active{% endif %}" 
+                        style="width: 30px; height: 4px; border-radius: 10px; margin: 0 5px;"></button>
+            {% endfor %}
+        </div>
+        
+        <style>
+            /* Desktop: mostra 3 cards */
+            @media (min-width: 768px) {
+                .carousel-item .col-md-4 {
+                    flex: 0 0 33.333%;
+                    max-width: 33.333%;
+                }
+            }
+            
+            /* Mobile: mostra 1 card */
+            @media (max-width: 767px) {
+                .carousel-item .col-12 {
+                    flex: 0 0 100%;
+                    max-width: 100%;
+                }
+                
+                .card-img-placeholder {
+                    height: 160px !important;
+                }
+                
+                .card-body {
+                    padding: 1rem !important;
+                }
+                
+                .featured-ribbon span {
+                    font-size: 0.6rem;
+                    padding: 3px 8px;
+                }
+                
+                .carousel-control-prev,
+                .carousel-control-next {
+                    width: 10%;
+                }
+                
+                .custom-icon {
+                    width: 30px;
+                    height: 30px;
+                }
+            }
+        </style>
     {% else %}
         <div class="alert alert-info text-center rounded-4 py-5">
             <i class="fas fa-info-circle fa-3x mb-3"></i>
@@ -174,153 +204,3 @@
         </div>
     {% endif %}
 </div>
-
-<style>
-    /* Seção de Destaque Premium */
-    .section-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-    
-    .featured-icon {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #fbbf24, #f59e0b);
-        border-radius: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
-    }
-    
-    .bg-gradient-danger {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-    }
-    
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
-    }
-    
-    .featured-card-premium {
-        position: relative;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
-    
-    .featured-card-premium:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-    }
-    
-    .featured-ribbon {
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        z-index: 10;
-    }
-    
-    .featured-ribbon span {
-        background: linear-gradient(135deg, #fbbf24, #f59e0b);
-        color: #1a2c3e;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: bold;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    
-    .card-img-wrapper {
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .card-img-overlay-gradient {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 50%;
-        background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
-    }
-    
-    .price-badge {
-        text-align: right;
-        line-height: 1.2;
-    }
-    
-    /* Carrossel Premium */
-    .carousel-premium {
-        position: relative;
-    }
-    
-    .indicators-premium {
-        position: relative;
-        margin-top: 20px;
-        margin-bottom: 0;
-        gap: 10px;
-    }
-    
-    .indicators-premium button {
-        width: 30px !important;
-        height: 4px !important;
-        border-radius: 10px !important;
-        background-color: #cbd5e1 !important;
-        transition: all 0.3s ease;
-    }
-    
-    .indicators-premium button.active {
-        width: 50px !important;
-        background: linear-gradient(135deg, #0b2b5c, #1a6d8f) !important;
-    }
-    
-    .custom-carousel-control {
-        width: 40px;
-        height: 40px;
-        background: white;
-        border-radius: 50%;
-        top: 50%;
-        transform: translateY(-50%);
-        opacity: 0;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    
-    .carousel-premium:hover .custom-carousel-control {
-        opacity: 1;
-    }
-    
-    .custom-carousel-control.prev {
-        left: -20px;
-    }
-    
-    .custom-carousel-control.next {
-        right: -20px;
-    }
-    
-    .custom-icon {
-        background-size: 40%;
-        width: 40px;
-        height: 40px;
-        background-color: #0b2b5c;
-        border-radius: 50%;
-    }
-    
-    @media (max-width: 768px) {
-        .custom-carousel-control.prev {
-            left: -10px;
-        }
-        .custom-carousel-control.next {
-            right: -10px;
-        }
-        .custom-icon {
-            width: 30px;
-            height: 30px;
-        }
-        .featured-ribbon span {
-            font-size: 0.6rem;
-            padding: 3px 8px;
-        }
-    }
-</style>
