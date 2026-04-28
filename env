@@ -1,9 +1,0 @@
-# Firebase Config
-FIREBASE_API_KEY=AIzaSyANfk1Nlat3JjepQq7lClbmu6xImva_W6Y
-FIREBASE_AUTH_DOMAIN=hiring-scope.firebaseapp.com
-FIREBASE_PROJECT_ID=hiring-scope
-FIREBASE_STORAGE_BUCKET=hiring-scope.firebasestorage.app
-FIREBASE_MESSAGING_SENDER_ID=400656444315
-FIREBASE_APP_ID=1:400656444315:web:cff12e5a8a7593fde20f3e
-FIREBASE_MEASUREMENT_ID=G-F7VDD0YPNX
-FIREBASE_DATABASE_URL=https://hiring-scope-default-rtdb.firebaseio.com
