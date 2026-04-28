@@ -3,7 +3,7 @@
 // ============================================
 
 // Variáveis globais
-let socket = null;
+let globalSocket = null;
 let notificationCount = 0;
 
 // ============================================

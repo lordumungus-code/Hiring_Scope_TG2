@@ -4,3 +4,4 @@ config/firebase-adminsdk.json
 *.pyc
 *.pyo
 *.pyd
+.env

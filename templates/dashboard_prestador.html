@@ -10,10 +10,10 @@
             Painel do Prestador
         </h2>
         <div>
-            <a href="/cadastro/servico" class="btn btn-success rounded-pill px-4 me-2">
+            <a href="{{ url_for('servico.cadastro') }}" class="btn btn-success rounded-pill px-4 me-2">
                 <i class="fas fa-plus-circle me-2"></i> Novo Serviço
             </a>
-            <a href="/meus-servicos" class="btn btn-outline-primary rounded-pill px-4">
+            <a href="{{ url_for('servico.meus_servicos') }}" class="btn btn-outline-primary rounded-pill px-4">
                 <i class="fas fa-briefcase me-2"></i> Meus Serviços
             </a>
         </div>
@@ -59,7 +59,25 @@
         </div>
     </div>
 
-    <!-- SEÇÃO 1: SOLICITAÇÕES PENDENTES (Contratos com status 'pendente') -->
+    <!-- Card de Planos de Destaque -->
+    <div class="card shadow-sm border-0 rounded-4 mb-5 bg-gradient-warning">
+        <div class="card-body text-center py-4">
+            <div class="row align-items-center">
+                <div class="col-md-8 text-md-start">
+                    <i class="fas fa-crown fa-3x text-warning mb-2"></i>
+                    <h4 class="mb-1">Destaque seus serviços!</h4>
+                    <p class="mb-0 text-muted">Aumente sua visibilidade, apareça na página inicial e conquiste mais clientes</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{{ url_for('servico.planos_destaque') }}" class="btn btn-warning rounded-pill px-4 py-2 fw-semibold">
+                        <i class="fas fa-rocket me-2"></i> Ver Planos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 1: SOLICITAÇÕES PENDENTES -->
     {% if contratos_pendentes %}
     <div class="card shadow-sm border-0 rounded-4 mb-5">
         <div class="card-header bg-warning text-dark rounded-top-4 py-3">
@@ -271,21 +289,23 @@
                             </td>
                             <td>{{ servico.data_postagem.strftime('%d/%m/%Y') }}</td>
                             <td>
-                                <a href="/servico/{{ servico.id }}" class="btn btn-sm btn-outline-primary rounded-pill" target="_blank">
+                                <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-sm btn-outline-primary rounded-pill" target="_blank">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="/servico/editar/{{ servico.id }}" class="btn btn-sm btn-outline-warning rounded-pill">
+                                <a href="{{ url_for('servico.editar', id=servico.id) }}" class="btn btn-sm btn-outline-warning rounded-pill">
                                     <i class="fas fa-edit"></i>
                                 </a>
                             </td>
-                        </tr
+                        </tr>
                         {% endfor %}
                         {% if not servicos %}
+                        <tr>
                             <td colspan="6" class="text-center py-4 text-muted">
                                 <i class="fas fa-box-open fa-2x mb-2 d-block"></i>
                                 Nenhum serviço cadastrado.
-                                <a href="/cadastro/servico" class="d-block mt-2">Cadastrar meu primeiro serviço →</a>
+                                <a href="{{ url_for('servico.cadastro') }}" class="d-block mt-2">Cadastrar meu primeiro serviço →</a>
                             </td>
+                        </tr>
                         {% endif %}
                     </tbody>
                 </table>
@@ -301,6 +321,10 @@
     .rating {
         display: inline-flex;
         gap: 2px;
+    }
+    .bg-gradient-warning {
+        background: linear-gradient(135deg, #fff7ed, #ffedd5);
+        border: 1px solid #fed7aa;
     }
 </style>
 

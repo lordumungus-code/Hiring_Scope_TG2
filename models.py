@@ -12,21 +12,19 @@ class Usuario(UserMixin, db.Model):
     senha_hash = db.Column(db.String(200), nullable=False)
     telefone = db.Column(db.String(20))
     tipo = db.Column(db.String(20), nullable=False)  # cliente, prestador
-    is_admin = db.Column(db.Boolean, default=False)  # NOVO CAMPO
+    is_admin = db.Column(db.Boolean, default=False)
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
     foto_perfil = db.Column(db.String(200), default='default.jpg')
-    foto_url = db.Column(db.String(500), nullable=True)  # URL da foto do Google
+    foto_url = db.Column(db.String(500), nullable=True)
     descricao = db.Column(db.Text)
     
-    # Relacionamentos - CORRIGIDOS (removidas relações duplicadas)
-    servicos_oferecidos = db.relationship('Servico', back_populates='prestador', lazy=True, overlaps='prestador_rel')
-    avaliacoes_recebidas = db.relationship('Avaliacao', foreign_keys='Avaliacao.prestador_id', back_populates='prestador', lazy=True, overlaps='avaliado_rel')
-    avaliacoes_feitas = db.relationship('Avaliacao', foreign_keys='Avaliacao.cliente_id', back_populates='cliente', lazy=True, overlaps='avaliador_rel')
-    favoritos = db.relationship('Favorito', foreign_keys='Favorito.cliente_id', back_populates='cliente', lazy=True, overlaps='cliente_rel')
-    
-    # Relacionamentos para contratos - CORRIGIDOS
-    contratos_como_cliente = db.relationship('Contrato', foreign_keys='Contrato.cliente_id', back_populates='cliente', lazy=True, overlaps='cliente_rel')
-    contratos_como_prestador = db.relationship('Contrato', foreign_keys='Contrato.prestador_id', back_populates='prestador', lazy=True, overlaps='prestador_rel')
+    # Relacionamentos
+    servicos_oferecidos = db.relationship('Servico', back_populates='prestador', lazy=True)
+    avaliacoes_recebidas = db.relationship('Avaliacao', foreign_keys='Avaliacao.prestador_id', back_populates='prestador', lazy=True)
+    avaliacoes_feitas = db.relationship('Avaliacao', foreign_keys='Avaliacao.cliente_id', back_populates='cliente', lazy=True)
+    favoritos = db.relationship('Favorito', foreign_keys='Favorito.cliente_id', back_populates='cliente', lazy=True)
+    contratos_como_cliente = db.relationship('Contrato', foreign_keys='Contrato.cliente_id', back_populates='cliente', lazy=True)
+    contratos_como_prestador = db.relationship('Contrato', foreign_keys='Contrato.prestador_id', back_populates='prestador', lazy=True)
     
     def set_password(self, password):
         self.senha_hash = generate_password_hash(password)
@@ -78,6 +76,30 @@ class Usuario(UserMixin, db.Model):
             return avaliacao_existente is None
         return False
     
+    # ============================================
+    # MÉTODOS PARA ASSINATURA
+    # ============================================
+    
+    def assinatura_ativa(self):
+        """Verifica se o prestador tem assinatura ativa"""
+        if self.tipo != 'prestador':
+            return False
+        assinatura = Assinatura.query.filter_by(
+            prestador_id=self.id,
+            status='ativa'
+        ).first()
+        return assinatura is not None and assinatura.is_ativa()
+    
+    def plano_atual(self):
+        """Retorna o plano atual do prestador"""
+        if self.tipo != 'prestador':
+            return None
+        assinatura = Assinatura.query.filter_by(
+            prestador_id=self.id,
+            status='ativa'
+        ).first()
+        return assinatura.plano if assinatura and assinatura.is_ativa() else None
+    
     def __repr__(self):
         return f'<Usuario {self.nome}>'
 
@@ -91,21 +113,24 @@ class Servico(db.Model):
     descricao = db.Column(db.Text, nullable=False)
     categoria = db.Column(db.String(100))
     
-    # NOVOS CAMPOS DE PRECIFICAÇÃO
+    # Precificação
     tipo_preco = db.Column(db.String(20), default='fixo')  # fixo, hora, dia, metro, consulta
     preco = db.Column(db.Float)
     
+    # Destaque
     destaque = db.Column(db.Boolean, default=False)
     destaque_pago = db.Column(db.Boolean, default=False)
     destaque_data_fim = db.Column(db.DateTime, nullable=True)
+    plano_destaque = db.Column(db.String(20), nullable=True)  # 'basico', 'pro'
+    
     data_postagem = db.Column(db.DateTime, default=datetime.utcnow)
     imagem_base64 = db.Column(db.Text, nullable=True)
     
-    # Relacionamentos - CORRIGIDOS
+    # Relacionamentos
     prestador = db.relationship('Usuario', foreign_keys=[prestador_id], back_populates='servicos_oferecidos')
-    solicitacoes = db.relationship('Solicitacao', back_populates='servico', lazy=True, overlaps='servico_rel')
-    avaliacoes = db.relationship('Avaliacao', back_populates='servico', lazy=True, overlaps='servico_rel')
-    contratos = db.relationship('Contrato', back_populates='servico', lazy=True, overlaps='servico_rel')
+    solicitacoes = db.relationship('Solicitacao', back_populates='servico', lazy=True)
+    avaliacoes = db.relationship('Avaliacao', back_populates='servico', lazy=True)
+    contratos = db.relationship('Contrato', back_populates='servico', lazy=True)
     
     def is_destaque_ativo(self):
         """Verifica se o destaque pago ainda está ativo"""
@@ -123,6 +148,23 @@ class Servico(db.Model):
     def total_avaliacoes(self):
         return len(self.avaliacoes) if self.avaliacoes else 0
     
+    def pode_ativar_destaque(self):
+        """Verifica se o serviço pode ser destacado pelo plano"""
+        if not self.prestador.assinatura_ativa():
+            return False
+        
+        plano = self.prestador.plano_atual()
+        limites = {'basico': 1, 'pro': 3}
+        limite = limites.get(plano, 1)
+        
+        # Contar quantos serviços já estão em destaque
+        destaque_ativos = Servico.query.filter_by(
+            prestador_id=self.prestador_id,
+            destaque=True
+        ).count()
+        
+        return destaque_ativos < limite
+    
     def __repr__(self):
         return f'<Servico {self.titulo}>'
 
@@ -134,20 +176,15 @@ class Solicitacao(db.Model):
     cliente_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     servico_id = db.Column(db.Integer, db.ForeignKey('servicos.id'), nullable=False)
     mensagem = db.Column(db.Text)
-    status = db.Column(db.String(20), default='pendente')  # pendente, aceito, recusado
+    status = db.Column(db.String(20), default='pendente')
     data_solicitacao = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relacionamentos - CORRIGIDOS
     cliente = db.relationship('Usuario', foreign_keys=[cliente_id])
     servico = db.relationship('Servico', foreign_keys=[servico_id], back_populates='solicitacoes')
     
     def __repr__(self):
         return f'<Solicitacao {self.id}>'
 
-
-# ============================================
-# CONTRATO (ordem de serviço formal)
-# ============================================
 
 class Contrato(db.Model):
     """Modelo para contratos de serviço entre cliente e prestador"""
@@ -159,7 +196,7 @@ class Contrato(db.Model):
     servico_id = db.Column(db.Integer, db.ForeignKey('servicos.id'), nullable=False)
     
     # Status do contrato
-    status = db.Column(db.String(20), default='pendente')  # pendente, aceito, em_andamento, concluido, cancelado
+    status = db.Column(db.String(20), default='pendente')
     data_solicitacao = db.Column(db.DateTime, default=datetime.utcnow)
     data_aceite = db.Column(db.DateTime, nullable=True)
     data_inicio = db.Column(db.DateTime, nullable=True)
@@ -170,7 +207,17 @@ class Contrato(db.Model):
     mensagem_prestador = db.Column(db.Text, nullable=True)
     preco_acordado = db.Column(db.Float, nullable=True)
     
-    # Relacionamentos - CORRIGIDOS
+    # Pagamento
+    valor_servico = db.Column(db.Float, nullable=True)
+    comissao_plataforma = db.Column(db.Float, default=10.0)
+    valor_comissao = db.Column(db.Float, default=0.0)
+    valor_liquido_prestador = db.Column(db.Float, default=0.0)
+    pagamento_status = db.Column(db.String(20), default='pendente')
+    transacao_id = db.Column(db.String(100), nullable=True)
+    data_pagamento_cliente = db.Column(db.DateTime, nullable=True)
+    data_pagamento_prestador = db.Column(db.DateTime, nullable=True)
+    
+    # Relacionamentos
     cliente = db.relationship('Usuario', foreign_keys=[cliente_id], back_populates='contratos_como_cliente')
     prestador = db.relationship('Usuario', foreign_keys=[prestador_id], back_populates='contratos_como_prestador')
     servico = db.relationship('Servico', foreign_keys=[servico_id], back_populates='contratos')
@@ -180,7 +227,6 @@ class Contrato(db.Model):
         return f'<Contrato {self.id} - {self.status}>'
     
     def get_status_icon(self):
-        """Retorna o ícone correspondente ao status"""
         icons = {
             'pendente': 'fa-clock',
             'aceito': 'fa-check-circle',
@@ -191,7 +237,6 @@ class Contrato(db.Model):
         return icons.get(self.status, 'fa-file-contract')
     
     def get_status_color(self):
-        """Retorna a cor correspondente ao status"""
         colors = {
             'pendente': 'warning',
             'aceito': 'info',
@@ -202,7 +247,6 @@ class Contrato(db.Model):
         return colors.get(self.status, 'secondary')
     
     def pode_avaliar(self, usuario_id):
-        """Verifica se o usuário pode avaliar este contrato"""
         if self.status == 'concluido':
             if self.cliente_id == usuario_id:
                 from models import Avaliacao
@@ -214,24 +258,19 @@ class Contrato(db.Model):
         return False
 
 
-# ============================================
-# AVALIAÇÃO (com link para contrato)
-# ============================================
-
 class Avaliacao(db.Model):
     __tablename__ = 'avaliacoes'
     
     id = db.Column(db.Integer, primary_key=True)
-    contrato_id = db.Column(db.Integer, db.ForeignKey('contratos.id'), nullable=False)  # link com contrato
+    contrato_id = db.Column(db.Integer, db.ForeignKey('contratos.id'), nullable=False)
     cliente_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     prestador_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    servico_id = db.Column(db.Integer, db.ForeignKey('servicos.id'), nullable=True)  # Opcional
+    servico_id = db.Column(db.Integer, db.ForeignKey('servicos.id'), nullable=True)
     
-    # Nota principal (1-5 estrelas)
     nota = db.Column(db.Integer, nullable=False)
     comentario = db.Column(db.Text)
     
-    # Avaliações detalhadas por categoria (1-5)
+    # Avaliações detalhadas
     qualidade = db.Column(db.Integer, nullable=True)
     pontualidade = db.Column(db.Integer, nullable=True)
     comunicacao = db.Column(db.Integer, nullable=True)
@@ -241,7 +280,7 @@ class Avaliacao(db.Model):
     editado = db.Column(db.Boolean, default=False)
     data_edicao = db.Column(db.DateTime, nullable=True)
     
-    # Relacionamentos - CORRIGIDOS
+    # Relacionamentos
     cliente = db.relationship('Usuario', foreign_keys=[cliente_id], back_populates='avaliacoes_feitas')
     prestador = db.relationship('Usuario', foreign_keys=[prestador_id], back_populates='avaliacoes_recebidas')
     servico = db.relationship('Servico', foreign_keys=[servico_id], back_populates='avaliacoes')
@@ -251,14 +290,12 @@ class Avaliacao(db.Model):
         return f'<Avaliacao {self.id} - Nota: {self.nota}>'
     
     def pode_editar(self, usuario_id):
-        """Verifica se a avaliação pode ser editada (até 7 dias após criação)"""
         if self.cliente_id == usuario_id:
             dias_passados = (datetime.utcnow() - self.data_avaliacao).days
             return dias_passados <= 7
         return False
     
     def get_media_categorias(self):
-        """Calcula a média das avaliações por categoria"""
         categorias = [self.qualidade, self.pontualidade, self.comunicacao, self.preco_justo]
         validas = [c for c in categorias if c is not None]
         if validas:
@@ -266,34 +303,24 @@ class Avaliacao(db.Model):
         return None
 
 
-# ============================================
-# RECLAMAÇÃO/CONTESTAÇÃO DE AVALIAÇÃO
-# ============================================
-
 class Reclamacao(db.Model):
-    """Modelo para reclamações/contestações de avaliações"""
     __tablename__ = 'reclamacoes'
     
     id = db.Column(db.Integer, primary_key=True)
     avaliacao_id = db.Column(db.Integer, db.ForeignKey('avaliacoes.id'), nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     motivo = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(20), default='pendente')  # pendente, analisando, resolvido, rejeitado
+    status = db.Column(db.String(20), default='pendente')
     data_reclamacao = db.Column(db.DateTime, default=datetime.utcnow)
     resposta_admin = db.Column(db.Text, nullable=True)
     data_resposta = db.Column(db.DateTime, nullable=True)
     
-    # Relacionamentos
     avaliacao = db.relationship('Avaliacao', backref='reclamacoes')
     usuario = db.relationship('Usuario', foreign_keys=[usuario_id])
     
     def __repr__(self):
         return f'<Reclamacao {self.id} - {self.status}>'
 
-
-# ============================================
-# FAVORITO
-# ============================================
 
 class Favorito(db.Model):
     __tablename__ = 'favoritos'
@@ -303,7 +330,6 @@ class Favorito(db.Model):
     prestador_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     data_adicao = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relacionamentos - CORRIGIDOS
     cliente = db.relationship('Usuario', foreign_keys=[cliente_id], back_populates='favoritos')
     prestador = db.relationship('Usuario', foreign_keys=[prestador_id])
     
@@ -312,10 +338,6 @@ class Favorito(db.Model):
     def __repr__(self):
         return f'<Favorito {self.id}>'
 
-
-# ============================================
-# MENSAGEM
-# ============================================
 
 class Mensagem(db.Model):
     __tablename__ = 'mensagens'
@@ -327,9 +349,34 @@ class Mensagem(db.Model):
     data_envio = db.Column(db.DateTime, default=datetime.utcnow)
     lida = db.Column(db.Boolean, default=False)
     
-    # Relacionamentos
     remetente = db.relationship('Usuario', foreign_keys=[remetente_id])
     destinatario = db.relationship('Usuario', foreign_keys=[destinatario_id])
     
     def __repr__(self):
         return f'<Mensagem {self.id}>'
+
+
+class Assinatura(db.Model):
+    __tablename__ = 'assinaturas'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    prestador_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    plano = db.Column(db.String(20), nullable=False)  # 'basico', 'pro'
+    status = db.Column(db.String(20), default='ativa')  # 'ativa', 'cancelada', 'expirada'
+    data_inicio = db.Column(db.DateTime, default=datetime.utcnow)
+    data_fim = db.Column(db.DateTime, nullable=False)
+    ultimo_pagamento = db.Column(db.DateTime, nullable=True)
+    pagamento_id = db.Column(db.String(100), nullable=True)
+    
+    prestador = db.relationship('Usuario', backref='assinatura', foreign_keys=[prestador_id])
+    
+    def is_ativa(self):
+        return self.status == 'ativa' and datetime.utcnow() < self.data_fim
+    
+    def dias_restantes(self):
+        if not self.is_ativa():
+            return 0
+        return (self.data_fim - datetime.utcnow()).days
+    
+    def __repr__(self):
+        return f'<Assinatura {self.id} - {self.plano} - {self.status}>'

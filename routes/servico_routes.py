@@ -89,13 +89,8 @@ def lista():
                          categorias=categorias, termo_busca=q)
 
 
-# ============================================
-# ROTA DE DETALHE DO SERVIÇO (ADICIONAR ESTA!)
-# ============================================
-
 @servico_bp.route('/<int:id>')
 def detalhe(id):
-    """Exibe os detalhes de um serviço específico"""
     servico = Servico.query.get_or_404(id)
     return render_template('detalhe_servico.html', servico=servico)
 
@@ -176,7 +171,12 @@ def solicitar(servico_id):
     flash('Solicitação enviada com sucesso!', 'success')
     return redirect(url_for('servico.detalhe', id=servico_id))
 
-@servico_bp.route('/planos-destaque')
+
+# ============================================
+# ROTAS DE PLANOS DE DESTAQUE
+# ============================================
+
+@servico_bp.route('/planos')
 @login_required
 def planos_destaque():
     """Página de planos de destaque para prestadores"""
@@ -184,7 +184,15 @@ def planos_destaque():
         flash('Apenas prestadores podem acessar os planos de destaque', 'warning')
         return redirect(url_for('main.index'))
     
-    # Buscar serviços do prestador para informações adicionais
-    meus_servicos = Servico.query.filter_by(prestador_id=current_user.id).all()
-    
-    return render_template('servico/planos_destaque.html', meus_servicos=meus_servicos)
+    return render_template('servico/planos_destaque.html')
+
+
+# ============================================
+# REDIRECIONAMENTO PARA ASSINATURA (APENAS UMA VEZ!)
+# ============================================
+
+@servico_bp.route('/assinar/<plano>')
+@login_required
+def assinar_plano(plano):
+    """Redireciona para o checkout da assinatura no blueprint assinatura"""
+    return redirect(url_for('assinatura.checkout', plano=plano))
