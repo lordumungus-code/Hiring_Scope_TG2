@@ -2,13 +2,14 @@ import mercadopago
 import os
 from datetime import datetime, timedelta
 
-# Carregar token
+# Carregar token da variável de ambiente (nunca hardcoded!)
 ACCESS_TOKEN = os.environ.get('MERCADOPAGO_ACCESS_TOKEN')
 
-# Se não encontrar no .env, use o token direto (temporário para teste)
 if not ACCESS_TOKEN:
-    print("⚠️ Token não encontrado no .env, usando token fixo para teste")
-    ACCESS_TOKEN = "APP_USR-1764446428749041-042723-deaf7c37e3850f1108698bb01ddc343a-3364931912"
+    raise ValueError(
+        "❌ MERCADOPAGO_ACCESS_TOKEN não configurado. "
+        "Adicione a variável no Railway com o Access Token de produção."
+    )
 
 print(f"🔑 Usando token: {ACCESS_TOKEN[:30]}...")
 
@@ -20,10 +21,8 @@ def criar_link_pagamento(plano_nome, plano_valor, prestador_id, prestador_email,
     
     print(f"💳 Criando pagamento para: {plano_nome} - R$ {plano_valor}")
     
-    # URLs de retorno
-    base_url = "https://hiring-scope.com.br"  # Mude para HTTPS ou remova a URL de notificação
+    base_url = "https://hiring-scope.com.br"
     
-    # Dados do pagamento (sem notification_url)
     payment_data = {
         "items": [
             {
@@ -44,7 +43,6 @@ def criar_link_pagamento(plano_nome, plano_valor, prestador_id, prestador_email,
             "pending": f"{base_url}/assinatura/pendente"
         },
         "external_reference": f"prestador_{prestador_id}_{plano_nome.lower()}"
-        # notification_url removido - causa problema em localhost
     }
     
     try:
@@ -55,7 +53,7 @@ def criar_link_pagamento(plano_nome, plano_valor, prestador_id, prestador_email,
         print(f"📦 Resposta status: {preference['status']}")
         
         if preference['status'] == 201:
-            url = preference['response']['init_point']
+            url = preference['response']['init_point']  # init_point = produção
             print(f"✅ Link gerado: {url}")
             return {
                 'success': True,
@@ -69,6 +67,7 @@ def criar_link_pagamento(plano_nome, plano_valor, prestador_id, prestador_email,
     except Exception as e:
         print(f"❌ Exceção: {e}")
         return {'success': False, 'error': str(e)}
+
 
 def verificar_pagamento(payment_id):
     """Verifica o status de um pagamento no Mercado Pago"""
@@ -85,13 +84,3 @@ def verificar_pagamento(payment_id):
     except Exception as e:
         print(f"❌ Exceção ao verificar: {e}")
         return None
-
-
-def criar_simulacao(plano_nome, prestador_id):
-    """Cria link de simulação para testes"""
-    print(f"🔧 Usando modo SIMULAÇÃO para {plano_nome}")
-    return {
-        'success': True,
-        'url': f"/assinatura/simular?plano={plano_nome.lower()}&prestador={prestador_id}",
-        'id': f"simulacao_{prestador_id}_{plano_nome}"
-    }
