@@ -10,6 +10,6 @@ requests==2.31.0
 firebase-admin==6.2.0
 pyrebase4==4.6.0
 gunicorn==21.2.0
-gevent
+eventlet>=0.33.3
 setuptools
 mercadopago
