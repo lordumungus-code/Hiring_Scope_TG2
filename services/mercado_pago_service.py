@@ -21,7 +21,7 @@ def criar_link_pagamento(plano_nome, plano_valor, prestador_id, prestador_email,
     print(f"💳 Criando pagamento para: {plano_nome} - R$ {plano_valor}")
     
     # URLs de retorno
-    base_url = "https://localhost:5000"  # Mude para HTTPS ou remova a URL de notificação
+    base_url = "https://hiring-scope.com.br"  # Mude para HTTPS ou remova a URL de notificação
     
     # Dados do pagamento (sem notification_url)
     payment_data = {
