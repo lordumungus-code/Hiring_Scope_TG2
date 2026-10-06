@@ -1,210 +1,144 @@
-<!-- Seção: Serviços em Destaque (Carrossel Premium) -->
+<!-- Seção: Serviços em Destaque (Estilo Marketplace Premium) -->
 <div class="container mb-5">
-    <!-- Cabeçalho da Seção - Totalmente isolado de estilos globais -->
+    <!-- Cabeçalho da Seção -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div class="d-flex align-items-center gap-3">
-            <!-- Ícone da Coroa sem classes que possam ter borda -->
-            <div style="background: transparent !important; border: none !important; padding: 0 !important; margin: 0 !important;">
-                <i class="fas fa-crown fa-2x text-warning"></i>
+            <div style="background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 16px; padding: 12px; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);">
+                <i class="fas fa-crown fa-2x text-white"></i>
             </div>
             <div>
-                <h2 class="mb-0 fw-bold" style="font-size: clamp(1.3rem, 5vw, 2rem); border: none !important; padding: 0 !important; margin: 0 !important;">
-                    Serviços em Destaque
+                <h2 class="mb-0 fw-bold" style="font-size: clamp(1.4rem, 5vw, 2rem); color: #0b2b5c;">
+                    Serviços em <span style="background: linear-gradient(135deg, #f59e0b, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Destaque</span>
                 </h2>
-                <p class="text-muted small mb-0" style="border: none !important; padding: 0 !important; margin: 0 !important;">
-                    Os melhores serviços selecionados para você
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-fire text-danger me-1"></i>
+                    Os melhores profissionais selecionados para você
                 </p>
             </div>
-            <span class="badge bg-gradient-danger px-3 py-2 rounded-pill shadow-sm" style="border: none !important;">
-                <i class="fas fa-fire me-1"></i> Premium
+            <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
+                <i class="fas fa-star me-1"></i> PREMIUM
             </span>
         </div>
-        <a href="{{ url_for('servico.lista') }}" class="text-decoration-none fw-semibold btn btn-outline-primary rounded-pill px-4 py-2">
+        <a href="{{ url_for('servico.lista') }}" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold">
             Ver todos <i class="fas fa-arrow-right ms-1"></i>
         </a>
     </div>
 
     {% if servicos_destaque %}
-        <!-- Carrossel Responsivo -->
-        <div id="carouselDestaques" class="carousel slide carousel-premium" data-bs-ride="carousel" data-bs-interval="5000" data-bs-pause="hover">
-            
-            <div class="carousel-inner">
-                {% for i in range(0, servicos_destaque|length, 3) %}
-                    <div class="carousel-item {% if loop.first %}active{% endif %}">
-                        <div class="row g-4">
-                            {% for j in range(i, i + 3) %}
-                                {% if j < servicos_destaque|length %}
-                                    <div class="col-12 col-md-4">
-                                        <div class="card featured-card-premium h-100 border-0 rounded-4 overflow-hidden transition">
-                                            <!-- Badge de destaque -->
-                                            <div class="featured-ribbon">
-                                                <span>
-                                                    <i class="fas fa-star"></i> Destaque
-                                                </span>
-                                            </div>
-                                            
-                                            <!-- Imagem ou placeholder -->
-                                            <div class="card-img-wrapper">
-                                                {% if servicos_destaque[j].imagem_base64 %}
-                                                    <img src="data:image/jpeg;base64,{{ servicos_destaque[j].imagem_base64 }}" 
-                                                         class="card-img-top" 
-                                                         alt="{{ servicos_destaque[j].titulo }}"
-                                                         style="height: 200px; width: 100%; object-fit: cover;">
-                                                {% else %}
-                                                    <div class="card-img-placeholder d-flex align-items-center justify-content-center flex-column"
-                                                         style="height: 200px; background: linear-gradient(135deg, {{ get_cor_categoria(servicos_destaque[j].categoria) }} 0%, #1a1a2e 100%);">
-                                                        <i class="fas {{ get_icone_categoria(servicos_destaque[j].categoria) }} fa-4x text-white mb-2"></i>
-                                                        <span class="text-white small fw-bold">{{ servicos_destaque[j].categoria }}</span>
-                                                    </div>
-                                                {% endif %}
-                                                <div class="card-img-overlay-gradient"></div>
-                                            </div>
-                                            
-                                            <div class="card-body p-4">
-                                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                                    <span class="badge bg-gradient-primary px-3 py-2 rounded-pill">
-                                                        <i class="fas fa-tag me-1"></i> {{ servicos_destaque[j].categoria }}
-                                                    </span>
-                                                    {% if servicos_destaque[j].preco %}
-                                                        <span class="price-badge">
-                                                            <span class="small text-muted">a partir de</span>
-                                                            <strong class="text-primary fs-5">R$ {{ "%.2f"|format(servicos_destaque[j].preco) }}</strong>
-                                                        </span>
-                                                    {% endif %}
-                                                </div>
-                                                
-                                                <h5 class="card-title fw-bold mb-2">{{ servicos_destaque[j].titulo[:50] }}</h5>
-                                                <p class="card-text text-muted small mb-3">{{ servicos_destaque[j].descricao[:80] }}...</p>
-                                                
-                                                <div class="provider-info mb-3">
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <!-- Foto clicável → vai para o perfil -->
-                                                    <a href="{{ url_for('servico.perfil_prestador', prestador_id=servicos_destaque[j].prestador.id) }}" 
-                                                    class="text-decoration-none">
-                                                        <div class="provider-avatar">
-                                                            {% if servicos_destaque[j].prestador.foto_url %}
-                                                                <img src="{{ servicos_destaque[j].prestador.foto_url }}" class="rounded-circle" width="30" height="30">
-                                                            {% else %}
-                                                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
-                                                                    <span class="text-white small">{{ servicos_destaque[j].prestador.nome[0]|upper }}</span>
-                                                                </div>
-                                                            {% endif %}
-                                                        </div>
-                                                    </a>
-                                                    <div>
-                                                        <span class="small text-muted">por</span>
-                                                        <!-- Nome clicável → vai para o perfil -->
-                                                        <a href="{{ url_for('servico.perfil_prestador', prestador_id=servicos_destaque[j].prestador.id) }}" 
-                                                        class="text-decoration-none">
-                                                            <strong class="small text-dark">{{ servicos_destaque[j].prestador.nome }}</strong>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                                
-                                                <div class="rating mb-3">
-                                                    {% set media = servicos_destaque[j].prestador.media_avaliacoes() %}
-                                                    {% for k in range(5) %}
-                                                        {% if k < media|round(0, 'floor') %}
-                                                            <i class="fas fa-star text-warning"></i>
-                                                        {% elif k < media %}
-                                                            <i class="fas fa-star-half-alt text-warning"></i>
-                                                        {% else %}
-                                                            <i class="far fa-star text-warning"></i>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                    <span class="ms-2 small text-muted">({{ servicos_destaque[j].prestador.total_avaliacoes() }} avaliações)</span>
-                                                </div>
-                                                
-                                                <div class="d-flex gap-2 mt-3">
-                                                    <a href="{{ url_for('servico.detalhe', id=servicos_destaque[j].id) }}" class="btn btn-primary flex-grow-1 rounded-pill">
-                                                        <i class="fas fa-eye me-2"></i> Ver Detalhes
-                                                    </a>
-                                                    {% if current_user.is_authenticated and current_user.id != servicos_destaque[j].prestador.id %}
-                                                        <button onclick="iniciarChat({{ servicos_destaque[j].prestador.id }}, '{{ servicos_destaque[j].prestador.nome|replace("'", "\\'") }}')" 
-                                                                class="btn btn-outline-primary rounded-pill px-3">
-                                                            <i class="fas fa-comments"></i>
-                                                        </button>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
+        <!-- Grid de Serviços (estilo marketplace) -->
+        <div class="row g-3 g-md-4">
+            {% for j in range(servicos_destaque|length) %}
+                {% if j < 6 %}
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="market-card h-100">
+                            <!-- Badge de Destaque (fita) -->
+                            <div class="market-badge">
+                                <i class="fas fa-star"></i> DESTAQUE
+                            </div>
+                            
+                            <!-- Imagem -->
+                            <a href="{{ url_for('servico.detalhe', id=servicos_destaque[j].id) }}" class="text-decoration-none">
+                                <div class="market-img-wrapper">
+                                    {% if servicos_destaque[j].imagem_base64 %}
+                                        <img src="data:image/jpeg;base64,{{ servicos_destaque[j].imagem_base64 }}" 
+                                             class="market-img" 
+                                             alt="{{ servicos_destaque[j].titulo }}">
+                                    {% else %}
+                                        <div class="market-img-placeholder" style="background: linear-gradient(135deg, {{ get_cor_categoria(servicos_destaque[j].categoria) }} 0%, #1a1a2e 100%);">
+                                            <i class="fas {{ get_icone_categoria(servicos_destaque[j].categoria) }} fa-4x text-white"></i>
+                                            <span class="text-white small fw-bold mt-2">{{ servicos_destaque[j].categoria }}</span>
                                         </div>
+                                    {% endif %}
+                                    
+                                    <!-- Selo categoria sobreposto -->
+                                    <span class="market-category-badge">
+                                        {{ servicos_destaque[j].categoria }}
+                                    </span>
+                                </div>
+                            </a>
+                            
+                            <!-- Corpo do card -->
+                            <div class="market-body">
+                                <!-- Preço em destaque (estilo marketplace) -->
+                                {% if servicos_destaque[j].preco %}
+                                    <div class="market-price">
+                                        <span class="price-label">a partir de</span>
+                                        <span class="price-value">R$ {{ "%.2f"|format(servicos_destaque[j].preco) }}</span>
+                                    </div>
+                                {% else %}
+                                    <div class="market-price">
+                                        <span class="price-value-consult">Sob consulta</span>
                                     </div>
                                 {% endif %}
-                            {% endfor %}
+                                
+                                <!-- Título -->
+                                <a href="{{ url_for('servico.detalhe', id=servicos_destaque[j].id) }}" class="text-decoration-none">
+                                    <h6 class="market-title">{{ servicos_destaque[j].titulo[:45] }}{% if servicos_destaque[j].titulo|length > 45 %}...{% endif %}</h6>
+                                </a>
+                                
+                                <!-- Descrição curta -->
+                                <p class="market-description">{{ servicos_destaque[j].descricao[:60] }}...</p>
+                                
+                                <!-- Prestador -->
+                                <div class="market-provider">
+                                    <a href="{{ url_for('servico.perfil_prestador', prestador_id=servicos_destaque[j].prestador.id) }}" 
+                                       class="d-flex align-items-center gap-2 text-decoration-none">
+                                        {% if servicos_destaque[j].prestador.foto_url %}
+                                            <img src="{{ servicos_destaque[j].prestador.foto_url }}" class="rounded-circle" width="24" height="24" style="object-fit: cover;">
+                                        {% elif servicos_destaque[j].prestador.foto_perfil and servicos_destaque[j].prestador.foto_perfil != 'default.jpg' %}
+                                            <img src="data:image/jpeg;base64,{{ servicos_destaque[j].prestador.foto_perfil }}" class="rounded-circle" width="24" height="24" style="object-fit: cover;">
+                                        {% else %}
+                                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                                                <span class="text-white" style="font-size: 0.7rem;">{{ servicos_destaque[j].prestador.nome[0]|upper }}</span>
+                                            </div>
+                                        {% endif %}
+                                        <span class="small text-muted">{{ servicos_destaque[j].prestador.nome }}</span>
+                                    </a>
+                                </div>
+                                
+                                <!-- Rating -->
+                                <div class="market-rating">
+                                    {% set media = servicos_destaque[j].prestador.media_avaliacoes() if hasattr(servicos_destaque[j].prestador, 'media_avaliacoes') else 0 %}
+                                    {% for k in range(5) %}
+                                        {% if k < media|round(0, 'floor') %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif k < media %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ms-1 small text-muted">({{ servicos_destaque[j].prestador.total_avaliacoes() if hasattr(servicos_destaque[j].prestador, 'total_avaliacoes') else 0 }})</span>
+                                </div>
+                                
+                                <!-- Botões de ação -->
+                                <div class="market-actions">
+                                    <a href="{{ url_for('servico.detalhe', id=servicos_destaque[j].id) }}" 
+                                       class="btn btn-market-primary flex-grow-1">
+                                        <i class="fas fa-eye me-1"></i> Ver
+                                    </a>
+                                    {% if current_user.is_authenticated and current_user.id != servicos_destaque[j].prestador.id %}
+                                        <button onclick="iniciarChat({{ servicos_destaque[j].prestador.id }}, {{ servicos_destaque[j].prestador.nome|tojson }})" 
+                                                class="btn btn-market-secondary" 
+                                                title="Conversar com o prestador">
+                                            <i class="fas fa-comments"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                {% endfor %}
-            </div>
-            
-            <!-- Controles estilizados -->
-            <button class="carousel-control-prev custom-carousel-control" type="button" data-bs-target="#carouselDestaques" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon custom-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Anterior</span>
-            </button>
-            <button class="carousel-control-next custom-carousel-control" type="button" data-bs-target="#carouselDestaques" data-bs-slide="next">
-                <span class="carousel-control-next-icon custom-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Próximo</span>
-            </button>
-        </div>
-        
-        <!-- Indicadores -->
-        <div class="carousel-indicators indicators-premium mt-4 position-relative">
-            {% for i in range(0, servicos_destaque|length, 3) %}
-                <button type="button" data-bs-target="#carouselDestaques" data-bs-slide-to="{{ loop.index0 }}" 
-                        class="{% if loop.first %}active{% endif %}" 
-                        style="width: 30px; height: 4px; border-radius: 10px; margin: 0 5px;"></button>
+                {% endif %}
             {% endfor %}
         </div>
-        
-        <style>
-            /* Desktop: mostra 3 cards */
-            @media (min-width: 768px) {
-                .carousel-item .col-md-4 {
-                    flex: 0 0 33.333%;
-                    max-width: 33.333%;
-                }
-            }
-            
-            /* Mobile: mostra 1 card */
-            @media (max-width: 767px) {
-                .carousel-item .col-12 {
-                    flex: 0 0 100%;
-                    max-width: 100%;
-                }
-                
-                .card-img-placeholder {
-                    height: 160px !important;
-                }
-                
-                .card-body {
-                    padding: 1rem !important;
-                }
-                
-                .featured-ribbon span {
-                    font-size: 0.6rem;
-                    padding: 3px 8px;
-                }
-                
-                .carousel-control-prev,
-                .carousel-control-next {
-                    width: 10%;
-                }
-                
-                .custom-icon {
-                    width: 30px;
-                    height: 30px;
-                }
-            }
-        </style>
     {% else %}
         <div class="alert alert-info text-center rounded-4 py-5">
             <i class="fas fa-info-circle fa-3x mb-3"></i>
             <h5>Nenhum serviço em destaque no momento</h5>
             <p class="mb-3">Seja um prestador destaque e tenha seu serviço na página inicial!</p>
             {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
-                <a href="{{ url_for('servico.cadastro') }}" class="btn btn-primary rounded-pill px-4">
-                    <i class="fas fa-plus-circle me-2"></i> Cadastre um serviço agora
+                <a href="{{ url_for('servico.planos_destaque') }}" class="btn btn-primary rounded-pill px-4">
+                    <i class="fas fa-crown me-2"></i> Ver Planos de Destaque
                 </a>
             {% else %}
                 <a href="{{ url_for('auth.cadastro') }}" class="btn btn-primary rounded-pill px-4">
@@ -214,3 +148,302 @@
         </div>
     {% endif %}
 </div>
+
+<style>
+    /* ============================================ */
+    /* CARDS ESTILO MARKETPLACE (Amazon/Mercado Livre) */
+    /* ============================================ */
+    .market-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #e5e7eb;
+        height: 100%;
+    }
+    
+    .market-card:hover {
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+        transform: translateY(-4px);
+        border-color: #0b2b5c;
+    }
+    
+    /* Badge de Destaque (fita no canto) */
+    .market-badge {
+        position: absolute;
+        top: 10px;
+        left: -8px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 4px 12px;
+        border-radius: 4px;
+        z-index: 3;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+        letter-spacing: 0.5px;
+    }
+    
+    .market-badge::before {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 0;
+        width: 0;
+        height: 0;
+        border-top: 6px solid #b45309;
+        border-left: 8px solid transparent;
+    }
+    
+    /* Wrapper da imagem */
+    .market-img-wrapper {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* Quadrado 1:1 */
+        overflow: hidden;
+        background: #f9fafb;
+    }
+    
+    .market-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+    
+    .market-card:hover .market-img {
+        transform: scale(1.08);
+    }
+    
+    .market-img-placeholder {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Selo de categoria sobre a imagem */
+    .market-category-badge {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        background: rgba(255, 255, 255, 0.95);
+        color: #0b2b5c;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        z-index: 2;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    /* Corpo do card */
+    .market-body {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    
+    /* Preço em destaque (estilo marketplace) */
+    .market-price {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 6px;
+    }
+    
+    .price-label {
+        font-size: 0.65rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    .price-value {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #0b2b5c;
+        line-height: 1.1;
+    }
+    
+    .price-value-consult {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #f59e0b;
+    }
+    
+    /* Título */
+    .market-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 4px;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.4em;
+    }
+    
+    .market-title:hover {
+        color: #0b2b5c;
+    }
+    
+    /* Descrição */
+    .market-description {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-bottom: 8px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.2em;
+    }
+    
+    /* Prestador */
+    .market-provider {
+        margin-bottom: 6px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .market-provider span {
+        font-size: 0.72rem;
+        font-weight: 500;
+    }
+    
+    /* Rating */
+    .market-rating {
+        margin-bottom: 10px;
+        font-size: 0.7rem;
+        color: #f59e0b;
+    }
+    
+    /* Botões de ação */
+    .market-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: auto;
+    }
+    
+    .btn-market-primary {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 8px 12px;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-market-primary:hover {
+        background: linear-gradient(135deg, #071e42, #155a76);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(11, 43, 92, 0.3);
+    }
+    
+    .btn-market-secondary {
+        background: white;
+        color: #0b2b5c;
+        border: 2px solid #0b2b5c;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        padding: 8px 12px;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-market-secondary:hover {
+        background: #0b2b5c;
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    /* ============================================ */
+    /* RESPONSIVIDADE */
+    /* ============================================ */
+    @media (max-width: 768px) {
+        .market-body {
+            padding: 10px;
+        }
+        
+        .price-value {
+            font-size: 1.1rem;
+        }
+        
+        .market-title {
+            font-size: 0.78rem;
+        }
+        
+        .market-description {
+            font-size: 0.7rem;
+            display: none; /* Esconde no celular para economizar espaço */
+        }
+        
+        .market-badge {
+            font-size: 0.6rem;
+            padding: 3px 10px;
+        }
+        
+        .market-category-badge {
+            font-size: 0.6rem;
+            padding: 2px 8px;
+        }
+        
+        .btn-market-primary,
+        .btn-market-secondary {
+            font-size: 0.72rem;
+            padding: 6px 8px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .market-body {
+            padding: 8px;
+        }
+        
+        .price-value {
+            font-size: 1rem;
+        }
+        
+        .market-title {
+            font-size: 0.72rem;
+            min-height: 2.2em;
+        }
+        
+        .market-provider span {
+            font-size: 0.65rem;
+        }
+        
+        .market-rating {
+            font-size: 0.6rem;
+        }
+        
+        .btn-market-primary {
+            font-size: 0.68rem;
+            padding: 5px 8px;
+        }
+        
+        .btn-market-secondary {
+            font-size: 0.7rem;
+            padding: 5px 8px;
+        }
+    }
+</style>
