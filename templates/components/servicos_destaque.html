@@ -77,7 +77,10 @@
                                                 <p class="card-text text-muted small mb-3">{{ servicos_destaque[j].descricao[:80] }}...</p>
                                                 
                                                 <div class="provider-info mb-3">
-                                                    <div class="d-flex align-items-center gap-2">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <!-- Foto clicável → vai para o perfil -->
+                                                    <a href="{{ url_for('servico.perfil_prestador', prestador_id=servicos_destaque[j].prestador.id) }}" 
+                                                    class="text-decoration-none">
                                                         <div class="provider-avatar">
                                                             {% if servicos_destaque[j].prestador.foto_url %}
                                                                 <img src="{{ servicos_destaque[j].prestador.foto_url }}" class="rounded-circle" width="30" height="30">
@@ -87,12 +90,17 @@
                                                                 </div>
                                                             {% endif %}
                                                         </div>
-                                                        <div>
-                                                            <span class="small text-muted">por</span>
-                                                            <strong class="small">{{ servicos_destaque[j].prestador.nome }}</strong>
-                                                        </div>
+                                                    </a>
+                                                    <div>
+                                                        <span class="small text-muted">por</span>
+                                                        <!-- Nome clicável → vai para o perfil -->
+                                                        <a href="{{ url_for('servico.perfil_prestador', prestador_id=servicos_destaque[j].prestador.id) }}" 
+                                                        class="text-decoration-none">
+                                                            <strong class="small text-dark">{{ servicos_destaque[j].prestador.nome }}</strong>
+                                                        </a>
                                                     </div>
                                                 </div>
+                                            </div>
                                                 
                                                 <div class="rating mb-3">
                                                     {% set media = servicos_destaque[j].prestador.media_avaliacoes() %}

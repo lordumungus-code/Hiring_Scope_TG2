@@ -265,6 +265,34 @@ def solicitar(servico_id):
     flash('Solicitação enviada com sucesso!', 'success')
     return redirect(url_for('servico.detalhe', id=servico_id))
 
+@servico_bp.route('/prestador/<int:prestador_id>')
+def perfil_prestador(prestador_id):
+    """Página de perfil público do prestador"""
+    prestador = Usuario.query.get_or_404(prestador_id)
+    
+    # Verifica se é realmente um prestador
+    if prestador.tipo != 'prestador':
+        flash('Este usuário não é um prestador.', 'warning')
+        return redirect(url_for('main.index'))
+    
+    # Buscar os serviços do prestador
+    servicos = Servico.query.filter_by(prestador_id=prestador_id).order_by(
+        Servico.destaque.desc(),
+        Servico.data_postagem.desc()
+    ).all()
+    
+    # Média de avaliações (com verificação)
+    media_avaliacoes = prestador.media_avaliacoes() if hasattr(prestador, 'media_avaliacoes') else 0
+    total_avaliacoes = prestador.total_avaliacoes() if hasattr(prestador, 'total_avaliacoes') else 0
+    
+    return render_template(
+        'perfil_prestador.html',
+        prestador=prestador,
+        servicos=servicos,
+        media_avaliacoes=media_avaliacoes,
+        total_avaliacoes=total_avaliacoes
+    )
+
 
 # ============================================
 # ROTAS DE PLANOS DE DESTAQUE
@@ -286,3 +314,4 @@ def planos_destaque():
 def assinar_plano(plano):
     """Redireciona para o checkout da assinatura no blueprint assinatura"""
     return redirect(url_for('assinatura.checkout', plano=plano))
+
