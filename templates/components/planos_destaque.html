@@ -19,7 +19,7 @@
             <!-- Plano Básico -->
             <div class="col-md-6 col-lg-5">
                 <div class="plano-card text-center p-4 h-100">
-                    <div class="plano-badge">MAIS ESCOLHIDO</div>
+                    <div class="plano-badge">⭐ MAIS ESCOLHIDO</div>
                     <div class="plano-icon-wrapper mb-4">
                         <div class="plano-icon-bg">
                             <i class="fas fa-star"></i>
@@ -33,15 +33,15 @@
                         <span class="price-period">/mês</span>
                     </div>
                     <ul class="plano-features mb-4">
-                        <li><i class="fas fa-check-circle text-success me-2"></i> 1 serviço em destaque</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> <strong>1 serviço</strong> em destaque</li>
                         <li><i class="fas fa-check-circle text-success me-2"></i> Selo <i class="fas fa-star text-warning"></i> Premium</li>
                         <li><i class="fas fa-check-circle text-success me-2"></i> Destaque na página inicial</li>
                         <li><i class="fas fa-check-circle text-success me-2"></i> 30 dias de visibilidade</li>
-                        <li><i class="fas fa-times-circle text-muted me-2"></i> Suporte prioritário</li>
+                        <li class="text-muted"><i class="fas fa-times-circle me-2"></i> Suporte prioritário</li>
                     </ul>
                     {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
                         <a href="{{ url_for('assinatura.checkout', plano='basico') }}" class="btn btn-plano w-100 rounded-pill py-3">
-                            <i class="fas fa-rocket me-2"></i> Contratar Plano
+                            <i class="fas fa-rocket me-2"></i> Contratar Básico
                         </a>
                     {% elif current_user.is_authenticated %}
                         <div class="alert alert-info small mb-0">
@@ -72,15 +72,15 @@
                         <span class="price-period">/mês</span>
                     </div>
                     <ul class="plano-features mb-4">
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Até 3 serviços em destaque</li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Selo <i class="fas fa-crown text-warning"></i> Pro + Destaque</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> <strong>Até 3 serviços</strong> em destaque</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Selo <i class="fas fa-crown text-warning"></i> Pro</li>
                         <li><i class="fas fa-check-circle text-success me-2"></i> Prioridade na busca</li>
                         <li><i class="fas fa-check-circle text-success me-2"></i> 30 dias de visibilidade</li>
                         <li><i class="fas fa-check-circle text-success me-2"></i> Suporte prioritário</li>
                     </ul>
                     {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
                         <a href="{{ url_for('assinatura.checkout', plano='pro') }}" class="btn btn-plano-pro w-100 rounded-pill py-3">
-                            <i class="fas fa-crown me-2"></i> Contratar Plano
+                            <i class="fas fa-crown me-2"></i> Contratar Pro
                         </a>
                     {% elif current_user.is_authenticated %}
                         <div class="alert alert-info small mb-0">
@@ -97,26 +97,43 @@
         
         <!-- Comparativo de Benefícios -->
         <div class="comparativo-section mt-5 pt-4">
-            <h4 class="text-center mb-4 fw-semibold">Compare os benefícios</h4>
+            <h4 class="text-center mb-4 fw-semibold">
+                <i class="fas fa-balance-scale text-primary me-2"></i> Compare os benefícios
+            </h4>
             <div class="table-responsive">
-                <table class="table table-comparativo">
+                <table class="table table-comparativo align-middle">
                     <thead>
                         <tr>
                             <th style="width: 40%">Benefícios</th>
-                            <th class="text-center">Básico</th>
-                            <th class="text-center bg-warning bg-opacity-10">Pro</th>
+                            <th class="text-center">
+                                <div class="d-flex flex-column align-items-center">
+                                    <i class="fas fa-star text-warning mb-1"></i>
+                                    <span>Básico</span>
+                                </div>
+                            </th>
+                            <th class="text-center bg-warning bg-opacity-10">
+                                <div class="d-flex flex-column align-items-center">
+                                    <i class="fas fa-crown text-warning mb-1"></i>
+                                    <span>Pro</span>
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>Serviços em destaque</td>
-                            <td class="text-center">1</td>
-                            <td class="text-center fw-bold text-primary">3</td>
+                            <td class="text-center"><strong>1</strong></td>
+                            <td class="text-center fw-bold text-primary"><strong>3</strong></td>
                         </tr>
                         <tr>
                             <td>Selo especial</td>
                             <td class="text-center"><i class="fas fa-star text-warning"></i></td>
-                            <td class="text-center fw-bold"><i class="fas fa-crown text-warning"></i></td>
+                            <td class="text-center"><i class="fas fa-crown text-warning"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Destaque na página inicial</td>
+                            <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                            <td class="text-center"><i class="fas fa-check text-success"></i></td>
                         </tr>
                         <tr>
                             <td>Prioridade na busca</td>
@@ -136,10 +153,10 @@
         <!-- Call to Action -->
         <div class="cta-planos mt-5 text-center">
             <div class="cta-card">
-                <h4 class="mb-2">Ainda tem dúvidas?</h4>
+                <h4 class="mb-2"><i class="fas fa-headset me-2"></i> Ainda tem dúvidas?</h4>
                 <p class="mb-3">Fale com nosso time e descubra o melhor plano para você</p>
                 <a href="/contato" class="btn btn-outline-light rounded-pill px-4 py-2">
-                    <i class="fas fa-headset me-2"></i> Falar com Consultor
+                    <i class="fas fa-comments me-2"></i> Falar com Consultor
                 </a>
             </div>
         </div>
@@ -161,6 +178,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
     }
     
     .planos-icon i {
@@ -194,7 +212,6 @@
         font-size: 1rem;
     }
     
-    /* Cards de Planos */
     .plano-card {
         background: white;
         border-radius: 28px;
@@ -202,6 +219,8 @@
         position: relative;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         border: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
     }
     
     .plano-card:hover {
@@ -226,11 +245,13 @@
         transform: translateX(-50%);
         background: #e2e8f0;
         color: #475569;
-        padding: 4px 16px;
+        padding: 6px 18px;
         border-radius: 50px;
         font-size: 0.7rem;
-        font-weight: 600;
+        font-weight: 700;
         white-space: nowrap;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     
     .plano-badge.destaque {
@@ -251,6 +272,11 @@
         align-items: center;
         justify-content: center;
         margin: 0 auto;
+        transition: transform 0.3s ease;
+    }
+    
+    .plano-card:hover .plano-icon-bg {
+        transform: scale(1.1) rotate(-5deg);
     }
     
     .plano-icon-bg i {
@@ -283,6 +309,7 @@
         font-size: 2.5rem;
         font-weight: 800;
         color: #0b2b5c;
+        line-height: 1;
     }
     
     .price-period {
@@ -295,11 +322,12 @@
         padding: 0;
         text-align: left;
         display: inline-block;
+        flex-grow: 1;
     }
     
     .plano-features li {
         margin-bottom: 0.75rem;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         color: #334155;
     }
     
@@ -308,12 +336,14 @@
         color: #0b2b5c;
         font-weight: 600;
         transition: all 0.3s ease;
+        border: 2px solid transparent;
     }
     
     .btn-plano:hover {
         background: #0b2b5c;
         color: white;
         transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(11, 43, 92, 0.3);
     }
     
     .btn-plano-pro {
@@ -321,19 +351,21 @@
         color: white;
         font-weight: 600;
         transition: all 0.3s ease;
+        border: 2px solid transparent;
     }
     
     .btn-plano-pro:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+        color: white;
     }
     
-    /* Tabela comparativa */
     .table-comparativo {
         background: white;
         border-radius: 20px;
         overflow: hidden;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        margin-bottom: 0;
     }
     
     .table-comparativo th,
@@ -345,17 +377,26 @@
     .table-comparativo thead th {
         background: #f8fafc;
         font-weight: 600;
+        border-bottom: 2px solid #e2e8f0;
     }
     
-    /* CTA */
+    .table-comparativo tbody tr {
+        transition: background 0.2s ease;
+    }
+    
+    .table-comparativo tbody tr:hover {
+        background: #f8fafc;
+    }
+    
     .cta-card {
         background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
         border-radius: 20px;
         padding: 2rem;
         color: white;
+        box-shadow: 0 10px 30px rgba(11, 43, 92, 0.2);
     }
     
-    /* Responsividade */
+    /* RESPONSIVIDADE - CELULAR */
     @media (max-width: 768px) {
         .plano-destaque {
             transform: scale(1);
@@ -366,17 +407,79 @@
         }
         
         .price-value {
-            font-size: 2rem;
+            font-size: 2.2rem;
+        }
+        
+        .plano-card {
+            padding: 1.5rem !important;
+            margin-bottom: 1rem;
+        }
+        
+        .plano-badge {
+            font-size: 0.65rem;
+            padding: 5px 14px;
+        }
+        
+        .plano-icon-bg {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .plano-icon-bg i {
+            font-size: 1.6rem;
+        }
+        
+        .plano-features li {
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
         }
         
         .table-comparativo th,
         .table-comparativo td {
-            padding: 0.75rem 0.5rem;
+            padding: 0.6rem 0.4rem;
             font-size: 0.8rem;
         }
         
         .cta-card {
             padding: 1.5rem;
+        }
+        
+        .cta-card h4 {
+            font-size: 1.2rem;
+        }
+        
+        .cta-card p {
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .planos-icon {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .planos-icon i {
+            font-size: 1.4rem;
+        }
+        
+        .display-5 {
+            font-size: 1.8rem;
+        }
+        
+        .plano-badge {
+            font-size: 0.6rem;
+            padding: 4px 12px;
+        }
+        
+        .price-value {
+            font-size: 2rem;
+        }
+        
+        .btn-plano,
+        .btn-plano-pro {
+            padding: 0.75rem !important;
+            font-size: 0.9rem;
         }
     }
 </style>

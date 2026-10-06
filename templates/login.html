@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Login - PrestaServiços{% endblock %}
+{% block title %}Login - HiringScope{% endblock %}
 {% block search_bar_desktop %}{% endblock %}
 {% block search_bar_mobile %}{% endblock %}
 
@@ -20,6 +20,27 @@
                     </div>
                     
                     <div class="card-body p-4 p-lg-5">
+                        
+                        <!-- ============================================ -->
+                        <!-- LOGIN SOCIAL (DESTAQUE) -->
+                        <!-- ============================================ -->
+                        <div class="social-login mb-4">
+                            <a href="/auth/firebase/google" class="btn btn-social btn-google w-100 py-3 mb-3">
+                                <i class="fab fa-google me-2"></i>
+                                <span>Continuar com Google</span>
+                            </a>
+                            <button class="btn btn-social btn-facebook w-100 py-3" disabled>
+                                <i class="fab fa-facebook-f me-2"></i>
+                                <span>Continuar com Facebook</span>
+                                <small class="ms-2 opacity-75">(Em breve)</small>
+                            </button>
+                        </div>
+                        
+                        <!-- Divisor -->
+                        <div class="divider text-center my-4">
+                            <span class="divider-text">ou entre com e-mail</span>
+                        </div>
+                        
                         <!-- Formulário de Login -->
                         <form method="POST" id="loginForm">
                             <div class="input-group-modern mb-4">
@@ -60,23 +81,8 @@
                             </button>
                         </form>
                         
-                        <!-- Divisor -->
-                        <div class="divider text-center my-4">
-                            <span class="divider-text">ou continue com</span>
-                        </div>
-                        
-                        <!-- Login Social -->
-                        <div class="social-login">
-                            <a href="/auth/firebase/google" class="btn btn-google w-100 rounded-pill py-2 mb-2">
-                                <i class="fab fa-google me-2"></i> Google
-                            </a>
-                            <button class="btn btn-facebook w-100 rounded-pill py-2" disabled>
-                                <i class="fab fa-facebook-f me-2"></i> Facebook (Em breve)
-                            </button>
-                        </div>
-                        
                         <!-- Link Cadastro -->
-                        <div class="text-center mt-4 pt-2">
+                        <div class="text-center mt-3 pt-2">
                             <p class="mb-0 text-muted">
                                 Não tem uma conta? 
                                 <a href="{{ url_for('auth.cadastro') }}" class="text-primary fw-bold text-decoration-none signup-link">
@@ -114,7 +120,6 @@
         overflow: hidden;
     }
     
-    /* Efeito decorativo de fundo */
     .login-page::before {
         content: '';
         position: absolute;
@@ -144,6 +149,7 @@
         position: relative;
         z-index: 2;
         transition: transform 0.3s ease;
+        animation: fadeInUp 0.6s ease-out;
     }
     
     .login-card:hover {
@@ -180,6 +186,78 @@
         backdrop-filter: blur(5px);
     }
     
+    /* ============================================ */
+    /* BOTÕES SOCIAIS (DESTAQUE) */
+    /* ============================================ */
+    .btn-social {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1rem;
+        border: none;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-social i {
+        font-size: 1.2rem;
+    }
+    
+    .btn-social:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-social:active {
+        transform: translateY(0);
+    }
+    
+    /* Botão Google */
+    .btn-google {
+        background: white;
+        color: #333;
+        border: 2px solid #e2e8f0;
+    }
+    
+    .btn-google:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #333;
+    }
+    
+    .btn-google i {
+        color: #DB4437;
+    }
+    
+    /* Botão Facebook */
+    .btn-facebook {
+        background: #1877F2;
+        color: white;
+    }
+    
+    .btn-facebook:hover {
+        background: #166FE5;
+        color: white;
+    }
+    
+    .btn-facebook:disabled {
+        background: #1877F2;
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .btn-facebook i {
+        color: white;
+    }
+    
+    /* ============================================ */
+    /* INPUTS */
+    /* ============================================ */
     .input-group-modern {
         position: relative;
     }
@@ -207,6 +285,9 @@
         background-color: white;
     }
     
+    /* ============================================ */
+    /* BOTÃO DE LOGIN TRADICIONAL */
+    /* ============================================ */
     .btn-login {
         background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
         border: none;
@@ -237,31 +318,9 @@
         box-shadow: 0 5px 20px rgba(11, 43, 92, 0.3);
     }
     
-    .btn-google {
-        border: 1px solid #e2e8f0;
-        background: white;
-        color: #333;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-google:hover {
-        background: #f8f9fa;
-        border-color: #dc2626;
-        color: #dc2626;
-        transform: translateY(-2px);
-    }
-    
-    .btn-facebook {
-        border: 1px solid #e2e8f0;
-        background: white;
-        color: #333;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-    
+    /* ============================================ */
+    /* DIVISOR */
+    /* ============================================ */
     .divider {
         position: relative;
     }
@@ -285,6 +344,9 @@
         color: #94a3b8;
     }
     
+    /* ============================================ */
+    /* LINKS */
+    /* ============================================ */
     .forgot-link {
         color: #64748b;
         transition: color 0.2s;
@@ -302,6 +364,9 @@
         letter-spacing: 0.5px;
     }
     
+    /* ============================================ */
+    /* BADGES DE RECURSOS */
+    /* ============================================ */
     .feature-badges .badge {
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         transition: all 0.2s;
@@ -312,7 +377,9 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     
-    /* Animações */
+    /* ============================================ */
+    /* ANIMAÇÕES */
+    /* ============================================ */
     @keyframes fadeInUp {
         from {
             opacity: 0;
@@ -324,10 +391,9 @@
         }
     }
     
-    .login-card {
-        animation: fadeInUp 0.6s ease-out;
-    }
-    
+    /* ============================================ */
+    /* RESPONSIVIDADE */
+    /* ============================================ */
     @media (max-width: 768px) {
         .login-card .card-body {
             padding: 1.5rem !important;
@@ -345,6 +411,11 @@
         .btn-login {
             padding: 0.75rem !important;
         }
+        
+        .btn-social {
+            font-size: 0.95rem;
+            padding: 0.75rem !important;
+        }
     }
 </style>
 
@@ -352,12 +423,10 @@
     document.getElementById('loginForm')?.addEventListener('submit', function(e) {
         const btn = this.querySelector('.btn-login');
         const spinner = btn.querySelector('.btn-loader');
-        const btnText = btn.querySelector('i:first-child');
         
         btn.disabled = true;
         spinner.classList.remove('d-none');
         
-        // Se houver erro, reabilitar (o Flask já vai recarregar a página)
         setTimeout(() => {
             btn.disabled = false;
             spinner.classList.add('d-none');

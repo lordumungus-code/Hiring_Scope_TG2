@@ -607,16 +607,42 @@
     // EVENT LISTENERS
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
-        // Iniciar socket
+        // ============================================
+        // INICIAR SOCKET
+        // ============================================
         iniciarSocketChat();
         
-        // Botão de enviar
+        // ============================================
+        // VERIFICAR SE VEIO DE UM "iniciarChat"
+        // (chamado de outra página, como planos de destaque)
+        // ============================================
+        const chatWithId = sessionStorage.getItem('chat_with_id');
+        const chatWithName = sessionStorage.getItem('chat_with_name');
+        
+        if (chatWithId && chatWithName) {
+            console.log('🔗 Iniciando conversa automaticamente com:', chatWithName);
+            
+            // Limpa o sessionStorage
+            sessionStorage.removeItem('chat_with_id');
+            sessionStorage.removeItem('chat_with_name');
+            
+            // Pequeno delay para garantir que a lista está pronta
+            setTimeout(function() {
+                carregarConversa(parseInt(chatWithId), chatWithName);
+            }, 500);
+        }
+        
+        // ============================================
+        // BOTÃO DE ENVIAR
+        // ============================================
         const enviarBtn = document.getElementById('enviarBtn');
         if (enviarBtn) {
             enviarBtn.addEventListener('click', enviarMensagem);
         }
         
-        // Enter no input
+        // ============================================
+        // ENTER NO INPUT
+        // ============================================
         const mensagemInput = document.getElementById('mensagemInput');
         if (mensagemInput) {
             mensagemInput.addEventListener('keypress', function(e) {
@@ -627,7 +653,9 @@
             });
         }
         
-        // Busca de conversas (filtra conversas e sugestões)
+        // ============================================
+        // BUSCA DE CONVERSAS
+        // ============================================
         const buscarInput = document.getElementById('buscarConversa');
         if (buscarInput) {
             buscarInput.addEventListener('input', function(e) {
@@ -639,10 +667,14 @@
             });
         }
         
-        // Iniciar polling
+        // ============================================
+        // INICIAR POLLING
+        // ============================================
         setTimeout(iniciarPolling, 500);
         
-        // Atualizar contador
+        // ============================================
+        // ATUALIZAR CONTADOR DE NÃO LIDAS
+        // ============================================
         if (typeof updateUnreadCount === 'function') {
             updateUnreadCount();
         }
