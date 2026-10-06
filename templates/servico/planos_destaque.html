@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Planos de Destaque - PrestaServiços{% endblock %}
+{% block title %}Planos de Destaque - HiringScope{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -26,13 +26,13 @@
                     
                     <ul class="list-unstyled text-start mb-4">
                         <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> 1 serviço em destaque</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Selo ⭐ Premium</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Selo <i class="fas fa-star text-warning"></i> Premium</li>
                         <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Destaque na página inicial</li>
                         <li class="mb-2 text-muted"><i class="fas fa-times-circle text-muted me-2"></i> Suporte prioritário</li>
                     </ul>
                     
                     {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
-                        <a href="{{ url_for('servico.assinar_plano', plano='basico') }}" class="btn btn-outline-primary w-100 rounded-pill py-2">
+                        <a href="{{ url_for('assinatura.checkout', plano='basico') }}" class="btn btn-outline-primary w-100 rounded-pill py-2">
                             Assinar Agora
                         </a>
                     {% elif current_user.is_authenticated %}
@@ -66,13 +66,13 @@
                     
                     <ul class="list-unstyled text-start mb-4">
                         <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> 3 serviços em destaque</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Selo 👑 Pro</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Selo <i class="fas fa-crown text-warning"></i> Pro</li>
                         <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Prioridade na busca</li>
                         <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Suporte prioritário</li>
                     </ul>
                     
                     {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
-                        <a href="{{ url_for('servico.assinar_plano', plano='pro') }}" class="btn btn-primary w-100 rounded-pill py-2">
+                        <a href="{{ url_for('assinatura.checkout', plano='pro') }}" class="btn btn-primary w-100 rounded-pill py-2">
                             Assinar Agora
                         </a>
                     {% elif current_user.is_authenticated %}

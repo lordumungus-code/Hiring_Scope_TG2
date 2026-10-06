@@ -17,7 +17,7 @@
         
         <div class="row g-4 justify-content-center">
             <!-- Plano Básico -->
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-5">
                 <div class="plano-card text-center p-4 h-100">
                     <div class="plano-badge">MAIS ESCOLHIDO</div>
                     <div class="plano-icon-wrapper mb-4">
@@ -29,24 +29,34 @@
                     <p class="text-muted mb-3">Ideal para começar</p>
                     <div class="plano-price mb-4">
                         <span class="price-currency">R$</span>
-                        <span class="price-value">9,90</span>
+                        <span class="price-value">9,99</span>
                         <span class="price-period">/mês</span>
                     </div>
                     <ul class="plano-features mb-4">
                         <li><i class="fas fa-check-circle text-success me-2"></i> 1 serviço em destaque</li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Selo ⭐ Premium</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Selo <i class="fas fa-star text-warning"></i> Premium</li>
                         <li><i class="fas fa-check-circle text-success me-2"></i> Destaque na página inicial</li>
                         <li><i class="fas fa-check-circle text-success me-2"></i> 30 dias de visibilidade</li>
                         <li><i class="fas fa-times-circle text-muted me-2"></i> Suporte prioritário</li>
                     </ul>
-                    <a href="{{ url_for('servico.planos_destaque') }}" class="btn btn-plano w-100 rounded-pill py-3">
-                        <i class="fas fa-rocket me-2"></i> Contratar Plano
-                    </a>
+                    {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
+                        <a href="{{ url_for('assinatura.checkout', plano='basico') }}" class="btn btn-plano w-100 rounded-pill py-3">
+                            <i class="fas fa-rocket me-2"></i> Contratar Plano
+                        </a>
+                    {% elif current_user.is_authenticated %}
+                        <div class="alert alert-info small mb-0">
+                            <i class="fas fa-info-circle me-1"></i> Apenas para prestadores
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-plano w-100 rounded-pill py-3">
+                            <i class="fas fa-sign-in-alt me-2"></i> Faça login
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             
             <!-- Plano Pro (Destaque) -->
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-5">
                 <div class="plano-card plano-destaque text-center p-4 h-100">
                     <div class="plano-badge destaque">🔥 MAIS VENDIDO</div>
                     <div class="plano-icon-wrapper mb-4">
@@ -63,43 +73,24 @@
                     </div>
                     <ul class="plano-features mb-4">
                         <li><i class="fas fa-check-circle text-success me-2"></i> Até 3 serviços em destaque</li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Selo 👑 Pro + Destaque</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Selo <i class="fas fa-crown text-warning"></i> Pro + Destaque</li>
                         <li><i class="fas fa-check-circle text-success me-2"></i> Prioridade na busca</li>
                         <li><i class="fas fa-check-circle text-success me-2"></i> 30 dias de visibilidade</li>
                         <li><i class="fas fa-check-circle text-success me-2"></i> Suporte prioritário</li>
                     </ul>
-                    <a href="{{ url_for('servico.planos_destaque') }}" class="btn btn-plano-pro w-100 rounded-pill py-3">
-                        <i class="fas fa-crown me-2"></i> Contratar Plano
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Plano Empresarial -->
-            <div class="col-md-6 col-lg-4">
-                <div class="plano-card text-center p-4 h-100">
-                    <div class="plano-badge">PERSONALIZADO</div>
-                    <div class="plano-icon-wrapper mb-4">
-                        <div class="plano-icon-bg enterprise">
-                            <i class="fas fa-building"></i>
+                    {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
+                        <a href="{{ url_for('assinatura.checkout', plano='pro') }}" class="btn btn-plano-pro w-100 rounded-pill py-3">
+                            <i class="fas fa-crown me-2"></i> Contratar Plano
+                        </a>
+                    {% elif current_user.is_authenticated %}
+                        <div class="alert alert-info small mb-0">
+                            <i class="fas fa-info-circle me-1"></i> Apenas para prestadores
                         </div>
-                    </div>
-                    <h3 class="fw-bold mb-2">Plano Empresarial</h3>
-                    <p class="text-muted mb-3">Para negócios em crescimento</p>
-                    <div class="plano-price mb-4">
-                        <span class="price-currency">R$</span>
-                        <span class="price-value">99,90</span>
-                        <span class="price-period">/mês</span>
-                    </div>
-                    <ul class="plano-features mb-4">
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Até 10 serviços em destaque</li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Selo 💼 Empresarial</li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Prioridade máxima na busca</li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> 30 dias de visibilidade</li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Consultoria exclusiva</li>
-                    </ul>
-                    <a href="{{ url_for('servico.planos_destaque') }}" class="btn btn-plano w-100 rounded-pill py-3">
-                        <i class="fas fa-phone-alt me-2"></i> Falar com Consultor
-                    </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-plano-pro w-100 rounded-pill py-3">
+                            <i class="fas fa-sign-in-alt me-2"></i> Faça login
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -111,18 +102,32 @@
                 <table class="table table-comparativo">
                     <thead>
                         <tr>
-                            <th style="width: 30%">Benefícios</th>
+                            <th style="width: 40%">Benefícios</th>
                             <th class="text-center">Básico</th>
                             <th class="text-center bg-warning bg-opacity-10">Pro</th>
-                            <th class="text-center">Empresarial</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>Serviços em destaque</td><td class="text-center">1</td><td class="text-center fw-bold text-primary">3</td><td class="text-center">10+</td></tr>
-                        <tr><td>Selo especial</td><td class="text-center">⭐</td><td class="text-center fw-bold">👑</td><td class="text-center">💼</td></tr>
-                        <tr><td>Prioridade na busca</td><td class="text-center"><i class="fas fa-times text-muted"></i></td><td class="text-center"><i class="fas fa-check text-success"></i></td><td class="text-center"><i class="fas fa-check-double text-success"></i></td></tr>
-                        <tr><td>Suporte prioritário</td><td class="text-center"><i class="fas fa-times text-muted"></i></td><td class="text-center"><i class="fas fa-check text-success"></i></td><td class="text-center"><i class="fas fa-headset text-success"></i></td></tr>
-                        <tr><td>Consultoria exclusiva</td><td class="text-center"><i class="fas fa-times text-muted"></i></td><td class="text-center"><i class="fas fa-times text-muted"></i></td><td class="text-center"><i class="fas fa-check text-success"></i></td></tr>
+                        <tr>
+                            <td>Serviços em destaque</td>
+                            <td class="text-center">1</td>
+                            <td class="text-center fw-bold text-primary">3</td>
+                        </tr>
+                        <tr>
+                            <td>Selo especial</td>
+                            <td class="text-center"><i class="fas fa-star text-warning"></i></td>
+                            <td class="text-center fw-bold"><i class="fas fa-crown text-warning"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Prioridade na busca</td>
+                            <td class="text-center"><i class="fas fa-times text-muted"></i></td>
+                            <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Suporte prioritário</td>
+                            <td class="text-center"><i class="fas fa-times text-muted"></i></td>
+                            <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -132,7 +137,7 @@
         <div class="cta-planos mt-5 text-center">
             <div class="cta-card">
                 <h4 class="mb-2">Ainda tem dúvidas?</h4>
-                <p class="mb-3">Fale com nosso time comercial e descubra o melhor plano para você</p>
+                <p class="mb-3">Fale com nosso time e descubra o melhor plano para você</p>
                 <a href="/contato" class="btn btn-outline-light rounded-pill px-4 py-2">
                     <i class="fas fa-headset me-2"></i> Falar com Consultor
                 </a>
@@ -259,10 +264,6 @@
     
     .plano-icon-bg.pro i {
         color: #f59e0b;
-    }
-    
-    .plano-icon-bg.enterprise {
-        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
     }
     
     .plano-price {
