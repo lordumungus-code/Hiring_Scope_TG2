@@ -1,7 +1,11 @@
-config/firebase-adminsdk.json
-config/firebase-adminsdk.json
-.env__pycache__/
-*.pyc
-*.pyo
-*.pyd
+# Backups do banco de dados (não commitar!)
+backups/
+*.db
+*.sql
+*.sqlite
+*.sqlite3
+
+# Arquivos locais de desenvolvimento
 .env
+*.env
+instance/
