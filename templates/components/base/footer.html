@@ -3,29 +3,49 @@
         <div class="row gy-4">
             <div class="col-md-4">
                 <h5 class="fw-bold mb-3">
-                    <i class="fas fa-tools me-2"></i> PrestaServiços
+                    <i class="fas fa-tools me-2"></i> HiringScope
                 </h5>
                 <p class="text-white-50 small">
                     Conectamos clientes e prestadores de serviços de forma simples, rápida e segura.
                 </p>
                 <div class="social-links mt-3">
-                    <a href="#" class="me-2"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="me-2"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="me-2"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="me-2"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="me-2" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="me-2" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="me-2" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="me-2" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                 </div>
             </div>
 
             <div class="col-md-2">
                 <h5 class="fw-bold mb-3">Links</h5>
                 <ul class="list-unstyled">
-                    <li class="mb-2"><a href="{{ url_for('main.index') }}" class="text-white-50 text-decoration-none"><i class="fas fa-home me-2"></i>Início</a></li>
-                    <li class="mb-2"><a href="{{ url_for('servico.lista') }}" class="text-white-50 text-decoration-none"><i class="fas fa-search me-2"></i>Serviços</a></li>
+                    <li class="mb-2">
+                        <a href="{{ url_for('main.index') }}" class="text-white-50 text-decoration-none">
+                            <i class="fas fa-home me-2"></i>Início
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{{ url_for('servico.lista') }}" class="text-white-50 text-decoration-none">
+                            <i class="fas fa-search me-2"></i>Serviços
+                        </a>
+                    </li>
                     {% if current_user.is_authenticated %}
-                        <li class="mb-2"><a href="{{ url_for('main.dashboard') }}" class="text-white-50 text-decoration-none"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('main.dashboard') }}" class="text-white-50 text-decoration-none">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
                     {% else %}
-                        <li class="mb-2"><a href="{{ url_for('auth.cadastro') }}" class="text-white-50 text-decoration-none"><i class="fas fa-user-plus me-2"></i>Cadastro</a></li>
-                        <li class="mb-2"><a href="{{ url_for('auth.login') }}" class="text-white-50 text-decoration-none"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('auth.cadastro') }}" class="text-white-50 text-decoration-none">
+                                <i class="fas fa-user-plus me-2"></i>Cadastro
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ url_for('auth.login') }}" class="text-white-50 text-decoration-none">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                            </a>
+                        </li>
                     {% endif %}
                 </ul>
             </div>
@@ -33,28 +53,34 @@
             <div class="col-md-3">
                 <h5 class="fw-bold mb-3">Atendimento</h5>
                 <ul class="list-unstyled">
-                    <li class="mb-2 text-white-50"><i class="fas fa-envelope me-2"></i> contato@prestaservicos.com</li>
-                    <li class="mb-2 text-white-50"><i class="fas fa-phone me-2"></i> (11) 4000-0000</li>
-                    <li class="mb-2 text-white-50"><i class="fas fa-clock me-2"></i> Seg - Sex: 9h às 18h</li>
+                    <li class="mb-2 text-white-50">
+                        <i class="fas fa-envelope me-2"></i> contato@hiring-scope.com.br
+                    </li>
+                    <li class="mb-2 text-white-50">
+                        <i class="fas fa-phone me-2"></i> (11) 4000-0000
+                    </li>
+                    <li class="mb-2 text-white-50">
+                        <i class="fas fa-clock me-2"></i> Seg - Sex: 9h às 18h
+                    </li>
                 </ul>
             </div>
 
             <div class="col-md-3">
                 <h5 class="fw-bold mb-3">Newsletter</h5>
                 <p class="text-white-50 small">Receba novidades e ofertas exclusivas</p>
-                <div class="input-group">
-                    <input type="email" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Seu e-mail">
-                    <button class="btn btn-primary btn-sm" type="button">
+                <form action="#" method="POST" class="input-group">
+                    <input type="email" name="email" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Seu e-mail" required>
+                    <button class="btn btn-primary btn-sm" type="submit" aria-label="Inscrever">
                         <i class="fas fa-paper-plane"></i>
                     </button>
-                </div>
+                </form>
             </div>
         </div>
 
         <hr class="my-4 border-secondary opacity-50">
         <div class="text-center">
             <p class="mb-0 text-white-50 small">
-                &copy; 2024 PrestaServiços. Todos os direitos reservados. 
+                &copy; 2026 HiringScope. Todos os direitos reservados. 
                 Desenvolvido com <i class="fas fa-heart text-danger"></i> para conectar profissionais.
             </p>
         </div>
