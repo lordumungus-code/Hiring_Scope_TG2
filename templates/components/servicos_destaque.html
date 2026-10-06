@@ -96,9 +96,9 @@
                                     </a>
                                 </div>
                                 
-                                <!-- Rating -->
+                                <!-- Rating (SEM hasattr - usa as funções diretamente) -->
                                 <div class="market-rating">
-                                    {% set media = servicos_destaque[j].prestador.media_avaliacoes() if hasattr(servicos_destaque[j].prestador, 'media_avaliacoes') else 0 %}
+                                    {% set media = servicos_destaque[j].prestador.media_avaliacoes() %}
                                     {% for k in range(5) %}
                                         {% if k < media|round(0, 'floor') %}
                                             <i class="fas fa-star"></i>
@@ -108,7 +108,7 @@
                                             <i class="far fa-star"></i>
                                         {% endif %}
                                     {% endfor %}
-                                    <span class="ms-1 small text-muted">({{ servicos_destaque[j].prestador.total_avaliacoes() if hasattr(servicos_destaque[j].prestador, 'total_avaliacoes') else 0 }})</span>
+                                    <span class="ms-1 small text-muted">({{ servicos_destaque[j].prestador.total_avaliacoes() }})</span>
                                 </div>
                                 
                                 <!-- Botões de ação -->
@@ -203,7 +203,7 @@
     .market-img-wrapper {
         position: relative;
         width: 100%;
-        padding-top: 100%; /* Quadrado 1:1 */
+        padding-top: 100%;
         overflow: hidden;
         background: #f9fafb;
     }
@@ -394,7 +394,7 @@
         
         .market-description {
             font-size: 0.7rem;
-            display: none; /* Esconde no celular para economizar espaço */
+            display: none;
         }
         
         .market-badge {
