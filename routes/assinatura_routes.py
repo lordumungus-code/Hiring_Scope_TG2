@@ -20,7 +20,7 @@ def checkout(plano):
         return redirect(url_for('main.index'))
     
     planos_config = {
-        'basico': {'nome': 'Básico', 'valor': 1},
+        'basico': {'nome': 'Básico', 'valor': 9.99},
         'pro': {'nome': 'Pro', 'valor': 29.90}
     }
     
