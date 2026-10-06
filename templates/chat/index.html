@@ -35,8 +35,8 @@
                                     {% for usuario in usuarios %}
                                     <div class="conversation-item d-flex align-items-center p-3 rounded-3 mb-2 cursor-pointer" 
                                          data-usuario-id="{{ usuario.id }}"
-                                         data-usuario-nome="{{ usuario.nome|lower }}"
-                                         onclick="carregarConversa({{ usuario.id }}, '{{ usuario.nome|replace("'", "\\'") }}')">
+                                         data-usuario-nome="{{ usuario.nome|lower|e }}"
+                                         onclick='carregarConversa({{ usuario.id }}, {{ usuario.nome|tojson }})'>
                                         <div class="user-avatar-placeholder bg-primary rounded-circle d-flex align-items-center justify-content-center me-3 position-relative" style="width: 50px; height: 50px; flex-shrink: 0;">
                                             {% if usuario.foto_url %}
                                                 <img src="{{ usuario.foto_url }}" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
