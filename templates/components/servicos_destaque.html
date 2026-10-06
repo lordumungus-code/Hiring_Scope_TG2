@@ -118,11 +118,11 @@
                                         <i class="fas fa-eye me-1"></i> Ver
                                     </a>
                                     {% if current_user.is_authenticated and current_user.id != servicos_destaque[j].prestador.id %}
-                                        <button onclick="iniciarChat({{ servicos_destaque[j].prestador.id }}, {{ servicos_destaque[j].prestador.nome|tojson }})" 
-                                                class="btn btn-market-secondary" 
-                                                title="Conversar com o prestador">
-                                            <i class="fas fa-comments"></i>
-                                        </button>
+                                        <button onclick='iniciarChat({{ servicos_destaque[j].prestador.id }}, {{ servicos_destaque[j].prestador.nome|tojson }})' 
+        class="btn btn-market-secondary" 
+        title="Conversar com o prestador">
+    <i class="fas fa-comments"></i>
+</button>
                                     {% endif %}
                                 </div>
                             </div>
