@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Editar Serviço - PrestaServiços{% endblock %}
+{% block title %}Editar Serviço - HiringScope{% endblock %}
 
 {% block content %}
 <div class="container mt-4" style="max-width: 800px;">
@@ -85,28 +85,43 @@
                     <small class="text-muted" id="descricaoPreco">Deixe em branco se for "preço sob consulta"</small>
                 </div>
 
-                <!-- Destaque -->
+                <!-- ============================================ -->
+                <!-- DESTAQUE (CORRIGIDO COM VERIFICAÇÃO) -->
+                <!-- ============================================ -->
                 <div class="mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="destaque" id="destaqueCheck" {% if servico.destaque %}checked{% endif %}>
-                        <label class="form-check-label fw-bold" for="destaqueCheck">
-                            <i class="fas fa-star text-warning me-1"></i> Serviço em Destaque
-                        </label>
-                        <br>
-                        <small class="text-muted">Serviços em destaque aparecem na página inicial</small>
-                    </div>
-                </div>
-
-                <!-- Destaque Pago (Premium) -->
-                <div class="mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="destaque_pago" id="destaquePagoCheck" {% if servico.destaque_pago and servico.destaque_data_fim and servico.destaque_data_fim > now %}checked{% endif %}>
-                        <label class="form-check-label fw-bold text-danger" for="destaquePagoCheck">
-                            <i class="fas fa-crown me-1"></i> Destaque Premium (R$ 9,90/mês)
-                        </label>
-                        <br>
-                        <small class="text-muted">Seu serviço fica no topo das buscas e na página inicial</small>
-                    </div>
+                    {% if assinatura_ativa %}
+                        {% set total_destaques = servicos_em_destaque|length %}
+                        {% set limite_plano = 1 if assinatura_ativa.plano == 'basico' else 3 %}
+                        
+                        {# Se este serviço já está em destaque, conta ele como 1 usado #}
+                        {% set ja_esta_destacado = servico.destaque %}
+                        {% set outros_destaques = total_destaques - (1 if ja_esta_destacado else 0) %}
+                        
+                        {% if outros_destaques < limite_plano %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="destaque" id="destaqueCheck" {% if servico.destaque %}checked{% endif %}>
+                                <label class="form-check-label fw-bold" for="destaqueCheck">
+                                    <i class="fas fa-star text-warning me-1"></i> Serviço em Destaque
+                                </label>
+                                <br>
+                                <small class="text-success">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Você tem {{ limite_plano - outros_destaques }} de {{ limite_plano }} vagas de destaque disponíveis no plano {{ assinatura_ativa.plano|capitalize }}
+                                </small>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning small mb-0">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Você já atingiu o limite de {{ limite_plano }} serviço(s) em destaque do plano {{ assinatura_ativa.plano|capitalize }}.
+                                <a href="{{ url_for('assinatura.checkout', plano='pro') }}" class="alert-link">Faça upgrade para o Pro</a> para destacar mais serviços.
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info small mb-0">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Para destacar seus serviços na página inicial, você precisa de um <a href="{{ url_for('servico.planos_destaque') }}" class="alert-link">plano de destaque ativo</a>.
+                        </div>
+                    {% endif %}
                 </div>
 
                 <!-- Imagem -->
