@@ -3,16 +3,19 @@ from flask_login import login_required, current_user
 from extensions import db
 from models import Usuario, Mensagem
 from datetime import datetime
+from sqlalchemy import func
 
 chat_bp = Blueprint('chat', __name__, url_prefix='/chat')
+
 
 @chat_bp.route('/')
 @login_required
 def index():
-    """Página principal do chat - Versão simplificada"""
+    """Página principal do chat - Conversas + Sugestões"""
     try:
-        # Buscar TODOS os usuários exceto o atual
-        # Primeiro, tenta buscar quem já conversou
+        # ============================================
+        # 1. BUSCAR CONVERSAS EXISTENTES
+        # ============================================
         usuarios_que_conversaram = db.session.query(Usuario).join(
             Mensagem,
             (Mensagem.remetente_id == Usuario.id) | (Mensagem.destinatario_id == Usuario.id)
@@ -21,31 +24,65 @@ def index():
             Usuario.id != current_user.id
         ).distinct().all()
         
-        # Se não houver conversas, mostrar todos os prestadores (para cliente)
-        if not usuarios_que_conversaram:
-            if current_user.tipo == 'cliente':
-                usuarios_que_conversaram = Usuario.query.filter(
-                    Usuario.tipo == 'prestador',
-                    Usuario.id != current_user.id
-                ).limit(10).all()
-            else:
-                usuarios_que_conversaram = Usuario.query.filter(
-                    Usuario.tipo == 'cliente',
-                    Usuario.id != current_user.id
-                ).limit(10).all()
+        # ============================================
+        # 2. BUSCAR SUGESTÕES (com quem ainda NÃO conversou)
+        # ============================================
+        ids_que_ja_conversou = [u.id for u in usuarios_que_conversaram]
         
-        print(f"[CHAT] Usuário {current_user.id} - Encontrados {len(usuarios_que_conversaram)} contatos")
+        # Agora permitimos que TODOS possam conversar com TODOS
+        # (prestador ↔ cliente, prestador ↔ prestador, cliente ↔ cliente)
+        query_sugestoes = Usuario.query.filter(Usuario.id != current_user.id)
         
-        return render_template('chat/index.html', usuarios=usuarios_que_conversaram)
+        # Remove os que já estão na lista de conversas
+        if ids_que_ja_conversou:
+            query_sugestoes = query_sugestoes.filter(~Usuario.id.in_(ids_que_ja_conversou))
+        
+        sugestoes = query_sugestoes.order_by(Usuario.nome.asc()).limit(20).all()
+        
+        # ============================================
+        # 3. BUSCAR CONTAGEM DE NÃO LIDAS POR CONVERSA
+        # ============================================
+        nao_lidas_por_usuario = {}
+        try:
+            resultados = db.session.query(
+                Mensagem.remetente_id,
+                func.count(Mensagem.id).label('total')
+            ).filter(
+                Mensagem.destinatario_id == current_user.id,
+                Mensagem.lida == False
+            ).group_by(Mensagem.remetente_id).all()
+            
+            for r in resultados:
+                nao_lidas_por_usuario[r.remetente_id] = r.total
+        except Exception as e:
+            print(f"[CHAT] Erro ao buscar não lidas: {e}")
+        
+        print(f"[CHAT] Usuário {current_user.id} ({current_user.nome}) - "
+              f"{len(usuarios_que_conversaram)} conversas, {len(sugestoes)} sugestões")
+        
+        return render_template(
+            'chat/index.html',
+            usuarios=usuarios_que_conversaram,
+            sugestoes=sugestoes,
+            nao_lidas_por_usuario=nao_lidas_por_usuario
+        )
     except Exception as e:
         print(f"[CHAT] Erro: {e}")
-        return render_template('chat/index.html', usuarios=[])
+        import traceback
+        traceback.print_exc()
+        return render_template('chat/index.html', usuarios=[], sugestoes=[], nao_lidas_por_usuario={})
+
 
 @chat_bp.route('/historico/<int:user_id>')
 @login_required
 def historico(user_id):
     """Retorna histórico de mensagens"""
     try:
+        # Verifica se o usuário existe
+        outro_usuario = Usuario.query.get(user_id)
+        if not outro_usuario:
+            return jsonify({'error': 'Usuário não encontrado'}), 404
+        
         mensagens = Mensagem.query.filter(
             ((Mensagem.remetente_id == current_user.id) & (Mensagem.destinatario_id == user_id)) |
             ((Mensagem.remetente_id == user_id) & (Mensagem.destinatario_id == current_user.id))
@@ -73,6 +110,7 @@ def historico(user_id):
         print(f"[CHAT] Erro histórico: {e}")
         return jsonify([])
 
+
 @chat_bp.route('/enviar', methods=['POST'])
 @login_required
 def enviar_mensagem():
@@ -85,6 +123,14 @@ def enviar_mensagem():
         if not conteudo:
             return jsonify({'error': 'Mensagem vazia'}), 400
         
+        if not destinatario_id:
+            return jsonify({'error': 'Destinatário não informado'}), 400
+        
+        # Verifica se o destinatário existe
+        destinatario = Usuario.query.get(destinatario_id)
+        if not destinatario:
+            return jsonify({'error': 'Destinatário não encontrado'}), 404
+        
         nova_mensagem = Mensagem(
             remetente_id=current_user.id,
             destinatario_id=destinatario_id,
@@ -96,15 +142,10 @@ def enviar_mensagem():
         db.session.add(nova_mensagem)
         db.session.commit()
         
-        print(f"🔥🔥🔥 MENSAGEM ENVIADA 🔥🔥🔥")
-        print(f"  Remetente: {current_user.id} - {current_user.nome}")
-        print(f"  Destinatário: {destinatario_id}")
-        print(f"  Conteúdo: {conteudo}")
+        print(f"🔥 MENSAGEM ENVIADA: {current_user.nome} → {destinatario.nome}")
         
         # Emitir via socket
         from extensions import socketio
-        
-        print(f"  Emitindo para room: user_{destinatario_id}")
         
         socketio.emit('new_private_message', {
             'id': nova_mensagem.id,
@@ -114,8 +155,6 @@ def enviar_mensagem():
             'conteudo': conteudo,
             'data_envio': nova_mensagem.data_envio.strftime('%H:%M')
         }, room=f'user_{destinatario_id}')
-        
-        print(f"✅ Evento emitido para user_{destinatario_id}")
         
         return jsonify({
             'success': True,
@@ -127,12 +166,15 @@ def enviar_mensagem():
         })
     except Exception as e:
         print(f"❌ Erro ao enviar: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
 
 @chat_bp.route('/nao-lidas')
 @login_required
 def nao_lidas():
-    """Retorna número de mensagens não lidas"""
+    """Retorna número total de mensagens não lidas"""
     try:
         count = Mensagem.query.filter_by(
             destinatario_id=current_user.id,
@@ -143,17 +185,12 @@ def nao_lidas():
         print(f"[CHAT] Erro não lidas: {e}")
         return jsonify({'count': 0})
 
-# ============================================
-# ROTA PARA BADGES POR CONVERSA (APENAS UMA VEZ!)
-# ============================================
 
 @chat_bp.route('/nao-lidas-por-conversa')
 @login_required
 def nao_lidas_por_conversa():
     """Retorna número de mensagens não lidas por conversa"""
     try:
-        from sqlalchemy import func
-        
         resultados = db.session.query(
             Mensagem.remetente_id,
             func.count(Mensagem.id).label('total')
@@ -171,9 +208,6 @@ def nao_lidas_por_conversa():
         print(f"Erro: {e}")
         return jsonify({'conversas': {}})
 
-# ============================================
-# ROTA PARA MARCAR MENSAGENS COMO LIDAS
-# ============================================
 
 @chat_bp.route('/marcar-lidas/<int:usuario_id>', methods=['POST'])
 @login_required

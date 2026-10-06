@@ -17,7 +17,9 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="row g-0 chat-container">
-                        <!-- Lista de conversas -->
+                        <!-- ============================================ -->
+                        <!-- LISTA DE CONVERSAS (SIDEBAR) -->
+                        <!-- ============================================ -->
                         <div class="col-md-4 border-end chat-sidebar">
                             <div class="p-3">
                                 <div class="input-group input-group-sm mb-3">
@@ -27,8 +29,11 @@
                                     <input type="text" id="buscarConversa" class="form-control border-start-0" placeholder="Buscar conversa...">
                                 </div>
                                 
+                                <!-- ==================================== -->
+                                <!-- CONVERSAS EXISTENTES -->
+                                <!-- ==================================== -->
                                 <h6 class="text-muted mb-3 small text-uppercase fw-bold">
-                                    <i class="fas fa-users me-2"></i> Conversas ativas
+                                    <i class="fas fa-comment-dots me-2"></i> Conversas ativas
                                 </h6>
                                 
                                 {% if usuarios %}
@@ -36,6 +41,7 @@
                                     <div class="conversation-item d-flex align-items-center p-3 rounded-3 mb-2 cursor-pointer" 
                                          data-usuario-id="{{ usuario.id }}"
                                          data-usuario-nome="{{ usuario.nome|lower|e }}"
+                                         data-tipo="conversa"
                                          onclick='carregarConversa({{ usuario.id }}, {{ usuario.nome|tojson }})'>
                                         <div class="user-avatar-placeholder bg-primary rounded-circle d-flex align-items-center justify-content-center me-3 position-relative" style="width: 50px; height: 50px; flex-shrink: 0;">
                                             {% if usuario.foto_url %}
@@ -50,27 +56,73 @@
                                         <div class="flex-grow-1 overflow-hidden">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <strong class="text-truncate">{{ usuario.nome }}</strong>
+                                                {% if nao_lidas_por_usuario and nao_lidas_por_usuario.get(usuario.id, 0) > 0 %}
+                                                    <span class="badge bg-danger rounded-pill">{{ nao_lidas_por_usuario[usuario.id] }}</span>
+                                                {% endif %}
                                             </div>
                                             <p class="text-muted small mb-0 text-truncate" id="preview-{{ usuario.id }}">
-                                                <i class="fas fa-clock me-1"></i> Clique para conversar
+                                                <i class="fas fa-comment me-1"></i> Clique para ver a conversa
                                             </p>
                                         </div>
                                     </div>
                                     {% endfor %}
                                 {% else %}
-                                    <div class="text-center text-muted py-5">
-                                        <i class="fas fa-comments fa-3x mb-3 opacity-50"></i>
-                                        <p>Nenhuma conversa ainda</p>
-                                        <small class="d-block mb-3">Explore serviços e comece a conversar!</small>
-                                        <a href="{{ url_for('servico.lista') }}" class="btn btn-sm btn-primary rounded-pill">
-                                            <i class="fas fa-search me-1"></i> Explorar Serviços
-                                        </a>
+                                    <div class="text-center text-muted py-4">
+                                        <i class="fas fa-comments fa-3x mb-3 opacity-25"></i>
+                                        <p class="mb-1">Nenhuma conversa ainda</p>
+                                        <small class="d-block">Escolha alguém abaixo para começar</small>
                                     </div>
+                                {% endif %}
+                                
+                                <!-- ==================================== -->
+                                <!-- SUGESTÕES (NOVAS CONVERSAS) -->
+                                <!-- ==================================== -->
+                                {% if sugestoes %}
+                                <h6 class="text-muted mb-3 mt-4 small text-uppercase fw-bold">
+                                    <i class="fas fa-user-plus me-2"></i> Comece uma nova conversa
+                                </h6>
+                                
+                                {% for usuario in sugestoes %}
+                                <div class="conversation-item suggestion-item d-flex align-items-center p-3 rounded-3 mb-2 cursor-pointer" 
+                                     data-usuario-id="{{ usuario.id }}"
+                                     data-usuario-nome="{{ usuario.nome|lower|e }}"
+                                     data-tipo="sugestao"
+                                     onclick='carregarConversa({{ usuario.id }}, {{ usuario.nome|tojson }})'>
+                                    <div class="user-avatar-placeholder bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; flex-shrink: 0;">
+                                        {% if usuario.foto_url %}
+                                            <img src="{{ usuario.foto_url }}" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
+                                        {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
+                                            <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
+                                        {% else %}
+                                            <span class="text-white fw-bold fs-5">{{ usuario.nome[0]|upper }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <strong class="text-truncate">{{ usuario.nome }}</strong>
+                                            <small class="text-muted">
+                                                {% if usuario.tipo == 'prestador' %}
+                                                    <i class="fas fa-tools"></i>
+                                                {% elif usuario.tipo == 'cliente' %}
+                                                    <i class="fas fa-user"></i>
+                                                {% else %}
+                                                    <i class="fas fa-shield-alt"></i>
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                        <p class="text-muted small mb-0 text-truncate">
+                                            <i class="fas fa-plus-circle me-1"></i> Clique para iniciar
+                                        </p>
+                                    </div>
+                                </div>
+                                {% endfor %}
                                 {% endif %}
                             </div>
                         </div>
                         
-                        <!-- Área de chat -->
+                        <!-- ============================================ -->
+                        <!-- ÁREA DE CHAT -->
+                        <!-- ============================================ -->
                         <div class="col-md-8 chat-main">
                             <div id="chatHeader" class="p-3 border-bottom bg-light d-flex align-items-center">
                                 <div class="user-avatar-placeholder bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; flex-shrink: 0;">
@@ -156,6 +208,18 @@
         background-color: #e7f1ff;
         border-left: 4px solid #0b2b5c;
         border-color: #e7f1ff;
+    }
+    
+    /* Sugestões (levemente diferentes) */
+    .suggestion-item {
+        opacity: 0.9;
+        border: 1px dashed #e9ecef;
+    }
+    
+    .suggestion-item:hover {
+        background-color: #f8f9fa;
+        opacity: 1;
+        border-color: #cbd5e1;
     }
     
     /* Indicador de status (online) */
@@ -248,7 +312,6 @@
             height: calc(100vh - 200px);
         }
         
-        /* No celular, ou mostra a lista OU o chat */
         .chat-sidebar.hidden-mobile {
             display: none;
         }
@@ -349,7 +412,7 @@
             }
         });
         
-        // Mobile: esconder a lista e mostrar o chat
+        // Mobile: esconder lista e mostrar chat
         if (window.innerWidth < 768) {
             document.querySelector('.chat-sidebar').classList.add('hidden-mobile');
             document.querySelector('.chat-main').classList.remove('hidden-mobile');
@@ -378,7 +441,6 @@
                     data.forEach(msg => {
                         adicionarMensagem(msg, msg.remetente_id === currentUserId);
                     });
-                    // Guardar a última mensagem para o polling
                     const ultima = data[data.length - 1];
                     ultimaMensagemRecebida = `${ultima.id || ultima.data_envio}_${ultima.conteudo}`;
                 } else {
@@ -414,7 +476,6 @@
         const container = document.getElementById('chatMessages');
         if (!container) return;
         
-        // Remover placeholder
         const placeholder = container.querySelector('.text-muted');
         if (placeholder && container.children.length === 1 && container.children[0] === placeholder) {
             container.innerHTML = '';
@@ -566,7 +627,7 @@
             });
         }
         
-        // Busca de conversas
+        // Busca de conversas (filtra conversas e sugestões)
         const buscarInput = document.getElementById('buscarConversa');
         if (buscarInput) {
             buscarInput.addEventListener('input', function(e) {
