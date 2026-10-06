@@ -1,32 +1,43 @@
 {% extends "base.html" %}
 
-{% block title %}Chat - PrestaServiços{% endblock %}
+{% block title %}Chat - HiringScope{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-12">
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-header bg-primary text-white rounded-top-4 py-3">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white rounded-top-4 py-3 d-flex align-items-center justify-content-between">
                     <h4 class="mb-0">
                         <i class="fas fa-comments me-2"></i> Conversas
                     </h4>
+                    <span class="badge bg-white text-primary rounded-pill" id="totalConversas">
+                        {{ usuarios|length if usuarios else 0 }}
+                    </span>
                 </div>
                 <div class="card-body p-0">
-                    <div class="row g-0">
+                    <div class="row g-0 chat-container">
                         <!-- Lista de conversas -->
-                        <div class="col-md-4 border-end" style="height: 500px; overflow-y: auto;">
+                        <div class="col-md-4 border-end chat-sidebar">
                             <div class="p-3">
-                                <h6 class="text-muted mb-3">
-                                    <i class="fas fa-users me-2"></i> Conversas
+                                <div class="input-group input-group-sm mb-3">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-search text-muted"></i>
+                                    </span>
+                                    <input type="text" id="buscarConversa" class="form-control border-start-0" placeholder="Buscar conversa...">
+                                </div>
+                                
+                                <h6 class="text-muted mb-3 small text-uppercase fw-bold">
+                                    <i class="fas fa-users me-2"></i> Conversas ativas
                                 </h6>
+                                
                                 {% if usuarios %}
                                     {% for usuario in usuarios %}
                                     <div class="conversation-item d-flex align-items-center p-3 rounded-3 mb-2 cursor-pointer" 
                                          data-usuario-id="{{ usuario.id }}"
-                                         data-usuario-nombre="{{ usuario.nome }}"
+                                         data-usuario-nome="{{ usuario.nome|lower }}"
                                          onclick="carregarConversa({{ usuario.id }}, '{{ usuario.nome|replace("'", "\\'") }}')">
-                                        <div class="user-avatar-placeholder bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                        <div class="user-avatar-placeholder bg-primary rounded-circle d-flex align-items-center justify-content-center me-3 position-relative" style="width: 50px; height: 50px; flex-shrink: 0;">
                                             {% if usuario.foto_url %}
                                                 <img src="{{ usuario.foto_url }}" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
                                             {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
@@ -34,10 +45,13 @@
                                             {% else %}
                                                 <span class="text-white fw-bold fs-5">{{ usuario.nome[0]|upper }}</span>
                                             {% endif %}
+                                            <span class="status-indicator online"></span>
                                         </div>
-                                        <div>
-                                            <strong>{{ usuario.nome }}</strong>
-                                            <p class="text-muted small mb-0" id="preview-{{ usuario.id }}">
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <strong class="text-truncate">{{ usuario.nome }}</strong>
+                                            </div>
+                                            <p class="text-muted small mb-0 text-truncate" id="preview-{{ usuario.id }}">
                                                 <i class="fas fa-clock me-1"></i> Clique para conversar
                                             </p>
                                         </div>
@@ -47,8 +61,8 @@
                                     <div class="text-center text-muted py-5">
                                         <i class="fas fa-comments fa-3x mb-3 opacity-50"></i>
                                         <p>Nenhuma conversa ainda</p>
-                                        <small class="d-block">Explore serviços e comece a conversar!</small>
-                                        <a href="{{ url_for('servico.lista') }}" class="btn btn-sm btn-primary rounded-pill mt-3">
+                                        <small class="d-block mb-3">Explore serviços e comece a conversar!</small>
+                                        <a href="{{ url_for('servico.lista') }}" class="btn btn-sm btn-primary rounded-pill">
                                             <i class="fas fa-search me-1"></i> Explorar Serviços
                                         </a>
                                     </div>
@@ -57,33 +71,36 @@
                         </div>
                         
                         <!-- Área de chat -->
-                        <div class="col-md-8" style="height: 500px; display: flex; flex-direction: column;">
-                            <div id="chatHeader" class="p-3 border-bottom bg-light">
-                                <div class="d-flex align-items-center">
-                                    <div class="user-avatar-placeholder bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
-                                        <span class="text-white fw-bold fs-5">?</span>
-                                    </div>
-                                    <div>
-                                        <h5 class="mb-0" id="chatUsuarioNome">Selecione uma conversa</h5>
-                                        <small class="text-muted" id="chatStatus">
-                                            <i class="fas fa-circle text-success me-1"></i> Online
-                                        </small>
-                                    </div>
+                        <div class="col-md-8 chat-main">
+                            <div id="chatHeader" class="p-3 border-bottom bg-light d-flex align-items-center">
+                                <div class="user-avatar-placeholder bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                    <span class="text-white fw-bold fs-5" id="chatAvatar">?</span>
                                 </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-0" id="chatUsuarioNome">Selecione uma conversa</h5>
+                                    <small class="text-muted" id="chatStatus">
+                                        <i class="fas fa-circle text-success me-1" style="font-size: 0.5rem;"></i> Online
+                                    </small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-secondary rounded-circle" id="btnVoltarConversas" style="display: none;" onclick="voltarParaLista()">
+                                    <i class="fas fa-arrow-left"></i>
+                                </button>
                             </div>
                             
-                            <div id="chatMessages" class="flex-grow-1 p-3" style="overflow-y: auto; background: #f8f9fa;">
+                            <div id="chatMessages" class="flex-grow-1 p-3 chat-messages">
                                 <div class="text-center text-muted py-5">
-                                    <i class="fas fa-comment-dots fa-3x mb-3 opacity-50"></i>
+                                    <i class="fas fa-comment-dots fa-4x mb-3 opacity-50"></i>
                                     <p>Selecione uma conversa para começar</p>
+                                    <small class="text-muted">Suas mensagens aparecerão aqui</small>
                                 </div>
                             </div>
                             
                             <div class="p-3 border-top bg-white">
                                 <div class="input-group">
-                                    <input type="text" id="mensagemInput" class="form-control" placeholder="Digite sua mensagem..." disabled>
-                                    <button class="btn btn-primary" id="enviarBtn" disabled>
-                                        <i class="fas fa-paper-plane"></i> Enviar
+                                    <input type="text" id="mensagemInput" class="form-control rounded-pill border-end-0" placeholder="Digite sua mensagem..." disabled>
+                                    <button class="btn btn-primary rounded-pill px-4" id="enviarBtn" disabled>
+                                        <i class="fas fa-paper-plane"></i>
+                                        <span class="d-none d-md-inline ms-1">Enviar</span>
                                     </button>
                                 </div>
                             </div>
@@ -96,60 +113,179 @@
 </div>
 
 <style>
+    /* Container principal do chat */
+    .chat-container {
+        height: 600px;
+        min-height: 500px;
+    }
+    
+    .chat-sidebar {
+        height: 600px;
+        overflow-y: auto;
+        background: #fff;
+        border-right: 1px solid #e9ecef;
+    }
+    
+    .chat-main {
+        height: 600px;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+    }
+    
+    .chat-messages {
+        overflow-y: auto;
+        background: #f8f9fa;
+        flex-grow: 1;
+    }
+    
+    /* Itens da lista de conversas */
     .conversation-item {
         transition: all 0.2s ease;
         cursor: pointer;
+        border: 1px solid transparent;
     }
+    
     .conversation-item:hover {
         background-color: #f0f2f5;
-        transform: translateX(5px);
+        transform: translateX(3px);
+        border-color: #e9ecef;
     }
+    
     .conversation-item.active {
         background-color: #e7f1ff;
-        border-left: 3px solid #0b2b5c;
+        border-left: 4px solid #0b2b5c;
+        border-color: #e7f1ff;
     }
+    
+    /* Indicador de status (online) */
+    .status-indicator {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid white;
+    }
+    
+    .status-indicator.online {
+        background-color: #22c55e;
+    }
+    
+    /* Mensagens */
     .message {
         margin-bottom: 15px;
         display: flex;
+        animation: fadeIn 0.3s ease;
     }
+    
     .message.sent {
         justify-content: flex-end;
     }
+    
     .message.received {
         justify-content: flex-start;
     }
+    
     .message-content {
         max-width: 70%;
         padding: 10px 15px;
         border-radius: 18px;
         word-wrap: break-word;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
+    
     .message.sent .message-content {
         background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
         color: white;
+        border-bottom-right-radius: 4px;
     }
+    
     .message.received .message-content {
         background: white;
         border: 1px solid #dee2e6;
         color: #1a2c3e;
+        border-bottom-left-radius: 4px;
     }
+    
     .message-time {
         font-size: 0.7rem;
         margin-top: 5px;
         opacity: 0.7;
     }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Scrollbar estilizada */
+    .chat-sidebar::-webkit-scrollbar,
+    .chat-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .chat-sidebar::-webkit-scrollbar-thumb,
+    .chat-messages::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+    
+    .chat-sidebar::-webkit-scrollbar-thumb:hover,
+    .chat-messages::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    
+    /* Responsividade para celular */
+    @media (max-width: 767px) {
+        .chat-container {
+            height: calc(100vh - 200px);
+        }
+        
+        .chat-sidebar,
+        .chat-main {
+            height: calc(100vh - 200px);
+        }
+        
+        /* No celular, ou mostra a lista OU o chat */
+        .chat-sidebar.hidden-mobile {
+            display: none;
+        }
+        
+        .chat-main.hidden-mobile {
+            display: none;
+        }
+        
+        .chat-sidebar {
+            width: 100%;
+            max-width: 100%;
+            flex: 0 0 100%;
+        }
+        
+        .chat-main {
+            width: 100%;
+            max-width: 100%;
+            flex: 0 0 100%;
+        }
+    }
 </style>
+
 <script>
-    // Usar o currentUserId do base.js
+    // ============================================
+    // VARIÁVEIS GLOBAIS
+    // ============================================
     let usuarioAtual = null;
-    let chatSocket = null;  // Socket separado para o chat
+    let chatSocket = null;
+    let pollingTimer = null;
+    let conversaIdAtual = null;
+    let ultimaMensagemRecebida = null;
     
-    console.log('👤 Usuário logado (do base):', currentUserId);
+    console.log('👤 Usuário logado:', currentUserId);
     
     // ============================================
-    // INICIALIZAR SOCKET PRÓPRIO DO CHAT
+    // SOCKET.IO - MENSAGENS EM TEMPO REAL
     // ============================================
-    
     function iniciarSocketChat() {
         if (!currentUserId || currentUserId === 'null') {
             console.log('⚠️ Usuário não logado');
@@ -157,65 +293,55 @@
         }
         
         try {
-            // Criar socket separado
             chatSocket = io();
             
             chatSocket.on('connect', function() {
                 console.log('✅ Socket do chat conectado!');
                 chatSocket.emit('join', { user_id: currentUserId });
-                console.log('📢 Entrou na sala do usuário:', currentUserId);
-            });
-            
-            chatSocket.on('connect_error', function(err) {
-                console.error('❌ Erro no socket do chat:', err);
             });
             
             chatSocket.on('new_private_message', function(data) {
-                console.log('📨 MENSAGEM RECEBIDA EM TEMPO REAL:', data);
+                console.log('📨 Mensagem em tempo real:', data);
                 
-                // Se está na conversa certa, adiciona mensagem
                 if (usuarioAtual && data.remetente_id === usuarioAtual.id) {
                     adicionarMensagem(data, false);
                 }
                 
-                // Atualiza preview
                 if (data.remetente_id) {
                     atualizarPreview(data.remetente_id, data.conteudo);
                 }
                 
-                // Atualiza badge
                 if (typeof updateUnreadCount === 'function') {
                     updateUnreadCount();
                 }
             });
             
         } catch (error) {
-            console.error('❌ Erro ao criar socket do chat:', error);
+            console.error('❌ Erro no socket:', error);
         }
     }
     
-    // Iniciar o socket quando a página carregar
-    iniciarSocketChat();
-    
     // ============================================
-    // FUNÇÕES DO CHAT
+    // CARREGAR CONVERSA
     // ============================================
-    
-    function carregarConversa(usuarioId, usuarioNome) {
+    window.carregarConversa = function(usuarioId, usuarioNome) {
         console.log('🔍 Carregando conversa com:', usuarioNome, 'ID:', usuarioId);
         
         usuarioAtual = { id: usuarioId, nome: usuarioNome };
+        conversaIdAtual = usuarioId;
         
         // Atualizar header
         const chatHeader = document.getElementById('chatUsuarioNome');
+        const chatAvatar = document.getElementById('chatAvatar');
         const msgInput = document.getElementById('mensagemInput');
         const enviarBtn = document.getElementById('enviarBtn');
         
         if (chatHeader) chatHeader.textContent = usuarioNome;
+        if (chatAvatar) chatAvatar.textContent = usuarioNome[0].toUpperCase();
         if (msgInput) msgInput.disabled = false;
         if (enviarBtn) enviarBtn.disabled = false;
         
-        // Ativar item da conversa
+        // Ativar item na lista
         document.querySelectorAll('.conversation-item').forEach(item => {
             item.classList.remove('active');
             if (parseInt(item.dataset.usuarioId) === usuarioId) {
@@ -223,8 +349,21 @@
             }
         });
         
-        // Carregar mensagens do histórico
-        fetch(`/chat/historico/${usuarioId}`)
+        // Mobile: esconder a lista e mostrar o chat
+        if (window.innerWidth < 768) {
+            document.querySelector('.chat-sidebar').classList.add('hidden-mobile');
+            document.querySelector('.chat-main').classList.remove('hidden-mobile');
+            document.getElementById('btnVoltarConversas').style.display = 'inline-block';
+        }
+        
+        // Carregar mensagens
+        carregarMensagens();
+    };
+    
+    function carregarMensagens() {
+        if (!usuarioAtual) return;
+        
+        fetch(`/chat/historico/${usuarioAtual.id}`)
             .then(res => {
                 if (!res.ok) throw new Error('Erro HTTP: ' + res.status);
                 return res.json();
@@ -239,6 +378,9 @@
                     data.forEach(msg => {
                         adicionarMensagem(msg, msg.remetente_id === currentUserId);
                     });
+                    // Guardar a última mensagem para o polling
+                    const ultima = data[data.length - 1];
+                    ultimaMensagemRecebida = `${ultima.id || ultima.data_envio}_${ultima.conteudo}`;
                 } else {
                     container.innerHTML = `
                         <div class="text-center text-muted py-5">
@@ -265,11 +407,14 @@
             });
     }
     
+    // ============================================
+    // ADICIONAR MENSAGEM NA TELA
+    // ============================================
     function adicionarMensagem(mensagem, isSent) {
         const container = document.getElementById('chatMessages');
         if (!container) return;
         
-        // Remover placeholder se existir
+        // Remover placeholder
         const placeholder = container.querySelector('.text-muted');
         if (placeholder && container.children.length === 1 && container.children[0] === placeholder) {
             container.innerHTML = '';
@@ -282,15 +427,13 @@
         let conteudo = mensagem.conteudo;
         
         if (!dataHora) {
-            dataHora = new Date().toLocaleTimeString();
+            dataHora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         }
         
         messageDiv.innerHTML = `
             <div class="message-content">
                 ${escapeHtml(conteudo)}
-                <div class="message-time text-end">
-                    ${dataHora}
-                </div>
+                <div class="message-time text-end">${dataHora}</div>
             </div>
         `;
         
@@ -298,16 +441,14 @@
         container.scrollTop = container.scrollHeight;
     }
     
+    // ============================================
+    // ENVIAR MENSAGEM
+    // ============================================
     function enviarMensagem() {
         const input = document.getElementById('mensagemInput');
         const conteudo = input.value.trim();
         
-        if (!conteudo || !usuarioAtual) {
-            console.log('❌ Não é possível enviar: mensagem vazia ou nenhum usuário selecionado');
-            return;
-        }
-        
-        console.log('📤 Enviando mensagem para:', usuarioAtual.nome);
+        if (!conteudo || !usuarioAtual) return;
         
         input.disabled = true;
         
@@ -323,15 +464,14 @@
         .then(data => {
             if (data.success) {
                 input.value = '';
-                // Adicionar mensagem enviada imediatamente
                 adicionarMensagem({
                     conteudo: conteudo,
-                    data_envio: new Date().toLocaleTimeString(),
+                    data_envio: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
                     remetente_id: currentUserId
                 }, true);
                 atualizarPreview(usuarioAtual.id, conteudo);
             } else {
-                alert('Erro ao enviar mensagem: ' + (data.error || 'Tente novamente'));
+                alert('Erro ao enviar: ' + (data.error || 'Tente novamente'));
             }
         })
         .catch(error => {
@@ -344,6 +484,9 @@
         });
     }
     
+    // ============================================
+    // UTILITÁRIOS
+    // ============================================
     function atualizarPreview(usuarioId, conteudo) {
         const preview = document.getElementById(`preview-${usuarioId}`);
         if (preview) {
@@ -359,18 +502,61 @@
         return div.innerHTML;
     }
     
+    function voltarParaLista() {
+        document.querySelector('.chat-sidebar').classList.remove('hidden-mobile');
+        document.querySelector('.chat-main').classList.add('hidden-mobile');
+        document.getElementById('btnVoltarConversas').style.display = 'none';
+    }
+    
+    // ============================================
+    // POLLING (FALLBACK)
+    // ============================================
+    function iniciarPolling() {
+        if (pollingTimer) clearInterval(pollingTimer);
+        
+        pollingTimer = setInterval(function() {
+            if (usuarioAtual && usuarioAtual.id && conversaIdAtual === usuarioAtual.id) {
+                fetch(`/chat/historico/${usuarioAtual.id}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data || data.length === 0) return;
+                        
+                        const ultima = data[data.length - 1];
+                        const chaveAtual = `${ultima.id || ultima.data_envio}_${ultima.conteudo}`;
+                        
+                        if (ultimaMensagemRecebida !== chaveAtual) {
+                            ultimaMensagemRecebida = chaveAtual;
+                            
+                            const container = document.getElementById('chatMessages');
+                            if (container) {
+                                container.innerHTML = '';
+                                data.forEach(msg => {
+                                    adicionarMensagem(msg, msg.remetente_id === currentUserId);
+                                });
+                                container.scrollTop = container.scrollHeight;
+                            }
+                        }
+                    })
+                    .catch(err => console.log('Polling erro:', err));
+            }
+        }, 4000);
+    }
+    
     // ============================================
     // EVENT LISTENERS
     // ============================================
-    
     document.addEventListener('DOMContentLoaded', function() {
-        const enviarBtn = document.getElementById('enviarBtn');
-        const mensagemInput = document.getElementById('mensagemInput');
+        // Iniciar socket
+        iniciarSocketChat();
         
+        // Botão de enviar
+        const enviarBtn = document.getElementById('enviarBtn');
         if (enviarBtn) {
             enviarBtn.addEventListener('click', enviarMensagem);
         }
         
+        // Enter no input
+        const mensagemInput = document.getElementById('mensagemInput');
         if (mensagemInput) {
             mensagemInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -380,47 +566,29 @@
             });
         }
         
+        // Busca de conversas
+        const buscarInput = document.getElementById('buscarConversa');
+        if (buscarInput) {
+            buscarInput.addEventListener('input', function(e) {
+                const termo = e.target.value.toLowerCase();
+                document.querySelectorAll('.conversation-item').forEach(item => {
+                    const nome = item.dataset.usuarioNome || '';
+                    item.style.display = nome.includes(termo) ? 'flex' : 'none';
+                });
+            });
+        }
+        
+        // Iniciar polling
+        setTimeout(iniciarPolling, 500);
+        
+        // Atualizar contador
         if (typeof updateUnreadCount === 'function') {
             updateUnreadCount();
         }
     });
-
-    // ============================================
-// POLLING - RECARREGAR AUTOMATICAMENTE
-// ============================================
-
-let pollingTimer = null;
-let conversaIdAtual = null;
-
-function iniciarPolling() {
-    if (pollingTimer) clearInterval(pollingTimer);
     
-    pollingTimer = setInterval(function() {
-        if (usuarioAtual && usuarioAtual.id) {
-            // Recarrega apenas se for a mesma conversa
-            if (conversaIdAtual === usuarioAtual.id) {
-                console.log('🔄 Polling: recarregando mensagens...');
-                carregarConversa(usuarioAtual.id, usuarioAtual.nome);
-            }
-        }
-    }, 1000); // A cada 3 segundos
-    
-    console.log('✅ Polling ativado (3 segundos)');
-}
-
-// Salvar a função original de carregar conversa
-const originalCarregarConversa = carregarConversa;
-carregarConversa = function(usuarioId, usuarioNome) {
-    conversaIdAtual = usuarioId;
-    originalCarregarConversa(usuarioId, usuarioNome);
-};
-
-// Iniciar polling
-iniciarPolling();
-
-// Limpar polling ao sair
-window.addEventListener('beforeunload', function() {
-    if (pollingTimer) clearInterval(pollingTimer);
-});
+    window.addEventListener('beforeunload', function() {
+        if (pollingTimer) clearInterval(pollingTimer);
+    });
 </script>
 {% endblock %}
