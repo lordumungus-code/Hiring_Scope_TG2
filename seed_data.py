@@ -1,12 +1,7 @@
 """
-Script para popular o banco de dados com dados realistas.
-Baixa fotos do randomuser.me e salva em base64 no banco.
-
-Executar no Console do Railway:
-    python seed_data.py
-
-Para remover os dados depois:
-    python seed_data.py --remove
+Script para popular o banco com dados realistas + fotos.
+Executar no Console do Railway: python seed_data.py
+Para remover: python seed_data.py --remove
 """
 
 import sys
@@ -24,34 +19,51 @@ try:
 except ImportError:
     TEM_AVALIACAO = False
 
-# ============================================
-# CONFIGURAÇÕES
-# ============================================
 SEED_PREFIX = "seed_"
 SEED_DOMAIN = "@hiring-scope.com.br"
 
 
 # ============================================
-# FUNÇÃO PARA BAIXAR FOTO E CONVERTER EM BASE64
+# BAIXAR FOTO COM MÚLTIPLAS FONTES
 # ============================================
-def baixar_foto_base64(url):
-    """Baixa uma imagem da URL e retorna em base64"""
-    try:
-        req = urllib.request.Request(
-            url,
-            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-        )
-        with urllib.request.urlopen(req, timeout=10) as response:
-            return base64.b64encode(response.read()).decode('utf-8')
-    except Exception as e:
-        print(f"     ⚠️ Erro ao baixar foto {url}: {e}")
-        return None
+def baixar_foto_base64(nome, genero, idx):
+    """Tenta baixar uma foto de várias fontes"""
+    
+    # Lista de URLs para tentar (em ordem de preferência)
+    urls = [
+        # 1. Random User (fotos reais)
+        f"https://randomuser.me/api/portraits/{genero}/{idx + 1}.jpg",
+        # 2. Pravatar (fotos reais, CDN confiável)
+        f"https://i.pravatar.cc/200?img={idx + 1}",
+        # 3. UI Avatars (avatares com iniciais - sempre funciona)
+        f"https://ui-avatars.com/api/?name={urllib.parse.quote(nome)}&background=0b2b5c&color=fff&size=200&font-size=0.4&bold=true",
+    ]
+    
+    for url in urls:
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    'Accept': 'image/*'
+                }
+            )
+            with urllib.request.urlopen(req, timeout=15) as response:
+                foto_bytes = response.read()
+                if len(foto_bytes) > 1000:  # Garante que é uma imagem válida
+                    print(f"     ✅ Foto obtida de: {url[:50]}...")
+                    return base64.b64encode(foto_bytes).decode('utf-8')
+        except Exception as e:
+            print(f"     ⚠️ Falhou: {str(e)[:60]}")
+            continue
+    
+    print(f"     ❌ Nenhuma fonte funcionou para {nome}")
+    return None
 
 
 # ============================================
-# DADOS REALISTAS COM FOTOS
+# DADOS
 # ============================================
-# Cada pessoa tem um gênero definido, para pegarmos a foto certa
 PRESTADORES = [
     {"nome": "Carlos Silva",        "email": "carlos.silva",       "tel": "11987654321", "genero": "men"},
     {"nome": "Ana Paula Santos",    "email": "ana.santos",         "tel": "11976543210", "genero": "women"},
@@ -115,9 +127,7 @@ def seed_database():
         print("🌱 Iniciando seed de dados...")
         print("=" * 60)
         
-        # ============================================
-        # 1. CRIAR PRESTADORES (com fotos!)
-        # ============================================
+        # 1. PRESTADORES
         print("\n👤 Criando prestadores (baixando fotos)...")
         prestadores_criados = []
         for idx, p in enumerate(PRESTADORES):
@@ -127,10 +137,8 @@ def seed_database():
                 print(f"  ⚠️ {p['nome']} já existe, pulando...")
                 continue
             
-            # Baixa foto do randomuser.me
-            foto_url = f"https://randomuser.me/api/portraits/{p['genero']}/{idx + 1}.jpg"
-            print(f"  📸 Baixando foto de {p['nome']}...")
-            foto_base64 = baixar_foto_base64(foto_url)
+            print(f"  📸 Buscando foto de {p['nome']}...")
+            foto_base64 = baixar_foto_base64(p['nome'], p['genero'], idx)
             
             usuario = Usuario(
                 nome=p['nome'],
@@ -148,9 +156,7 @@ def seed_database():
         db.session.commit()
         print(f"  ✅ {len(prestadores_criados)} prestadores criados")
         
-        # ============================================
-        # 2. CRIAR CLIENTES (com fotos!)
-        # ============================================
+        # 2. CLIENTES
         print("\n👤 Criando clientes (baixando fotos)...")
         clientes_criados = []
         for idx, c in enumerate(CLIENTES):
@@ -159,10 +165,8 @@ def seed_database():
             if Usuario.query.filter_by(email=email).first():
                 continue
             
-            # Baixa foto do randomuser.me (offset pra não repetir com prestadores)
-            foto_url = f"https://randomuser.me/api/portraits/{c['genero']}/{idx + 30}.jpg"
-            print(f"  📸 Baixando foto de {c['nome']}...")
-            foto_base64 = baixar_foto_base64(foto_url)
+            print(f"  📸 Buscando foto de {c['nome']}...")
+            foto_base64 = baixar_foto_base64(c['nome'], c['genero'], idx + 30)
             
             usuario = Usuario(
                 nome=c['nome'],
@@ -180,9 +184,7 @@ def seed_database():
         db.session.commit()
         print(f"  ✅ {len(clientes_criados)} clientes criados")
         
-        # ============================================
-        # 3. CRIAR SERVIÇOS
-        # ============================================
+        # 3. SERVIÇOS
         print("\n🔧 Criando serviços...")
         todos_prestadores = Usuario.query.filter(
             Usuario.email.like(f"{SEED_PREFIX}%")
@@ -191,7 +193,6 @@ def seed_database():
         servicos_criados = []
         for s in SERVICOS:
             prestador = random.choice(todos_prestadores)
-            
             existente = Servico.query.filter_by(
                 prestador_id=prestador.id,
                 titulo=s['titulo']
@@ -215,9 +216,7 @@ def seed_database():
         db.session.commit()
         print(f"  ✅ {len(servicos_criados)} serviços criados")
         
-        # ============================================
-        # 4. CRIAR AVALIAÇÕES (se o modelo existir)
-        # ============================================
+        # 4. AVALIAÇÕES
         if TEM_AVALIACAO:
             print("\n⭐ Criando avaliações...")
             try:
@@ -230,7 +229,6 @@ def seed_database():
                     for _ in range(random.randint(1, 5)):
                         cliente = random.choice(clientes_criados)
                         av = random.choice(AVALIACOES)
-                        
                         try:
                             avaliacao = Avaliacao(
                                 prestador_id=servico.prestador_id,
@@ -241,80 +239,49 @@ def seed_database():
                             )
                             db.session.add(avaliacao)
                             avaliacoes_criadas += 1
-                        except Exception:
+                        except:
                             pass
                 
                 db.session.commit()
                 print(f"  ✅ {avaliacoes_criadas} avaliações criadas")
             except Exception as e:
-                print(f"  ⚠️ Erro ao criar avaliações: {e}")
-        else:
-            print("\n⚠️ Modelo Avaliacao não encontrado, pulando avaliações")
+                print(f"  ⚠️ Erro: {e}")
         
-        # ============================================
-        # RESUMO
-        # ============================================
         print("\n" + "=" * 60)
         print("🎉 SEED CONCLUÍDO!")
         print("=" * 60)
-        print(f"📊 Prestadores: {Usuario.query.filter(Usuario.email.like(f'{SEED_PREFIX}%')).filter_by(tipo='prestador').count()}")
-        print(f"📊 Clientes: {Usuario.query.filter(Usuario.email.like(f'{SEED_PREFIX}%')).filter_by(tipo='cliente').count()}")
-        print(f"📊 Serviços: {Servico.query.filter(Servico.prestador_id.in_([p.id for p in todos_prestadores])).count()}")
-        print("=" * 60)
-        print("🔐 Senha de todos: seed123456")
-        print("🗑️  Para remover: python seed_data.py --remove")
-        print("=" * 60)
 
 
-# ============================================
-# REMOÇÃO
-# ============================================
 def remove_seed_data():
     with app.app_context():
         print("🗑️  Removendo dados de seed...")
+        usuarios_seed = Usuario.query.filter(Usuario.email.like(f"{SEED_PREFIX}%")).all()
+        ids = [u.id for u in usuarios_seed]
         
-        usuarios_seed = Usuario.query.filter(
-            Usuario.email.like(f"{SEED_PREFIX}%")
-        ).all()
-        
-        ids_usuarios = [u.id for u in usuarios_seed]
-        
-        if not ids_usuarios:
-            print("  ⚠️ Nenhum dado de seed encontrado.")
+        if not ids:
+            print("  ⚠️ Nenhum dado encontrado.")
             return
         
-        # Remove avaliações
         if TEM_AVALIACAO:
             try:
                 Avaliacao.query.filter(
-                    (Avaliacao.prestador_id.in_(ids_usuarios)) |
-                    (Avaliacao.cliente_id.in_(ids_usuarios))
+                    (Avaliacao.prestador_id.in_(ids)) | (Avaliacao.cliente_id.in_(ids))
                 ).delete(synchronize_session=False)
             except:
                 pass
         
-        # Remove mensagens
         Mensagem.query.filter(
-            (Mensagem.remetente_id.in_(ids_usuarios)) |
-            (Mensagem.destinatario_id.in_(ids_usuarios))
+            (Mensagem.remetente_id.in_(ids)) | (Mensagem.destinatario_id.in_(ids))
         ).delete(synchronize_session=False)
         
-        # Remove assinaturas
-        Assinatura.query.filter(
-            Assinatura.prestador_id.in_(ids_usuarios)
-        ).delete(synchronize_session=False)
+        Assinatura.query.filter(Assinatura.prestador_id.in_(ids)).delete(synchronize_session=False)
+        Servico.query.filter(Servico.prestador_id.in_(ids)).delete(synchronize_session=False)
         
-        # Remove serviços
-        Servico.query.filter(
-            Servico.prestador_id.in_(ids_usuarios)
-        ).delete(synchronize_session=False)
-        
-        # Remove usuários
         for u in usuarios_seed:
             db.session.delete(u)
         
         db.session.commit()
-        print(f"  ✅ {len(usuarios_seed)} usuários e dados relacionados removidos!")
+        print(f"  ✅ Removidos {len(usuarios_seed)} usuários")
 
 
 if __name__ == '__main__':
