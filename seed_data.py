@@ -14,11 +14,26 @@ from app import app
 from extensions import db
 from models import Usuario, Servico, Assinatura, Mensagem
 
+# Tenta importar Avaliacao e Contrato
 try:
     from models import Avaliacao
     TEM_AVALIACAO = True
 except ImportError:
     TEM_AVALIACAO = False
+    print("⚠️ Modelo Avaliacao não encontrado")
+
+try:
+    from models import Contrato
+    TEM_CONTRATO = True
+except ImportError:
+    TEM_CONTRATO = False
+    print("⚠️ Modelo Contrato não encontrado")
+
+try:
+    from models import Solicitacao
+    TEM_SOLICITACAO = True
+except ImportError:
+    TEM_SOLICITACAO = False
 
 SEED_PREFIX = "seed_"
 SEED_DOMAIN = "@hiring-scope.com.br"
@@ -47,9 +62,8 @@ def baixar_foto_perfil(nome, genero, idx):
 
 
 # ============================================
-# BAIXAR FOTO DE SERVIÇO (por categoria)
+# BAIXAR FOTO DE SERVIÇO
 # ============================================
-# Fotos do Unsplash (URLs diretas com parâmetros de tamanho)
 FOTOS_POR_CATEGORIA = {
     "Construção": [
         "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=600&fit=crop",
@@ -105,7 +119,6 @@ FOTOS_POR_CATEGORIA = {
 
 
 def baixar_foto_servico(categoria, idx):
-    """Baixa uma foto do serviço baseada na categoria"""
     fotos = FOTOS_POR_CATEGORIA.get(categoria, FOTOS_POR_CATEGORIA["Serviços Gerais"])
     url = fotos[idx % len(fotos)]
     
@@ -117,7 +130,6 @@ def baixar_foto_servico(categoria, idx):
                 return base64.b64encode(data).decode('utf-8')
     except Exception as e:
         print(f"     ⚠️ Erro: {str(e)[:60]}")
-    
     return None
 
 
@@ -176,15 +188,22 @@ AVALIACOES = [
     {"nota": 5, "comentario": "Melhor profissional que já contratei. Super atencioso."},
     {"nota": 5, "comentario": "Trabalho de altíssima qualidade. Já indiquei para vários amigos!"},
     {"nota": 5, "comentario": "Pontual, educado e fez um trabalho maravilhoso. Nota 10!"},
+    {"nota": 5, "comentario": "Serviço excepcional! Já marquei outro trabalho com ele."},
+    {"nota": 4, "comentario": "Muito bom! Recomendo para quem precisa de qualidade."},
 ]
 
 
+# ============================================
+# SEED PRINCIPAL
+# ============================================
 def seed_database():
     with app.app_context():
         print("🌱 Iniciando seed de dados...")
         print("=" * 60)
         
+        # ============================================
         # 1. PRESTADORES
+        # ============================================
         print("\n👤 Criando prestadores...")
         prestadores_criados = []
         for idx, p in enumerate(PRESTADORES):
@@ -205,8 +224,11 @@ def seed_database():
             db.session.flush()
             prestadores_criados.append(usuario)
         db.session.commit()
+        print(f"  ✅ {len(prestadores_criados)} prestadores criados")
         
+        # ============================================
         # 2. CLIENTES
+        # ============================================
         print("\n👤 Criando clientes...")
         clientes_criados = []
         for idx, c in enumerate(CLIENTES):
@@ -227,8 +249,11 @@ def seed_database():
             db.session.flush()
             clientes_criados.append(usuario)
         db.session.commit()
+        print(f"  ✅ {len(clientes_criados)} clientes criados")
         
+        # ============================================
         # 3. SERVIÇOS (com fotos!)
+        # ============================================
         print("\n🔧 Criando serviços (baixando fotos)...")
         todos_prestadores = Usuario.query.filter(
             Usuario.email.like(f"{SEED_PREFIX}%")
@@ -260,44 +285,142 @@ def seed_database():
         db.session.commit()
         print(f"  ✅ {servicos_criados} serviços criados")
         
-        # 4. AVALIAÇÕES
+        # ============================================
+        # 4. AVALIAÇÕES (2 a 5 por serviço)
+        # ============================================
         if TEM_AVALIACAO:
             print("\n⭐ Criando avaliações...")
             try:
                 todos_servicos = Servico.query.filter(
                     Servico.prestador_id.in_([p.id for p in todos_prestadores])
                 ).all()
+                
                 avs_criadas = 0
-                for servico in random.sample(todos_servicos, min(20, len(todos_servicos))):
-                    for _ in range(random.randint(1, 5)):
+                for servico in todos_servicos:
+                    num_avaliacoes = random.randint(2, 5)
+                    for _ in range(num_avaliacoes):
                         cliente = random.choice(clientes_criados)
                         av = random.choice(AVALIACOES)
                         try:
                             avaliacao = Avaliacao(
                                 prestador_id=servico.prestador_id,
                                 cliente_id=cliente.id,
-                                nota=av['nota'], comentario=av['comentario'],
+                                nota=av['nota'],
+                                comentario=av['comentario'],
                                 data_criacao=datetime.utcnow() - timedelta(days=random.randint(1, 30))
                             )
                             db.session.add(avaliacao)
                             avs_criadas += 1
                         except:
                             pass
+                
                 db.session.commit()
-                print(f"  ✅ {avs_criadas} avaliações")
+                print(f"  ✅ {avs_criadas} avaliações criadas")
             except Exception as e:
-                print(f"  ⚠️ {e}")
+                print(f"  ⚠️ Erro: {e}")
         
+        # ============================================
+        # 5. CONTRATOS CONCLUÍDOS (para o contador)
+        # ============================================
+        if TEM_CONTRATO:
+            print("\n✅ Criando contratos concluídos...")
+            try:
+                contratos_criados = 0
+                todos_servicos = Servico.query.filter(
+                    Servico.prestador_id.in_([p.id for p in todos_prestadores])
+                ).all()
+                
+                for _ in range(25):  # 25 contratos concluídos
+                    cliente = random.choice(clientes_criados)
+                    servico = random.choice(todos_servicos)
+                    
+                    # Tenta diferentes nomes de campos para compatibilidade
+                    try:
+                        contrato = Contrato(
+                            cliente_id=cliente.id,
+                            prestador_id=servico.prestador_id,
+                            servico_id=servico.id,
+                            status='concluido',
+                            valor=servico.preco or 100.00,
+                            data_criacao=datetime.utcnow() - timedelta(days=random.randint(10, 90)),
+                            data_conclusao=datetime.utcnow() - timedelta(days=random.randint(1, 10))
+                        )
+                        db.session.add(contrato)
+                        contratos_criados += 1
+                    except:
+                        # Fallback: tenta sem alguns campos
+                        try:
+                            contrato = Contrato(
+                                cliente_id=cliente.id,
+                                prestador_id=servico.prestador_id,
+                                servico_id=servico.id,
+                                status='concluido'
+                            )
+                            db.session.add(contrato)
+                            contratos_criados += 1
+                        except:
+                            pass
+                
+                db.session.commit()
+                print(f"  ✅ {contratos_criados} contratos concluídos")
+            except Exception as e:
+                print(f"  ⚠️ Erro: {e}")
+        else:
+            print("\n⚠️ Modelo Contrato não encontrado, pulando contratos")
+        
+        # ============================================
+        # 6. ASSINATURAS ATIVAS (para o "Premium" funcionar)
+        # ============================================
+        print("\n💳 Criando assinaturas...")
+        try:
+            assinaturas_criadas = 0
+            for prestador in random.sample(todos_prestadores, min(4, len(todos_prestadores))):
+                existente = Assinatura.query.filter_by(
+                    prestador_id=prestador.id, status='ativa'
+                ).first()
+                if existente:
+                    continue
+                
+                plano = random.choice(['basico', 'pro'])
+                assinatura = Assinatura(
+                    prestador_id=prestador.id,
+                    plano=plano,
+                    status='ativa',
+                    data_inicio=datetime.utcnow() - timedelta(days=random.randint(1, 20)),
+                    data_fim=datetime.utcnow() + timedelta(days=random.randint(10, 30)),
+                    ultimo_pagamento=datetime.utcnow() - timedelta(days=random.randint(1, 20))
+                )
+                db.session.add(assinatura)
+                assinaturas_criadas += 1
+            db.session.commit()
+            print(f"  ✅ {assinaturas_criadas} assinaturas criadas")
+        except Exception as e:
+            print(f"  ⚠️ Erro: {e}")
+        
+        # ============================================
+        # RESUMO
+        # ============================================
         print("\n" + "=" * 60)
-        print("🎉 SEED CONCLUÍDO!")
+        print("🎉 SEED CONCLUÍDO COM SUCESSO!")
+        print("=" * 60)
+        print(f"📊 Prestadores: {Usuario.query.filter(Usuario.email.like(f'{SEED_PREFIX}%')).filter_by(tipo='prestador').count()}")
+        print(f"📊 Clientes: {Usuario.query.filter(Usuario.email.like(f'{SEED_PREFIX}%')).filter_by(tipo='cliente').count()}")
+        print(f"📊 Serviços: {Servico.query.count()}")
+        if TEM_AVALIACAO:
+            print(f"📊 Avaliações: {Avaliacao.query.count()}")
+        if TEM_CONTRATO:
+            print(f"📊 Contratos: {Contrato.query.count()}")
+        print("=" * 60)
 
 
 def remove_seed_data():
     with app.app_context():
+        print("🗑️  Removendo dados de seed...")
         usuarios = Usuario.query.filter(Usuario.email.like(f"{SEED_PREFIX}%")).all()
         ids = [u.id for u in usuarios]
+        
         if not ids:
-            print("Nada para remover.")
+            print("  ⚠️ Nada para remover.")
             return
         
         if TEM_AVALIACAO:
@@ -305,52 +428,37 @@ def remove_seed_data():
                 Avaliacao.query.filter(
                     (Avaliacao.prestador_id.in_(ids)) | (Avaliacao.cliente_id.in_(ids))
                 ).delete(synchronize_session=False)
-            except: pass
+            except:
+                pass
+        
+        if TEM_CONTRATO:
+            try:
+                Contrato.query.filter(
+                    (Contrato.cliente_id.in_(ids)) | (Contrato.prestador_id.in_(ids))
+                ).delete(synchronize_session=False)
+            except:
+                pass
+        
+        if TEM_SOLICITACAO:
+            try:
+                Solicitacao.query.filter(
+                    Solicitacao.cliente_id.in_(ids)
+                ).delete(synchronize_session=False)
+            except:
+                pass
         
         Mensagem.query.filter(
             (Mensagem.remetente_id.in_(ids)) | (Mensagem.destinatario_id.in_(ids))
         ).delete(synchronize_session=False)
+        
         Assinatura.query.filter(Assinatura.prestador_id.in_(ids)).delete(synchronize_session=False)
         Servico.query.filter(Servico.prestador_id.in_(ids)).delete(synchronize_session=False)
+        
         for u in usuarios:
             db.session.delete(u)
-        db.session.commit()
-        print(f"✅ {len(usuarios)} usuários removidos")
-
-# ============================================
-# 5. CRIAR AVALIAÇÕES (FORÇADO)
-# ============================================
-if TEM_AVALIACAO:
-    print("\n⭐ Criando avaliações...")
-    try:
-        todos_servicos = Servico.query.filter(
-            Servico.prestador_id.in_([p.id for p in todos_prestadores])
-        ).all()
-        
-        avs_criadas = 0
-        # Para cada serviço, cria de 2 a 5 avaliações
-        for servico in todos_servicos:
-            num_avaliacoes = random.randint(2, 5)
-            for _ in range(num_avaliacoes):
-                cliente = random.choice(clientes_criados)
-                av = random.choice(AVALIACOES)
-                try:
-                    avaliacao = Avaliacao(
-                        prestador_id=servico.prestador_id,
-                        cliente_id=cliente.id,
-                        nota=av['nota'],
-                        comentario=av['comentario'],
-                        data_criacao=datetime.utcnow() - timedelta(days=random.randint(1, 30))
-                    )
-                    db.session.add(avaliacao)
-                    avs_criadas += 1
-                except Exception as e:
-                    pass
         
         db.session.commit()
-        print(f"  ✅ {avs_criadas} avaliações criadas")
-    except Exception as e:
-        print(f"  ⚠️ Erro: {e}")        
+        print(f"  ✅ {len(usuarios)} usuários e dados relacionados removidos")
 
 
 if __name__ == '__main__':
