@@ -14,17 +14,14 @@
 {% include "components/servicos_destaque.html" %}
 
 <!-- Top Prestadores -->
-{% if prestadores_avaliados and prestadores_avaliados|length > 0 %}
-    {% include "components/top_prestadores.html" %}
-{% endif %}
+{% include "components/top_prestadores.html" %}
 
 <!-- Categorias Populares -->
 {% include "components/categorias.html" %}
 
 <!-- Últimos Serviços -->
-{% if servicos_recentes and servicos_recentes|length > 0 %}
-    {% include "components/ultimos_servicos.html" %}
-{% endif %}
+{% include "components/ultimos_servicos.html" %}
+
 
 <!-- Depoimentos -->
 {% include "components/depoimentos.html" %}
