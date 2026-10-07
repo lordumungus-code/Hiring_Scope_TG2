@@ -41,7 +41,7 @@
                          data-usuario-id="{{ usuario.id }}"
                          data-usuario-nome="{{ usuario.nome|lower|e }}"
                          data-tipo="conversa"
-                         onclick='carregarConversa({{ usuario.id }}, {{ usuario.nome|tojson }})'>
+                         onclick='carregarConversa({{ usuario.id }}, {{ usuario.nome|tojson }}, {{ (usuario.foto_url or usuario.foto_perfil or "")|tojson }})'>
                         <div class="avatar-wrapper">
                             {% if usuario.foto_url %}
                                 <img src="{{ usuario.foto_url }}" class="avatar-img" alt="{{ usuario.nome }}">
@@ -83,7 +83,7 @@
                          data-usuario-id="{{ usuario.id }}"
                          data-usuario-nome="{{ usuario.nome|lower|e }}"
                          data-tipo="sugestao"
-                         onclick='carregarConversa({{ usuario.id }}, {{ usuario.nome|tojson }})'>
+                         onclick='carregarConversa({{ usuario.id }}, {{ usuario.nome|tojson }}, {{ (usuario.foto_url or usuario.foto_perfil or "")|tojson }})'>
                         <div class="avatar-wrapper">
                             {% if usuario.foto_url %}
                                 <img src="{{ usuario.foto_url }}" class="avatar-img" alt="{{ usuario.nome }}">
@@ -128,9 +128,8 @@
                     <i class="fas fa-arrow-left"></i>
                 </button>
                 <div class="avatar-wrapper me-3">
-                    <div class="avatar-img avatar-placeholder bg-secondary" id="chatAvatar" style="font-size: 1rem;">
-                        ?
-                    </div>
+                    <img src="" alt="Avatar" class="avatar-img" id="chatAvatarImg" style="display: none;">
+                    <div class="avatar-img avatar-placeholder bg-secondary" id="chatAvatar" style="font-size: 1rem;">?</div>
                     <span class="status-dot" id="chatStatusDot"></span>
                 </div>
                 <div class="flex-grow-1">
@@ -178,6 +177,11 @@
     
     main {
         padding: 0 !important;
+    }
+    
+    /* Esconder footer na página do chat */
+    footer.footer {
+        display: none !important;
     }
     
     .chat-wrapper {
@@ -371,7 +375,6 @@
         height: 100%;
     }
     
-    /* Padrão de fundo do WhatsApp */
     .chat-main::before {
         content: '';
         position: absolute;
@@ -473,7 +476,7 @@
     }
     
     /* ============================================ */
-    /* BARRA DE INPUT (DESTAQUE - WhatsApp style) */
+    /* BARRA DE INPUT (DESTAQUE) */
     /* ============================================ */
     .chat-input-bar {
         background: #f0f2f5;
@@ -539,7 +542,7 @@
     }
     
     /* ============================================ */
-    /* SCROLLBAR (estilo WhatsApp) */
+    /* SCROLLBAR */
     /* ============================================ */
     .conversations-list::-webkit-scrollbar,
     .chat-messages::-webkit-scrollbar {
@@ -627,11 +630,6 @@
         .conversation-preview {
             font-size: 0.78rem;
         }
-
-        /* Esconder footer na página do chat */
-        footer.footer {
-            display: none !important;
-        }
     }
 </style>
 
@@ -680,7 +678,7 @@
     // ============================================
     // CARREGAR CONVERSA
     // ============================================
-    window.carregarConversa = function(usuarioId, usuarioNome) {
+    window.carregarConversa = function(usuarioId, usuarioNome, usuarioFoto) {
         console.log('🔍 Carregando conversa com:', usuarioNome, 'ID:', usuarioId);
         
         usuarioAtual = { id: usuarioId, nome: usuarioNome };
@@ -688,11 +686,32 @@
         
         const chatHeader = document.getElementById('chatUsuarioNome');
         const chatAvatar = document.getElementById('chatAvatar');
+        const chatAvatarImg = document.getElementById('chatAvatarImg');
         const msgInput = document.getElementById('mensagemInput');
         const enviarBtn = document.getElementById('enviarBtn');
         
         if (chatHeader) chatHeader.textContent = usuarioNome;
-        if (chatAvatar) chatAvatar.textContent = usuarioNome[0].toUpperCase();
+        
+        // ============================================
+        // ATUALIZAR AVATAR (foto ou inicial)
+        // ============================================
+        if (usuarioFoto && usuarioFoto !== 'default.jpg' && usuarioFoto !== '') {
+            // Se veio foto (URL ou base64), mostra a imagem
+            const imgSrc = usuarioFoto.startsWith('http') ? usuarioFoto : `data:image/jpeg;base64,${usuarioFoto}`;
+            if (chatAvatarImg) {
+                chatAvatarImg.src = imgSrc;
+                chatAvatarImg.style.display = 'block';
+            }
+            if (chatAvatar) chatAvatar.style.display = 'none';
+        } else {
+            // Se não veio foto, mostra a inicial
+            if (chatAvatar) {
+                chatAvatar.textContent = usuarioNome[0].toUpperCase();
+                chatAvatar.style.display = 'flex';
+            }
+            if (chatAvatarImg) chatAvatarImg.style.display = 'none';
+        }
+        
         if (msgInput) msgInput.disabled = false;
         if (enviarBtn) enviarBtn.disabled = false;
         
@@ -882,7 +901,7 @@
             sessionStorage.removeItem('chat_with_name');
             
             setTimeout(function() {
-                carregarConversa(parseInt(chatWithId), chatWithName);
+                carregarConversa(parseInt(chatWithId), chatWithName, '');
             }, 300);
         }
         
