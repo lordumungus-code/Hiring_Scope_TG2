@@ -186,7 +186,7 @@
     
     .chat-wrapper {
         position: fixed;
-        top: 70px; /* Altura da navbar */
+        top: 70px;
         left: 0;
         right: 0;
         bottom: 0;
@@ -277,11 +277,15 @@
         z-index: 1;
     }
     
-    /* Item de conversa */
+    /* ============================================ */
+    /* ITEM DE CONVERSA (com cursor pointer) */
+    /* ============================================ */
     .conversation-item {
         transition: background 0.15s ease;
         border-bottom: 1px solid #f0f2f5;
         padding: 12px 16px;
+        cursor: pointer !important;
+        user-select: none;
     }
     
     .conversation-item:hover {
@@ -292,6 +296,17 @@
         background: #f0f2f5;
     }
     
+    /* Garantir mãozinha em TODOS os elementos filhos */
+    .conversation-item *,
+    .conversation-item .avatar-wrapper,
+    .conversation-item .conversation-info,
+    .conversation-item .conversation-name,
+    .conversation-item .conversation-preview,
+    .conversation-item .status-dot,
+    .conversation-item .badge {
+        cursor: pointer !important;
+    }
+    
     .conversation-item.suggestion-item {
         opacity: 0.85;
     }
@@ -300,7 +315,9 @@
         opacity: 1;
     }
     
-    /* Avatar */
+    /* ============================================ */
+    /* AVATAR */
+    /* ============================================ */
     .avatar-wrapper {
         position: relative;
         flex-shrink: 0;
@@ -414,7 +431,7 @@
     }
     
     /* ============================================ */
-    /* BOLHAS DE MENSAGEM (estilo WhatsApp) */
+    /* BOLHAS DE MENSAGEM */
     /* ============================================ */
     .message {
         margin-bottom: 8px;
@@ -476,7 +493,7 @@
     }
     
     /* ============================================ */
-    /* BARRA DE INPUT (DESTAQUE) */
+    /* BARRA DE INPUT */
     /* ============================================ */
     .chat-input-bar {
         background: #f0f2f5;
@@ -561,7 +578,7 @@
     }
     
     /* ============================================ */
-    /* RESPONSIVIDADE - CELULAR */
+    /* RESPONSIVIDADE */
     /* ============================================ */
     @media (max-width: 767px) {
         .chat-wrapper {
