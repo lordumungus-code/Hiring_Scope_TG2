@@ -1,5 +1,5 @@
 """
-Script para popular o banco com dados realistas + fotos.
+Script para popular o banco com dados realistas + fotos + avaliações + contratos.
 Executar no Console do Railway: python seed_data.py
 Para remover: python seed_data.py --remove
 """
@@ -12,35 +12,14 @@ import urllib.parse
 from datetime import datetime, timedelta
 from app import app
 from extensions import db
-from models import Usuario, Servico, Assinatura, Mensagem
-
-# Tenta importar Avaliacao e Contrato
-try:
-    from models import Avaliacao
-    TEM_AVALIACAO = True
-except ImportError:
-    TEM_AVALIACAO = False
-    print("⚠️ Modelo Avaliacao não encontrado")
-
-try:
-    from models import Contrato
-    TEM_CONTRATO = True
-except ImportError:
-    TEM_CONTRATO = False
-    print("⚠️ Modelo Contrato não encontrado")
-
-try:
-    from models import Solicitacao
-    TEM_SOLICITACAO = True
-except ImportError:
-    TEM_SOLICITACAO = False
+from models import Usuario, Servico, Assinatura, Mensagem, Avaliacao, Contrato, Solicitacao
 
 SEED_PREFIX = "seed_"
 SEED_DOMAIN = "@hiring-scope.com.br"
 
 
 # ============================================
-# BAIXAR FOTO DE PERFIL
+# BAIXAR FOTO
 # ============================================
 def baixar_foto_perfil(nome, genero, idx):
     urls = [
@@ -48,7 +27,6 @@ def baixar_foto_perfil(nome, genero, idx):
         f"https://i.pravatar.cc/200?img={idx + 1}",
         f"https://ui-avatars.com/api/?name={urllib.parse.quote(nome)}&background=0b2b5c&color=fff&size=200&bold=true",
     ]
-    
     for url in urls:
         try:
             req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -61,59 +39,47 @@ def baixar_foto_perfil(nome, genero, idx):
     return None
 
 
-# ============================================
-# BAIXAR FOTO DE SERVIÇO
-# ============================================
 FOTOS_POR_CATEGORIA = {
     "Construção": [
         "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=600&fit=crop",
     ],
     "Limpeza": [
         "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1585421514738-01798e348b17?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=600&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1584820927498-cdd1c71a4a4c?w=600&h=600&fit=crop",
     ],
     "Design": [
         "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&h=600&fit=crop",
     ],
     "Tecnologia": [
         "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?w=600&h=600&fit=crop",
     ],
     "Educação": [
         "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&h=600&fit=crop",
     ],
     "Saúde": [
         "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=600&fit=crop",
     ],
     "Beleza": [
         "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&h=600&fit=crop",
     ],
     "Marketing": [
         "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1552581234-26160f608093?w=600&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=600&h=600&fit=crop",
     ],
     "Serviços Gerais": [
         "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=600&fit=crop",
         "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=600&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&h=600&fit=crop",
     ],
 }
 
@@ -121,15 +87,14 @@ FOTOS_POR_CATEGORIA = {
 def baixar_foto_servico(categoria, idx):
     fotos = FOTOS_POR_CATEGORIA.get(categoria, FOTOS_POR_CATEGORIA["Serviços Gerais"])
     url = fotos[idx % len(fotos)]
-    
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         with urllib.request.urlopen(req, timeout=15) as response:
             data = response.read()
             if len(data) > 1000:
                 return base64.b64encode(data).decode('utf-8')
-    except Exception as e:
-        print(f"     ⚠️ Erro: {str(e)[:60]}")
+    except:
+        pass
     return None
 
 
@@ -159,37 +124,35 @@ CLIENTES = [
 ]
 
 SERVICOS = [
-    {"categoria": "Construção", "titulo": "Instalação elétrica residencial", "desc": "Instalação completa de tomadas, interruptores e disjuntores. Trabalho com garantia de 6 meses.", "preco": 350.00, "tipo_preco": "fixo"},
-    {"categoria": "Construção", "titulo": "Conserto de vazamentos", "desc": "Identificação e conserto de vazamentos em encanamentos, torneiras e descargas. Atendimento 24h.", "preco": 150.00, "tipo_preco": "fixo"},
-    {"categoria": "Construção", "titulo": "Pintura de apartamento", "desc": "Pintura completa de apartamentos até 80m². Material não incluso. Acabamento profissional.", "preco": 25.00, "tipo_preco": "metro"},
-    {"categoria": "Limpeza", "titulo": "Limpeza residencial completa", "desc": "Limpeza pesada de casas e apartamentos. Inclui banheiros, cozinha, quartos e áreas comuns.", "preco": 180.00, "tipo_preco": "fixo"},
-    {"categoria": "Limpeza", "titulo": "Diarista semanal", "desc": "Serviço de diarista uma vez por semana. Organização, limpeza e passadoria inclusos.", "preco": 150.00, "tipo_preco": "dia"},
-    {"categoria": "Design", "titulo": "Criação de logotipo", "desc": "Criação de logotipo profissional com 3 opções de conceito e arquivos em alta resolução.", "preco": 500.00, "tipo_preco": "fixo"},
-    {"categoria": "Design", "titulo": "Design de redes sociais", "desc": "Pacote mensal com 20 artes para Instagram e Facebook. Design moderno e personalizado.", "preco": 800.00, "tipo_preco": "fixo"},
-    {"categoria": "Tecnologia", "titulo": "Formatação de computador", "desc": "Formatação completa, instalação de drivers, programas essenciais e backup dos dados.", "preco": 120.00, "tipo_preco": "fixo"},
-    {"categoria": "Tecnologia", "titulo": "Criação de site institucional", "desc": "Site institucional com até 5 páginas, responsivo e otimizado para SEO.", "preco": 2500.00, "tipo_preco": "fixo"},
-    {"categoria": "Educação", "titulo": "Aulas particulares de matemática", "desc": "Aulas de reforço para ensino fundamental e médio. Preparação para ENEM e vestibulares.", "preco": 80.00, "tipo_preco": "hora"},
-    {"categoria": "Educação", "titulo": "Aulas de inglês conversação", "desc": "Aulas dinâmicas de conversação em inglês. Todos os níveis, online ou presencial.", "preco": 90.00, "tipo_preco": "hora"},
-    {"categoria": "Saúde", "titulo": "Personal trainer domiciliar", "desc": "Treinos personalizados em casa ou academia. Avaliação física inclusa.", "preco": 120.00, "tipo_preco": "hora"},
-    {"categoria": "Beleza", "titulo": "Manicure e pedicure", "desc": "Atendimento a domicílio. Esmaltação, alongamento e decoração de unhas.", "preco": 70.00, "tipo_preco": "fixo"},
-    {"categoria": "Marketing", "titulo": "Gestão de tráfego pago", "desc": "Gestão mensal de campanhas no Google Ads e Facebook Ads. Relatórios semanais.", "preco": 1200.00, "tipo_preco": "fixo"},
-    {"categoria": "Serviços Gerais", "titulo": "Montagem de móveis", "desc": "Montagem de móveis de qualquer marca. Trabalho rápido e com garantia.", "preco": 100.00, "tipo_preco": "fixo"},
-    {"categoria": "Serviços Gerais", "titulo": "Marido de aluguel", "desc": "Pequenos reparos domésticos: prateleiras, quadros, torneiras e mais.", "preco": 120.00, "tipo_preco": "hora"},
+    {"categoria": "Construção", "titulo": "Instalação elétrica residencial", "desc": "Instalação completa de tomadas, interruptores e disjuntores. Garantia de 6 meses.", "preco": 350.00, "tipo_preco": "fixo"},
+    {"categoria": "Construção", "titulo": "Conserto de vazamentos", "desc": "Identificação e conserto de vazamentos em encanamentos, torneiras e descargas. 24h.", "preco": 150.00, "tipo_preco": "fixo"},
+    {"categoria": "Construção", "titulo": "Pintura de apartamento", "desc": "Pintura completa de apartamentos até 80m². Material não incluso.", "preco": 25.00, "tipo_preco": "metro"},
+    {"categoria": "Limpeza", "titulo": "Limpeza residencial completa", "desc": "Limpeza pesada de casas e apartamentos. Inclui banheiros, cozinha e quartos.", "preco": 180.00, "tipo_preco": "fixo"},
+    {"categoria": "Limpeza", "titulo": "Diarista semanal", "desc": "Diarista uma vez por semana. Organização, limpeza e passadoria inclusos.", "preco": 150.00, "tipo_preco": "dia"},
+    {"categoria": "Design", "titulo": "Criação de logotipo", "desc": "Logotipo profissional com 3 opções e arquivos em alta resolução.", "preco": 500.00, "tipo_preco": "fixo"},
+    {"categoria": "Design", "titulo": "Design de redes sociais", "desc": "Pacote mensal com 20 artes para Instagram e Facebook.", "preco": 800.00, "tipo_preco": "fixo"},
+    {"categoria": "Tecnologia", "titulo": "Formatação de computador", "desc": "Formatação completa, drivers, programas essenciais e backup.", "preco": 120.00, "tipo_preco": "fixo"},
+    {"categoria": "Tecnologia", "titulo": "Criação de site institucional", "desc": "Site institucional com até 5 páginas, responsivo e otimizado.", "preco": 2500.00, "tipo_preco": "fixo"},
+    {"categoria": "Educação", "titulo": "Aulas particulares de matemática", "desc": "Reforço para fundamental e médio. Preparação para ENEM.", "preco": 80.00, "tipo_preco": "hora"},
+    {"categoria": "Educação", "titulo": "Aulas de inglês conversação", "desc": "Conversação em inglês. Todos os níveis, online ou presencial.", "preco": 90.00, "tipo_preco": "hora"},
+    {"categoria": "Saúde", "titulo": "Personal trainer domiciliar", "desc": "Treinos personalizados. Avaliação física inclusa.", "preco": 120.00, "tipo_preco": "hora"},
+    {"categoria": "Beleza", "titulo": "Manicure e pedicure", "desc": "Atendimento a domicílio. Esmaltação, alongamento e decoração.", "preco": 70.00, "tipo_preco": "fixo"},
+    {"categoria": "Marketing", "titulo": "Gestão de tráfego pago", "desc": "Gestão mensal de campanhas no Google Ads e Facebook Ads.", "preco": 1200.00, "tipo_preco": "fixo"},
+    {"categoria": "Serviços Gerais", "titulo": "Montagem de móveis", "desc": "Montagem de móveis de qualquer marca. Rápido e garantido.", "preco": 100.00, "tipo_preco": "fixo"},
+    {"categoria": "Serviços Gerais", "titulo": "Marido de aluguel", "desc": "Pequenos reparos: prateleiras, quadros, torneiras e mais.", "preco": 120.00, "tipo_preco": "hora"},
 ]
 
-AVALIACOES = [
-    {"nota": 5, "comentario": "Excelente profissional! Muito atencioso e pontual. Recomendo!"},
-    {"nota": 5, "comentario": "Trabalho impecável, superou minhas expectativas."},
-    {"nota": 5, "comentario": "Profissional muito qualificado e educado. Preço justo."},
-    {"nota": 4, "comentario": "Bom trabalho, apenas atrasou um pouco. Mas o resultado ficou ótimo."},
-    {"nota": 5, "comentario": "Simplesmente perfeito! Rápido, organizado e preço justo."},
-    {"nota": 5, "comentario": "Recomendo! Cumpriu tudo o que prometeu e ainda deu dicas extras."},
-    {"nota": 4, "comentario": "Serviço bem feito, só achei um pouco caro. Mas a qualidade compensa."},
-    {"nota": 5, "comentario": "Melhor profissional que já contratei. Super atencioso."},
-    {"nota": 5, "comentario": "Trabalho de altíssima qualidade. Já indiquei para vários amigos!"},
-    {"nota": 5, "comentario": "Pontual, educado e fez um trabalho maravilhoso. Nota 10!"},
-    {"nota": 5, "comentario": "Serviço excepcional! Já marquei outro trabalho com ele."},
-    {"nota": 4, "comentario": "Muito bom! Recomendo para quem precisa de qualidade."},
+COMENTARIOS = [
+    "Excelente profissional! Muito atencioso e pontual. Recomendo!",
+    "Trabalho impecável, superou minhas expectativas.",
+    "Profissional muito qualificado e educado. Preço justo.",
+    "Bom trabalho, apenas atrasou um pouco. Mas o resultado ficou ótimo.",
+    "Simplesmente perfeito! Rápido, organizado e preço justo.",
+    "Recomendo! Cumpriu tudo o que prometeu e ainda deu dicas extras.",
+    "Serviço bem feito, só achei um pouco caro. Mas a qualidade compensa.",
+    "Melhor profissional que já contratei. Super atencioso.",
+    "Trabalho de altíssima qualidade. Já indiquei para vários amigos!",
+    "Pontual, educado e fez um trabalho maravilhoso. Nota 10!",
 ]
 
 
@@ -224,7 +187,7 @@ def seed_database():
             db.session.flush()
             prestadores_criados.append(usuario)
         db.session.commit()
-        print(f"  ✅ {len(prestadores_criados)} prestadores criados")
+        print(f"  ✅ {len(prestadores_criados)} prestadores")
         
         # ============================================
         # 2. CLIENTES
@@ -249,17 +212,17 @@ def seed_database():
             db.session.flush()
             clientes_criados.append(usuario)
         db.session.commit()
-        print(f"  ✅ {len(clientes_criados)} clientes criados")
+        print(f"  ✅ {len(clientes_criados)} clientes")
         
         # ============================================
-        # 3. SERVIÇOS (com fotos!)
+        # 3. SERVIÇOS
         # ============================================
-        print("\n🔧 Criando serviços (baixando fotos)...")
+        print("\n🔧 Criando serviços...")
         todos_prestadores = Usuario.query.filter(
             Usuario.email.like(f"{SEED_PREFIX}%")
         ).filter_by(tipo='prestador').all()
         
-        servicos_criados = 0
+        servicos_criados = []
         for idx, s in enumerate(SERVICOS):
             prestador = random.choice(todos_prestadores)
             existente = Servico.query.filter_by(
@@ -268,7 +231,7 @@ def seed_database():
             if existente:
                 continue
             
-            print(f"  📸 {s['titulo']} ({s['categoria']})")
+            print(f"  📸 {s['titulo']}")
             imagem = baixar_foto_servico(s['categoria'], idx)
             
             servico = Servico(
@@ -281,136 +244,117 @@ def seed_database():
                 data_postagem=datetime.utcnow() - timedelta(days=random.randint(1, 60))
             )
             db.session.add(servico)
-            servicos_criados += 1
+            servicos_criados.append(servico)
         db.session.commit()
-        print(f"  ✅ {servicos_criados} serviços criados")
+        print(f"  ✅ {len(servicos_criados)} serviços")
         
         # ============================================
-        # 4. AVALIAÇÕES (2 a 5 por serviço)
+        # 4. CONTRATOS CONCLUÍDOS (PRIMEIRO!)
         # ============================================
-        if TEM_AVALIACAO:
-            print("\n⭐ Criando avaliações...")
-            try:
-                todos_servicos = Servico.query.filter(
-                    Servico.prestador_id.in_([p.id for p in todos_prestadores])
-                ).all()
-                
-                avs_criadas = 0
-                for servico in todos_servicos:
-                    num_avaliacoes = random.randint(2, 5)
-                    for _ in range(num_avaliacoes):
-                        cliente = random.choice(clientes_criados)
-                        av = random.choice(AVALIACOES)
-                        try:
-                            avaliacao = Avaliacao(
-                                prestador_id=servico.prestador_id,
-                                cliente_id=cliente.id,
-                                nota=av['nota'],
-                                comentario=av['comentario'],
-                                data_criacao=datetime.utcnow() - timedelta(days=random.randint(1, 30))
-                            )
-                            db.session.add(avaliacao)
-                            avs_criadas += 1
-                        except:
-                            pass
-                
-                db.session.commit()
-                print(f"  ✅ {avs_criadas} avaliações criadas")
-            except Exception as e:
-                print(f"  ⚠️ Erro: {e}")
+        print("\n📄 Criando contratos concluídos...")
+        todos_servicos = Servico.query.filter(
+            Servico.prestador_id.in_([p.id for p in todos_prestadores])
+        ).all()
+        
+        contratos_criados = []
+        for i in range(30):  # 30 contratos concluídos
+            cliente = random.choice(clientes_criados)
+            servico = random.choice(todos_servicos)
+            
+            contrato = Contrato(
+                cliente_id=cliente.id,
+                prestador_id=servico.prestador_id,
+                servico_id=servico.id,
+                status='concluido',
+                data_solicitacao=datetime.utcnow() - timedelta(days=random.randint(30, 90)),
+                data_aceite=datetime.utcnow() - timedelta(days=random.randint(20, 29)),
+                data_inicio=datetime.utcnow() - timedelta(days=random.randint(15, 19)),
+                data_conclusao=datetime.utcnow() - timedelta(days=random.randint(1, 14)),
+                preco_acordado=servico.preco,
+                valor_servico=servico.preco,
+                mensagem_cliente=f"Preciso do serviço de {servico.titulo.lower()}."
+            )
+            db.session.add(contrato)
+            contratos_criados.append(contrato)
+        
+        db.session.commit()
+        print(f"  ✅ {len(contratos_criados)} contratos concluídos")
         
         # ============================================
-        # 5. CONTRATOS CONCLUÍDOS (para o contador)
+        # 5. AVALIAÇÕES (agora ligadas aos contratos!)
         # ============================================
-        if TEM_CONTRATO:
-            print("\n✅ Criando contratos concluídos...")
-            try:
-                contratos_criados = 0
-                todos_servicos = Servico.query.filter(
-                    Servico.prestador_id.in_([p.id for p in todos_prestadores])
-                ).all()
+        print("\n⭐ Criando avaliações...")
+        avs_criadas = 0
+        
+        for contrato in contratos_criados:
+            # 70% de chance de ter avaliação
+            if random.random() < 0.7:
+                nota = random.choices([5, 4, 3], weights=[70, 25, 5])[0]
+                comentario = random.choice(COMENTARIOS)
                 
-                for _ in range(25):  # 25 contratos concluídos
-                    cliente = random.choice(clientes_criados)
-                    servico = random.choice(todos_servicos)
-                    
-                    # Tenta diferentes nomes de campos para compatibilidade
-                    try:
-                        contrato = Contrato(
-                            cliente_id=cliente.id,
-                            prestador_id=servico.prestador_id,
-                            servico_id=servico.id,
-                            status='concluido',
-                            valor=servico.preco or 100.00,
-                            data_criacao=datetime.utcnow() - timedelta(days=random.randint(10, 90)),
-                            data_conclusao=datetime.utcnow() - timedelta(days=random.randint(1, 10))
-                        )
-                        db.session.add(contrato)
-                        contratos_criados += 1
-                    except:
-                        # Fallback: tenta sem alguns campos
-                        try:
-                            contrato = Contrato(
-                                cliente_id=cliente.id,
-                                prestador_id=servico.prestador_id,
-                                servico_id=servico.id,
-                                status='concluido'
-                            )
-                            db.session.add(contrato)
-                            contratos_criados += 1
-                        except:
-                            pass
-                
-                db.session.commit()
-                print(f"  ✅ {contratos_criados} contratos concluídos")
-            except Exception as e:
-                print(f"  ⚠️ Erro: {e}")
-        else:
-            print("\n⚠️ Modelo Contrato não encontrado, pulando contratos")
+                try:
+                    avaliacao = Avaliacao(
+                        contrato_id=contrato.id,
+                        cliente_id=contrato.cliente_id,
+                        prestador_id=contrato.prestador_id,
+                        servico_id=contrato.servico_id,
+                        nota=nota,
+                        comentario=comentario,
+                        qualidade=nota,
+                        pontualidade=nota,
+                        comunicacao=nota,
+                        preco_justo=nota,
+                        data_avaliacao=contrato.data_conclusao + timedelta(days=random.randint(1, 7))
+                    )
+                    db.session.add(avaliacao)
+                    avs_criadas += 1
+                except Exception as e:
+                    print(f"     ⚠️ {e}")
+        
+        db.session.commit()
+        print(f"  ✅ {avs_criadas} avaliações criadas")
         
         # ============================================
-        # 6. ASSINATURAS ATIVAS (para o "Premium" funcionar)
+        # 6. ASSINATURAS ATIVAS
         # ============================================
         print("\n💳 Criando assinaturas...")
-        try:
-            assinaturas_criadas = 0
-            for prestador in random.sample(todos_prestadores, min(4, len(todos_prestadores))):
-                existente = Assinatura.query.filter_by(
-                    prestador_id=prestador.id, status='ativa'
-                ).first()
-                if existente:
-                    continue
-                
-                plano = random.choice(['basico', 'pro'])
-                assinatura = Assinatura(
-                    prestador_id=prestador.id,
-                    plano=plano,
-                    status='ativa',
-                    data_inicio=datetime.utcnow() - timedelta(days=random.randint(1, 20)),
-                    data_fim=datetime.utcnow() + timedelta(days=random.randint(10, 30)),
-                    ultimo_pagamento=datetime.utcnow() - timedelta(days=random.randint(1, 20))
-                )
-                db.session.add(assinatura)
-                assinaturas_criadas += 1
-            db.session.commit()
-            print(f"  ✅ {assinaturas_criadas} assinaturas criadas")
-        except Exception as e:
-            print(f"  ⚠️ Erro: {e}")
+        assinaturas_criadas = 0
+        for prestador in random.sample(todos_prestadores, min(4, len(todos_prestadores))):
+            existente = Assinatura.query.filter_by(
+                prestador_id=prestador.id, status='ativa'
+            ).first()
+            if existente:
+                continue
+            
+            plano = random.choice(['basico', 'pro'])
+            assinatura = Assinatura(
+                prestador_id=prestador.id,
+                plano=plano,
+                status='ativa',
+                data_inicio=datetime.utcnow() - timedelta(days=random.randint(1, 20)),
+                data_fim=datetime.utcnow() + timedelta(days=random.randint(10, 30)),
+                ultimo_pagamento=datetime.utcnow() - timedelta(days=random.randint(1, 20))
+            )
+            db.session.add(assinatura)
+            assinaturas_criadas += 1
+        db.session.commit()
+        print(f"  ✅ {assinaturas_criadas} assinaturas")
         
         # ============================================
-        # RESUMO
+        # RESUMO FINAL
         # ============================================
         print("\n" + "=" * 60)
         print("🎉 SEED CONCLUÍDO COM SUCESSO!")
         print("=" * 60)
-        print(f"📊 Prestadores: {Usuario.query.filter(Usuario.email.like(f'{SEED_PREFIX}%')).filter_by(tipo='prestador').count()}")
-        print(f"📊 Clientes: {Usuario.query.filter(Usuario.email.like(f'{SEED_PREFIX}%')).filter_by(tipo='cliente').count()}")
-        print(f"📊 Serviços: {Servico.query.count()}")
-        if TEM_AVALIACAO:
-            print(f"📊 Avaliações: {Avaliacao.query.count()}")
-        if TEM_CONTRATO:
-            print(f"📊 Contratos: {Contrato.query.count()}")
+        print(f"👤 Prestadores: {Usuario.query.filter(Usuario.email.like(f'{SEED_PREFIX}%')).filter_by(tipo='prestador').count()}")
+        print(f"👤 Clientes: {Usuario.query.filter(Usuario.email.like(f'{SEED_PREFIX}%')).filter_by(tipo='cliente').count()}")
+        print(f"🔧 Serviços: {Servico.query.count()}")
+        print(f"📄 Contratos: {Contrato.query.count()}")
+        print(f"⭐ Avaliações: {Avaliacao.query.count()}")
+        print(f"💳 Assinaturas: {Assinatura.query.count()}")
         print("=" * 60)
+        print("🔐 Senha de todos: seed123456")
+        print("🗑️  Para remover: python seed_data.py --remove")
 
 
 def remove_seed_data():
@@ -423,29 +367,18 @@ def remove_seed_data():
             print("  ⚠️ Nada para remover.")
             return
         
-        if TEM_AVALIACAO:
-            try:
-                Avaliacao.query.filter(
-                    (Avaliacao.prestador_id.in_(ids)) | (Avaliacao.cliente_id.in_(ids))
-                ).delete(synchronize_session=False)
-            except:
-                pass
+        # Ordem importa (FK constraints)
+        Avaliacao.query.filter(
+            (Avaliacao.prestador_id.in_(ids)) | (Avaliacao.cliente_id.in_(ids))
+        ).delete(synchronize_session=False)
         
-        if TEM_CONTRATO:
-            try:
-                Contrato.query.filter(
-                    (Contrato.cliente_id.in_(ids)) | (Contrato.prestador_id.in_(ids))
-                ).delete(synchronize_session=False)
-            except:
-                pass
+        Contrato.query.filter(
+            (Contrato.cliente_id.in_(ids)) | (Contrato.prestador_id.in_(ids))
+        ).delete(synchronize_session=False)
         
-        if TEM_SOLICITACAO:
-            try:
-                Solicitacao.query.filter(
-                    Solicitacao.cliente_id.in_(ids)
-                ).delete(synchronize_session=False)
-            except:
-                pass
+        Solicitacao.query.filter(
+            Solicitacao.cliente_id.in_(ids)
+        ).delete(synchronize_session=False)
         
         Mensagem.query.filter(
             (Mensagem.remetente_id.in_(ids)) | (Mensagem.destinatario_id.in_(ids))
@@ -458,7 +391,7 @@ def remove_seed_data():
             db.session.delete(u)
         
         db.session.commit()
-        print(f"  ✅ {len(usuarios)} usuários e dados relacionados removidos")
+        print(f"  ✅ {len(usuarios)} usuários e dados removidos")
 
 
 if __name__ == '__main__':
