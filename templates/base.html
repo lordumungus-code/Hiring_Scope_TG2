@@ -3,17 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}HiringScope{% endblock %}</title>
     
+    <!-- ============================================ -->
+    <!-- SEO BÁSICO -->
+    <!-- ============================================ -->
+    <title>{% block title %}HiringScope - Contrate Eletricistas, Diaristas, Encanadores e Mais{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Encontre profissionais qualificados perto de você. Eletricistas, diaristas, pintores, designers e mais. Grátis para clientes. Chat em tempo real e avaliações reais.{% endblock %}">
+    <meta name="keywords" content="eletricista, diarista, encanador, pintor, designer, freelancer, serviços, contratar profissional, prestador de serviços">
+    <meta name="author" content="HiringScope">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://hiring-scope.com.br{{ request.path }}">
+    
+    <!-- ============================================ -->
+    <!-- OPEN GRAPH (WhatsApp, Facebook, LinkedIn) -->
+    <!-- ============================================ -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="HiringScope">
+    <meta property="og:title" content="{% block og_title %}HiringScope - Contrate profissionais qualificados{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Encontre o profissional perfeito em minutos. Grátis para clientes.{% endblock %}">
+    <meta property="og:url" content="https://hiring-scope.com.br{{ request.path }}">
+    <meta property="og:image" content="{{ url_for('static', filename='img/logo.png', _external=True) }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="pt_BR">
+    
+    <!-- ============================================ -->
+    <!-- TWITTER CARD -->
+    <!-- ============================================ -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="HiringScope - Contrate profissionais qualificados">
+    <meta name="twitter:description" content="Encontre o profissional perfeito em minutos.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='img/logo.png', _external=True) }}">
+    
+    <!-- ============================================ -->
+    <!-- FAVICON E MOBILE -->
+    <!-- ============================================ -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <meta name="theme-color" content="#0b2b5c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HiringScope">
+    
+    <!-- ============================================ -->
     <!-- CSS -->
+    <!-- ============================================ -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     
+    <!-- ============================================ -->
+    <!-- PRELOAD DE RECURSOS CRÍTICOS -->
+    <!-- ============================================ -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- ============================================ -->
     <!-- JS -->
+    <!-- ============================================ -->
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block head_extra %}{% endblock %}
 </head>
 
 <body>
@@ -55,13 +108,17 @@
         console.log('✅ Função iniciarChat disponível globalmente');
     </script>
     
-    <!-- Loader -->
+    <!-- ============================================ -->
+    <!-- LOADER -->
+    <!-- ============================================ -->
     <div id="loader" style="position: fixed; inset: 0; background: linear-gradient(135deg, #0a2540, #1a6d8f); display: flex; align-items: center; justify-content: center; flex-direction: column; z-index: 9999;">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" class="loader-logo" style="width: 120px;">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" class="loader-logo" style="width: 120px;" alt="HiringScope">
         <div class="loader-text" style="color: white; margin-top: 20px;">Carregando experiência incrível...</div>
     </div>
     
-    <!-- COMPONENTES -->
+    <!-- ============================================ -->
+    <!-- COMPONENTES BASE -->
+    <!-- ============================================ -->
     {% include "components/base/navbar.html" %}
     
     {% include "components/base/search_mobile.html" %}
@@ -70,16 +127,38 @@
     
     {% include "components/base/flash_messages.html" %}
     
-    <!-- Conteúdo principal -->
+    <!-- ============================================ -->
+    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ============================================ -->
     <main>
         {% block content %}{% endblock %}
     </main>
     
+    <!-- ============================================ -->
+    <!-- FOOTER -->
+    <!-- ============================================ -->
     {% include "components/base/footer.html" %}
     
+    <!-- ============================================ -->
+    <!-- SCRIPTS -->
+    <!-- ============================================ -->
     <script src="{{ url_for('static', filename='js/base.js') }}"></script>
     
     {% block scripts %}{% endblock %}
+    
+    <!-- ============================================ -->
+    <!-- GOOGLE ANALYTICS (opcional) -->
+    <!-- Substitua G-XXXXXXXXXX pelo seu ID de acompanhamento -->
+    <!-- ============================================ -->
+    {#
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    #}
     
 </body>
 </html>

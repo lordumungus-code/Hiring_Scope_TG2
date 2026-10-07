@@ -317,6 +317,41 @@ def remove_seed_data():
         db.session.commit()
         print(f"✅ {len(usuarios)} usuários removidos")
 
+# ============================================
+# 5. CRIAR AVALIAÇÕES (FORÇADO)
+# ============================================
+if TEM_AVALIACAO:
+    print("\n⭐ Criando avaliações...")
+    try:
+        todos_servicos = Servico.query.filter(
+            Servico.prestador_id.in_([p.id for p in todos_prestadores])
+        ).all()
+        
+        avs_criadas = 0
+        # Para cada serviço, cria de 2 a 5 avaliações
+        for servico in todos_servicos:
+            num_avaliacoes = random.randint(2, 5)
+            for _ in range(num_avaliacoes):
+                cliente = random.choice(clientes_criados)
+                av = random.choice(AVALIACOES)
+                try:
+                    avaliacao = Avaliacao(
+                        prestador_id=servico.prestador_id,
+                        cliente_id=cliente.id,
+                        nota=av['nota'],
+                        comentario=av['comentario'],
+                        data_criacao=datetime.utcnow() - timedelta(days=random.randint(1, 30))
+                    )
+                    db.session.add(avaliacao)
+                    avs_criadas += 1
+                except Exception as e:
+                    pass
+        
+        db.session.commit()
+        print(f"  ✅ {avs_criadas} avaliações criadas")
+    except Exception as e:
+        print(f"  ⚠️ Erro: {e}")        
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == '--remove':
