@@ -8,6 +8,7 @@ import sys
 import base64
 import random
 import urllib.request
+import urllib.parse
 from datetime import datetime, timedelta
 from app import app
 from extensions import db
@@ -24,40 +25,99 @@ SEED_DOMAIN = "@hiring-scope.com.br"
 
 
 # ============================================
-# BAIXAR FOTO COM MÚLTIPLAS FONTES
+# BAIXAR FOTO DE PERFIL
 # ============================================
-def baixar_foto_base64(nome, genero, idx):
-    """Tenta baixar uma foto de várias fontes"""
-    
-    # Lista de URLs para tentar (em ordem de preferência)
+def baixar_foto_perfil(nome, genero, idx):
     urls = [
-        # 1. Random User (fotos reais)
         f"https://randomuser.me/api/portraits/{genero}/{idx + 1}.jpg",
-        # 2. Pravatar (fotos reais, CDN confiável)
         f"https://i.pravatar.cc/200?img={idx + 1}",
-        # 3. UI Avatars (avatares com iniciais - sempre funciona)
-        f"https://ui-avatars.com/api/?name={urllib.parse.quote(nome)}&background=0b2b5c&color=fff&size=200&font-size=0.4&bold=true",
+        f"https://ui-avatars.com/api/?name={urllib.parse.quote(nome)}&background=0b2b5c&color=fff&size=200&bold=true",
     ]
     
     for url in urls:
         try:
-            req = urllib.request.Request(
-                url,
-                headers={
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                    'Accept': 'image/*'
-                }
-            )
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req, timeout=15) as response:
-                foto_bytes = response.read()
-                if len(foto_bytes) > 1000:  # Garante que é uma imagem válida
-                    print(f"     ✅ Foto obtida de: {url[:50]}...")
-                    return base64.b64encode(foto_bytes).decode('utf-8')
-        except Exception as e:
-            print(f"     ⚠️ Falhou: {str(e)[:60]}")
+                data = response.read()
+                if len(data) > 1000:
+                    return base64.b64encode(data).decode('utf-8')
+        except:
             continue
+    return None
+
+
+# ============================================
+# BAIXAR FOTO DE SERVIÇO (por categoria)
+# ============================================
+# Fotos do Unsplash (URLs diretas com parâmetros de tamanho)
+FOTOS_POR_CATEGORIA = {
+    "Construção": [
+        "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=600&fit=crop",
+    ],
+    "Limpeza": [
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1585421514738-01798e348b17?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1584820927498-cdd1c71a4a4c?w=600&h=600&fit=crop",
+    ],
+    "Design": [
+        "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&h=600&fit=crop",
+    ],
+    "Tecnologia": [
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?w=600&h=600&fit=crop",
+    ],
+    "Educação": [
+        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&h=600&fit=crop",
+    ],
+    "Saúde": [
+        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=600&fit=crop",
+    ],
+    "Beleza": [
+        "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&h=600&fit=crop",
+    ],
+    "Marketing": [
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1552581234-26160f608093?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=600&h=600&fit=crop",
+    ],
+    "Serviços Gerais": [
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=600&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&h=600&fit=crop",
+    ],
+}
+
+
+def baixar_foto_servico(categoria, idx):
+    """Baixa uma foto do serviço baseada na categoria"""
+    fotos = FOTOS_POR_CATEGORIA.get(categoria, FOTOS_POR_CATEGORIA["Serviços Gerais"])
+    url = fotos[idx % len(fotos)]
     
-    print(f"     ❌ Nenhuma fonte funcionou para {nome}")
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=15) as response:
+            data = response.read()
+            if len(data) > 1000:
+                return base64.b64encode(data).decode('utf-8')
+    except Exception as e:
+        print(f"     ⚠️ Erro: {str(e)[:60]}")
+    
     return None
 
 
@@ -107,124 +167,107 @@ SERVICOS = [
 
 AVALIACOES = [
     {"nota": 5, "comentario": "Excelente profissional! Muito atencioso e pontual. Recomendo!"},
-    {"nota": 5, "comentario": "Trabalho impecável, superou minhas expectativas. Com certeza vou contratar novamente."},
-    {"nota": 5, "comentario": "Profissional muito qualificado e educado. Preço justo pelo serviço."},
-    {"nota": 4, "comentario": "Bom trabalho, apenas atrasou um pouco na entrega. Mas o resultado ficou ótimo."},
-    {"nota": 5, "comentario": "Simplesmente perfeito! Rápido, organizado e cobrou um preço justo."},
+    {"nota": 5, "comentario": "Trabalho impecável, superou minhas expectativas."},
+    {"nota": 5, "comentario": "Profissional muito qualificado e educado. Preço justo."},
+    {"nota": 4, "comentario": "Bom trabalho, apenas atrasou um pouco. Mas o resultado ficou ótimo."},
+    {"nota": 5, "comentario": "Simplesmente perfeito! Rápido, organizado e preço justo."},
     {"nota": 5, "comentario": "Recomendo! Cumpriu tudo o que prometeu e ainda deu dicas extras."},
     {"nota": 4, "comentario": "Serviço bem feito, só achei um pouco caro. Mas a qualidade compensa."},
-    {"nota": 5, "comentario": "Melhor profissional que já contratei. Super profissional e atencioso."},
+    {"nota": 5, "comentario": "Melhor profissional que já contratei. Super atencioso."},
     {"nota": 5, "comentario": "Trabalho de altíssima qualidade. Já indiquei para vários amigos!"},
     {"nota": 5, "comentario": "Pontual, educado e fez um trabalho maravilhoso. Nota 10!"},
 ]
 
 
-# ============================================
-# SEED
-# ============================================
 def seed_database():
     with app.app_context():
         print("🌱 Iniciando seed de dados...")
         print("=" * 60)
         
         # 1. PRESTADORES
-        print("\n👤 Criando prestadores (baixando fotos)...")
+        print("\n👤 Criando prestadores...")
         prestadores_criados = []
         for idx, p in enumerate(PRESTADORES):
             email = f"{SEED_PREFIX}{p['email']}{SEED_DOMAIN}"
-            
             if Usuario.query.filter_by(email=email).first():
-                print(f"  ⚠️ {p['nome']} já existe, pulando...")
                 continue
             
-            print(f"  📸 Buscando foto de {p['nome']}...")
-            foto_base64 = baixar_foto_base64(p['nome'], p['genero'], idx)
+            print(f"  📸 {p['nome']}")
+            foto = baixar_foto_perfil(p['nome'], p['genero'], idx)
             
             usuario = Usuario(
-                nome=p['nome'],
-                email=email,
-                telefone=p['tel'],
-                tipo='prestador',
-                foto_perfil=foto_base64,
+                nome=p['nome'], email=email, telefone=p['tel'],
+                tipo='prestador', foto_perfil=foto,
                 data_cadastro=datetime.utcnow() - timedelta(days=random.randint(30, 180))
             )
             usuario.set_password('seed123456')
             db.session.add(usuario)
             db.session.flush()
             prestadores_criados.append(usuario)
-        
         db.session.commit()
-        print(f"  ✅ {len(prestadores_criados)} prestadores criados")
         
         # 2. CLIENTES
-        print("\n👤 Criando clientes (baixando fotos)...")
+        print("\n👤 Criando clientes...")
         clientes_criados = []
         for idx, c in enumerate(CLIENTES):
             email = f"{SEED_PREFIX}{c['email']}{SEED_DOMAIN}"
-            
             if Usuario.query.filter_by(email=email).first():
                 continue
             
-            print(f"  📸 Buscando foto de {c['nome']}...")
-            foto_base64 = baixar_foto_base64(c['nome'], c['genero'], idx + 30)
+            print(f"  📸 {c['nome']}")
+            foto = baixar_foto_perfil(c['nome'], c['genero'], idx + 30)
             
             usuario = Usuario(
-                nome=c['nome'],
-                email=email,
-                telefone=c['tel'],
-                tipo='cliente',
-                foto_perfil=foto_base64,
+                nome=c['nome'], email=email, telefone=c['tel'],
+                tipo='cliente', foto_perfil=foto,
                 data_cadastro=datetime.utcnow() - timedelta(days=random.randint(10, 120))
             )
             usuario.set_password('seed123456')
             db.session.add(usuario)
             db.session.flush()
             clientes_criados.append(usuario)
-        
         db.session.commit()
-        print(f"  ✅ {len(clientes_criados)} clientes criados")
         
-        # 3. SERVIÇOS
-        print("\n🔧 Criando serviços...")
+        # 3. SERVIÇOS (com fotos!)
+        print("\n🔧 Criando serviços (baixando fotos)...")
         todos_prestadores = Usuario.query.filter(
             Usuario.email.like(f"{SEED_PREFIX}%")
         ).filter_by(tipo='prestador').all()
         
-        servicos_criados = []
-        for s in SERVICOS:
+        servicos_criados = 0
+        for idx, s in enumerate(SERVICOS):
             prestador = random.choice(todos_prestadores)
             existente = Servico.query.filter_by(
-                prestador_id=prestador.id,
-                titulo=s['titulo']
+                prestador_id=prestador.id, titulo=s['titulo']
             ).first()
             if existente:
                 continue
             
+            print(f"  📸 {s['titulo']} ({s['categoria']})")
+            imagem = baixar_foto_servico(s['categoria'], idx)
+            
             servico = Servico(
                 prestador_id=prestador.id,
-                titulo=s['titulo'],
-                descricao=s['desc'],
-                categoria=s['categoria'],
-                preco=s['preco'],
+                titulo=s['titulo'], descricao=s['desc'],
+                categoria=s['categoria'], preco=s['preco'],
                 tipo_preco=s['tipo_preco'],
+                imagem_base64=imagem,
                 destaque=random.choice([True, False, False]),
                 data_postagem=datetime.utcnow() - timedelta(days=random.randint(1, 60))
             )
             db.session.add(servico)
-            servicos_criados.append(servico)
-        
+            servicos_criados += 1
         db.session.commit()
-        print(f"  ✅ {len(servicos_criados)} serviços criados")
+        print(f"  ✅ {servicos_criados} serviços criados")
         
         # 4. AVALIAÇÕES
         if TEM_AVALIACAO:
             print("\n⭐ Criando avaliações...")
             try:
-                avaliacoes_criadas = 0
                 todos_servicos = Servico.query.filter(
                     Servico.prestador_id.in_([p.id for p in todos_prestadores])
                 ).all()
-                
+                avs_criadas = 0
                 for servico in random.sample(todos_servicos, min(20, len(todos_servicos))):
                     for _ in range(random.randint(1, 5)):
                         cliente = random.choice(clientes_criados)
@@ -233,33 +276,28 @@ def seed_database():
                             avaliacao = Avaliacao(
                                 prestador_id=servico.prestador_id,
                                 cliente_id=cliente.id,
-                                nota=av['nota'],
-                                comentario=av['comentario'],
+                                nota=av['nota'], comentario=av['comentario'],
                                 data_criacao=datetime.utcnow() - timedelta(days=random.randint(1, 30))
                             )
                             db.session.add(avaliacao)
-                            avaliacoes_criadas += 1
+                            avs_criadas += 1
                         except:
                             pass
-                
                 db.session.commit()
-                print(f"  ✅ {avaliacoes_criadas} avaliações criadas")
+                print(f"  ✅ {avs_criadas} avaliações")
             except Exception as e:
-                print(f"  ⚠️ Erro: {e}")
+                print(f"  ⚠️ {e}")
         
         print("\n" + "=" * 60)
         print("🎉 SEED CONCLUÍDO!")
-        print("=" * 60)
 
 
 def remove_seed_data():
     with app.app_context():
-        print("🗑️  Removendo dados de seed...")
-        usuarios_seed = Usuario.query.filter(Usuario.email.like(f"{SEED_PREFIX}%")).all()
-        ids = [u.id for u in usuarios_seed]
-        
+        usuarios = Usuario.query.filter(Usuario.email.like(f"{SEED_PREFIX}%")).all()
+        ids = [u.id for u in usuarios]
         if not ids:
-            print("  ⚠️ Nenhum dado encontrado.")
+            print("Nada para remover.")
             return
         
         if TEM_AVALIACAO:
@@ -267,21 +305,17 @@ def remove_seed_data():
                 Avaliacao.query.filter(
                     (Avaliacao.prestador_id.in_(ids)) | (Avaliacao.cliente_id.in_(ids))
                 ).delete(synchronize_session=False)
-            except:
-                pass
+            except: pass
         
         Mensagem.query.filter(
             (Mensagem.remetente_id.in_(ids)) | (Mensagem.destinatario_id.in_(ids))
         ).delete(synchronize_session=False)
-        
         Assinatura.query.filter(Assinatura.prestador_id.in_(ids)).delete(synchronize_session=False)
         Servico.query.filter(Servico.prestador_id.in_(ids)).delete(synchronize_session=False)
-        
-        for u in usuarios_seed:
+        for u in usuarios:
             db.session.delete(u)
-        
         db.session.commit()
-        print(f"  ✅ Removidos {len(usuarios_seed)} usuários")
+        print(f"✅ {len(usuarios)} usuários removidos")
 
 
 if __name__ == '__main__':
