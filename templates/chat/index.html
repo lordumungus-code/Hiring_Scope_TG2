@@ -3,161 +3,165 @@
 {% block title %}Chat - HiringScope{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-                <div class="card-header bg-primary text-white rounded-top-4 py-3 d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">
+<div class="chat-wrapper">
+    <div class="chat-container">
+        <!-- ============================================ -->
+        <!-- SIDEBAR: LISTA DE CONVERSAS -->
+        <!-- ============================================ -->
+        <div class="chat-sidebar" id="chatSidebar">
+            <!-- Header da Sidebar -->
+            <div class="sidebar-header">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold text-white">
                         <i class="fas fa-comments me-2"></i> Conversas
-                    </h4>
-                    <span class="badge bg-white text-primary rounded-pill" id="totalConversas">
+                    </h5>
+                    <span class="badge bg-white text-primary rounded-pill">
                         {{ usuarios|length if usuarios else 0 }}
                     </span>
                 </div>
-                <div class="card-body p-0">
-                    <div class="row g-0 chat-container">
-                        <!-- ============================================ -->
-                        <!-- LISTA DE CONVERSAS (SIDEBAR) -->
-                        <!-- ============================================ -->
-                        <div class="col-md-4 border-end chat-sidebar">
-                            <div class="p-3">
-                                <div class="input-group input-group-sm mb-3">
-                                    <span class="input-group-text bg-white border-end-0">
-                                        <i class="fas fa-search text-muted"></i>
-                                    </span>
-                                    <input type="text" id="buscarConversa" class="form-control border-start-0" placeholder="Buscar conversa...">
+            </div>
+            
+            <!-- Busca -->
+            <div class="sidebar-search">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" id="buscarConversa" class="form-control border-0 bg-light" placeholder="Pesquisar ou começar uma nova conversa">
+                </div>
+            </div>
+            
+            <!-- Lista de Conversas (Scroll) -->
+            <div class="conversations-list">
+                <!-- CONVERSAS ATIVAS -->
+                {% if usuarios %}
+                    <div class="list-section-title">Conversas ativas</div>
+                    {% for usuario in usuarios %}
+                    <div class="conversation-item d-flex align-items-center p-3 cursor-pointer" 
+                         data-usuario-id="{{ usuario.id }}"
+                         data-usuario-nome="{{ usuario.nome|lower|e }}"
+                         data-tipo="conversa"
+                         onclick='carregarConversa({{ usuario.id }}, {{ usuario.nome|tojson }})'>
+                        <div class="avatar-wrapper">
+                            {% if usuario.foto_url %}
+                                <img src="{{ usuario.foto_url }}" class="avatar-img" alt="{{ usuario.nome }}">
+                            {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
+                                <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" class="avatar-img" alt="{{ usuario.nome }}">
+                            {% else %}
+                                <div class="avatar-img avatar-placeholder">
+                                    {{ usuario.nome[0]|upper }}
                                 </div>
-                                
-                                <!-- ==================================== -->
-                                <!-- CONVERSAS EXISTENTES -->
-                                <!-- ==================================== -->
-                                <h6 class="text-muted mb-3 small text-uppercase fw-bold">
-                                    <i class="fas fa-comment-dots me-2"></i> Conversas ativas
-                                </h6>
-                                
-                                {% if usuarios %}
-                                    {% for usuario in usuarios %}
-                                    <div class="conversation-item d-flex align-items-center p-3 rounded-3 mb-2 cursor-pointer" 
-                                         data-usuario-id="{{ usuario.id }}"
-                                         data-usuario-nome="{{ usuario.nome|lower|e }}"
-                                         data-tipo="conversa"
-                                         onclick='carregarConversa({{ usuario.id }}, {{ usuario.nome|tojson }})'>
-                                        <div class="user-avatar-placeholder bg-primary rounded-circle d-flex align-items-center justify-content-center me-3 position-relative" style="width: 50px; height: 50px; flex-shrink: 0;">
-                                            {% if usuario.foto_url %}
-                                                <img src="{{ usuario.foto_url }}" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
-                                            {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
-                                                <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
-                                            {% else %}
-                                                <span class="text-white fw-bold fs-5">{{ usuario.nome[0]|upper }}</span>
-                                            {% endif %}
-                                            <span class="status-indicator online"></span>
-                                        </div>
-                                        <div class="flex-grow-1 overflow-hidden">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <strong class="text-truncate">{{ usuario.nome }}</strong>
-                                                {% if nao_lidas_por_usuario and nao_lidas_por_usuario.get(usuario.id, 0) > 0 %}
-                                                    <span class="badge bg-danger rounded-pill">{{ nao_lidas_por_usuario[usuario.id] }}</span>
-                                                {% endif %}
-                                            </div>
-                                            <p class="text-muted small mb-0 text-truncate" id="preview-{{ usuario.id }}">
-                                                <i class="fas fa-comment me-1"></i> Clique para ver a conversa
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                {% else %}
-                                    <div class="text-center text-muted py-4">
-                                        <i class="fas fa-comments fa-3x mb-3 opacity-25"></i>
-                                        <p class="mb-1">Nenhuma conversa ainda</p>
-                                        <small class="d-block">Escolha alguém abaixo para começar</small>
-                                    </div>
-                                {% endif %}
-                                
-                                <!-- ==================================== -->
-                                <!-- SUGESTÕES (NOVAS CONVERSAS) -->
-                                <!-- ==================================== -->
-                                {% if sugestoes %}
-                                <h6 class="text-muted mb-3 mt-4 small text-uppercase fw-bold">
-                                    <i class="fas fa-user-plus me-2"></i> Comece uma nova conversa
-                                </h6>
-                                
-                                {% for usuario in sugestoes %}
-                                <div class="conversation-item suggestion-item d-flex align-items-center p-3 rounded-3 mb-2 cursor-pointer" 
-                                     data-usuario-id="{{ usuario.id }}"
-                                     data-usuario-nome="{{ usuario.nome|lower|e }}"
-                                     data-tipo="sugestao"
-                                     onclick='carregarConversa({{ usuario.id }}, {{ usuario.nome|tojson }})'>
-                                    <div class="user-avatar-placeholder bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; flex-shrink: 0;">
-                                        {% if usuario.foto_url %}
-                                            <img src="{{ usuario.foto_url }}" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
-                                        {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
-                                            <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" class="rounded-circle" width="50" height="50" style="object-fit: cover;">
-                                        {% else %}
-                                            <span class="text-white fw-bold fs-5">{{ usuario.nome[0]|upper }}</span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <strong class="text-truncate">{{ usuario.nome }}</strong>
-                                            <small class="text-muted">
-                                                {% if usuario.tipo == 'prestador' %}
-                                                    <i class="fas fa-tools"></i>
-                                                {% elif usuario.tipo == 'cliente' %}
-                                                    <i class="fas fa-user"></i>
-                                                {% else %}
-                                                    <i class="fas fa-shield-alt"></i>
-                                                {% endif %}
-                                            </small>
-                                        </div>
-                                        <p class="text-muted small mb-0 text-truncate">
-                                            <i class="fas fa-plus-circle me-1"></i> Clique para iniciar
-                                        </p>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                                {% endif %}
-                            </div>
+                            {% endif %}
+                            <span class="status-dot"></span>
                         </div>
-                        
-                        <!-- ============================================ -->
-                        <!-- ÁREA DE CHAT -->
-                        <!-- ============================================ -->
-                        <div class="col-md-8 chat-main">
-                            <div id="chatHeader" class="p-3 border-bottom bg-light d-flex align-items-center">
-                                <div class="user-avatar-placeholder bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                    <span class="text-white fw-bold fs-5" id="chatAvatar">?</span>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="mb-0" id="chatUsuarioNome">Selecione uma conversa</h5>
-                                    <small class="text-muted" id="chatStatus">
-                                        <i class="fas fa-circle text-success me-1" style="font-size: 0.5rem;"></i> Online
-                                    </small>
-                                </div>
-                                <button class="btn btn-sm btn-outline-secondary rounded-circle" id="btnVoltarConversas" style="display: none;" onclick="voltarParaLista()">
-                                    <i class="fas fa-arrow-left"></i>
-                                </button>
+                        <div class="conversation-info flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong class="conversation-name">{{ usuario.nome }}</strong>
+                                {% if nao_lidas_por_usuario and nao_lidas_por_usuario.get(usuario.id, 0) > 0 %}
+                                    <span class="badge bg-success rounded-pill">{{ nao_lidas_por_usuario[usuario.id] }}</span>
+                                {% endif %}
                             </div>
-                            
-                            <div id="chatMessages" class="flex-grow-1 p-3 chat-messages">
-                                <div class="text-center text-muted py-5">
-                                    <i class="fas fa-comment-dots fa-4x mb-3 opacity-50"></i>
-                                    <p>Selecione uma conversa para começar</p>
-                                    <small class="text-muted">Suas mensagens aparecerão aqui</small>
-                                </div>
-                            </div>
-                            
-                            <div class="p-3 border-top bg-white">
-                                <div class="input-group">
-                                    <input type="text" id="mensagemInput" class="form-control rounded-pill border-end-0" placeholder="Digite sua mensagem..." disabled>
-                                    <button class="btn btn-primary rounded-pill px-4" id="enviarBtn" disabled>
-                                        <i class="fas fa-paper-plane"></i>
-                                        <span class="d-none d-md-inline ms-1">Enviar</span>
-                                    </button>
-                                </div>
-                            </div>
+                            <p class="conversation-preview" id="preview-{{ usuario.id }}">
+                                Clique para ver a conversa
+                            </p>
                         </div>
                     </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-conversations">
+                        <i class="fas fa-comments fa-3x mb-3 opacity-25"></i>
+                        <p class="mb-1">Nenhuma conversa ainda</p>
+                        <small class="d-block">Escolha alguém abaixo para começar</small>
+                    </div>
+                {% endif %}
+                
+                <!-- SUGESTÕES -->
+                {% if sugestoes %}
+                    <div class="list-section-title">Começar nova conversa</div>
+                    {% for usuario in sugestoes %}
+                    <div class="conversation-item suggestion-item d-flex align-items-center p-3 cursor-pointer" 
+                         data-usuario-id="{{ usuario.id }}"
+                         data-usuario-nome="{{ usuario.nome|lower|e }}"
+                         data-tipo="sugestao"
+                         onclick='carregarConversa({{ usuario.id }}, {{ usuario.nome|tojson }})'>
+                        <div class="avatar-wrapper">
+                            {% if usuario.foto_url %}
+                                <img src="{{ usuario.foto_url }}" class="avatar-img" alt="{{ usuario.nome }}">
+                            {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
+                                <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" class="avatar-img" alt="{{ usuario.nome }}">
+                            {% else %}
+                                <div class="avatar-img avatar-placeholder" style="background: #6b7280;">
+                                    {{ usuario.nome[0]|upper }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="conversation-info flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong class="conversation-name">{{ usuario.nome }}</strong>
+                                <small class="text-muted">
+                                    {% if usuario.tipo == 'prestador' %}
+                                        <i class="fas fa-tools"></i>
+                                    {% elif usuario.tipo == 'cliente' %}
+                                        <i class="fas fa-user"></i>
+                                    {% else %}
+                                        <i class="fas fa-shield-alt"></i>
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <p class="conversation-preview">
+                                <i class="fas fa-plus-circle me-1"></i> Clique para iniciar
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- ============================================ -->
+        <!-- ÁREA PRINCIPAL DO CHAT -->
+        <!-- ============================================ -->
+        <div class="chat-main" id="chatMain">
+            <!-- Header do Chat -->
+            <div class="chat-header" id="chatHeader">
+                <button class="btn btn-link text-white d-md-none me-2" id="btnVoltarConversas" onclick="voltarParaLista()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="avatar-wrapper me-3">
+                    <div class="avatar-img avatar-placeholder bg-secondary" id="chatAvatar" style="font-size: 1rem;">
+                        ?
+                    </div>
+                    <span class="status-dot" id="chatStatusDot"></span>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-0 fw-bold text-white" id="chatUsuarioNome">Selecione uma conversa</h6>
+                    <small class="text-white-50" id="chatStatus">
+                        {% if usuarios %}Online{% else %}Aguardando{% endif %}
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Área de Mensagens -->
+            <div class="chat-messages" id="chatMessages">
+                <div class="empty-chat">
+                    <i class="fas fa-comment-dots fa-4x mb-3 opacity-25"></i>
+                    <h5>Selecione uma conversa</h5>
+                    <p class="text-muted">Suas mensagens aparecerão aqui</p>
+                </div>
+            </div>
+            
+            <!-- Barra de Mensagem (DESTAQUE) -->
+            <div class="chat-input-bar" id="chatInputBar">
+                <div class="input-wrapper">
+                    <input type="text" 
+                           id="mensagemInput" 
+                           class="message-input" 
+                           placeholder="Digite uma mensagem" 
+                           disabled
+                           autocomplete="off">
+                    <button class="btn-send" id="enviarBtn" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -165,83 +169,254 @@
 </div>
 
 <style>
-    /* Container principal do chat */
+    /* ============================================ */
+    /* CONTAINER PRINCIPAL - FULL SCREEN */
+    /* ============================================ */
+    body {
+        overflow: hidden;
+    }
+    
+    main {
+        padding: 0 !important;
+    }
+    
+    .chat-wrapper {
+        position: fixed;
+        top: 70px; /* Altura da navbar */
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #d1d7db;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        overflow: hidden;
+    }
+    
     .chat-container {
-        height: 600px;
-        min-height: 500px;
+        width: 100%;
+        max-width: 1400px;
+        height: 100%;
+        max-height: calc(100vh - 110px);
+        background: white;
+        display: flex;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
     }
     
+    /* ============================================ */
+    /* SIDEBAR (Lista de Conversas) */
+    /* ============================================ */
     .chat-sidebar {
-        height: 600px;
-        overflow-y: auto;
-        background: #fff;
-        border-right: 1px solid #e9ecef;
-    }
-    
-    .chat-main {
-        height: 600px;
+        width: 400px;
+        min-width: 320px;
+        background: white;
+        border-right: 1px solid #e5e7eb;
         display: flex;
         flex-direction: column;
-        background: #fff;
+        height: 100%;
     }
     
-    .chat-messages {
-        overflow-y: auto;
-        background: #f8f9fa;
+    .sidebar-header {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        padding: 16px 20px;
+        flex-shrink: 0;
+    }
+    
+    .sidebar-search {
+        padding: 12px 16px;
+        background: white;
+        border-bottom: 1px solid #f0f2f5;
+        flex-shrink: 0;
+    }
+    
+    .sidebar-search .input-group {
+        background: #f0f2f5;
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    
+    .sidebar-search .input-group-text {
+        padding-left: 16px;
+    }
+    
+    .sidebar-search .form-control {
+        background: #f0f2f5 !important;
+        border: none;
+        padding: 10px 16px 10px 8px;
+        font-size: 0.9rem;
+    }
+    
+    .sidebar-search .form-control:focus {
+        box-shadow: none;
+        background: #f0f2f5 !important;
+    }
+    
+    .conversations-list {
         flex-grow: 1;
+        overflow-y: auto;
+        background: white;
     }
     
-    /* Itens da lista de conversas */
+    .list-section-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #0b2b5c;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 16px 20px 8px;
+        background: #f8fafc;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    
+    /* Item de conversa */
     .conversation-item {
-        transition: all 0.2s ease;
-        cursor: pointer;
-        border: 1px solid transparent;
+        transition: background 0.15s ease;
+        border-bottom: 1px solid #f0f2f5;
+        padding: 12px 16px;
     }
     
     .conversation-item:hover {
-        background-color: #f0f2f5;
-        transform: translateX(3px);
-        border-color: #e9ecef;
+        background: #f5f6f6;
     }
     
     .conversation-item.active {
-        background-color: #e7f1ff;
-        border-left: 4px solid #0b2b5c;
-        border-color: #e7f1ff;
+        background: #f0f2f5;
     }
     
-    /* Sugestões (levemente diferentes) */
-    .suggestion-item {
-        opacity: 0.9;
-        border: 1px dashed #e9ecef;
+    .conversation-item.suggestion-item {
+        opacity: 0.85;
     }
     
-    .suggestion-item:hover {
-        background-color: #f8f9fa;
+    .conversation-item.suggestion-item:hover {
         opacity: 1;
-        border-color: #cbd5e1;
     }
     
-    /* Indicador de status (online) */
-    .status-indicator {
+    /* Avatar */
+    .avatar-wrapper {
+        position: relative;
+        flex-shrink: 0;
+        margin-right: 12px;
+    }
+    
+    .avatar-img {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .avatar-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    
+    .status-dot {
         position: absolute;
         bottom: 2px;
         right: 2px;
         width: 12px;
         height: 12px;
         border-radius: 50%;
+        background: #22c55e;
         border: 2px solid white;
     }
     
-    .status-indicator.online {
-        background-color: #22c55e;
+    /* Info da conversa */
+    .conversation-info {
+        min-width: 0;
     }
     
-    /* Mensagens */
-    .message {
-        margin-bottom: 15px;
+    .conversation-name {
+        font-size: 0.95rem;
+        color: #111b21;
+        font-weight: 600;
+    }
+    
+    .conversation-preview {
+        font-size: 0.82rem;
+        color: #667781;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .empty-conversations {
+        text-align: center;
+        padding: 40px 20px;
+        color: #8696a0;
+    }
+    
+    /* ============================================ */
+    /* ÁREA PRINCIPAL DO CHAT */
+    /* ============================================ */
+    .chat-main {
+        flex: 1;
         display: flex;
-        animation: fadeIn 0.3s ease;
+        flex-direction: column;
+        background: #efeae2;
+        height: 100%;
+    }
+    
+    /* Padrão de fundo do WhatsApp */
+    .chat-main::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260'%3E%3Cg fill='%23d9d4cc' fill-opacity='0.3'%3E%3Cpath d='M20 30c5 0 10 5 10 10s-5 10-10 10-10-5-10-10 5-10 10-10zm0 5c-3 0-5 2-5 5s2 5 5 5 5-2 5-5-2-5-5-5z'/%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    
+    .chat-header {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 2;
+    }
+    
+    .chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 20px 40px;
+        position: relative;
+        z-index: 1;
+        scroll-behavior: smooth;
+    }
+    
+    .empty-chat {
+        text-align: center;
+        color: #8696a0;
+        padding: 80px 20px;
+    }
+    
+    /* ============================================ */
+    /* BOLHAS DE MENSAGEM (estilo WhatsApp) */
+    /* ============================================ */
+    .message {
+        margin-bottom: 8px;
+        display: flex;
+        animation: messageFade 0.2s ease;
     }
     
     .message.sent {
@@ -253,63 +428,158 @@
     }
     
     .message-content {
-        max-width: 70%;
-        padding: 10px 15px;
-        border-radius: 18px;
+        max-width: 65%;
+        padding: 8px 12px;
+        border-radius: 8px;
         word-wrap: break-word;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        position: relative;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+        font-size: 0.92rem;
+        line-height: 1.4;
     }
     
     .message.sent .message-content {
-        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
-        color: white;
-        border-bottom-right-radius: 4px;
+        background: #d9fdd3;
+        color: #111b21;
+        border-top-right-radius: 2px;
     }
     
     .message.received .message-content {
         background: white;
-        border: 1px solid #dee2e6;
-        color: #1a2c3e;
-        border-bottom-left-radius: 4px;
+        color: #111b21;
+        border-top-left-radius: 2px;
     }
     
     .message-time {
-        font-size: 0.7rem;
-        margin-top: 5px;
-        opacity: 0.7;
+        font-size: 0.68rem;
+        margin-top: 4px;
+        color: #667781;
+        text-align: right;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 3px;
     }
     
-    @keyframes fadeIn {
+    .message.sent .message-time::after {
+        content: '✓✓';
+        color: #53bdeb;
+        font-size: 0.7rem;
+    }
+    
+    @keyframes messageFade {
         from { opacity: 0; transform: translateY(5px); }
         to { opacity: 1; transform: translateY(0); }
     }
     
-    /* Scrollbar estilizada */
-    .chat-sidebar::-webkit-scrollbar,
+    /* ============================================ */
+    /* BARRA DE INPUT (DESTAQUE - WhatsApp style) */
+    /* ============================================ */
+    .chat-input-bar {
+        background: #f0f2f5;
+        padding: 10px 20px;
+        flex-shrink: 0;
+        border-top: 1px solid #e5e7eb;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .input-wrapper {
+        display: flex;
+        align-items: center;
+        background: white;
+        border-radius: 24px;
+        padding: 6px 6px 6px 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    
+    .message-input {
+        flex-grow: 1;
+        border: none;
+        outline: none;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        background: transparent;
+        color: #111b21;
+    }
+    
+    .message-input::placeholder {
+        color: #8696a0;
+    }
+    
+    .message-input:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    
+    .btn-send {
+        background: #0b2b5c;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+        font-size: 1.1rem;
+    }
+    
+    .btn-send:hover:not(:disabled) {
+        background: #071e42;
+        transform: scale(1.05);
+    }
+    
+    .btn-send:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    
+    /* ============================================ */
+    /* SCROLLBAR (estilo WhatsApp) */
+    /* ============================================ */
+    .conversations-list::-webkit-scrollbar,
     .chat-messages::-webkit-scrollbar {
         width: 6px;
     }
     
-    .chat-sidebar::-webkit-scrollbar-thumb,
+    .conversations-list::-webkit-scrollbar-thumb,
     .chat-messages::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
+        background: rgba(0, 0, 0, 0.2);
         border-radius: 3px;
     }
     
-    .chat-sidebar::-webkit-scrollbar-thumb:hover,
+    .conversations-list::-webkit-scrollbar-thumb:hover,
     .chat-messages::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
+        background: rgba(0, 0, 0, 0.3);
     }
     
-    /* Responsividade para celular */
+    /* ============================================ */
+    /* RESPONSIVIDADE - CELULAR */
+    /* ============================================ */
     @media (max-width: 767px) {
-        .chat-container {
-            height: calc(100vh - 200px);
+        .chat-wrapper {
+            top: 60px;
+            padding: 0;
         }
         
-        .chat-sidebar,
+        .chat-container {
+            max-height: 100vh;
+            border-radius: 0;
+            max-width: 100%;
+        }
+        
+        .chat-sidebar {
+            width: 100%;
+            min-width: 100%;
+            border-right: none;
+        }
+        
         .chat-main {
-            height: calc(100vh - 200px);
+            width: 100%;
         }
         
         .chat-sidebar.hidden-mobile {
@@ -320,16 +590,42 @@
             display: none;
         }
         
-        .chat-sidebar {
-            width: 100%;
-            max-width: 100%;
-            flex: 0 0 100%;
+        .chat-messages {
+            padding: 12px 16px;
         }
         
-        .chat-main {
-            width: 100%;
-            max-width: 100%;
-            flex: 0 0 100%;
+        .message-content {
+            max-width: 80%;
+            font-size: 0.88rem;
+        }
+        
+        .chat-input-bar {
+            padding: 8px 12px;
+        }
+        
+        .message-input {
+            font-size: 0.9rem;
+            padding: 8px 10px;
+        }
+        
+        .btn-send {
+            width: 40px;
+            height: 40px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .avatar-img, .avatar-placeholder {
+            width: 42px;
+            height: 42px;
+        }
+        
+        .conversation-name {
+            font-size: 0.9rem;
+        }
+        
+        .conversation-preview {
+            font-size: 0.78rem;
         }
     }
 </style>
@@ -347,38 +643,30 @@
     console.log('👤 Usuário logado:', currentUserId);
     
     // ============================================
-    // SOCKET.IO - MENSAGENS EM TEMPO REAL
+    // SOCKET.IO
     // ============================================
     function iniciarSocketChat() {
-        if (!currentUserId || currentUserId === 'null') {
-            console.log('⚠️ Usuário não logado');
-            return;
-        }
+        if (!currentUserId || currentUserId === 'null') return;
         
         try {
             chatSocket = io();
             
             chatSocket.on('connect', function() {
-                console.log('✅ Socket do chat conectado!');
+                console.log('✅ Socket conectado!');
                 chatSocket.emit('join', { user_id: currentUserId });
             });
             
             chatSocket.on('new_private_message', function(data) {
-                console.log('📨 Mensagem em tempo real:', data);
-                
                 if (usuarioAtual && data.remetente_id === usuarioAtual.id) {
                     adicionarMensagem(data, false);
                 }
-                
                 if (data.remetente_id) {
                     atualizarPreview(data.remetente_id, data.conteudo);
                 }
-                
                 if (typeof updateUnreadCount === 'function') {
                     updateUnreadCount();
                 }
             });
-            
         } catch (error) {
             console.error('❌ Erro no socket:', error);
         }
@@ -393,7 +681,6 @@
         usuarioAtual = { id: usuarioId, nome: usuarioNome };
         conversaIdAtual = usuarioId;
         
-        // Atualizar header
         const chatHeader = document.getElementById('chatUsuarioNome');
         const chatAvatar = document.getElementById('chatAvatar');
         const msgInput = document.getElementById('mensagemInput');
@@ -404,7 +691,6 @@
         if (msgInput) msgInput.disabled = false;
         if (enviarBtn) enviarBtn.disabled = false;
         
-        // Ativar item na lista
         document.querySelectorAll('.conversation-item').forEach(item => {
             item.classList.remove('active');
             if (parseInt(item.dataset.usuarioId) === usuarioId) {
@@ -412,14 +698,13 @@
             }
         });
         
-        // Mobile: esconder lista e mostrar chat
+        // Mobile: esconde lista e mostra chat
         if (window.innerWidth < 768) {
-            document.querySelector('.chat-sidebar').classList.add('hidden-mobile');
-            document.querySelector('.chat-main').classList.remove('hidden-mobile');
+            document.getElementById('chatSidebar').classList.add('hidden-mobile');
+            document.getElementById('chatMain').classList.remove('hidden-mobile');
             document.getElementById('btnVoltarConversas').style.display = 'inline-block';
         }
         
-        // Carregar mensagens
         carregarMensagens();
     };
     
@@ -427,10 +712,7 @@
         if (!usuarioAtual) return;
         
         fetch(`/chat/historico/${usuarioAtual.id}`)
-            .then(res => {
-                if (!res.ok) throw new Error('Erro HTTP: ' + res.status);
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => {
                 const container = document.getElementById('chatMessages');
                 if (!container) return;
@@ -445,10 +727,10 @@
                     ultimaMensagemRecebida = `${ultima.id || ultima.data_envio}_${ultima.conteudo}`;
                 } else {
                     container.innerHTML = `
-                        <div class="text-center text-muted py-5">
-                            <i class="fas fa-comment-dots fa-3x mb-3 opacity-50"></i>
-                            <p>Nenhuma mensagem ainda</p>
-                            <small>Envie uma mensagem para começar a conversa</small>
+                        <div class="empty-chat">
+                            <i class="fas fa-comment-dots fa-3x mb-3 opacity-25"></i>
+                            <p class="mb-0">Nenhuma mensagem ainda</p>
+                            <small>Envie uma mensagem para começar</small>
                         </div>
                     `;
                 }
@@ -457,29 +739,15 @@
             })
             .catch(error => {
                 console.error('❌ Erro ao carregar mensagens:', error);
-                const container = document.getElementById('chatMessages');
-                if (container) {
-                    container.innerHTML = `
-                        <div class="alert alert-danger m-3">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Erro ao carregar mensagens. Tente novamente.
-                        </div>
-                    `;
-                }
             });
     }
     
-    // ============================================
-    // ADICIONAR MENSAGEM NA TELA
-    // ============================================
     function adicionarMensagem(mensagem, isSent) {
         const container = document.getElementById('chatMessages');
         if (!container) return;
         
-        const placeholder = container.querySelector('.text-muted');
-        if (placeholder && container.children.length === 1 && container.children[0] === placeholder) {
-            container.innerHTML = '';
-        }
+        const placeholder = container.querySelector('.empty-chat');
+        if (placeholder) container.innerHTML = '';
         
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
@@ -494,7 +762,7 @@
         messageDiv.innerHTML = `
             <div class="message-content">
                 ${escapeHtml(conteudo)}
-                <div class="message-time text-end">${dataHora}</div>
+                <div class="message-time">${dataHora}</div>
             </div>
         `;
         
@@ -502,9 +770,6 @@
         container.scrollTop = container.scrollHeight;
     }
     
-    // ============================================
-    // ENVIAR MENSAGEM
-    // ============================================
     function enviarMensagem() {
         const input = document.getElementById('mensagemInput');
         const conteudo = input.value.trim();
@@ -537,7 +802,6 @@
         })
         .catch(error => {
             console.error('❌ Erro ao enviar:', error);
-            alert('Erro ao enviar mensagem. Tente novamente.');
         })
         .finally(() => {
             input.disabled = false;
@@ -545,14 +809,11 @@
         });
     }
     
-    // ============================================
-    // UTILITÁRIOS
-    // ============================================
     function atualizarPreview(usuarioId, conteudo) {
         const preview = document.getElementById(`preview-${usuarioId}`);
         if (preview) {
             const texto = (conteudo || '').substring(0, 40);
-            preview.innerHTML = `<i class="fas fa-reply me-1"></i> ${escapeHtml(texto)}${(conteudo || '').length > 40 ? '...' : ''}`;
+            preview.innerHTML = `${escapeHtml(texto)}${(conteudo || '').length > 40 ? '...' : ''}`;
         }
     }
     
@@ -564,14 +825,11 @@
     }
     
     function voltarParaLista() {
-        document.querySelector('.chat-sidebar').classList.remove('hidden-mobile');
-        document.querySelector('.chat-main').classList.add('hidden-mobile');
+        document.getElementById('chatSidebar').classList.remove('hidden-mobile');
+        document.getElementById('chatMain').classList.add('hidden-mobile');
         document.getElementById('btnVoltarConversas').style.display = 'none';
     }
     
-    // ============================================
-    // POLLING (FALLBACK)
-    // ============================================
     function iniciarPolling() {
         if (pollingTimer) clearInterval(pollingTimer);
         
@@ -607,42 +865,25 @@
     // EVENT LISTENERS
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
-        // ============================================
-        // INICIAR SOCKET
-        // ============================================
         iniciarSocketChat();
         
-        // ============================================
-        // VERIFICAR SE VEIO DE UM "iniciarChat"
-        // (chamado de outra página, como planos de destaque)
-        // ============================================
+        // Verificar sessionStorage (vindo de iniciarChat)
         const chatWithId = sessionStorage.getItem('chat_with_id');
         const chatWithName = sessionStorage.getItem('chat_with_name');
         
         if (chatWithId && chatWithName) {
             console.log('🔗 Iniciando conversa automaticamente com:', chatWithName);
-            
-            // Limpa o sessionStorage
             sessionStorage.removeItem('chat_with_id');
             sessionStorage.removeItem('chat_with_name');
             
-            // Pequeno delay para garantir que a lista está pronta
             setTimeout(function() {
                 carregarConversa(parseInt(chatWithId), chatWithName);
-            }, 500);
+            }, 300);
         }
         
-        // ============================================
-        // BOTÃO DE ENVIAR
-        // ============================================
         const enviarBtn = document.getElementById('enviarBtn');
-        if (enviarBtn) {
-            enviarBtn.addEventListener('click', enviarMensagem);
-        }
+        if (enviarBtn) enviarBtn.addEventListener('click', enviarMensagem);
         
-        // ============================================
-        // ENTER NO INPUT
-        // ============================================
         const mensagemInput = document.getElementById('mensagemInput');
         if (mensagemInput) {
             mensagemInput.addEventListener('keypress', function(e) {
@@ -653,9 +894,6 @@
             });
         }
         
-        // ============================================
-        // BUSCA DE CONVERSAS
-        // ============================================
         const buscarInput = document.getElementById('buscarConversa');
         if (buscarInput) {
             buscarInput.addEventListener('input', function(e) {
@@ -667,14 +905,8 @@
             });
         }
         
-        // ============================================
-        // INICIAR POLLING
-        // ============================================
         setTimeout(iniciarPolling, 500);
         
-        // ============================================
-        // ATUALIZAR CONTADOR DE NÃO LIDAS
-        // ============================================
         if (typeof updateUnreadCount === 'function') {
             updateUnreadCount();
         }
