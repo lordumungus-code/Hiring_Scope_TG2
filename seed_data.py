@@ -1,46 +1,77 @@
 """
 Script para popular o banco de dados com dados realistas.
-Executar UMA VEZ no Console do Railway com: python seed_data.py
-Para remover os dados depois: python seed_data.py --remove
+Baixa fotos do randomuser.me e salva em base64 no banco.
+
+Executar no Console do Railway:
+    python seed_data.py
+
+Para remover os dados depois:
+    python seed_data.py --remove
 """
 
 import sys
 import base64
 import random
+import urllib.request
 from datetime import datetime, timedelta
 from app import app
 from extensions import db
-from models import Usuario, Servico, Assinatura, Avaliacao, Mensagem
+from models import Usuario, Servico, Assinatura, Mensagem
+
+try:
+    from models import Avaliacao
+    TEM_AVALIACAO = True
+except ImportError:
+    TEM_AVALIACAO = False
 
 # ============================================
 # CONFIGURAÇÕES
 # ============================================
-SEED_PREFIX = "seed_"  # Prefixo para identificar dados falsos
+SEED_PREFIX = "seed_"
 SEED_DOMAIN = "@hiring-scope.com.br"
 
+
 # ============================================
-# DADOS REALISTAS
+# FUNÇÃO PARA BAIXAR FOTO E CONVERTER EM BASE64
 # ============================================
+def baixar_foto_base64(url):
+    """Baixa uma imagem da URL e retorna em base64"""
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            return base64.b64encode(response.read()).decode('utf-8')
+    except Exception as e:
+        print(f"     ⚠️ Erro ao baixar foto {url}: {e}")
+        return None
+
+
+# ============================================
+# DADOS REALISTAS COM FOTOS
+# ============================================
+# Cada pessoa tem um gênero definido, para pegarmos a foto certa
 PRESTADORES = [
-    {"nome": "Carlos Silva", "email": "carlos.silva", "tel": "11987654321", "cidade": "São Paulo", "bio": "Eletricista com 15 anos de experiência"},
-    {"nome": "Ana Paula Santos", "email": "ana.santos", "tel": "11976543210", "cidade": "São Paulo", "bio": "Diarista profissional e organizada"},
-    {"nome": "Roberto Almeida", "email": "roberto.almeida", "tel": "11965432109", "cidade": "Campinas", "bio": "Encanador certificado 24h"},
-    {"nome": "Juliana Costa", "email": "juliana.costa", "tel": "11954321098", "cidade": "São Paulo", "bio": "Designer gráfico e ilustradora"},
-    {"nome": "Marcos Oliveira", "email": "marcos.oliveira", "tel": "11943210987", "cidade": "Santos", "bio": "Pintor profissional, acabamento impecável"},
-    {"nome": "Patrícia Ferreira", "email": "patricia.ferreira", "tel": "11932109876", "cidade": "São Paulo", "bio": "Personal trainer e nutricionista"},
-    {"nome": "Felipe Rodrigues", "email": "felipe.rodrigues", "tel": "11921098765", "cidade": "Osasco", "bio": "Técnico em informática e redes"},
-    {"nome": "Camila Martins", "email": "camila.martins", "tel": "11910987654", "cidade": "São Paulo", "bio": "Manicure e pedicure profissional"},
-    {"nome": "Bruno Souza", "email": "bruno.souza", "tel": "11909876543", "cidade": "Guarulhos", "bio": "Montador de móveis e marido de aluguel"},
-    {"nome": "Larissa Lima", "email": "larissa.lima", "tel": "11998765432", "cidade": "São Paulo", "bio": "Professora particular de matemática"},
+    {"nome": "Carlos Silva",        "email": "carlos.silva",       "tel": "11987654321", "genero": "men"},
+    {"nome": "Ana Paula Santos",    "email": "ana.santos",         "tel": "11976543210", "genero": "women"},
+    {"nome": "Roberto Almeida",     "email": "roberto.almeida",    "tel": "11965432109", "genero": "men"},
+    {"nome": "Juliana Costa",       "email": "juliana.costa",      "tel": "11954321098", "genero": "women"},
+    {"nome": "Marcos Oliveira",     "email": "marcos.oliveira",    "tel": "11943210987", "genero": "men"},
+    {"nome": "Patrícia Ferreira",   "email": "patricia.ferreira",  "tel": "11932109876", "genero": "women"},
+    {"nome": "Felipe Rodrigues",    "email": "felipe.rodrigues",   "tel": "11921098765", "genero": "men"},
+    {"nome": "Camila Martins",      "email": "camila.martins",     "tel": "11910987654", "genero": "women"},
+    {"nome": "Bruno Souza",         "email": "bruno.souza",        "tel": "11909876543", "genero": "men"},
+    {"nome": "Larissa Lima",        "email": "larissa.lima",       "tel": "11998765432", "genero": "women"},
 ]
 
 CLIENTES = [
-    {"nome": "Maria Silva", "email": "maria.silva", "tel": "11988887777"},
-    {"nome": "João Santos", "email": "joao.santos", "tel": "11977776666"},
-    {"nome": "Fernanda Alves", "email": "fernanda.alves", "tel": "11966665555"},
-    {"nome": "Pedro Costa", "email": "pedro.costa", "tel": "11955554444"},
-    {"nome": "Carla Rodrigues", "email": "carla.rodrigues", "tel": "11944443333"},
-    {"nome": "Lucas Pereira", "email": "lucas.pereira", "tel": "11933332222"},
+    {"nome": "Maria Silva",         "email": "maria.silva",        "tel": "11988887777", "genero": "women"},
+    {"nome": "João Santos",         "email": "joao.santos",        "tel": "11977776666", "genero": "men"},
+    {"nome": "Fernanda Alves",      "email": "fernanda.alves",     "tel": "11966665555", "genero": "women"},
+    {"nome": "Pedro Costa",         "email": "pedro.costa",        "tel": "11955554444", "genero": "men"},
+    {"nome": "Carla Rodrigues",     "email": "carla.rodrigues",    "tel": "11944443333", "genero": "women"},
+    {"nome": "Lucas Pereira",       "email": "lucas.pereira",      "tel": "11933332222", "genero": "men"},
 ]
 
 SERVICOS = [
@@ -77,34 +108,36 @@ AVALIACOES = [
 
 
 # ============================================
-# FUNÇÕES AUXILIARES
+# SEED
 # ============================================
-def gerar_avatar_inicial(nome):
-    """Gera um placeholder usando a inicial do nome (não salva base64, só retorna None)"""
-    return None  # Vamos usar a inicial no template
-
-
 def seed_database():
-    """Popula o banco com dados realistas"""
     with app.app_context():
         print("🌱 Iniciando seed de dados...")
+        print("=" * 60)
         
         # ============================================
-        # 1. CRIAR PRESTADORES
+        # 1. CRIAR PRESTADORES (com fotos!)
         # ============================================
+        print("\n👤 Criando prestadores (baixando fotos)...")
         prestadores_criados = []
-        for p in PRESTADORES:
+        for idx, p in enumerate(PRESTADORES):
             email = f"{SEED_PREFIX}{p['email']}{SEED_DOMAIN}"
             
             if Usuario.query.filter_by(email=email).first():
-                print(f"  ⚠️ Prestador {p['nome']} já existe, pulando...")
+                print(f"  ⚠️ {p['nome']} já existe, pulando...")
                 continue
+            
+            # Baixa foto do randomuser.me
+            foto_url = f"https://randomuser.me/api/portraits/{p['genero']}/{idx + 1}.jpg"
+            print(f"  📸 Baixando foto de {p['nome']}...")
+            foto_base64 = baixar_foto_base64(foto_url)
             
             usuario = Usuario(
                 nome=p['nome'],
                 email=email,
                 telefone=p['tel'],
                 tipo='prestador',
+                foto_perfil=foto_base64,
                 data_cadastro=datetime.utcnow() - timedelta(days=random.randint(30, 180))
             )
             usuario.set_password('seed123456')
@@ -116,20 +149,27 @@ def seed_database():
         print(f"  ✅ {len(prestadores_criados)} prestadores criados")
         
         # ============================================
-        # 2. CRIAR CLIENTES
+        # 2. CRIAR CLIENTES (com fotos!)
         # ============================================
+        print("\n👤 Criando clientes (baixando fotos)...")
         clientes_criados = []
-        for c in CLIENTES:
+        for idx, c in enumerate(CLIENTES):
             email = f"{SEED_PREFIX}{c['email']}{SEED_DOMAIN}"
             
             if Usuario.query.filter_by(email=email).first():
                 continue
+            
+            # Baixa foto do randomuser.me (offset pra não repetir com prestadores)
+            foto_url = f"https://randomuser.me/api/portraits/{c['genero']}/{idx + 30}.jpg"
+            print(f"  📸 Baixando foto de {c['nome']}...")
+            foto_base64 = baixar_foto_base64(foto_url)
             
             usuario = Usuario(
                 nome=c['nome'],
                 email=email,
                 telefone=c['tel'],
                 tipo='cliente',
+                foto_perfil=foto_base64,
                 data_cadastro=datetime.utcnow() - timedelta(days=random.randint(10, 120))
             )
             usuario.set_password('seed123456')
@@ -143,6 +183,7 @@ def seed_database():
         # ============================================
         # 3. CRIAR SERVIÇOS
         # ============================================
+        print("\n🔧 Criando serviços...")
         todos_prestadores = Usuario.query.filter(
             Usuario.email.like(f"{SEED_PREFIX}%")
         ).filter_by(tipo='prestador').all()
@@ -151,7 +192,6 @@ def seed_database():
         for s in SERVICOS:
             prestador = random.choice(todos_prestadores)
             
-            # Verifica se já existe
             existente = Servico.query.filter_by(
                 prestador_id=prestador.id,
                 titulo=s['titulo']
@@ -166,7 +206,7 @@ def seed_database():
                 categoria=s['categoria'],
                 preco=s['preco'],
                 tipo_preco=s['tipo_preco'],
-                destaque=random.choice([True, False, False]),  # ~33% em destaque
+                destaque=random.choice([True, False, False]),
                 data_postagem=datetime.utcnow() - timedelta(days=random.randint(1, 60))
             )
             db.session.add(servico)
@@ -176,61 +216,63 @@ def seed_database():
         print(f"  ✅ {len(servicos_criados)} serviços criados")
         
         # ============================================
-        # 4. CRIAR AVALIAÇÕES
+        # 4. CRIAR AVALIAÇÕES (se o modelo existir)
         # ============================================
-        # Precisamos verificar se o modelo Avaliacao existe
-        try:
-            avaliacoes_criadas = 0
-            todos_servicos = Servico.query.filter(
-                Servico.prestador_id.in_([p.id for p in todos_prestadores])
-            ).all()
-            
-            for servico in random.sample(todos_servicos, min(20, len(todos_servicos))):
-                for _ in range(random.randint(1, 5)):
-                    cliente = random.choice(clientes_criados)
-                    av = AVALIACOES[random.randint(0, len(AVALIACOES) - 1)]
-                    
-                    # Verifica os campos do modelo
-                    try:
-                        avaliacao = Avaliacao(
-                            prestador_id=servico.prestador_id,
-                            cliente_id=cliente.id,
-                            nota=av['nota'],
-                            comentario=av['comentario'],
-                            data_criacao=datetime.utcnow() - timedelta(days=random.randint(1, 30))
-                        )
-                        db.session.add(avaliacao)
-                        avaliacoes_criadas += 1
-                    except Exception as e:
-                        pass
-            
-            db.session.commit()
-            print(f"  ✅ {avaliacoes_criadas} avaliações criadas")
-        except Exception as e:
-            print(f"  ⚠️ Não foi possível criar avaliações: {e}")
-            print(f"     (O modelo Avaliacao pode não existir ainda)")
+        if TEM_AVALIACAO:
+            print("\n⭐ Criando avaliações...")
+            try:
+                avaliacoes_criadas = 0
+                todos_servicos = Servico.query.filter(
+                    Servico.prestador_id.in_([p.id for p in todos_prestadores])
+                ).all()
+                
+                for servico in random.sample(todos_servicos, min(20, len(todos_servicos))):
+                    for _ in range(random.randint(1, 5)):
+                        cliente = random.choice(clientes_criados)
+                        av = random.choice(AVALIACOES)
+                        
+                        try:
+                            avaliacao = Avaliacao(
+                                prestador_id=servico.prestador_id,
+                                cliente_id=cliente.id,
+                                nota=av['nota'],
+                                comentario=av['comentario'],
+                                data_criacao=datetime.utcnow() - timedelta(days=random.randint(1, 30))
+                            )
+                            db.session.add(avaliacao)
+                            avaliacoes_criadas += 1
+                        except Exception:
+                            pass
+                
+                db.session.commit()
+                print(f"  ✅ {avaliacoes_criadas} avaliações criadas")
+            except Exception as e:
+                print(f"  ⚠️ Erro ao criar avaliações: {e}")
+        else:
+            print("\n⚠️ Modelo Avaliacao não encontrado, pulando avaliações")
         
         # ============================================
-        # 5. RESUMO FINAL
+        # RESUMO
         # ============================================
-        print("\n" + "="*50)
-        print("🎉 SEED CONCLUÍDO COM SUCESSO!")
-        print("="*50)
+        print("\n" + "=" * 60)
+        print("🎉 SEED CONCLUÍDO!")
+        print("=" * 60)
         print(f"📊 Prestadores: {Usuario.query.filter(Usuario.email.like(f'{SEED_PREFIX}%')).filter_by(tipo='prestador').count()}")
         print(f"📊 Clientes: {Usuario.query.filter(Usuario.email.like(f'{SEED_PREFIX}%')).filter_by(tipo='cliente').count()}")
         print(f"📊 Serviços: {Servico.query.filter(Servico.prestador_id.in_([p.id for p in todos_prestadores])).count()}")
-        print("="*50)
-        print("🔐 Senha de todos os seed: seed123456")
+        print("=" * 60)
+        print("🔐 Senha de todos: seed123456")
         print("🗑️  Para remover: python seed_data.py --remove")
-        print("="*50)
+        print("=" * 60)
 
 
+# ============================================
+# REMOÇÃO
+# ============================================
 def remove_seed_data():
-    """Remove todos os dados de seed"""
     with app.app_context():
         print("🗑️  Removendo dados de seed...")
         
-        # Buscar todos os usuários seed
         usuarios_seed = Usuario.query.filter(
             Usuario.email.like(f"{SEED_PREFIX}%")
         ).all()
@@ -241,37 +283,38 @@ def remove_seed_data():
             print("  ⚠️ Nenhum dado de seed encontrado.")
             return
         
-        # Remover avaliações (se existir o modelo)
-        try:
-            Avaliacao.query.filter(
-                (Avaliacao.prestador_id.in_(ids_usuarios)) |
-                (Avaliacao.cliente_id.in_(ids_usuarios))
-            ).delete(synchronize_session=False)
-        except:
-            pass
+        # Remove avaliações
+        if TEM_AVALIACAO:
+            try:
+                Avaliacao.query.filter(
+                    (Avaliacao.prestador_id.in_(ids_usuarios)) |
+                    (Avaliacao.cliente_id.in_(ids_usuarios))
+                ).delete(synchronize_session=False)
+            except:
+                pass
         
-        # Remover mensagens
+        # Remove mensagens
         Mensagem.query.filter(
             (Mensagem.remetente_id.in_(ids_usuarios)) |
             (Mensagem.destinatario_id.in_(ids_usuarios))
         ).delete(synchronize_session=False)
         
-        # Remover assinaturas
+        # Remove assinaturas
         Assinatura.query.filter(
             Assinatura.prestador_id.in_(ids_usuarios)
         ).delete(synchronize_session=False)
         
-        # Remover serviços
+        # Remove serviços
         Servico.query.filter(
             Servico.prestador_id.in_(ids_usuarios)
         ).delete(synchronize_session=False)
         
-        # Remover usuários
+        # Remove usuários
         for u in usuarios_seed:
             db.session.delete(u)
         
         db.session.commit()
-        print(f"  ✅ {len(usuarios_seed)} usuários e todos os dados relacionados removidos!")
+        print(f"  ✅ {len(usuarios_seed)} usuários e dados relacionados removidos!")
 
 
 if __name__ == '__main__':
