@@ -1,8 +1,15 @@
-<!-- Hero Section Minimalista -->
+<!-- Hero Section Premium -->
 <div class="hero-section-minimal">
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 mx-auto text-center">
+            <div class="col-lg-9 mx-auto text-center">
+                
+                <!-- Badge de confiança no topo -->
+                <div class="hero-badge animate__animated animate__fadeInDown">
+                    <span class="badge-dot"></span>
+                    <span>{{ total_usuarios or '22' }}+ profissionais ativos agora</span>
+                </div>
+                
                 <!-- Título -->
                 <h1 class="hero-title animate__animated animate__fadeInUp">
                     Encontre <span class="highlight">profissionais qualificados</span><br>
@@ -10,22 +17,34 @@
                 </h1>
                 
                 <p class="hero-description animate__animated animate__fadeInUp animate__delay-1s">
-                    Conectamos você aos melhores prestadores de serviços da sua região
+                    Conectamos você aos melhores prestadores de serviços da sua região. 
+                    <strong class="text-warning">Grátis para clientes.</strong>
                 </p>
                 
                 <!-- Botões CTA -->
                 {% if not current_user.is_authenticated %}
                     <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
-                        <a href="{{ url_for('auth.cadastro') }}" class="btn btn-primary btn-hero">
-                            <i class="fas fa-user-plus me-2"></i>Criar Conta
+                        <a href="{{ url_for('servico.lista') }}" class="btn btn-hero">
+                            <i class="fas fa-search me-2"></i>Encontrar profissional
                         </a>
-                        <a href="{{ url_for('servico.lista') }}" class="btn btn-outline-light btn-hero-outline">
-                            <i class="fas fa-search me-2"></i>Explorar Serviços
+                        <a href="{{ url_for('auth.cadastro') }}?tipo=prestador" class="btn btn-hero-outline">
+                            <i class="fas fa-briefcase me-2"></i>Quero trabalhar
                         </a>
+                    </div>
+                {% else %}
+                    <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
+                        <a href="{{ url_for('servico.lista') }}" class="btn btn-hero">
+                            <i class="fas fa-search me-2"></i>Buscar serviços
+                        </a>
+                        {% if current_user.tipo == 'prestador' %}
+                            <a href="{{ url_for('servico.cadastro') }}" class="btn btn-hero-outline">
+                                <i class="fas fa-plus me-2"></i>Cadastrar serviço
+                            </a>
+                        {% endif %}
                     </div>
                 {% endif %}
                 
-                <!-- Busca Minimalista -->
+                <!-- Busca -->
                 <div class="search-wrapper animate__animated animate__fadeInUp animate__delay-2s">
                     <form action="{{ url_for('servico.lista') }}" method="GET" class="search-form-minimal">
                         <div class="search-input-wrapper">
@@ -37,10 +56,41 @@
                                    autocomplete="off">
                         </div>
                         <button type="submit" class="search-btn-minimal">
-                            Buscar
+                            <i class="fas fa-arrow-right d-md-none"></i>
+                            <span class="d-none d-md-inline">Buscar</span>
                         </button>
                     </form>
+                    
+                    <!-- Sugestões populares -->
+                    <div class="popular-searches">
+                        <span class="popular-label">Popular:</span>
+                        <a href="{{ url_for('servico.lista') }}?q=eletricista">Eletricista</a>
+                        <a href="{{ url_for('servico.lista') }}?q=diarista">Diarista</a>
+                        <a href="{{ url_for('servico.lista') }}?q=encanador">Encanador</a>
+                        <a href="{{ url_for('servico.lista') }}?q=pintor">Pintor</a>
+                    </div>
                 </div>
+                
+                <!-- Selos de confiança -->
+                <div class="trust-badges animate__animated animate__fadeInUp animate__delay-3s">
+                    <div class="trust-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Ambiente seguro</span>
+                    </div>
+                    <div class="trust-badge">
+                        <i class="fas fa-comments"></i>
+                        <span>Chat em tempo real</span>
+                    </div>
+                    <div class="trust-badge">
+                        <i class="fas fa-star"></i>
+                        <span>Avaliações reais</span>
+                    </div>
+                    <div class="trust-badge">
+                        <i class="fas fa-lock"></i>
+                        <span>Dados protegidos</span>
+                    </div>
+                </div>
+                
             </div>
         </div>
     </div>
@@ -49,12 +99,11 @@
 <style>
     .hero-section-minimal {
         background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%);
-        padding: 4rem 0 5rem 0;
+        padding: 3.5rem 0 4.5rem 0;
         position: relative;
         overflow: hidden;
     }
     
-    /* Formas decorativas sutis */
     .hero-section-minimal::before {
         content: '';
         position: absolute;
@@ -77,6 +126,36 @@
         pointer-events: none;
     }
     
+    /* Badge de confiança */
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+    }
+    
+    .badge-dot {
+        width: 8px;
+        height: 8px;
+        background: #22c55e;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #22c55e;
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.15); }
+    }
+    
     /* Título */
     .hero-title {
         font-size: clamp(1.8rem, 5vw, 3rem);
@@ -97,10 +176,10 @@
     
     /* Descrição */
     .hero-description {
-        font-size: clamp(0.95rem, 4vw, 1.1rem);
+        font-size: clamp(0.95rem, 4vw, 1.05rem);
         color: rgba(255, 255, 255, 0.85);
         margin-bottom: 2rem;
-        max-width: 550px;
+        max-width: 600px;
         margin-left: auto;
         margin-right: auto;
     }
@@ -111,32 +190,35 @@
         gap: 1rem;
         justify-content: center;
         flex-wrap: wrap;
-        margin-bottom: 2.5rem;
+        margin-bottom: 2rem;
     }
     
     .btn-hero {
         background: linear-gradient(135deg, #f59e0b, #d97706);
         border: none;
+        color: white;
         padding: 0.75rem 2rem;
         font-weight: 600;
         font-size: 0.95rem;
         border-radius: 50px;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
     }
     
     .btn-hero:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.3);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+        color: white;
     }
     
     .btn-hero-outline {
-        border: 1.5px solid rgba(255, 255, 255, 0.6);
+        border: 1.5px solid rgba(255, 255, 255, 0.5);
         padding: 0.75rem 2rem;
         font-weight: 600;
         font-size: 0.95rem;
         border-radius: 50px;
         background: transparent;
+        color: white;
         transition: all 0.3s ease;
     }
     
@@ -147,7 +229,7 @@
         transform: translateY(-2px);
     }
     
-    /* Busca Minimalista */
+    /* Busca */
     .search-wrapper {
         max-width: 600px;
         margin: 0 auto;
@@ -156,23 +238,23 @@
     .search-form-minimal {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
         background: white;
         border-radius: 60px;
-        padding: 0.25rem;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        padding: 0.3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     }
     
     .search-input-wrapper {
         flex: 1;
         display: flex;
         align-items: center;
-        padding: 0 0 0 1rem;
+        padding: 0 0 0 1.25rem;
     }
     
     .search-icon {
         color: #94a3b8;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
     }
     
     .search-input-minimal {
@@ -187,7 +269,6 @@
     
     .search-input-minimal::placeholder {
         color: #94a3b8;
-        font-weight: 400;
     }
     
     .search-btn-minimal {
@@ -205,62 +286,139 @@
     
     .search-btn-minimal:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+    
+    /* Buscas populares */
+    .popular-searches {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .popular-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 500;
+    }
+    
+    .popular-searches a {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        padding: 3px 12px;
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+    
+    .popular-searches a:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    /* Selos de confiança */
+    .trust-badges {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .trust-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .trust-badge i {
+        color: #fbbf24;
+        font-size: 0.95rem;
     }
     
     /* Responsividade */
     @media (max-width: 768px) {
         .hero-section-minimal {
-            padding: 3rem 0 3.5rem 0;
+            padding: 2.5rem 0 3rem 0;
+        }
+        
+        .hero-badge {
+            font-size: 0.75rem;
+            padding: 5px 12px;
         }
         
         .hero-buttons {
-            gap: 0.75rem;
-            margin-bottom: 2rem;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
         }
         
         .btn-hero, .btn-hero-outline {
-            padding: 0.6rem 1.5rem;
+            padding: 0.6rem 1.4rem;
             font-size: 0.85rem;
+            flex: 1;
+            min-width: 140px;
         }
         
         .search-form-minimal {
-            flex-direction: column;
-            background: transparent;
-            box-shadow: none;
-            gap: 0.5rem;
-        }
-        
-        .search-input-wrapper {
-            background: white;
-            border-radius: 60px;
-            padding: 0 0 0 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            flex-direction: row;
+            padding: 0.25rem;
         }
         
         .search-input-minimal {
-            padding: 0.75rem 0.5rem;
+            padding: 0.7rem 0.5rem;
             font-size: 0.85rem;
         }
         
         .search-btn-minimal {
-            padding: 0.65rem 1.5rem;
+            padding: 0.65rem 1rem;
             font-size: 0.85rem;
-            width: 100%;
+        }
+        
+        .popular-searches {
+            gap: 6px;
+            font-size: 0.78rem;
+        }
+        
+        .popular-searches a {
+            padding: 2px 10px;
+        }
+        
+        .trust-badges {
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+        }
+        
+        .trust-badge {
+            font-size: 0.78rem;
+        }
+        
+        .trust-badge i {
+            font-size: 0.85rem;
         }
     }
     
     @media (max-width: 480px) {
-        .search-input-minimal {
-            font-size: 0.8rem;
+        .trust-badges {
+            gap: 0.75rem;
         }
         
-        .search-icon {
-            font-size: 0.8rem;
+        .trust-badge {
+            font-size: 0.72rem;
         }
         
-        .search-btn-minimal {
-            padding: 0.6rem 1.25rem;
+        .popular-searches {
+            display: none;
         }
     }
 </style>
