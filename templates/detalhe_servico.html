@@ -1,311 +1,517 @@
 {% extends "base.html" %}
 
-{% block title %}{{ servico.titulo }} - PrestaServiços{% endblock %}
+{% block title %}{{ servico.titulo }} - HiringScope{% endblock %}
 
 {% block content %}
-<style>
-    .servico-detalhe {
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    }
-    .prestador-info {
-        background: #f8f9fa;
-        border-radius: 10px;
-        padding: 20px;
-        margin-top: 20px;
-    }
-    .btn-solicitar {
-        background: linear-gradient(45deg, #28a745, #20c997);
-        border: none;
-        padding: 15px 30px;
-        font-size: 18px;
-        border-radius: 50px;
-        width: 100%;
-        color: white;
-        transition: all 0.3s ease;
-    }
-    .btn-solicitar:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(40,167,69,0.3);
-        color: white;
-    }
-    .btn-chat {
-        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
-        border: none;
-        padding: 15px 30px;
-        font-size: 18px;
-        border-radius: 50px;
-        width: 100%;
-        color: white;
-        transition: all 0.3s ease;
-    }
-    .btn-chat:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(11,43,92,0.3);
-        color: white;
-    }
-    .btn-editar {
-        background: linear-gradient(45deg, #f59e0b, #d97706);
-        border: none;
-        padding: 15px 30px;
-        font-size: 18px;
-        border-radius: 50px;
-        width: 100%;
-        color: white;
-        font-weight: bold;
-        transition: all 0.3s ease;
-    }
-    .btn-editar:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(245,158,11,0.3);
-        color: white;
-    }
-    .preco-card {
-        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-        border-radius: 15px;
-        padding: 15px;
-        margin: 15px 0;
-    }
-    .badge-preco {
-        font-size: 0.8rem;
-        padding: 5px 10px;
-        background: #10b981;
-        color: white;
-    }
-</style>
+<section class="sd-page">
 
-<div class="container mt-5">
-    <div class="mb-3">
-        <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-pill">
-            <i class="fas fa-arrow-left me-2"></i> Voltar
-        </a>
-    </div>
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- HERO (imagem de fundo + título sobreposto)              -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="sd-hero {% if not servico.imagem_base64 %}sd-hero--no-img{% endif %}">
+        {% if servico.imagem_base64 %}
+            <div class="sd-hero-bg" style="background-image: url('data:image/jpeg;base64,{{ servico.imagem_base64 }}');"></div>
+        {% endif %}
+        <div class="sd-hero-overlay"></div>
+        <div class="sd-hero-grid"></div>
+        <div class="sd-hero-glow"></div>
 
-    <div class="servico-detalhe">
-        <div class="row">
-            <div class="col-md-8">
-                <h1 class="mb-3">{{ servico.titulo }}</h1>
-                
-                {% if servico.imagem_base64 %}
-                <div class="text-center mb-4">
-                    <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" 
-                        alt="{{ servico.titulo }}" 
-                        class="img-fluid rounded-4 shadow-sm"
-                        style="max-height: 300px; width: auto;">
-                </div>
-                {% endif %}
-                
-                <div class="mb-3">
+        <div class="container position-relative">
+            <div class="sd-hero-content">
+                <!-- Badges no topo -->
+                <div class="sd-hero-badges">
                     {% if servico.destaque %}
-                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill me-2">
-                            <i class="fas fa-star"></i> Destaque
+                        <span class="sd-hero-badge sd-hero-badge--destaque">
+                            <i class="fas fa-star"></i> DESTAQUE
                         </span>
                     {% endif %}
-                    <span class="badge bg-info px-3 py-2 rounded-pill">
+                    <span class="sd-hero-badge sd-hero-badge--cat">
                         <i class="fas fa-tag"></i> {{ servico.categoria }}
                     </span>
                 </div>
 
-                <h5 class="mb-3">Descrição do Serviço:</h5>
-                <p class="mb-4">{{ servico.descricao }}</p>
+                <!-- Título -->
+                <h1 class="sd-hero-title">{{ servico.titulo }}</h1>
 
-                <!-- ============================================ -->
-                <!-- PREÇO DINÂMICO - Tipos de precificação -->
-                <!-- ============================================ -->
+                <!-- Breadcrumb mini -->
+                <div class="sd-hero-breadcrumb">
+                    <a href="{{ url_for('main.index') }}">Início</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <a href="{{ url_for('servico.lista') }}">Serviços</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>{{ servico.categoria }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voltar flutuante -->
+        <a href="javascript:history.back()" class="sd-float-back">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- CONTEÚDO PRINCIPAL                                      -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="container sd-content">
+
+        <div class="row g-4">
+
+            <!-- ───────────────────────────────────────────── -->
+            <!-- COLUNA ESQUERDA (info do serviço)              -->
+            <!-- ───────────────────────────────────────────── -->
+            <div class="col-lg-8">
+
+                <!-- Card: Sobre o serviço -->
+                <div class="sd-card">
+                    <div class="sd-card-header">
+                        <div class="sd-card-icon sd-card-icon--blue">
+                            <i class="fas fa-align-left"></i>
+                        </div>
+                        <div>
+                            <h2 class="sd-card-title">Sobre o Serviço</h2>
+                            <p class="sd-card-subtitle">Detalhes do que está sendo oferecido</p>
+                        </div>
+                    </div>
+                    <div class="sd-card-body">
+                        <p class="sd-desc">{{ servico.descricao }}</p>
+                    </div>
+                </div>
+
+                <!-- Card: Preço (dinâmico) -->
                 {% if servico.tipo_preco and servico.tipo_preco != 'consulta' %}
-                <div class="preco-card mb-4">
-                    <div class="d-flex align-items-center justify-content-between flex-wrap">
-                        <div>
-                            <span class="badge-preco rounded-pill">
-                                {% if servico.tipo_preco == 'fixo' %}
-                                    <i class="fas fa-tag me-1"></i> PREÇO FIXO
-                                {% elif servico.tipo_preco == 'hora' %}
-                                    <i class="fas fa-clock me-1"></i> PREÇO POR HORA
-                                {% elif servico.tipo_preco == 'dia' %}
-                                    <i class="fas fa-calendar-day me-1"></i> PREÇO POR DIA
-                                {% elif servico.tipo_preco == 'metro' %}
-                                    <i class="fas fa-ruler-combined me-1"></i> PREÇO POR M²
-                                {% endif %}
-                            </span>
+                <div class="sd-price-card">
+                    <div class="sd-price-card-glow" aria-hidden="true"></div>
+
+                    <div class="sd-price-card-header">
+                        <div class="sd-price-card-icon">
+                            {% if servico.tipo_preco == 'fixo' %}
+                                <i class="fas fa-tag"></i>
+                            {% elif servico.tipo_preco == 'hora' %}
+                                <i class="fas fa-clock"></i>
+                            {% elif servico.tipo_preco == 'dia' %}
+                                <i class="fas fa-calendar-day"></i>
+                            {% elif servico.tipo_preco == 'metro' %}
+                                <i class="fas fa-ruler-combined"></i>
+                            {% endif %}
                         </div>
-                        <div class="text-end">
-                            <h2 class="text-success mb-0">
-                                <i class="fas fa-dollar-sign"></i> R$ {{ "%.2f"|format(servico.preco) }}
-                                {% if servico.tipo_preco == 'hora' %}
-                                    <small class="text-muted fs-6">/hora</small>
-                                {% elif servico.tipo_preco == 'dia' %}
-                                    <small class="text-muted fs-6">/dia</small>
-                                {% elif servico.tipo_preco == 'metro' %}
-                                    <small class="text-muted fs-6">/m²</small>
-                                {% endif %}
-                            </h2>
-                            <small class="text-muted">
-                                {% if servico.tipo_preco == 'fixo' %}
-                                    *Valor fixo pelo serviço completo
-                                {% elif servico.tipo_preco == 'hora' %}
-                                    *Valor cobrado por hora trabalhada
-                                {% elif servico.tipo_preco == 'dia' %}
-                                    *Valor por diária (8h de trabalho)
-                                {% elif servico.tipo_preco == 'metro' %}
-                                    *Valor por metro quadrado
-                                {% endif %}
-                            </small>
+                        <div class="sd-price-card-label">
+                            {% if servico.tipo_preco == 'fixo' %}
+                                Preço Fixo
+                            {% elif servico.tipo_preco == 'hora' %}
+                                Preço por Hora
+                            {% elif servico.tipo_preco == 'dia' %}
+                                Preço por Dia
+                            {% elif servico.tipo_preco == 'metro' %}
+                                Preço por m²
+                            {% endif %}
                         </div>
                     </div>
+
+                    <div class="sd-price-card-value">
+                        <span class="sd-price-card-currency">R$</span>
+                        <span class="sd-price-card-number">{{ "%.2f"|format(servico.preco) }}</span>
+                        {% if servico.tipo_preco == 'hora' %}
+                            <span class="sd-price-card-unit">/hora</span>
+                        {% elif servico.tipo_preco == 'dia' %}
+                            <span class="sd-price-card-unit">/dia</span>
+                        {% elif servico.tipo_preco == 'metro' %}
+                            <span class="sd-price-card-unit">/m²</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="sd-price-card-note">
+                        <i class="fas fa-info-circle"></i>
+                        <span>
+                            {% if servico.tipo_preco == 'fixo' %}
+                                Valor fixo pelo serviço completo
+                            {% elif servico.tipo_preco == 'hora' %}
+                                Valor cobrado por hora trabalhada
+                            {% elif servico.tipo_preco == 'dia' %}
+                                Valor por diária (8h de trabalho)
+                            {% elif servico.tipo_preco == 'metro' %}
+                                Valor por metro quadrado
+                            {% endif %}
+                        </span>
+                    </div>
                 </div>
+
                 {% elif servico.tipo_preco == 'consulta' %}
-                <div class="preco-card mb-4 bg-info bg-opacity-25">
-                    <div class="d-flex align-items-center justify-content-between flex-wrap">
-                        <div>
-                            <span class="badge bg-info rounded-pill">
-                                <i class="fas fa-comments me-1"></i> SOB CONSULTA
-                            </span>
+                <div class="sd-price-card sd-price-card--consult">
+                    <div class="sd-price-consult-inner">
+                        <div class="sd-price-consult-icon">
+                            <i class="fas fa-handshake"></i>
                         </div>
-                        <div class="text-end">
-                            <h3 class="text-info mb-0">
-                                <i class="fas fa-handshake"></i> Orçamento Personalizado
-                            </h3>
-                            <small class="text-muted">*Entre em contato para solicitar orçamento</small>
+                        <div class="sd-price-consult-text">
+                            <span class="sd-price-consult-eyebrow">PREÇO SOB CONSULTA</span>
+                            <h3 class="sd-price-consult-title">A Combinar</h3>
+                            <p class="sd-price-consult-desc">
+                                Entre em contato com o prestador para receber um orçamento personalizado
+                            </p>
                         </div>
                     </div>
+                    <div class="sd-price-consult-wave"></div>
                 </div>
+
                 {% elif servico.preco %}
-                <div class="preco-card mb-4">
-                    <div class="d-flex align-items-center justify-content-between flex-wrap">
-                        <div>
-                            <span class="badge-preco rounded-pill">
-                                <i class="fas fa-tag me-1"></i> VALOR
-                            </span>
+                <div class="sd-price-card">
+                    <div class="sd-price-card-glow" aria-hidden="true"></div>
+                    <div class="sd-price-card-header">
+                        <div class="sd-price-card-icon">
+                            <i class="fas fa-tag"></i>
                         </div>
-                        <div class="text-end">
-                            <h2 class="text-success mb-0">
-                                <i class="fas fa-dollar-sign"></i> R$ {{ "%.2f"|format(servico.preco) }}
-                            </h2>
-                            <small class="text-muted">*Valor a combinar com o prestador</small>
-                        </div>
+                        <div class="sd-price-card-label">Valor</div>
+                    </div>
+                    <div class="sd-price-card-value">
+                        <span class="sd-price-card-currency">R$</span>
+                        <span class="sd-price-card-number">{{ "%.2f"|format(servico.preco) }}</span>
+                    </div>
+                    <div class="sd-price-card-note">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Valor a combinar com o prestador</span>
                     </div>
                 </div>
                 {% endif %}
+
+                <!-- Trust / Diferenciais -->
+                <div class="sd-trust-grid">
+                    <div class="sd-trust-card">
+                        <div class="sd-trust-icon sd-trust-icon--green">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <strong>Ambiente seguro</strong>
+                            <small>Plataforma protegida</small>
+                        </div>
+                    </div>
+                    <div class="sd-trust-card">
+                        <div class="sd-trust-icon sd-trust-icon--cyan">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div>
+                            <strong>Chat em tempo real</strong>
+                            <small>Negocie direto</small>
+                        </div>
+                    </div>
+                    <div class="sd-trust-card">
+                        <div class="sd-trust-icon sd-trust-icon--amber">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div>
+                            <strong>Avaliações reais</strong>
+                            <small>De clientes reais</small>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
-            <div class="col-md-4">
-                <div class="prestador-info rounded-4">
-                    <h5 class="mb-3"><i class="fas fa-user-tie text-primary"></i> Sobre o Prestador</h5>
-                    <p><strong>Nome:</strong> {{ servico.prestador.nome }}</p>
-                    <p><strong>Telefone:</strong> {{ servico.prestador.telefone or 'Não informado' }}</p>
-                    <p><strong>Email:</strong> {{ servico.prestador.email }}</p>
-                    <p><strong>Membro desde:</strong> {{ servico.prestador.data_cadastro.strftime('%d/%m/%Y') }}</p>
-                    
-                    {% if servico.prestador.media_avaliacoes() > 0 %}
-                    <hr>
-                    <div class="text-center">
-                        <strong>Avaliação:</strong>
-                        <div class="rating">
-                            {% for i in range(5) %}
-                                {% if i < servico.prestador.media_avaliacoes()|round(0, 'floor') %}
-                                    <i class="fas fa-star text-warning"></i>
-                                {% elif i < servico.prestador.media_avaliacoes() %}
-                                    <i class="fas fa-star-half-alt text-warning"></i>
-                                {% else %}
-                                    <i class="far fa-star text-warning"></i>
-                                {% endif %}
-                            {% endfor %}
-                            <span class="ms-2">({{ servico.prestador.total_avaliacoes() }} avaliações)</span>
+            <!-- ───────────────────────────────────────────── -->
+            <!-- COLUNA DIREITA (sidebar)                       -->
+            <!-- ───────────────────────────────────────────── -->
+            <div class="col-lg-4">
+                <div class="sd-sidebar">
+
+                    <!-- Prestador -->
+                    <div class="sd-prestador-card">
+                        <div class="sd-prestador-cover"></div>
+                        <div class="sd-prestador-body">
+                            <div class="sd-prestador-avatar-wrap">
+                                <div class="sd-prestador-avatar">
+                                    {% if servico.prestador.foto_url %}
+                                        <img src="{{ servico.prestador.foto_url }}" alt="{{ servico.prestador.nome }}">
+                                    {% elif servico.prestador.foto_perfil and servico.prestador.foto_perfil != 'default.jpg' %}
+                                        <img src="data:image/jpeg;base64,{{ servico.prestador.foto_perfil }}" alt="{{ servico.prestador.nome }}">
+                                    {% else %}
+                                        <div class="sd-prestador-avatar-letter">
+                                            {{ servico.prestador.nome[0]|upper }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <span class="sd-prestador-dot"></span>
+                            </div>
+
+                            <h3 class="sd-prestador-nome">{{ servico.prestador.nome }}</h3>
+                            <span class="sd-prestador-tag">
+                                <i class="fas fa-user-tie"></i> Prestador
+                            </span>
+
+                            {% if servico.prestador.media_avaliacoes() > 0 %}
+                            <div class="sd-rating">
+                                <div class="sd-rating-value">
+                                    {{ "%.1f"|format(servico.prestador.media_avaliacoes()) }}
+                                </div>
+                                <div class="sd-rating-info">
+                                    <div class="sd-rating-stars">
+                                        {% for i in range(5) %}
+                                            {% if i < servico.prestador.media_avaliacoes()|round(0, 'floor') %}
+                                                <i class="fas fa-star"></i>
+                                            {% elif i < servico.prestador.media_avaliacoes() %}
+                                                <i class="fas fa-star-half-alt"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <small>{{ servico.prestador.total_avaliacoes() }} avaliações</small>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Info rows -->
+                            <div class="sd-prestador-info">
+                                <div class="sd-info-row">
+                                    <span class="sd-info-icon sd-info-icon--phone">
+                                        <i class="fas fa-phone"></i>
+                                    </span>
+                                    <div class="sd-info-text">
+                                        <small>Telefone</small>
+                                        <strong>{{ servico.prestador.telefone or 'Não informado' }}</strong>
+                                    </div>
+                                </div>
+
+                                <div class="sd-info-row">
+                                    <span class="sd-info-icon sd-info-icon--email">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                    <div class="sd-info-text">
+                                        <small>E-mail</small>
+                                        <strong>{{ servico.prestador.email }}</strong>
+                                    </div>
+                                </div>
+
+                                <div class="sd-info-row">
+                                    <span class="sd-info-icon sd-info-icon--date">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </span>
+                                    <div class="sd-info-text">
+                                        <small>Membro desde</small>
+                                        <strong>{{ servico.prestador.data_cadastro.strftime('%d/%m/%Y') }}</strong>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    {% endif %}
+
+                    <!-- Ações -->
+                    <div class="sd-actions-card">
+
+                        <!-- ✅ Botão Chat — escondido se for o próprio dono -->
+                        {% if current_user.is_authenticated and current_user.id != servico.prestador.id %}
+                            <button onclick="iniciarChat({{ servico.prestador.id }}, '{{ servico.prestador.nome|replace("'", "\\'") }}')"
+                                    class="sd-btn sd-btn-chat">
+                                <i class="fas fa-comments"></i>
+                                <span>Conversar com {{ servico.prestador.nome.split()[0] }}</span>
+                            </button>
+                        {% endif %}
+
+                        <!-- Banner do dono -->
+                        {% if current_user.is_authenticated and current_user.id == servico.prestador.id %}
+                        <div class="sd-owner-banner">
+                            <div class="sd-owner-banner-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="sd-owner-banner-text">
+                                <strong>Este é o seu serviço</strong>
+                                <small>Você pode editá-lo a qualquer momento</small>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Botão Solicitar -->
+                        {% if current_user.is_authenticated and current_user.tipo == 'cliente' %}
+                            <button type="button"
+                                    class="sd-btn sd-btn-solicitar"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#solicitarModalNovo">
+                                <i class="fas fa-handshake"></i>
+                                <span>Solicitar Este Serviço</span>
+                                <i class="fas fa-arrow-right sd-btn-arrow"></i>
+                            </button>
+                        {% elif not current_user.is_authenticated %}
+                            <div class="sd-login-cta">
+                                <div class="sd-login-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <strong class="sd-login-title">Faça login para solicitar</strong>
+                                <p class="sd-login-desc">
+                                    Entre como cliente para poder solicitar este e outros serviços
+                                </p>
+                                <a href="{{ url_for('auth.login') }}" class="sd-btn sd-btn-login">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    <span>Entrar agora</span>
+                                    <i class="fas fa-arrow-right sd-btn-arrow"></i>
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        <!-- Botão Editar (dono) -->
+                        {% if current_user.is_authenticated and current_user.id == servico.prestador_id %}
+                            <a href="/servico/editar/{{ servico.id }}" class="sd-btn sd-btn-editar">
+                                <i class="fas fa-edit"></i>
+                                <span>Editar este Serviço</span>
+                            </a>
+                        {% endif %}
+
+                        <!-- Garantia -->
+                        <div class="sd-actions-guarantee">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Negociação 100% segura</span>
+                        </div>
+                    </div>
+
                 </div>
-
-                <!-- Botão Chat -->
-                {% if current_user.is_authenticated %}
-                    <div class="mt-3">
-                        <button onclick="iniciarChat({{ servico.prestador.id }}, '{{ servico.prestador.nome|replace("'", "\\'") }}')" 
-                                class="btn btn-chat">
-                            <i class="fas fa-comments me-2"></i> Conversar com o Prestador
-                        </button>
-                    </div>
-                {% endif %}
-
-                <!-- Botão Solicitar -->
-                {% if current_user.is_authenticated and current_user.tipo == 'cliente' %}
-                    <div class="mt-3">
-                        <button type="button" class="btn btn-solicitar" data-bs-toggle="modal" data-bs-target="#solicitarModalNovo">
-                            <i class="fas fa-handshake me-2"></i> Solicitar Este Serviço
-                        </button>
-                    </div>
-                {% elif not current_user.is_authenticated %}
-                    <div class="mt-3">
-                        <div class="alert alert-info rounded-4">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <a href="{{ url_for('auth.login') }}" class="alert-link">Faça login</a> como cliente para solicitar este serviço.
-                        </div>
-                    </div>
-                {% endif %}
-
-                <!-- Botão Editar (apenas para o prestador dono do serviço) -->
-                {% if current_user.is_authenticated and current_user.id == servico.prestador_id %}
-                    <div class="mt-3">
-                        <a href="/servico/editar/{{ servico.id }}" class="btn btn-editar">
-                            <i class="fas fa-edit me-2"></i> Editar Serviço
-                        </a>
-                    </div>
-                {% endif %}
             </div>
         </div>
     </div>
-</div>
 
-<!-- MODAL DE SOLICITAÇÃO -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- CTA MOBILE (barra fixa inferior)                        -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    {% if current_user.is_authenticated and current_user.tipo == 'cliente' %}
+    <div class="sd-mobile-cta">
+        <div class="sd-mobile-cta-info">
+            {% if servico.tipo_preco and servico.tipo_preco != 'consulta' %}
+                <small>Valor</small>
+                <strong>R$ {{ "%.2f"|format(servico.preco) }}</strong>
+            {% elif servico.tipo_preco == 'consulta' %}
+                <small>Preço</small>
+                <strong>A combinar</strong>
+            {% elif servico.preco %}
+                <small>Valor</small>
+                <strong>R$ {{ "%.2f"|format(servico.preco) }}</strong>
+            {% else %}
+                <small>Preço</small>
+                <strong>A combinar</strong>
+            {% endif %}
+        </div>
+        <div class="sd-mobile-cta-actions">
+            <!-- ✅ Botão Chat mobile — escondido se for o próprio dono -->
+            {% if current_user.is_authenticated and current_user.id != servico.prestador.id %}
+                <button onclick="iniciarChat({{ servico.prestador.id }}, '{{ servico.prestador.nome|replace("'", "\\'") }}')"
+                        class="sd-mobile-btn sd-mobile-btn--chat"
+                        aria-label="Chat">
+                    <i class="fas fa-comments"></i>
+                </button>
+            {% endif %}
+            <button type="button"
+                    class="sd-mobile-btn sd-mobile-btn--solicitar"
+                    data-bs-toggle="modal"
+                    data-bs-target="#solicitarModalNovo">
+                <i class="fas fa-handshake"></i>
+                <span>Solicitar</span>
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MODAL DE SOLICITAÇÃO                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
 {% if current_user.is_authenticated and current_user.tipo == 'cliente' %}
 <div class="modal fade" id="solicitarModalNovo" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-file-contract me-2"></i>Solicitar Serviço
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-content sd-modal">
+            <div class="modal-header sd-modal-header">
+                <div class="sd-modal-header-icon">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <div>
+                    <h5 class="sd-modal-title">Solicitar Serviço</h5>
+                    <p class="sd-modal-subtitle">Preencha os detalhes abaixo</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white sd-modal-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ url_for('contrato.solicitar_servico', servico_id=servico.id) }}" method="POST">
-                <div class="modal-body">
-                    <div class="bg-light p-3 rounded-3 mb-3">
-                        <p class="mb-1"><strong>📋 Serviço:</strong> {{ servico.titulo }}</p>
-                        <p class="mb-1"><strong>👤 Prestador:</strong> {{ servico.prestador.nome }}</p>
-                        {% if servico.tipo_preco and servico.tipo_preco != 'consulta' %}
-                            <p class="mb-0">
-                                <strong>💰 Preço:</strong> 
-                                R$ {{ "%.2f"|format(servico.preco) }}
-                                {% if servico.tipo_preco == 'hora' %}/hora{% elif servico.tipo_preco == 'dia' %}/dia{% elif servico.tipo_preco == 'metro' %}/m²{% endif %}
-                            </p>
-                        {% elif servico.tipo_preco == 'consulta' %}
-                            <p class="mb-0"><strong>💰 Preço:</strong> Sob consulta - orçamento personalizado</p>
-                        {% elif servico.preco %}
-                            <p class="mb-0"><strong>💰 Preço:</strong> R$ {{ "%.2f"|format(servico.preco) }}</p>
-                        {% endif %}
+                <div class="modal-body sd-modal-body">
+
+                    <!-- Resumo -->
+                    <div class="sd-modal-summary">
+                        <div class="sd-summary-row">
+                            <span class="sd-summary-icon"><i class="fas fa-briefcase"></i></span>
+                            <div>
+                                <small>Serviço</small>
+                                <strong>{{ servico.titulo }}</strong>
+                            </div>
+                        </div>
+                        <div class="sd-summary-row">
+                            <span class="sd-summary-icon"><i class="fas fa-user"></i></span>
+                            <div>
+                                <small>Prestador</small>
+                                <strong>{{ servico.prestador.nome }}</strong>
+                            </div>
+                        </div>
+                        <div class="sd-summary-row">
+                            <span class="sd-summary-icon"><i class="fas fa-dollar-sign"></i></span>
+                            <div>
+                                <small>Preço</small>
+                                <strong>
+                                    {% if servico.tipo_preco and servico.tipo_preco != 'consulta' %}
+                                        R$ {{ "%.2f"|format(servico.preco) }}
+                                        {% if servico.tipo_preco == 'hora' %}/hora{% elif servico.tipo_preco == 'dia' %}/dia{% elif servico.tipo_preco == 'metro' %}/m²{% endif %}
+                                    {% elif servico.tipo_preco == 'consulta' %}
+                                        A combinar
+                                    {% elif servico.preco %}
+                                        R$ {{ "%.2f"|format(servico.preco) }}
+                                    {% else %}
+                                        A combinar
+                                    {% endif %}
+                                </strong>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Mensagem para o prestador</label>
-                        <textarea name="mensagem" class="form-control rounded-3" rows="4" 
+
+                    <!-- Mensagem -->
+                    <div class="sd-modal-field">
+                        <label class="sd-modal-label">
+                            <i class="fas fa-comment-dots"></i>
+                            Mensagem para o prestador
+                        </label>
+                        <textarea name="mensagem"
+                                  class="sd-modal-textarea"
+                                  rows="4"
                                   placeholder="Descreva o que você precisa, prazo desejado, endereço, etc..."></textarea>
-                        <small class="text-muted">Opcional, mas recomendado para agilizar seu atendimento.</small>
+                        <small class="sd-modal-hint">
+                            <i class="fas fa-lightbulb"></i>
+                            Opcional, mas recomendado para agilizar o atendimento
+                        </small>
                     </div>
-                    
-                    <div class="alert alert-info small rounded-3">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Como funciona?</strong><br>
-                        1. Você solicita o serviço<br>
-                        2. O prestador analisa e aceita<br>
-                        3. Combinam os detalhes pelo chat<br>
-                        4. Após conclusão, você poderá avaliar o serviço ⭐
+
+                    <!-- Steps -->
+                    <div class="sd-modal-steps">
+                        <div class="sd-modal-steps-title">
+                            <i class="fas fa-route"></i>
+                            Como funciona?
+                        </div>
+                        <div class="sd-steps-list">
+                            <div class="sd-step">
+                                <span class="sd-step-num">1</span>
+                                <span>Você solicita o serviço</span>
+                            </div>
+                            <div class="sd-step">
+                                <span class="sd-step-num">2</span>
+                                <span>O prestador analisa e aceita</span>
+                            </div>
+                            <div class="sd-step">
+                                <span class="sd-step-num">3</span>
+                                <span>Combinam os detalhes pelo chat</span>
+                            </div>
+                            <div class="sd-step">
+                                <span class="sd-step-num">4</span>
+                                <span>Após conclusão, avalie ⭐</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary rounded-pill">
-                        <i class="fas fa-paper-plane me-2"></i> Enviar Solicitação
+                <div class="modal-footer sd-modal-footer">
+                    <button type="button" class="sd-btn sd-btn-cancel" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="sd-btn sd-btn-send">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Enviar Solicitação</span>
                     </button>
                 </div>
             </form>
@@ -314,7 +520,1668 @@
 </div>
 {% endif %}
 
+<style>
+/* ═══════════════════════════════════════════════════════════
+   🚀 DETALHE DO SERVIÇO — Versão "Da Hora" 2025
+   ═══════════════════════════════════════════════════════════ */
+
+.sd-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    padding-bottom: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🎬 HERO
+   ═══════════════════════════════════════════════════════════ */
+.sd-hero {
+    position: relative;
+    min-height: 380px;
+    padding: 5rem 0 4rem;
+    overflow: hidden;
+    background: linear-gradient(135deg, #071a36 0%, #0b2b5c 40%, #14477a 70%, #1a6d8f 100%);
+    isolation: isolate;
+}
+
+.sd-hero-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 1;
+    transform: scale(1.05);
+    animation: sdHeroZoom 20s ease-in-out infinite alternate;
+}
+
+@keyframes sdHeroZoom {
+    0%   { transform: scale(1.05); }
+    100% { transform: scale(1.12); }
+}
+
+.sd-hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background:
+        linear-gradient(180deg, rgba(5, 14, 31, 0.7) 0%, rgba(11, 43, 92, 0.85) 50%, rgba(11, 43, 92, 0.95) 100%),
+        linear-gradient(90deg, rgba(5, 14, 31, 0.7) 0%, transparent 60%);
+}
+
+.sd-hero-grid {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(ellipse at center, #000 20%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 80%);
+    pointer-events: none;
+}
+
+.sd-hero-glow {
+    position: absolute;
+    top: -30%;
+    right: -10%;
+    width: 60%;
+    height: 160%;
+    z-index: 3;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.sd-hero-content {
+    position: relative;
+    z-index: 4;
+    max-width: 780px;
+}
+
+.sd-hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+}
+
+.sd-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.3);
+}
+
+.sd-hero-badge i {
+    font-size: 0.7rem;
+}
+
+.sd-hero-badge--destaque {
+    background: linear-gradient(135deg, #fbbf24, #d97706);
+    color: #ffffff;
+    border-color: transparent;
+    animation: sdBadgePulse 2.5s ease-in-out infinite;
+}
+
+@keyframes sdBadgePulse {
+    0%, 100% { box-shadow: 0 4px 12px -4px rgba(245, 158, 11, 0.5), 0 0 0 0 rgba(245, 158, 11, 0.4); }
+    50%      { box-shadow: 0 4px 16px -4px rgba(245, 158, 11, 0.7), 0 0 0 6px rgba(245, 158, 11, 0.15); }
+}
+
+.sd-hero-badge--cat {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+.sd-hero-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(1.75rem, 4.5vw, 3rem);
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin: 0 0 1rem;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.sd-hero-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.sd-hero-breadcrumb a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.sd-hero-breadcrumb a:hover {
+    color: #fbbf24;
+}
+
+.sd-hero-breadcrumb i {
+    font-size: 0.6rem;
+    opacity: 0.5;
+}
+
+.sd-hero-breadcrumb span {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Botão voltar flutuante */
+.sd-float-back {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 5;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sd-float-back:hover {
+    background: #ffffff;
+    color: #0b2b5c;
+    transform: translateX(-3px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📦 CONTEÚDO PRINCIPAL
+   ═══════════════════════════════════════════════════════════ */
+.sd-content {
+    margin-top: -3.5rem;
+    position: relative;
+    z-index: 10;
+    padding-bottom: 4rem;
+}
+
+/* ──────────────────────────────────────────────
+   CARD GENÉRICO
+   ────────────────────────────────────────────── */
+.sd-card {
+    background: #ffffff;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid rgba(11, 43, 92, 0.06);
+    box-shadow:
+        0 16px 40px -20px rgba(11, 43, 92, 0.15),
+        0 4px 12px -4px rgba(0, 0, 0, 0.04);
+    margin-bottom: 1.5rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sd-card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 24px 48px -20px rgba(11, 43, 92, 0.22),
+        0 8px 16px -4px rgba(0, 0, 0, 0.06);
+}
+
+.sd-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 1.5rem 1.75rem 1rem;
+}
+
+.sd-card-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px -6px rgba(11, 43, 92, 0.35);
+}
+
+.sd-card-icon--blue {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+}
+
+.sd-card-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #0b2b5c;
+    letter-spacing: -0.015em;
+    margin: 0 0 2px;
+    line-height: 1.2;
+}
+
+.sd-card-subtitle {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 500;
+    margin: 0;
+}
+
+.sd-card-body {
+    padding: 0 1.75rem 1.75rem;
+}
+
+.sd-desc {
+    font-size: 0.98rem;
+    line-height: 1.75;
+    color: #475569;
+    margin: 0;
+    white-space: pre-line;
+}
+
+/* ──────────────────────────────────────────────
+   CARD DE PREÇO
+   ────────────────────────────────────────────── */
+.sd-price-card {
+    position: relative;
+    padding: 2rem 1.75rem;
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(245, 158, 11, 0.12) 0%, transparent 50%),
+        linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 22px;
+    border: 2px solid rgba(26, 109, 143, 0.1);
+    box-shadow: 0 16px 40px -20px rgba(11, 43, 92, 0.15);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sd-price-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: linear-gradient(180deg, #0b2b5c, #1a6d8f, #f59e0b);
+    border-radius: 22px 0 0 22px;
+}
+
+.sd-price-card-glow {
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.sd-price-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 24px 48px -20px rgba(11, 43, 92, 0.25);
+}
+
+.sd-price-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+    position: relative;
+    z-index: 1;
+}
+
+.sd-price-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    box-shadow:
+        0 8px 20px -6px rgba(11, 43, 92, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.sd-price-card-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #1a6d8f;
+}
+
+.sd-price-card-value {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+}
+
+.sd-price-card-currency {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0b2b5c;
+    align-self: flex-start;
+    margin-top: 8px;
+}
+
+.sd-price-card-number {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 50%, #f59e0b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.sd-price-card-unit {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #94a3b8;
+}
+
+.sd-price-card-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(26, 109, 143, 0.08);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1a6d8f;
+    position: relative;
+    z-index: 1;
+}
+
+.sd-price-card-note i {
+    font-size: 0.75rem;
+}
+
+/* Preço sob consulta */
+.sd-price-card--consult {
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(6, 182, 212, 0.15) 0%, transparent 55%),
+        linear-gradient(135deg, #ffffff 0%, #ecfeff 100%);
+    border-color: rgba(6, 182, 212, 0.2);
+    padding: 2rem 1.75rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.sd-price-card--consult::before {
+    background: linear-gradient(180deg, #0891b2, #06b6d4);
+}
+
+.sd-price-consult-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.sd-price-consult-icon {
+    width: 84px;
+    height: 84px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 2rem;
+    flex-shrink: 0;
+    box-shadow:
+        0 16px 32px -8px rgba(6, 182, 212, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    animation: sdConsultFloat 3s ease-in-out infinite;
+}
+
+@keyframes sdConsultFloat {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50%      { transform: translateY(-4px) rotate(3deg); }
+}
+
+.sd-price-consult-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.sd-price-consult-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: #0891b2;
+    text-transform: uppercase;
+}
+
+.sd-price-consult-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(1.6rem, 3.5vw, 2rem);
+    font-weight: 800;
+    color: #0b2b5c;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin: 0;
+}
+
+.sd-price-consult-desc {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🌟 TRUST CARDS
+   ═══════════════════════════════════════════════════════════ */
+.sd-trust-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.sd-trust-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 1.1rem 1.25rem;
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid rgba(11, 43, 92, 0.06);
+    box-shadow: 0 4px 16px -8px rgba(11, 43, 92, 0.08);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sd-trust-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px -10px rgba(11, 43, 92, 0.15);
+    border-color: transparent;
+}
+
+.sd-trust-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.sd-trust-card:hover .sd-trust-icon {
+    transform: scale(1.08) rotate(-5deg);
+}
+
+.sd-trust-icon--green {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: #ffffff;
+    box-shadow: 0 8px 20px -6px rgba(16, 185, 129, 0.4);
+}
+
+.sd-trust-icon--cyan {
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    color: #ffffff;
+    box-shadow: 0 8px 20px -6px rgba(6, 182, 212, 0.4);
+}
+
+.sd-trust-icon--amber {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+    color: #ffffff;
+    box-shadow: 0 8px 20px -6px rgba(245, 158, 11, 0.4);
+}
+
+.sd-trust-card strong {
+    display: block;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+    margin-bottom: 2px;
+}
+
+.sd-trust-card small {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   👤 SIDEBAR
+   ═══════════════════════════════════════════════════════════ */
+.sd-sidebar {
+    position: sticky;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Card do prestador */
+.sd-prestador-card {
+    background: #ffffff;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid rgba(11, 43, 92, 0.06);
+    box-shadow: 0 16px 40px -20px rgba(11, 43, 92, 0.15);
+}
+
+.sd-prestador-cover {
+    height: 76px;
+    background:
+        radial-gradient(ellipse at 30% 0%, rgba(245, 158, 11, 0.25) 0%, transparent 60%),
+        linear-gradient(135deg, #0b2b5c 0%, #14477a 50%, #1a6d8f 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.sd-prestador-cover::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 60%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+}
+
+.sd-prestador-body {
+    padding: 0 1.5rem 1.5rem;
+    text-align: center;
+}
+
+.sd-prestador-avatar-wrap {
+    position: relative;
+    display: inline-block;
+    margin-top: -50px;
+    margin-bottom: 0.75rem;
+}
+
+.sd-prestador-avatar img,
+.sd-prestador-avatar-letter {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #ffffff;
+    box-shadow:
+        0 12px 28px -8px rgba(11, 43, 92, 0.3),
+        0 0 0 2px rgba(245, 158, 11, 0.15);
+    display: block;
+}
+
+.sd-prestador-avatar-letter {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 800;
+}
+
+.sd-prestador-dot {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #10b981;
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    animation: sdDotPulse 2s ease-in-out infinite;
+}
+
+@keyframes sdDotPulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+    50%      { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.05); }
+}
+
+.sd-prestador-nome {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #0b2b5c;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.4rem;
+    line-height: 1.2;
+}
+
+.sd-prestador-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    color: #1e40af;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 1px solid #bfdbfe;
+    margin-bottom: 1.25rem;
+}
+
+.sd-prestador-tag i {
+    font-size: 0.68rem;
+}
+
+/* Rating box dentro do card do prestador */
+.sd-rating {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border-radius: 14px;
+    border: 1px solid #fcd34d;
+    margin-bottom: 1.25rem;
+}
+
+.sd-rating-value {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #78350f;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    flex-shrink: 0;
+}
+
+.sd-rating-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+}
+
+.sd-rating-stars {
+    display: flex;
+    gap: 2px;
+}
+
+.sd-rating-stars i {
+    color: #fbbf24;
+    font-size: 0.78rem;
+    filter: drop-shadow(0 1px 3px rgba(245, 158, 11, 0.4));
+}
+
+.sd-rating-info small {
+    font-size: 0.72rem;
+    color: #92400e;
+    font-weight: 700;
+}
+
+/* Info rows */
+.sd-prestador-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    text-align: left;
+}
+
+.sd-info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.sd-info-row:hover {
+    background: #f1f5f9;
+    transform: translateX(3px);
+}
+
+.sd-info-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.sd-info-row:hover .sd-info-icon {
+    transform: scale(1.08) rotate(-5deg);
+}
+
+.sd-info-icon--phone {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    color: #10b981;
+    border: 1px solid #a7f3d0;
+}
+
+.sd-info-icon--email {
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+    color: #8b5cf6;
+    border: 1px solid #ddd6fe;
+}
+
+.sd-info-icon--date {
+    background: linear-gradient(135deg, #ecfeff, #cffafe);
+    color: #06b6d4;
+    border: 1px solid #a5f3fc;
+}
+
+.sd-info-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    flex: 1;
+}
+
+.sd-info-text small {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+}
+
+.sd-info-text strong {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #334155;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🎯 AÇÕES (sidebar)
+   ═══════════════════════════════════════════════════════════ */
+.sd-actions-card {
+    padding: 1.25rem;
+    background: #ffffff;
+    border-radius: 22px;
+    border: 1px solid rgba(11, 43, 92, 0.06);
+    box-shadow: 0 16px 40px -20px rgba(11, 43, 92, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sd-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px 22px;
+    border-radius: 100px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.92rem;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.sd-btn i {
+    font-size: 0.85rem;
+}
+
+.sd-btn-arrow {
+    transition: transform 0.3s ease;
+    margin-left: auto;
+}
+
+/* Chat */
+.sd-btn-chat {
+    background: #ffffff;
+    color: #0b2b5c;
+    border: 2px solid #0b2b5c;
+    box-shadow: 0 4px 12px -4px rgba(11, 43, 92, 0.15);
+}
+
+.sd-btn-chat:hover {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -6px rgba(11, 43, 92, 0.45);
+}
+
+/* Banner do dono */
+.sd-owner-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 1rem 1.15rem;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-radius: 14px;
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid #1a6d8f;
+}
+
+.sd-owner-banner-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1rem;
+    flex-shrink: 0;
+    box-shadow: 0 6px 16px -6px rgba(11, 43, 92, 0.4);
+}
+
+.sd-owner-banner-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.sd-owner-banner-text strong {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #0b2b5c;
+    line-height: 1.2;
+}
+
+.sd-owner-banner-text small {
+    font-size: 0.76rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+/* Solicitar */
+.sd-btn-solicitar {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: #ffffff;
+    box-shadow:
+        0 12px 28px -8px rgba(16, 185, 129, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    animation: sdSolicitarPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes sdSolicitarPulse {
+    0%, 100% {
+        box-shadow:
+            0 12px 28px -8px rgba(16, 185, 129, 0.5),
+            0 0 0 0 rgba(16, 185, 129, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+    50% {
+        box-shadow:
+            0 12px 32px -8px rgba(16, 185, 129, 0.7),
+            0 0 0 6px rgba(16, 185, 129, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+}
+
+.sd-btn-solicitar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transition: left 0.6s ease;
+}
+
+.sd-btn-solicitar:hover::before {
+    left: 100%;
+}
+
+.sd-btn-solicitar:hover {
+    transform: translateY(-3px) scale(1.01);
+    color: #ffffff;
+    box-shadow:
+        0 20px 44px -8px rgba(16, 185, 129, 0.7),
+        0 0 0 6px rgba(16, 185, 129, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.sd-btn-solicitar:hover .sd-btn-arrow {
+    transform: translateX(4px);
+}
+
+/* Editar */
+.sd-btn-editar {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #ffffff;
+    box-shadow:
+        0 8px 20px -6px rgba(245, 158, 11, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.sd-btn-editar:hover {
+    transform: translateY(-2px);
+    color: #ffffff;
+    box-shadow:
+        0 12px 28px -6px rgba(245, 158, 11, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* Login */
+.sd-login-cta {
+    padding: 1.5rem 1.25rem;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-radius: 18px;
+    border: 1px solid #bfdbfe;
+    text-align: center;
+}
+
+.sd-login-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.3rem;
+    margin: 0 auto 0.85rem;
+    box-shadow:
+        0 8px 20px -6px rgba(11, 43, 92, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.sd-login-title {
+    display: block;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: #0b2b5c;
+    margin-bottom: 0.4rem;
+}
+
+.sd-login-desc {
+    font-size: 0.82rem;
+    color: #475569;
+    font-weight: 500;
+    margin: 0 0 1rem;
+    line-height: 1.5;
+}
+
+.sd-btn-login {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    width: 100%;
+    box-shadow: 0 8px 20px -6px rgba(11, 43, 92, 0.5);
+}
+
+.sd-btn-login:hover {
+    transform: translateY(-2px);
+    color: #ffffff;
+    box-shadow: 0 12px 28px -6px rgba(11, 43, 92, 0.6);
+}
+
+.sd-btn-login:hover .sd-btn-arrow {
+    transform: translateX(4px);
+}
+
+/* Garantia */
+.sd-actions-guarantee {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 4px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #065f46;
+    text-align: center;
+}
+
+.sd-actions-guarantee i {
+    color: #10b981;
+    font-size: 0.72rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📱 CTA MOBILE (barra fixa inferior)
+   ═══════════════════════════════════════════════════════════ */
+.sd-mobile-cta {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 -12px 32px -12px rgba(11, 43, 92, 0.2);
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.sd-mobile-cta-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.sd-mobile-cta-info small {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+}
+
+.sd-mobile-cta-info strong {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #0b2b5c;
+    letter-spacing: -0.02em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sd-mobile-cta-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.sd-mobile-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 18px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.sd-mobile-btn--chat {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    background: #ffffff;
+    color: #0b2b5c;
+    border: 2px solid #0b2b5c;
+    font-size: 1rem;
+}
+
+.sd-mobile-btn--chat:active {
+    transform: scale(0.95);
+}
+
+.sd-mobile-btn--solicitar {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: #ffffff;
+    box-shadow: 0 8px 20px -6px rgba(16, 185, 129, 0.5);
+}
+
+.sd-mobile-btn--solicitar i {
+    font-size: 0.85rem;
+}
+
+.sd-mobile-btn--solicitar:active {
+    transform: scale(0.97);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🪟 MODAL
+   ═══════════════════════════════════════════════════════════ */
+.sd-modal {
+    border: none;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px -20px rgba(11, 43, 92, 0.5);
+}
+
+.sd-modal-header {
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(245, 158, 11, 0.2) 0%, transparent 60%),
+        linear-gradient(135deg, #0b2b5c 0%, #14477a 45%, #1a6d8f 100%);
+    padding: 1.4rem 1.75rem;
+    border: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+}
+
+.sd-modal-header-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fbbf24;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.sd-modal-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: #ffffff;
+    margin: 0 0 2px;
+    letter-spacing: -0.01em;
+}
+
+.sd-modal-subtitle {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: 500;
+    margin: 0;
+}
+
+.sd-modal-close {
+    margin-left: auto;
+    opacity: 0.85;
+}
+
+.sd-modal-close:hover {
+    opacity: 1;
+}
+
+.sd-modal-body {
+    padding: 1.5rem 1.75rem;
+}
+
+/* Resumo */
+.sd-modal-summary {
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    border-radius: 16px;
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.sd-summary-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sd-summary-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px -4px rgba(11, 43, 92, 0.3);
+}
+
+.sd-summary-row > div {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.sd-summary-row small {
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+}
+
+.sd-summary-row strong {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Field */
+.sd-modal-field {
+    margin-bottom: 1.25rem;
+}
+
+.sd-modal-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: #0b2b5c;
+    margin-bottom: 0.5rem;
+}
+
+.sd-modal-label i {
+    color: #1a6d8f;
+    font-size: 0.82rem;
+}
+
+.sd-modal-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    background: #f8fafc;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: #0f172a;
+    outline: none;
+    resize: vertical;
+    min-height: 110px;
+    transition: all 0.25s ease;
+}
+
+.sd-modal-textarea::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.sd-modal-textarea:focus {
+    background: #ffffff;
+    border-color: #1a6d8f;
+    box-shadow: 0 0 0 4px rgba(26, 109, 143, 0.12);
+}
+
+.sd-modal-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.sd-modal-hint i {
+    color: #f59e0b;
+    font-size: 0.78rem;
+}
+
+/* Steps */
+.sd-modal-steps {
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-radius: 16px;
+    border-left: 4px solid #1a6d8f;
+}
+
+.sd-modal-steps-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #0b2b5c;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sd-modal-steps-title i {
+    color: #1a6d8f;
+}
+
+.sd-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sd-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #334155;
+}
+
+.sd-step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px -4px rgba(11, 43, 92, 0.4);
+}
+
+.sd-modal-footer {
+    padding: 1rem 1.75rem 1.25rem;
+    background: #ffffff;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.sd-btn-cancel {
+    background: #f8fafc;
+    color: #64748b;
+    border: 1.5px solid #e2e8f0;
+    flex: 0 0 auto;
+    padding: 12px 22px;
+}
+
+.sd-btn-cancel:hover {
+    background: #f1f5f9;
+    color: #0b2b5c;
+    border-color: #cbd5e1;
+}
+
+.sd-btn-send {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    flex: 1;
+    padding: 12px 22px;
+    box-shadow:
+        0 8px 20px -6px rgba(11, 43, 92, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.sd-btn-send:hover {
+    transform: translateY(-2px);
+    color: #ffffff;
+    box-shadow:
+        0 12px 28px -6px rgba(11, 43, 92, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📱 RESPONSIVO
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 992px) {
+    .sd-sidebar {
+        position: static;
+    }
+
+    .sd-trust-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .sd-hero {
+        min-height: 300px;
+        padding: 4rem 0 3rem;
+    }
+
+    .sd-float-back {
+        top: 1rem;
+        left: 1rem;
+        width: 40px;
+        height: 40px;
+    }
+
+    .sd-hero-title {
+        font-size: 1.6rem;
+    }
+
+    .sd-hero-badge {
+        font-size: 0.65rem;
+        padding: 5px 12px;
+    }
+
+    .sd-content {
+        margin-top: -2.5rem;
+        padding-bottom: 6rem;
+    }
+
+    .sd-card-header {
+        padding: 1.25rem 1.25rem 0.75rem;
+    }
+
+    .sd-card-body {
+        padding: 0 1.25rem 1.25rem;
+    }
+
+    .sd-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+    }
+
+    .sd-card-title {
+        font-size: 0.98rem;
+    }
+
+    .sd-price-card {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .sd-price-card-number {
+        font-size: 2.25rem;
+    }
+
+    .sd-price-consult-inner {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .sd-price-consult-icon {
+        width: 72px;
+        height: 72px;
+        font-size: 1.75rem;
+    }
+
+    .sd-price-consult-title {
+        font-size: 1.5rem;
+    }
+
+    /* Sidebar */
+    .sd-prestador-cover {
+        height: 60px;
+    }
+
+    .sd-prestador-avatar img,
+    .sd-prestador-avatar-letter {
+        width: 84px;
+        height: 84px;
+        border-width: 4px;
+    }
+
+    .sd-prestador-avatar-letter {
+        font-size: 2rem;
+    }
+
+    .sd-prestador-avatar-wrap {
+        margin-top: -42px;
+    }
+
+    .sd-prestador-body {
+        padding: 0 1.25rem 1.25rem;
+    }
+
+    .sd-prestador-nome {
+        font-size: 1.05rem;
+    }
+
+    /* Botões de ação — esconde porque tem CTA fixo */
+    .sd-actions-card .sd-btn-chat,
+    .sd-actions-card .sd-btn-solicitar {
+        display: none !important;
+    }
+
+    /* Esconde login-cta em mobile */
+    .sd-actions-card .sd-login-cta {
+        display: none;
+    }
+
+    /* Se for dono, mantém editar */
+    .sd-actions-card .sd-btn-editar {
+        display: flex !important;
+    }
+
+    /* Mostra CTA mobile */
+    .sd-mobile-cta {
+        display: flex;
+    }
+
+    /* Remove animações pesadas */
+    .sd-hero-bg,
+    .sd-hero-badge--destaque,
+    .sd-price-consult-icon,
+    .sd-prestador-dot,
+    .sd-btn-solicitar {
+        animation: none;
+    }
+
+    /* Modal */
+    .sd-modal-header {
+        padding: 1.15rem 1.25rem;
+    }
+
+    .sd-modal-body {
+        padding: 1.25rem;
+    }
+
+    .sd-modal-footer {
+        padding: 1rem 1.25rem;
+        flex-direction: column-reverse;
+    }
+
+    .sd-btn-cancel,
+    .sd-btn-send {
+        width: 100%;
+        flex: 1 1 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .sd-hero-title {
+        font-size: 1.35rem;
+    }
+
+    .sd-price-card-number {
+        font-size: 2rem;
+    }
+
+    .sd-price-card-currency {
+        font-size: 1.1rem;
+        margin-top: 5px;
+    }
+
+    .sd-mobile-cta-info strong {
+        font-size: 0.95rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🔒 ACESSIBILIDADE
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    .sd-hero-bg,
+    .sd-hero-badge--destaque,
+    .sd-price-consult-icon,
+    .sd-prestador-dot,
+    .sd-btn-solicitar,
+    .sd-float-back,
+    .sd-card,
+    .sd-price-card,
+    .sd-trust-card,
+    .sd-info-row,
+    .sd-info-icon,
+    .sd-trust-icon,
+    .sd-btn,
+    .sd-modal-textarea {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .sd-btn-solicitar::before {
+        display: none;
+    }
+}
+</style>
+
 <script>
+   
     function iniciarChat(prestadorId, prestadorNome) {
         if (prestadorId) {
             sessionStorage.setItem('chat_with_id', prestadorId);

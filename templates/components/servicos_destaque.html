@@ -1,21 +1,21 @@
-<!-- Seção: Serviços em Destaque (Estilo Marketplace Premium) -->
+<!-- Seção: Serviços em Destaque (Carrossel moderno) -->
 <div class="container mb-5">
     <!-- Cabeçalho da Seção -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div class="d-flex align-items-center gap-3">
-            <div style="background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 16px; padding: 12px; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);">
+            <div class="destaque-icon-box">
                 <i class="fas fa-crown fa-2x text-white"></i>
             </div>
             <div>
-                <h2 class="mb-0 fw-bold" style="font-size: clamp(1.4rem, 5vw, 2rem); color: #0b2b5c;">
-                    Serviços em <span style="background: linear-gradient(135deg, #f59e0b, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Destaque</span>
+                <h2 class="mb-0 fw-bold destaque-title">
+                    Serviços em <span class="destaque-gradient">Destaque</span>
                 </h2>
                 <p class="text-muted small mb-0">
                     <i class="fas fa-fire text-danger me-1"></i>
                     Os melhores profissionais selecionados para você
                 </p>
             </div>
-            <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
+            <span class="badge rounded-pill px-3 py-2 destaque-premium-badge">
                 <i class="fas fa-star me-1"></i> PREMIUM
             </span>
         </div>
@@ -25,111 +25,122 @@
     </div>
 
     {% if servicos_destaque %}
-        <!-- Grid de Serviços (estilo marketplace) -->
-        <div class="row g-3 g-md-4">
-            {% for j in range(servicos_destaque|length) %}
-                {% if j < 6 %}
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="market-card h-100">
-                            <!-- Badge de Destaque (fita) -->
-                            <div class="market-badge">
-                                <i class="fas fa-star"></i> DESTAQUE
-                            </div>
-                            
-                            <!-- Imagem -->
-                            <a href="{{ url_for('servico.detalhe', id=servicos_destaque[j].id) }}" class="text-decoration-none">
-                                <div class="market-img-wrapper">
-                                    {% if servicos_destaque[j].imagem_base64 %}
-                                        <img src="data:image/jpeg;base64,{{ servicos_destaque[j].imagem_base64 }}" 
-                                             class="market-img" 
-                                             alt="{{ servicos_destaque[j].titulo }}">
-                                    {% else %}
-                                        <div class="market-img-placeholder" style="background: linear-gradient(135deg, {{ get_cor_categoria(servicos_destaque[j].categoria) }} 0%, #1a1a2e 100%);">
-                                            <i class="fas {{ get_icone_categoria(servicos_destaque[j].categoria) }} fa-4x text-white"></i>
-                                            <span class="text-white small fw-bold mt-2">{{ servicos_destaque[j].categoria }}</span>
-                                        </div>
-                                    {% endif %}
-                                    
-                                    <!-- Selo categoria sobreposto -->
-                                    <span class="market-category-badge">
-                                        {{ servicos_destaque[j].categoria }}
-                                    </span>
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- CARROSSEL COM SCROLL-SNAP (moderno)         -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="destaque-carousel" id="destaqueCarousel">
+
+            <!-- Setas de navegação -->
+            <button class="destaque-arrow destaque-arrow-prev" id="destaqueArrowPrev" aria-label="Anterior">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="destaque-arrow destaque-arrow-next" id="destaqueArrowNext" aria-label="Próximo">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+
+            <!-- Trilho do carrossel -->
+            <div class="destaque-track" id="destaqueTrack">
+                {% for j in range(servicos_destaque|length) %}
+                    {% if j < 12 %}
+                        <div class="destaque-slide">
+                            <div class="market-card h-100">
+                                <!-- Badge de Destaque -->
+                                <div class="market-badge">
+                                    <i class="fas fa-star"></i> DESTAQUE
                                 </div>
-                            </a>
-                            
-                            <!-- Corpo do card -->
-                            <div class="market-body">
-                                <!-- Preço em destaque (estilo marketplace) -->
-                                {% if servicos_destaque[j].preco %}
-                                    <div class="market-price">
-                                        <span class="price-label">a partir de</span>
-                                        <span class="price-value">R$ {{ "%.2f"|format(servicos_destaque[j].preco) }}</span>
-                                    </div>
-                                {% else %}
-                                    <div class="market-price">
-                                        <span class="price-value-consult">Sob consulta</span>
-                                    </div>
-                                {% endif %}
-                                
-                                <!-- Título -->
+
+                                <!-- Imagem -->
                                 <a href="{{ url_for('servico.detalhe', id=servicos_destaque[j].id) }}" class="text-decoration-none">
-                                    <h6 class="market-title">{{ servicos_destaque[j].titulo[:45] }}{% if servicos_destaque[j].titulo|length > 45 %}...{% endif %}</h6>
-                                </a>
-                                
-                                <!-- Descrição curta -->
-                                <p class="market-description">{{ servicos_destaque[j].descricao[:60] }}...</p>
-                                
-                                <!-- Prestador -->
-                                <div class="market-provider">
-                                    <a href="{{ url_for('servico.perfil_prestador', prestador_id=servicos_destaque[j].prestador.id) }}" 
-                                       class="d-flex align-items-center gap-2 text-decoration-none">
-                                        {% if servicos_destaque[j].prestador.foto_url %}
-                                            <img src="{{ servicos_destaque[j].prestador.foto_url }}" class="rounded-circle" width="24" height="24" style="object-fit: cover;">
-                                        {% elif servicos_destaque[j].prestador.foto_perfil and servicos_destaque[j].prestador.foto_perfil != 'default.jpg' %}
-                                            <img src="data:image/jpeg;base64,{{ servicos_destaque[j].prestador.foto_perfil }}" class="rounded-circle" width="24" height="24" style="object-fit: cover;">
+                                    <div class="market-img-wrapper">
+                                        {% if servicos_destaque[j].imagem_base64 %}
+                                            <img src="data:image/jpeg;base64,{{ servicos_destaque[j].imagem_base64 }}"
+                                                 class="market-img"
+                                                 alt="{{ servicos_destaque[j].titulo }}"
+                                                 loading="lazy">
                                         {% else %}
-                                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
-                                                <span class="text-white" style="font-size: 0.7rem;">{{ servicos_destaque[j].prestador.nome[0]|upper }}</span>
+                                            <div class="market-img-placeholder" style="background: linear-gradient(135deg, {{ get_cor_categoria(servicos_destaque[j].categoria) }} 0%, #1a1a2e 100%);">
+                                                <i class="fas {{ get_icone_categoria(servicos_destaque[j].categoria) }} fa-4x text-white"></i>
+                                                <span class="text-white small fw-bold mt-2">{{ servicos_destaque[j].categoria }}</span>
                                             </div>
                                         {% endif %}
-                                        <span class="small text-muted">{{ servicos_destaque[j].prestador.nome }}</span>
-                                    </a>
-                                </div>
-                                
-                                <!-- Rating (SEM hasattr - usa as funções diretamente) -->
-                                <div class="market-rating">
-                                    {% set media = servicos_destaque[j].prestador.media_avaliacoes() %}
-                                    {% for k in range(5) %}
-                                        {% if k < media|round(0, 'floor') %}
-                                            <i class="fas fa-star"></i>
-                                        {% elif k < media %}
-                                            <i class="fas fa-star-half-alt"></i>
-                                        {% else %}
-                                            <i class="far fa-star"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <span class="ms-1 small text-muted">({{ servicos_destaque[j].prestador.total_avaliacoes() }})</span>
-                                </div>
-                                
-                                <!-- Botões de ação -->
-                                <div class="market-actions">
-                                    <a href="{{ url_for('servico.detalhe', id=servicos_destaque[j].id) }}" 
-                                       class="btn btn-market-primary flex-grow-1">
-                                        <i class="fas fa-eye me-1"></i> Ver
-                                    </a>
-                                    {% if current_user.is_authenticated and current_user.id != servicos_destaque[j].prestador.id %}
-                                        <button onclick='iniciarChat({{ servicos_destaque[j].prestador.id }}, {{ servicos_destaque[j].prestador.nome|tojson }})' 
-        class="btn btn-market-secondary" 
-        title="Conversar com o prestador">
-    <i class="fas fa-comments"></i>
-</button>
+
+                                        <span class="market-category-badge">
+                                            {{ servicos_destaque[j].categoria }}
+                                        </span>
+                                    </div>
+                                </a>
+
+                                <!-- Corpo do card -->
+                                <div class="market-body">
+                                    {% if servicos_destaque[j].preco %}
+                                        <div class="market-price">
+                                            <span class="price-label">a partir de</span>
+                                            <span class="price-value">R$ {{ "%.2f"|format(servicos_destaque[j].preco) }}</span>
+                                        </div>
+                                    {% else %}
+                                        <div class="market-price">
+                                            <span class="price-value-consult">Sob consulta</span>
+                                        </div>
                                     {% endif %}
+
+                                    <a href="{{ url_for('servico.detalhe', id=servicos_destaque[j].id) }}" class="text-decoration-none">
+                                        <h6 class="market-title">{{ servicos_destaque[j].titulo[:45] }}{% if servicos_destaque[j].titulo|length > 45 %}...{% endif %}</h6>
+                                    </a>
+
+                                    <p class="market-description">{{ servicos_destaque[j].descricao[:60] }}...</p>
+
+                                    <div class="market-provider">
+                                        <a href="{{ url_for('servico.perfil_prestador', prestador_id=servicos_destaque[j].prestador.id) }}"
+                                           class="d-flex align-items-center gap-2 text-decoration-none">
+                                            {% if servicos_destaque[j].prestador.foto_url %}
+                                                <img src="{{ servicos_destaque[j].prestador.foto_url }}" class="rounded-circle" width="24" height="24" style="object-fit: cover;">
+                                            {% elif servicos_destaque[j].prestador.foto_perfil and servicos_destaque[j].prestador.foto_perfil != 'default.jpg' %}
+                                                <img src="data:image/jpeg;base64,{{ servicos_destaque[j].prestador.foto_perfil }}" class="rounded-circle" width="24" height="24" style="object-fit: cover;">
+                                            {% else %}
+                                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                                                    <span class="text-white" style="font-size: 0.7rem;">{{ servicos_destaque[j].prestador.nome[0]|upper }}</span>
+                                                </div>
+                                            {% endif %}
+                                            <span class="small text-muted">{{ servicos_destaque[j].prestador.nome }}</span>
+                                        </a>
+                                    </div>
+
+                                    <div class="market-rating">
+                                        {% set media = servicos_destaque[j].prestador.media_avaliacoes() %}
+                                        {% for k in range(5) %}
+                                            {% if k < media|round(0, 'floor') %}
+                                                <i class="fas fa-star"></i>
+                                            {% elif k < media %}
+                                                <i class="fas fa-star-half-alt"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span class="ms-1 small text-muted">({{ servicos_destaque[j].prestador.total_avaliacoes() }})</span>
+                                    </div>
+
+                                    <div class="market-actions">
+                                        <a href="{{ url_for('servico.detalhe', id=servicos_destaque[j].id) }}"
+                                           class="btn btn-market-primary flex-grow-1">
+                                            <i class="fas fa-eye me-1"></i> Ver
+                                        </a>
+                                        {% if current_user.is_authenticated and current_user.id != servicos_destaque[j].prestador.id %}
+                                            <button onclick='iniciarChat({{ servicos_destaque[j].prestador.id }}, {{ servicos_destaque[j].prestador.nome|tojson }})'
+                                                    class="btn btn-market-secondary"
+                                                    title="Conversar com o prestador">
+                                                <i class="fas fa-comments"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- Bolinhas indicadoras -->
+            <div class="destaque-dots" id="destaqueDots"></div>
         </div>
     {% else %}
         <div class="alert alert-info text-center rounded-4 py-5">
@@ -137,7 +148,7 @@
             <h5>Nenhum serviço em destaque no momento</h5>
             <p class="mb-3">Seja um prestador destaque e tenha seu serviço na página inicial!</p>
             {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
-                <a href="{{ url_for('servico.planos_destaque') }}" class="btn btn-primary rounded-pill px-4">
+                <a href="{{ url_for('servico.plano_destaque') }}" class="btn btn-primary rounded-pill px-4">
                     <i class="fas fa-crown me-2"></i> Ver Planos de Destaque
                 </a>
             {% else %}
@@ -150,300 +161,662 @@
 </div>
 
 <style>
-    /* ============================================ */
-    /* CARDS ESTILO MARKETPLACE (Amazon/Mercado Livre) */
-    /* ============================================ */
-    .market-card {
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        transition: all 0.3s ease;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        border: 1px solid #e5e7eb;
-        height: 100%;
+/* ═══════════════════════════════════════════════════ */
+/* CABEÇALHO DA SEÇÃO                                  */
+/* ═══════════════════════════════════════════════════ */
+.destaque-icon-box {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+    flex-shrink: 0;
+}
+
+.destaque-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    color: #0b2b5c;
+    letter-spacing: -0.02em;
+}
+
+.destaque-gradient {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.destaque-premium-badge {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* CARROSSEL — estrutura                               */
+/* ═══════════════════════════════════════════════════ */
+.destaque-carousel {
+    position: relative;
+    margin: 0 -8px; /* compensa padding dos slides */
+}
+
+.destaque-track {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: 8px;
+    /* Esconde scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.destaque-track::-webkit-scrollbar {
+    display: none;
+}
+
+.destaque-slide {
+    /* Desktop: 3 cards visíveis */
+    flex: 0 0 calc((100% - 32px) / 3);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* SETAS                                               */
+/* ═══════════════════════════════════════════════════ */
+.destaque-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: #ffffff;
+    color: #0b2b5c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 8px 20px -6px rgba(11, 43, 92, 0.3);
+    transition: all 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.destaque-carousel:hover .destaque-arrow,
+.destaque-carousel:focus-within .destaque-arrow {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.destaque-arrow:hover {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 12px 28px -6px rgba(11, 43, 92, 0.5);
+}
+
+.destaque-arrow:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.destaque-arrow-prev { left: -20px; }
+.destaque-arrow-next { right: -20px; }
+
+.destaque-arrow:disabled {
+    opacity: 0.3 !important;
+    cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* BOLINHAS (DOTS)                                     */
+/* ═══════════════════════════════════════════════════ */
+.destaque-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.destaque-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.destaque-dot:hover {
+    background: #94a3b8;
+    transform: scale(1.3);
+}
+
+.destaque-dot.active {
+    width: 28px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* CARDS (mantidos do original)                        */
+/* ═══════════════════════════════════════════════════ */
+.market-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e5e7eb;
+    height: 100%;
+}
+
+.market-card:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    border-color: #0b2b5c;
+}
+
+.market-badge {
+    position: absolute;
+    top: 10px;
+    left: -8px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 4px;
+    z-index: 3;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+    letter-spacing: 0.5px;
+}
+
+.market-badge::before {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-top: 6px solid #b45309;
+    border-left: 8px solid transparent;
+}
+
+.market-img-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    overflow: hidden;
+    background: #f9fafb;
+}
+
+.market-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.market-card:hover .market-img {
+    transform: scale(1.08);
+}
+
+.market-img-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.market-category-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #0b2b5c;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.market-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.market-price {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 6px;
+}
+
+.price-label {
+    font-size: 0.65rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.price-value {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #0b2b5c;
+    line-height: 1.1;
+}
+
+.price-value-consult {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f59e0b;
+}
+
+.market-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.4em;
+}
+
+.market-title:hover { color: #0b2b5c; }
+
+.market-description {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.2em;
+}
+
+.market-provider {
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.market-provider span {
+    font-size: 0.72rem;
+    font-weight: 500;
+}
+
+.market-rating {
+    margin-bottom: 10px;
+    font-size: 0.7rem;
+    color: #f59e0b;
+}
+
+.market-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: auto;
+}
+
+.btn-market-primary {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+}
+
+.btn-market-primary:hover {
+    background: linear-gradient(135deg, #071e42, #155a76);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(11, 43, 92, 0.3);
+}
+
+.btn-market-secondary {
+    background: white;
+    color: #0b2b5c;
+    border: 2px solid #0b2b5c;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+}
+
+.btn-market-secondary:hover {
+    background: #0b2b5c;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* RESPONSIVIDADE                                      */
+/* ═══════════════════════════════════════════════════ */
+
+/* Tablet: 2 cards visíveis */
+@media (max-width: 992px) and (min-width: 577px) {
+    .destaque-slide {
+        flex: 0 0 calc((100% - 16px) / 2);
     }
-    
-    .market-card:hover {
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-        transform: translateY(-4px);
-        border-color: #0b2b5c;
+}
+
+/* Mobile: 1 card + "espiadinha" do próximo */
+@media (max-width: 576px) {
+    .destaque-slide {
+        flex: 0 0 85%;
     }
-    
-    /* Badge de Destaque (fita no canto) */
-    .market-badge {
-        position: absolute;
-        top: 10px;
-        left: -8px;
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-        color: white;
-        font-size: 0.65rem;
-        font-weight: 800;
-        padding: 4px 12px;
-        border-radius: 4px;
-        z-index: 3;
-        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
-        letter-spacing: 0.5px;
+
+    .destaque-track {
+        gap: 12px;
+        padding: 4px 8px;
     }
-    
-    .market-badge::before {
-        content: '';
-        position: absolute;
-        bottom: -6px;
-        left: 0;
-        width: 0;
-        height: 0;
-        border-top: 6px solid #b45309;
-        border-left: 8px solid transparent;
-    }
-    
-    /* Wrapper da imagem */
-    .market-img-wrapper {
-        position: relative;
-        width: 100%;
-        padding-top: 100%;
-        overflow: hidden;
-        background: #f9fafb;
-    }
-    
-    .market-img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.4s ease;
-    }
-    
-    .market-card:hover .market-img {
-        transform: scale(1.08);
-    }
-    
-    .market-img-placeholder {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    /* Selo de categoria sobre a imagem */
-    .market-category-badge {
-        position: absolute;
-        bottom: 8px;
-        left: 8px;
-        background: rgba(255, 255, 255, 0.95);
-        color: #0b2b5c;
-        font-size: 0.65rem;
-        font-weight: 700;
-        padding: 3px 10px;
-        border-radius: 20px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        z-index: 2;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-    }
-    
-    /* Corpo do card */
+
     .market-body {
-        padding: 12px;
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
+        padding: 10px;
     }
-    
-    /* Preço em destaque (estilo marketplace) */
-    .market-price {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 6px;
-    }
-    
-    .price-label {
-        font-size: 0.65rem;
-        color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-    }
-    
+
     .price-value {
-        font-size: 1.3rem;
-        font-weight: 800;
-        color: #0b2b5c;
-        line-height: 1.1;
+        font-size: 1.1rem;
     }
-    
-    .price-value-consult {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #f59e0b;
-    }
-    
-    /* Título */
+
     .market-title {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 4px;
-        line-height: 1.3;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        min-height: 2.4em;
+        font-size: 0.78rem;
     }
-    
-    .market-title:hover {
-        color: #0b2b5c;
-    }
-    
-    /* Descrição */
+
     .market-description {
-        font-size: 0.75rem;
-        color: #6b7280;
-        margin-bottom: 8px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        min-height: 2.2em;
-    }
-    
-    /* Prestador */
-    .market-provider {
-        margin-bottom: 6px;
-        padding-bottom: 6px;
-        border-bottom: 1px solid #f3f4f6;
-    }
-    
-    .market-provider span {
-        font-size: 0.72rem;
-        font-weight: 500;
-    }
-    
-    /* Rating */
-    .market-rating {
-        margin-bottom: 10px;
         font-size: 0.7rem;
-        color: #f59e0b;
+        display: none;
     }
-    
-    /* Botões de ação */
-    .market-actions {
-        display: flex;
-        gap: 6px;
-        margin-top: auto;
+
+    .market-badge {
+        font-size: 0.6rem;
+        padding: 3px 10px;
     }
-    
-    .btn-market-primary {
-        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        padding: 8px 12px;
-        transition: all 0.2s ease;
+
+    .market-category-badge {
+        font-size: 0.6rem;
+        padding: 2px 8px;
     }
-    
-    .btn-market-primary:hover {
-        background: linear-gradient(135deg, #071e42, #155a76);
-        color: white;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 10px rgba(11, 43, 92, 0.3);
-    }
-    
+
+    .btn-market-primary,
     .btn-market-secondary {
-        background: white;
-        color: #0b2b5c;
-        border: 2px solid #0b2b5c;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        padding: 8px 12px;
-        transition: all 0.2s ease;
+        font-size: 0.72rem;
+        padding: 6px 8px;
     }
-    
-    .btn-market-secondary:hover {
-        background: #0b2b5c;
-        color: white;
-        transform: translateY(-1px);
+
+    /* Setas ficam sempre visíveis no mobile (touch) */
+    .destaque-arrow {
+        opacity: 1;
+        pointer-events: auto;
+        width: 38px;
+        height: 38px;
     }
-    
-    /* ============================================ */
-    /* RESPONSIVIDADE */
-    /* ============================================ */
-    @media (max-width: 768px) {
-        .market-body {
-            padding: 10px;
-        }
-        
-        .price-value {
-            font-size: 1.1rem;
-        }
-        
-        .market-title {
-            font-size: 0.78rem;
-        }
-        
-        .market-description {
-            font-size: 0.7rem;
-            display: none;
-        }
-        
-        .market-badge {
-            font-size: 0.6rem;
-            padding: 3px 10px;
-        }
-        
-        .market-category-badge {
-            font-size: 0.6rem;
-            padding: 2px 8px;
-        }
-        
-        .btn-market-primary,
-        .btn-market-secondary {
-            font-size: 0.72rem;
-            padding: 6px 8px;
-        }
+
+    .destaque-arrow-prev { left: -6px; }
+    .destaque-arrow-next { right: -6px; }
+
+    .destaque-dots {
+        margin-top: 16px;
+        gap: 6px;
     }
-    
-    @media (max-width: 480px) {
-        .market-body {
-            padding: 8px;
-        }
-        
-        .price-value {
-            font-size: 1rem;
-        }
-        
-        .market-title {
-            font-size: 0.72rem;
-            min-height: 2.2em;
-        }
-        
-        .market-provider span {
-            font-size: 0.65rem;
-        }
-        
-        .market-rating {
-            font-size: 0.6rem;
-        }
-        
-        .btn-market-primary {
-            font-size: 0.68rem;
-            padding: 5px 8px;
-        }
-        
-        .btn-market-secondary {
-            font-size: 0.7rem;
-            padding: 5px 8px;
-        }
+
+    .destaque-dot.active {
+        width: 22px;
     }
+}
+
+/* ─────────────────────────────────────────── */
+/* Acessibilidade                              */
+/* ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .destaque-track {
+        scroll-behavior: auto;
+    }
+    .market-card,
+    .market-img {
+        transition: none !important;
+    }
+}
 </style>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   🎠 CARROSSEL DE DESTAQUES — Auto-play + Arrows + Dots
+   ═══════════════════════════════════════════════════════════ */
+(function() {
+    'use strict';
+
+    const track = document.getElementById('destaqueTrack');
+    const dotsContainer = document.getElementById('destaqueDots');
+    const arrowPrev = document.getElementById('destaqueArrowPrev');
+    const arrowNext = document.getElementById('destaqueArrowNext');
+
+    if (!track || !dotsContainer) return;
+
+    const slides = Array.from(track.querySelectorAll('.destaque-slide'));
+    if (slides.length === 0) return;
+
+    let autoPlayTimer = null;
+    let isPaused = false;
+    const AUTOPLAY_INTERVAL = 5000; // 5s
+
+    /* ─────────────────────────────────────────
+       Calcula quantos cards cabem por tela
+       ───────────────────────────────────────── */
+    function getVisibleCount() {
+        const w = window.innerWidth;
+        if (w <= 576) return 1;
+        if (w <= 992) return 2;
+        return 3;
+    }
+
+    /* ─────────────────────────────────────────
+       Cria as bolinhas (uma por "página")
+       ───────────────────────────────────────── */
+    function buildDots() {
+        dotsContainer.innerHTML = '';
+        const visible = getVisibleCount();
+        const pages = Math.ceil(slides.length / visible);
+
+        for (let i = 0; i < pages; i++) {
+            const dot = document.createElement('button');
+            dot.className = 'destaque-dot' + (i === 0 ? ' active' : '');
+            dot.setAttribute('aria-label', `Ir para página ${i + 1}`);
+            dot.addEventListener('click', () => scrollToPage(i));
+            dotsContainer.appendChild(dot);
+        }
+    }
+
+    /* ─────────────────────────────────────────
+       Scroll para uma "página" (conjunto de slides)
+       ───────────────────────────────────────── */
+    function scrollToPage(pageIndex) {
+        const visible = getVisibleCount();
+        const targetIndex = pageIndex * visible;
+        const targetSlide = slides[targetIndex];
+        if (!targetSlide) return;
+
+        track.scrollTo({
+            left: targetSlide.offsetLeft - track.offsetLeft,
+            behavior: 'smooth'
+        });
+
+        updateDots(pageIndex);
+    }
+
+    /* ─────────────────────────────────────────
+       Página atual (baseada no scroll)
+       ───────────────────────────────────────── */
+    function getCurrentPage() {
+        const visible = getVisibleCount();
+        const scrollLeft = track.scrollLeft;
+        const slideWidth = slides[0]?.offsetWidth || 1;
+        const gap = 16;
+        const page = Math.round(scrollLeft / ((slideWidth + gap) * visible));
+        return page;
+    }
+
+    /* ─────────────────────────────────────────
+       Atualiza bolinhas ativas
+       ───────────────────────────────────────── */
+    function updateDots(forcedPage = null) {
+        const dots = dotsContainer.querySelectorAll('.destaque-dot');
+        const currentPage = forcedPage !== null ? forcedPage : getCurrentPage();
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentPage);
+        });
+    }
+
+    /* ─────────────────────────────────────────
+       Próximo / Anterior
+       ───────────────────────────────────────── */
+    function next() {
+        const visible = getVisibleCount();
+        const slideWidth = slides[0]?.offsetWidth || 1;
+        const gap = 16;
+        const step = (slideWidth + gap) * visible;
+        const maxScroll = track.scrollWidth - track.clientWidth;
+
+        if (track.scrollLeft >= maxScroll - 10) {
+            // Volta para o início (loop)
+            track.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+            track.scrollBy({ left: step, behavior: 'smooth' });
+        }
+    }
+
+    function prev() {
+        const visible = getVisibleCount();
+        const slideWidth = slides[0]?.offsetWidth || 1;
+        const gap = 16;
+        const step = (slideWidth + gap) * visible;
+
+        if (track.scrollLeft <= 10) {
+            // Vai pro final (loop)
+            track.scrollTo({ left: track.scrollWidth, behavior: 'smooth' });
+        } else {
+            track.scrollBy({ left: -step, behavior: 'smooth' });
+        }
+    }
+
+    /* ─────────────────────────────────────────
+       Auto-play
+       ───────────────────────────────────────── */
+    function startAutoPlay() {
+        stopAutoPlay();
+        autoPlayTimer = setInterval(() => {
+            if (!isPaused) next();
+        }, AUTOPLAY_INTERVAL);
+    }
+
+    function stopAutoPlay() {
+        if (autoPlayTimer) {
+            clearInterval(autoPlayTimer);
+            autoPlayTimer = null;
+        }
+    }
+
+    function pauseAutoPlay() {
+        isPaused = true;
+        clearTimeout(window._destaqueResumeTimer);
+        window._destaqueResumeTimer = setTimeout(() => {
+            isPaused = false;
+        }, 8000); // retoma após 8s de inatividade
+    }
+
+    /* ─────────────────────────────────────────
+       Eventos
+       ───────────────────────────────────────── */
+    arrowNext?.addEventListener('click', () => {
+        next();
+        pauseAutoPlay();
+    });
+
+    arrowPrev?.addEventListener('click', () => {
+        prev();
+        pauseAutoPlay();
+    });
+
+    track.addEventListener('scroll', () => {
+        // Debounce para não recalcular em cada pixel
+        clearTimeout(window._destaqueScrollTimer);
+        window._destaqueScrollTimer = setTimeout(() => updateDots(), 100);
+    }, { passive: true });
+
+    // Pausa no hover (desktop)
+    track.addEventListener('mouseenter', () => { isPaused = true; });
+    track.addEventListener('mouseleave', () => { isPaused = false; });
+
+    // Pausa durante toque (mobile)
+    track.addEventListener('touchstart', () => {
+        isPaused = true;
+        clearTimeout(window._destaqueResumeTimer);
+    }, { passive: true });
+
+    track.addEventListener('touchend', () => {
+        pauseAutoPlay();
+    }, { passive: true });
+
+    // Recria tudo ao redimensionar (muda número de cards visíveis)
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            buildDots();
+            updateDots(0);
+        }, 250);
+    });
+
+    /* ─────────────────────────────────────────
+       Init
+       ───────────────────────────────────────── */
+    buildDots();
+
+    // Só ativa autoplay se tiver mais de 1 página
+    const pages = Math.ceil(slides.length / getVisibleCount());
+    if (pages > 1) {
+        startAutoPlay();
+    } else {
+        // Esconde setas se só tiver 1 página
+        if (arrowPrev) arrowPrev.style.display = 'none';
+        if (arrowNext) arrowNext.style.display = 'none';
+    }
+
+    console.log('🎠 Carrossel de destaques iniciado —', slides.length, 'slides,', pages, 'páginas');
+
+})();
+</script>

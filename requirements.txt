@@ -12,3 +12,4 @@ gunicorn==21.2.0
 eventlet>=0.33.3
 setuptools==81.0.0
 mercadopago
+eventlet==0.33.3

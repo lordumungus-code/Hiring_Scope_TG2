@@ -1,621 +1,1119 @@
 {% extends "base.html" %}
 {% block search_bar_desktop %}{% endblock %}
 {% block search_bar_mobile %}{% endblock %}
-{% block title %}Cadastro - PrestaServiços{% endblock %}
+{% block title %}Criar Conta - HiringScope{% endblock %}
 
 {% block content %}
 <div class="register-page">
-    <div class="container mt-5 pt-4">
+    <div class="container py-5">
         <div class="row justify-content-center">
-            <div class="col-md-7 col-lg-6">
+            <div class="col-md-8 col-lg-6 col-xl-5">
+
                 <!-- Card Principal -->
-                <div class="register-card shadow-lg border-0 rounded-4 overflow-hidden">
-                    <div class="register-header text-center py-4">
-                        <div class="logo-icon mb-3">
-                            <i class="fas fa-user-plus fa-3x text-white"></i>
+                <div class="register-card">
+
+                    <!-- Header -->
+                    <div class="register-header">
+                        <div class="register-header-glow"></div>
+                        <div class="logo-icon">
+                            <i class="fas fa-user-plus"></i>
                         </div>
-                        <h3 class="text-white mb-1 fw-bold">Crie sua conta</h3>
-                        <p class="text-white-50 small mb-0">Junte-se a milhares de profissionais e clientes</p>
+                        <h3 class="register-title">Crie sua conta</h3>
+                        <p class="register-subtitle">
+                            Junte-se a milhares de profissionais e clientes
+                        </p>
                     </div>
-                    
-                    <div class="card-body p-4 p-lg-5">
-                        <!-- Formulário -->
+
+                    <!-- Body -->
+                    <div class="register-body">
+
                         <form method="POST" enctype="multipart/form-data" id="registerForm">
+
                             <div class="row g-3">
+
                                 <!-- Nome -->
                                 <div class="col-12">
                                     <div class="input-group-modern">
                                         <div class="input-icon">
                                             <i class="fas fa-user"></i>
                                         </div>
-                                        <input type="text" 
-                                               class="form-control form-control-lg rounded-pill" 
-                                               id="nome" 
-                                               name="nome" 
+                                        <input type="text"
+                                               class="form-control"
+                                               id="nome"
+                                               name="nome"
                                                placeholder="Nome completo"
+                                               autocomplete="name"
                                                required>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Email -->
                                 <div class="col-12">
                                     <div class="input-group-modern">
                                         <div class="input-icon">
                                             <i class="fas fa-envelope"></i>
                                         </div>
-                                        <input type="email" 
-                                               class="form-control form-control-lg rounded-pill" 
-                                               id="email" 
-                                               name="email" 
+                                        <input type="email"
+                                               class="form-control"
+                                               id="email"
+                                               name="email"
                                                placeholder="Seu melhor e-mail"
+                                               autocomplete="email"
                                                required>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Telefone -->
                                 <div class="col-12">
                                     <div class="input-group-modern">
                                         <div class="input-icon">
                                             <i class="fas fa-phone"></i>
                                         </div>
-                                        <input type="tel" 
-                                               class="form-control form-control-lg rounded-pill" 
-                                               id="telefone" 
-                                               name="telefone" 
+                                        <input type="tel"
+                                               class="form-control"
+                                               id="telefone"
+                                               name="telefone"
                                                placeholder="(00) 00000-0000"
+                                               autocomplete="tel"
                                                required>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Senha -->
                                 <div class="col-12">
                                     <div class="input-group-modern">
                                         <div class="input-icon">
                                             <i class="fas fa-lock"></i>
                                         </div>
-                                        <input type="password" 
-                                               class="form-control form-control-lg rounded-pill" 
-                                               id="senha" 
-                                               name="senha" 
+                                        <input type="password"
+                                               class="form-control"
+                                               id="senha"
+                                               name="senha"
                                                placeholder="Crie uma senha (mínimo 6 caracteres)"
+                                               autocomplete="new-password"
                                                required minlength="6">
-                                        <div class="input-eye" onclick="togglePassword('senha')">
+                                        <button type="button"
+                                                class="input-eye"
+                                                onclick="togglePassword('senha')"
+                                                aria-label="Mostrar senha">
                                             <i class="fas fa-eye-slash"></i>
-                                        </div>
+                                        </button>
                                     </div>
-                                    <div class="password-strength mt-2">
+                                    <div class="password-strength">
                                         <div class="strength-bar"></div>
-                                        <small class="strength-text text-muted"></small>
+                                        <small class="strength-text"></small>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Foto de Perfil -->
                                 <div class="col-12">
-                                    <div class="photo-upload">
-                                        <label class="form-label fw-semibold">
-                                            <i class="fas fa-camera me-2 text-primary"></i>Foto de Perfil
-                                        </label>
-                                        <div class="upload-area" onclick="document.getElementById('foto_perfil').click()">
-                                            <div class="upload-placeholder">
-                                                <i class="fas fa-cloud-upload-alt fa-3x text-muted"></i>
-                                                <p class="mb-0 mt-2">Clique para adicionar foto</p>
-                                                <small class="text-muted">Formatos: JPG, PNG. Máx: 5MB</small>
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-camera me-2"></i>Foto de Perfil
+                                        <span class="text-muted fw-normal small">(opcional)</span>
+                                    </label>
+
+                                    <div class="photo-upload" onclick="document.getElementById('foto_perfil').click()">
+                                        <div class="upload-placeholder">
+                                            <div class="upload-icon-box">
+                                                <i class="fas fa-cloud-upload-alt"></i>
                                             </div>
-                                            <div id="fotoPreview" class="preview-area" style="display: none;">
-                                                <img id="previewImg" src="#" alt="Preview">
-                                                <button type="button" class="remove-photo" onclick="removePhoto()">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
+                                            <p class="mb-1 fw-semibold">Clique para adicionar foto</p>
+                                            <small class="text-muted">JPG, PNG ou GIF — máx 5MB</small>
                                         </div>
-                                        <input type="file" class="d-none" id="foto_perfil" name="foto_perfil" accept="image/*" onchange="previewFoto(event)">
+
+                                        <div id="fotoPreview" class="preview-area" style="display: none;">
+                                            <img id="previewImg" src="#" alt="Preview">
+                                            <button type="button"
+                                                    class="remove-photo"
+                                                    onclick="event.stopPropagation(); removePhoto();"
+                                                    aria-label="Remover foto">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
                                     </div>
+
+                                    <input type="file"
+                                           class="d-none"
+                                           id="foto_perfil"
+                                           name="foto_perfil"
+                                           accept="image/*"
+                                           onchange="previewFoto(event)">
                                 </div>
-                                
+
                                 <!-- Tipo de Conta -->
                                 <div class="col-12">
                                     <label class="form-label fw-semibold">
-                                        <i class="fas fa-user-tag me-2 text-primary"></i>Tipo de Conta
+                                        <i class="fas fa-user-tag me-2"></i>Tipo de Conta
                                     </label>
+
                                     <div class="account-types">
-                                        <div class="type-option" onclick="selectType('cliente')">
+                                        <div class="type-option active" data-type="cliente" onclick="selectType('cliente', this)">
                                             <input type="radio" name="tipo" id="cliente" value="cliente" class="d-none" checked>
                                             <div class="type-card">
-                                                <i class="fas fa-user fa-2x mb-2"></i>
-                                                <h6 class="mb-1">Cliente</h6>
-                                                <small class="text-muted">Quero contratar serviços</small>
+                                                <div class="type-icon">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                                <h6 class="type-title">Cliente</h6>
+                                                <small class="type-desc">Quero contratar serviços</small>
                                             </div>
                                         </div>
-                                        <div class="type-option" onclick="selectType('prestador')">
+
+                                        <div class="type-option" data-type="prestador" onclick="selectType('prestador', this)">
                                             <input type="radio" name="tipo" id="prestador" value="prestador" class="d-none">
                                             <div class="type-card">
-                                                <i class="fas fa-briefcase fa-2x mb-2"></i>
-                                                <h6 class="mb-1">Prestador</h6>
-                                                <small class="text-muted">Quero oferecer serviços</small>
+                                                <div class="type-icon">
+                                                    <i class="fas fa-briefcase"></i>
+                                                </div>
+                                                <h6 class="type-title">Prestador</h6>
+                                                <small class="type-desc">Quero oferecer serviços</small>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
-                            
+
                             <!-- Termos -->
-                            <div class="form-check mt-4">
+                            <div class="form-check terms-check mt-4">
                                 <input type="checkbox" class="form-check-input" id="terms" required>
                                 <label class="form-check-label small" for="terms">
-                                    Concordo com os <a href="#" class="text-primary">Termos de Uso</a> e 
-                                    <a href="#" class="text-primary">Política de Privacidade</a>
+                                    Concordo com os
+                                    <a href="#" class="terms-link">Termos de Uso</a> e
+                                    <a href="#" class="terms-link">Política de Privacidade</a>
                                 </label>
                             </div>
-                            
+
                             <!-- Botão Cadastrar -->
-                            <button type="submit" class="btn btn-register w-100 rounded-pill py-3 mt-4">
-                                <i class="fas fa-user-plus me-2"></i> Criar conta gratuita
-                                <span class="btn-loader d-none"><i class="fas fa-spinner fa-spin ms-2"></i></span>
+                            <button type="submit" class="btn-register">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Criar conta gratuita</span>
+                                <span class="btn-loader d-none">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
                             </button>
+
                         </form>
-                        
+
                         <!-- Divisor -->
-                        <div class="divider text-center my-4">
+                        <div class="divider">
                             <span class="divider-text">ou cadastre-se com</span>
                         </div>
-                        
+
                         <!-- Login Social -->
-                        <div class="social-register">
-                            <a href="/auth/firebase/google" class="btn btn-google w-100 rounded-pill py-2 mb-2">
-                                <i class="fab fa-google me-2"></i> Google
+                        <a href="/auth/firebase/google" class="btn-google">
+                            <i class="fab fa-google"></i>
+                            <span>Continuar com Google</span>
+                        </a>
+
+                        <!-- Link Login -->
+                        <div class="login-prompt">
+                            Já tem uma conta?
+                            <a href="{{ url_for('auth.login') }}" class="login-link">
+                                Faça login <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
-                        
-                        <!-- Link Login -->
-                        <div class="text-center mt-4 pt-2">
-                            <p class="mb-0 text-muted">
-                                Já tem uma conta? 
-                                <a href="{{ url_for('auth.login') }}" class="text-primary fw-bold text-decoration-none login-link">
-                                    Faça login <i class="fas fa-arrow-right ms-1"></i>
-                                </a>
-                            </p>
-                        </div>
+
                     </div>
                 </div>
+
+                <!-- Selos de confiança -->
+                <div class="register-trust">
+                    <span><i class="fas fa-shield-alt"></i> Ambiente seguro</span>
+                    <span><i class="fas fa-bolt"></i> Cadastro em 1 minuto</span>
+                    <span><i class="fas fa-lock"></i> Dados protegidos</span>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
 
 <style>
+/* ═══════════════════════════════════════════════════════════
+   🎨 CADASTRO PREMIUM 2025
+   ═══════════════════════════════════════════════════════════ */
+
+.register-page {
+    min-height: calc(100vh - 200px);
+    background:
+        radial-gradient(ellipse at 20% 10%, rgba(59, 178, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 90%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ──────────────────────────────────────────────
+   CARD PRINCIPAL
+   ────────────────────────────────────────────── */
+.register-card {
+    background: #ffffff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow:
+        0 24px 60px -20px rgba(11, 43, 92, 0.25),
+        0 8px 20px -8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(11, 43, 92, 0.06);
+    position: relative;
+    animation: hs-register-in 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes hs-register-in {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ──────────────────────────────────────────────
+   HEADER do card (gradiente azul)
+   ────────────────────────────────────────────── */
+.register-header {
+    background: linear-gradient(135deg, #0b2b5c 0%, #14477a 45%, #1a6d8f 100%);
+    padding: 2.25rem 1.75rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.register-header-glow {
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(59, 178, 255, 0.25) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.register-header-glow::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    left: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+}
+
+.logo-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.4);
+}
+
+.logo-icon i {
+    color: #ffffff;
+    font-size: 1.75rem;
+}
+
+.register-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: #ffffff;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.02em;
+    position: relative;
+    z-index: 1;
+}
+
+.register-subtitle {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* ──────────────────────────────────────────────
+   BODY do card
+   ────────────────────────────────────────────── */
+.register-body {
+    padding: 2rem 1.75rem 1.75rem;
+}
+
+/* ──────────────────────────────────────────────
+   INPUTS com ícone
+   ────────────────────────────────────────────── */
+.input-group-modern {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    transition: color 0.25s ease;
+    pointer-events: none;
+}
+
+.input-group-modern:focus-within .input-icon {
+    color: #1a6d8f;
+}
+
+.input-group-modern .form-control {
+    height: 52px;
+    padding: 0 48px 0 48px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    background: #f8fafc;
+    color: #0f172a;
+    transition: all 0.25s ease;
+    box-shadow: none;
+}
+
+.input-group-modern .form-control::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.input-group-modern .form-control:focus {
+    border-color: #1a6d8f;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(26, 109, 143, 0.12);
+    outline: none;
+}
+
+/* Botão olho (mostrar/ocultar senha) */
+.input-eye {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    padding: 0;
+}
+
+.input-eye:hover {
+    color: #0b2b5c;
+    background: #f1f5f9;
+}
+
+/* ──────────────────────────────────────────────
+   FORÇA DA SENHA
+   ────────────────────────────────────────────── */
+.password-strength {
+    margin-top: 10px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.strength-bar {
+    height: 5px;
+    width: 0;
+    background: #e2e8f0;
+    border-radius: 10px;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    max-width: 60%;
+}
+
+.strength-text {
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ──────────────────────────────────────────────
+   UPLOAD DE FOTO
+   ────────────────────────────────────────────── */
+.photo-upload {
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 1.5rem 1rem;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.photo-upload:hover {
+    border-color: #1a6d8f;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 8px 24px -8px rgba(26, 109, 143, 0.2);
+}
+
+.upload-icon-box {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    transition: all 0.3s ease;
+}
+
+.upload-icon-box i {
+    color: #1a6d8f;
+    font-size: 1.5rem;
+}
+
+.photo-upload:hover .upload-icon-box {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    transform: scale(1.08);
+}
+
+.photo-upload:hover .upload-icon-box i {
+    color: #ffffff;
+}
+
+.photo-upload .upload-placeholder p {
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.preview-area {
+    position: relative;
+    display: inline-block;
+}
+
+.preview-area img {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #ffffff;
+    box-shadow:
+        0 8px 24px -8px rgba(11, 43, 92, 0.35),
+        0 0 0 1px rgba(11, 43, 92, 0.08);
+}
+
+.remove-photo {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 28px;
+    height: 28px;
+    background: #ef4444;
+    color: #ffffff;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    box-shadow: 0 4px 12px -4px rgba(239, 68, 68, 0.6);
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.remove-photo:hover {
+    background: #dc2626;
+    transform: scale(1.1) rotate(90deg);
+}
+
+/* ──────────────────────────────────────────────
+   TIPO DE CONTA
+   ────────────────────────────────────────────── */
+.account-types {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.type-option {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.type-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 1.25rem 0.75rem;
+    text-align: center;
+    background: #ffffff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.type-option:hover .type-card {
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -8px rgba(11, 43, 92, 0.1);
+}
+
+.type-option.active .type-card {
+    border-color: #0b2b5c;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    box-shadow: 0 8px 24px -8px rgba(11, 43, 92, 0.25);
+}
+
+.type-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #f1f5f9;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.6rem;
+    color: #64748b;
+    transition: all 0.3s ease;
+}
+
+.type-option.active .type-icon {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    box-shadow: 0 6px 16px -6px rgba(11, 43, 92, 0.5);
+}
+
+.type-icon i {
+    font-size: 1.05rem;
+}
+
+.type-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #0f172a;
+    margin-bottom: 2px;
+    letter-spacing: -0.01em;
+}
+
+.type-option.active .type-title {
+    color: #0b2b5c;
+}
+
+.type-desc {
+    display: block;
+    font-size: 0.72rem;
+    color: #94a3b8;
+    line-height: 1.3;
+}
+
+.type-option.active .type-desc {
+    color: #1a6d8f;
+    font-weight: 500;
+}
+
+/* ──────────────────────────────────────────────
+   TERMOS
+   ────────────────────────────────────────────── */
+.terms-check {
+    padding-left: 1.75em;
+}
+
+.terms-check .form-check-input {
+    border: 1.5px solid #cbd5e1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.terms-check .form-check-input:checked {
+    background-color: #0b2b5c;
+    border-color: #0b2b5c;
+}
+
+.terms-check .form-check-input:focus {
+    box-shadow: 0 0 0 3px rgba(11, 43, 92, 0.15);
+    border-color: #0b2b5c;
+}
+
+.terms-link {
+    color: #1a6d8f;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.terms-link:hover {
+    color: #0b2b5c;
+    text-decoration: underline;
+}
+
+/* ──────────────────────────────────────────────
+   BOTÃO CRIAR CONTA
+   ────────────────────────────────────────────── */
+.btn-register {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 1rem 1.75rem;
+    margin-top: 1.5rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 100px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.005em;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+        0 12px 28px -8px rgba(16, 185, 129, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-register::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transition: left 0.6s ease;
+}
+
+.btn-register:hover::before {
+    left: 100%;
+}
+
+.btn-register:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 20px 40px -8px rgba(16, 185, 129, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-register:active {
+    transform: translateY(-1px);
+}
+
+.btn-register:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ──────────────────────────────────────────────
+   DIVISOR "OU"
+   ────────────────────────────────────────────── */
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 1.75rem 0 1.25rem;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+}
+
+.divider-text {
+    background: #ffffff;
+    padding: 0 16px;
+    position: relative;
+    z-index: 1;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+/* ──────────────────────────────────────────────
+   BOTÃO GOOGLE
+   ────────────────────────────────────────────── */
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    background: #ffffff;
+    color: #334155;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 100px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.btn-google:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -6px rgba(11, 43, 92, 0.1);
+    color: #0b2b5c;
+}
+
+.btn-google i {
+    color: #DB4437;
+    font-size: 1.05rem;
+}
+
+/* ──────────────────────────────────────────────
+   LOGIN PROMPT
+   ────────────────────────────────────────────── */
+.login-prompt {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 0.5rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.login-link {
+    color: #1a6d8f;
+    text-decoration: none;
+    font-weight: 700;
+    margin-left: 4px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.login-link i {
+    font-size: 0.75rem;
+    transition: transform 0.25s ease;
+}
+
+.login-link:hover {
+    color: #0b2b5c;
+}
+
+.login-link:hover i {
+    transform: translateX(4px);
+}
+
+/* ──────────────────────────────────────────────
+   SELOS DE CONFIANÇA
+   ────────────────────────────────────────────── */
+.register-trust {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem 1.75rem;
+    margin-top: 1.75rem;
+    padding: 0 1rem;
+}
+
+.register-trust span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+    letter-spacing: 0.01em;
+}
+
+.register-trust i {
+    color: #10b981;
+    font-size: 0.85rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📱 RESPONSIVO
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
     .register-page {
-        min-height: calc(100vh - 300px);
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        position: relative;
-        padding-bottom: 3rem;
+        padding: 1rem 0 2rem;
     }
-    
-    .register-page::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -20%;
-        width: 80%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(11,43,92,0.05) 1%, transparent 1%);
-        background-size: 40px 40px;
-        pointer-events: none;
-    }
-    
-    .register-card {
-        background: white;
-        position: relative;
-        z-index: 2;
-        transition: transform 0.3s ease;
-    }
-    
-    .register-card:hover {
-        transform: translateY(-5px);
-    }
-    
+
     .register-header {
-        background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%);
-        position: relative;
-        overflow: hidden;
+        padding: 1.75rem 1.25rem 1.5rem;
     }
-    
-    .register-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 150%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 1%);
-        background-size: 20px 20px;
-        pointer-events: none;
-    }
-    
+
     .logo-icon {
-        width: 70px;
-        height: 70px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-        backdrop-filter: blur(5px);
+        width: 62px;
+        height: 62px;
+        margin-bottom: 1rem;
     }
-    
-    /* Inputs modernos */
-    .input-group-modern {
-        position: relative;
+
+    .logo-icon i {
+        font-size: 1.5rem;
     }
-    
-    .input-icon {
-        position: absolute;
-        left: 18px;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 10;
-        color: #94a3b8;
-        font-size: 1rem;
+
+    .register-title {
+        font-size: 1.3rem;
     }
-    
-    .input-eye {
-        position: absolute;
-        right: 18px;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-        color: #94a3b8;
-        z-index: 10;
+
+    .register-subtitle {
+        font-size: 0.82rem;
     }
-    
-    .input-eye:hover {
-        color: #0b2b5c;
+
+    .register-body {
+        padding: 1.5rem 1.25rem 1.25rem;
     }
-    
+
     .input-group-modern .form-control {
-        padding-left: 50px;
-        padding-right: 45px;
-        border: 1px solid #e2e8f0;
-        transition: all 0.3s ease;
-        background-color: #f8fafc;
+        height: 50px;
+        font-size: 16px; /* evita zoom no iOS */
     }
-    
-    .input-group-modern .form-control:focus {
-        border-color: #0b2b5c;
-        box-shadow: 0 0 0 3px rgba(11, 43, 92, 0.1);
-        background-color: white;
+
+    .type-card {
+        padding: 1rem 0.6rem;
     }
-    
-    /* Força da senha */
-    .password-strength {
-        height: 4px;
-        margin-top: 8px;
+
+    .type-icon {
+        width: 40px;
+        height: 40px;
     }
-    
-    .strength-bar {
-        height: 4px;
-        width: 0%;
-        background: #e2e8f0;
-        border-radius: 4px;
-        transition: all 0.3s ease;
+
+    .btn-register {
+        padding: 0.95rem 1.5rem;
+        font-size: 0.95rem;
     }
-    
-    /* Upload de foto */
-    .photo-upload {
-        margin-top: 0.5rem;
+
+    .register-trust {
+        gap: 0.75rem 1.25rem;
+        margin-top: 1.25rem;
     }
-    
-    .upload-area {
-        border: 2px dashed #e2e8f0;
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        background: #f8fafc;
+
+    .register-trust span {
+        font-size: 0.72rem;
     }
-    
-    .upload-area:hover {
-        border-color: #0b2b5c;
-        background: #f1f5f9;
+}
+
+@media (max-width: 480px) {
+    .account-types {
+        grid-template-columns: 1fr;
     }
-    
-    .preview-area {
-        position: relative;
-        display: inline-block;
-    }
-    
-    .preview-area img {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #0b2b5c;
-    }
-    
-    .remove-photo {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        width: 25px;
-        height: 25px;
-        background: #ef4444;
-        border: none;
-        border-radius: 50%;
-        color: white;
-        cursor: pointer;
+
+    .type-card {
         display: flex;
         align-items: center;
-        justify-content: center;
-    }
-    
-    /* Tipos de conta */
-    .account-types {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-top: 0.5rem;
-    }
-    
-    .type-card {
-        border: 2px solid #e2e8f0;
-        border-radius: 12px;
+        gap: 12px;
+        text-align: left;
         padding: 1rem;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        background: white;
     }
-    
-    .type-option.active .type-card {
-        border-color: #0b2b5c;
-        background: linear-gradient(135deg, #f8fafc, #eef2ff);
+
+    .type-icon {
+        margin-bottom: 0;
+        flex-shrink: 0;
     }
-    
-    .type-card:hover {
-        border-color: #0b2b5c;
-        transform: translateY(-3px);
+
+    .type-title {
+        margin-bottom: 0;
     }
-    
-    /* Botão cadastrar */
-    .btn-register {
-        background: linear-gradient(135deg, #10b981, #059669);
-        border: none;
-        color: white;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
+
+    .type-desc {
+        font-size: 0.75rem;
     }
-    
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🔒 ACESSIBILIDADE
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    .register-card,
+    .type-card,
+    .photo-upload,
+    .btn-register,
+    .btn-google,
+    .input-group-modern .form-control {
+        animation: none !important;
+        transition: none !important;
+    }
+
     .btn-register::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s ease;
+        display: none;
     }
-    
-    .btn-register:hover::before {
-        left: 100%;
-    }
-    
-    .btn-register:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(16, 185, 129, 0.3);
-    }
-    
-    /* Botão Google */
-    .btn-google {
-        border: 1px solid #e2e8f0;
-        background: white;
-        color: #333;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-google:hover {
-        background: #f8f9fa;
-        border-color: #db4437;
-        color: #db4437;
-        transform: translateY(-2px);
-    }
-    
-    /* Divisor */
-    .divider {
-        position: relative;
-    }
-    
-    .divider::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
-    }
-    
-    .divider-text {
-        background: white;
-        padding: 0 15px;
-        position: relative;
-        z-index: 1;
-        font-size: 0.85rem;
-        color: #94a3b8;
-    }
-    
-    .login-link {
-        transition: all 0.2s;
-    }
-    
-    .login-link:hover {
-        letter-spacing: 0.5px;
-    }
-    
-    /* Checkbox */
-    .form-check-input:checked {
-        background-color: #0b2b5c;
-        border-color: #0b2b5c;
-    }
-    
-    /* Animação */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .register-card {
-        animation: fadeInUp 0.6s ease-out;
-    }
-    
-    @media (max-width: 768px) {
-        .register-card .card-body {
-            padding: 1.5rem !important;
-        }
-        
-        .logo-icon {
-            width: 55px;
-            height: 55px;
-        }
-        
-        .logo-icon i {
-            font-size: 2rem;
-        }
-        
-        .account-types {
-            grid-template-columns: 1fr;
-        }
-    }
+}
 </style>
 
 <script>
-    // Máscara para telefone
-    const telefoneInput = document.getElementById('telefone');
-    if (telefoneInput) {
-        telefoneInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length <= 10) {
-                value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-            } else {
-                value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-            }
-            e.target.value = value;
-        });
-    }
-    
-    // Mostrar/esconder senha
-    function togglePassword(fieldId) {
-        const field = document.getElementById(fieldId);
-        const eye = document.querySelector('.input-eye i');
-        if (field.type === 'password') {
-            field.type = 'text';
+/* ═══════════════════════════════════════════════════════════
+   CADASTRO — JS mantido 100% original + pequenos ajustes
+   ═══════════════════════════════════════════════════════════ */
+
+// ─────────────────────────────────────────────
+// MÁSCARA DE TELEFONE
+// ─────────────────────────────────────────────
+const telefoneInput = document.getElementById('telefone');
+if (telefoneInput) {
+    telefoneInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length <= 10) {
+            value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        } else {
+            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+        e.target.value = value;
+    });
+}
+
+// ─────────────────────────────────────────────
+// MOSTRAR/ESCONDER SENHA
+// ─────────────────────────────────────────────
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    const eye = field.parentNode.querySelector('.input-eye i');
+    if (field.type === 'password') {
+        field.type = 'text';
+        if (eye) {
             eye.classList.remove('fa-eye-slash');
             eye.classList.add('fa-eye');
-        } else {
-            field.type = 'password';
+        }
+    } else {
+        field.type = 'password';
+        if (eye) {
             eye.classList.remove('fa-eye');
             eye.classList.add('fa-eye-slash');
         }
     }
-    
-    // Força da senha
-    const senhaInput = document.getElementById('senha');
-    const strengthBar = document.querySelector('.strength-bar');
-    const strengthText = document.querySelector('.strength-text');
-    
-    if (senhaInput) {
-        senhaInput.addEventListener('input', function() {
-            const password = this.value;
-            let strength = 0;
-            
-            if (password.length >= 6) strength++;
-            if (password.length >= 8) strength++;
-            if (/[A-Z]/.test(password)) strength++;
-            if (/[0-9]/.test(password)) strength++;
-            if (/[^A-Za-z0-9]/.test(password)) strength++;
-            
-            const percentages = ['20%', '40%', '60%', '80%', '100%'];
-            const colors = ['#ef4444', '#f59e0b', '#fbbf24', '#10b981', '#059669'];
-            const texts = ['Muito fraca', 'Fraca', 'Média', 'Forte', 'Muito forte'];
-            
-            strengthBar.style.width = percentages[Math.min(strength, 4)];
-            strengthBar.style.background = colors[Math.min(strength, 4)];
-            strengthText.textContent = texts[Math.min(strength, 4)];
-        });
-    }
-    
-    // Preview da foto
-    function previewFoto(event) {
-        const input = event.target;
-        const uploadArea = document.querySelector('.upload-placeholder');
-        const previewDiv = document.getElementById('fotoPreview');
-        const previewImg = document.getElementById('previewImg');
-        
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewImg.src = e.target.result;
-                uploadArea.style.display = 'none';
-                previewDiv.style.display = 'block';
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-    
-    function removePhoto() {
-        const fotoInput = document.getElementById('foto_perfil');
-        const uploadArea = document.querySelector('.upload-placeholder');
-        const previewDiv = document.getElementById('fotoPreview');
-        
-        fotoInput.value = '';
-        uploadArea.style.display = 'block';
-        previewDiv.style.display = 'none';
-    }
-    
-    // Selecionar tipo de conta
-    function selectType(type) {
-        document.querySelectorAll('.type-option').forEach(opt => {
-            opt.classList.remove('active');
-        });
-        event.currentTarget.classList.add('active');
-        document.getElementById(type).checked = true;
-    }
-    
-    // Validação do tamanho da foto
-    const fotoInput = document.getElementById('foto_perfil');
-    if (fotoInput) {
-        fotoInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file && file.size > 5 * 1024 * 1024) {
-                alert('A imagem deve ter no máximo 5MB');
-                this.value = '';
-                removePhoto();
-            }
-        });
-    }
-    
-    // Submit com loading
-    document.getElementById('registerForm')?.addEventListener('submit', function(e) {
-        const btn = this.querySelector('.btn-register');
-        const spinner = btn.querySelector('.btn-loader');
-        
-        btn.disabled = true;
-        spinner.classList.remove('d-none');
-        
-        setTimeout(() => {
-            btn.disabled = false;
-            spinner.classList.add('d-none');
-        }, 5000);
+}
+
+// ─────────────────────────────────────────────
+// FORÇA DA SENHA
+// ─────────────────────────────────────────────
+const senhaInput = document.getElementById('senha');
+const strengthBar = document.querySelector('.strength-bar');
+const strengthText = document.querySelector('.strength-text');
+
+if (senhaInput && strengthBar && strengthText) {
+    senhaInput.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+
+        if (password.length >= 6) strength++;
+        if (password.length >= 8) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        const widths = ['20%', '40%', '60%', '80%', '100%'];
+        const colors = ['#ef4444', '#f59e0b', '#fbbf24', '#10b981', '#059669'];
+        const texts = ['Muito fraca', 'Fraca', 'Média', 'Forte', 'Muito forte'];
+
+        const idx = Math.min(strength, 4);
+        strengthBar.style.width = password ? widths[idx] : '0%';
+        strengthBar.style.background = colors[idx];
+        strengthText.textContent = password ? texts[idx] : '';
+        strengthText.style.color = colors[idx];
     });
+}
+
+// ─────────────────────────────────────────────
+// PREVIEW DA FOTO
+// ─────────────────────────────────────────────
+function previewFoto(event) {
+    const input = event.target;
+    const uploadArea = document.querySelector('.upload-placeholder');
+    const previewDiv = document.getElementById('fotoPreview');
+    const previewImg = document.getElementById('previewImg');
+
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            if (uploadArea) uploadArea.style.display = 'none';
+            if (previewDiv) previewDiv.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function removePhoto() {
+    const fotoInput = document.getElementById('foto_perfil');
+    const uploadArea = document.querySelector('.upload-placeholder');
+    const previewDiv = document.getElementById('fotoPreview');
+
+    if (fotoInput) fotoInput.value = '';
+    if (uploadArea) uploadArea.style.display = 'block';
+    if (previewDiv) previewDiv.style.display = 'none';
+}
+
+// ─────────────────────────────────────────────
+// SELECIONAR TIPO DE CONTA
+// (aceita parâmetro 'el' — retrocompatível com onclick antigo)
+// ─────────────────────────────────────────────
+function selectType(type, el) {
+    document.querySelectorAll('.type-option').forEach(opt => {
+        opt.classList.remove('active');
+    });
+
+    // Se 'el' não veio, busca pelo data-type (compatibilidade)
+    const target = el || document.querySelector(`.type-option[data-type="${type}"]`);
+    if (target) target.classList.add('active');
+
+    const radio = document.getElementById(type);
+    if (radio) radio.checked = true;
+}
+
+// ─────────────────────────────────────────────
+// VALIDAÇÃO DO TAMANHO DA FOTO
+// ─────────────────────────────────────────────
+const fotoInput = document.getElementById('foto_perfil');
+if (fotoInput) {
+    fotoInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.size > 5 * 1024 * 1024) {
+            alert('A imagem deve ter no máximo 5MB');
+            this.value = '';
+            removePhoto();
+        }
+    });
+}
+
+// ─────────────────────────────────────────────
+// SUBMIT COM LOADING
+// ─────────────────────────────────────────────
+document.getElementById('registerForm')?.addEventListener('submit', function() {
+    const btn = this.querySelector('.btn-register');
+    const spinner = btn?.querySelector('.btn-loader');
+    const icon = btn?.querySelector('i.fa-user-plus');
+    const text = btn?.querySelector('span:not(.btn-loader)');
+
+    if (btn) btn.disabled = true;
+    if (spinner) spinner.classList.remove('d-none');
+    if (icon) icon.style.display = 'none';
+    if (text) text.textContent = 'Criando conta...';
+
+    // Failsafe: se o backend demorar, reabilita em 8s (evita travar)
+    setTimeout(() => {
+        if (btn) btn.disabled = false;
+        if (spinner) spinner.classList.add('d-none');
+        if (icon) icon.style.display = '';
+        if (text) text.textContent = 'Criar conta gratuita';
+    }, 8000);
+});
 </script>
 {% endblock %}

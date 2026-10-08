@@ -1,87 +1,120 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard do Cliente - PrestaServiços{% endblock %}
+{% block title %}Dashboard do Cliente - HiringScope{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- CABEÇALHO                                          -->
+    <!-- ═══════════════════════════════════════════════════ -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <h2 class="mb-0">
-            <i class="fas fa-user-friends me-2 text-primary"></i>
+        <h2 class="mb-0 d-flex align-items-center">
+            <span class="icon-box blue me-3">
+                <i class="fas fa-user-friends"></i>
+            </span>
             Painel do Cliente
         </h2>
-        <a href="/servicos" class="btn btn-primary rounded-pill px-4">
+        <a href="{{ url_for('servico.lista') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold">
             <i class="fas fa-search me-2"></i> Explorar Serviços
         </a>
     </div>
 
-    <!-- Cards de Estatísticas -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- CARDS DE ESTATÍSTICA (3 cards balanceados)         -->
+    <!-- ═══════════════════════════════════════════════════ -->
     <div class="row g-4 mb-5">
         <div class="col-md-4">
-            <div class="card shadow-sm border-0 rounded-4 bg-info text-white">
-                <div class="card-body text-center">
-                    <i class="fas fa-paper-plane fa-3x mb-2 opacity-75"></i>
-                    <h3 class="mb-0">{{ total_contratos|default(contratos|length) }}</h3>
-                    <small>Solicitações Enviadas</small>
+            <div class="card shadow-sm border-0 rounded-4 bg-info text-white h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-paper-plane fa-3x mb-3 opacity-75"></i>
+                    <h3 class="mb-1">{{ total_contratos|default(contratos|length) }}</h3>
+                    <small class="fw-semibold">Solicitações Enviadas</small>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card shadow-sm border-0 rounded-4 bg-warning text-dark">
-                <div class="card-body text-center">
-                    <i class="fas fa-clock fa-3x mb-2 opacity-75"></i>
-                    <h3 class="mb-0">{{ contratos_pendentes|length }}</h3>
-                    <small>Pendentes</small>
+            <div class="card shadow-sm border-0 rounded-4 bg-warning text-white h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-clock fa-3x mb-3 opacity-75"></i>
+                    <h3 class="mb-1">{{ contratos_pendentes|length }}</h3>
+                    <small class="fw-semibold">Aguardando Resposta</small>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card shadow-sm border-0 rounded-4 bg-success text-white">
-                <div class="card-body text-center">
-                    <i class="fas fa-check-circle fa-3x mb-2 opacity-75"></i>
-                    <h3 class="mb-0">{{ contratos_concluidos|length }}</h3>
-                    <small>Concluídos</small>
+            <div class="card shadow-sm border-0 rounded-4 bg-success text-white h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-check-circle fa-3x mb-3 opacity-75"></i>
+                    <h3 class="mb-1">{{ contratos_concluidos|length }}</h3>
+                    <small class="fw-semibold">Serviços Concluídos</small>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- CONTRATOS EM ANDAMENTO -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- BANNER — Encontre mais profissionais               -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="card shadow-sm border-0 rounded-4 mb-5 bg-gradient-primary">
+        <div class="card-body py-4">
+            <div class="row align-items-center">
+                <div class="col-md-8 text-md-start text-center mb-3 mb-md-0">
+                    <i class="fas fa-rocket fa-3x text-white mb-2"></i>
+                    <h4 class="mb-1 text-white fw-bold">Precisa de um profissional?</h4>
+                    <p class="mb-0 text-white-50">Explore milhares de serviços e encontre o prestador ideal para você</p>
+                </div>
+                <div class="col-md-4 text-md-end text-center">
+                    <a href="{{ url_for('servico.lista') }}" class="btn btn-light rounded-pill px-4 py-2 fw-semibold">
+                        <i class="fas fa-search me-2"></i> Buscar Serviços
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SEÇÃO 1: CONTRATOS EM ANDAMENTO                     -->
+    <!-- ═══════════════════════════════════════════════════ -->
     {% if contratos_andamento %}
-    <div class="card shadow-sm border-0 rounded-4 mb-5">
-        <div class="card-header bg-primary text-white rounded-top-4 py-3">
-            <h5 class="mb-0">
-                <i class="fas fa-spinner fa-spin me-2"></i>
-                Serviços em Andamento
-                <span class="badge bg-light text-primary ms-2">{{ contratos_andamento|length }}</span>
-            </h5>
+    <div class="card shadow-sm border-0 rounded-4 mb-5 overflow-hidden">
+        <div class="card-header bg-primary text-white py-3 border-0">
+            <div class="d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">
+                    <i class="fas fa-spinner fa-spin me-2"></i>
+                    Serviços em Andamento
+                </h5>
+                <span class="badge bg-light text-primary rounded-pill px-3 py-2">
+                    {{ contratos_andamento|length }}
+                </span>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>Serviço</th>
                             <th>Prestador</th>
                             <th>Status</th>
                             <th>Início</th>
-                            <th>Ações</th>
+                            <th class="text-end">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for contrato in contratos_andamento %}
                         <tr>
-                            <td>{{ contrato.servico.titulo }}</td>
+                            <td class="fw-semibold">{{ contrato.servico.titulo }}</td>
                             <td>{{ contrato.prestador.nome }}</td>
                             <td>
-                                <span class="badge bg-warning rounded-pill">
-                                    <i class="fas fa-play me-1"></i>
-                                    Em andamento
+                                <span class="badge bg-warning rounded-pill px-3 py-2">
+                                    <i class="fas fa-play me-1"></i> Em andamento
                                 </span>
                             </td>
                             <td>{{ contrato.data_inicio.strftime('%d/%m/%Y') if contrato.data_inicio else '-' }}</td>
-                            <td>
-                                <button onclick="iniciarChat({{ contrato.prestador.id }}, '{{ contrato.prestador.nome|replace("'", "\\'") }}')" 
-                                        class="btn btn-sm btn-info rounded-pill">
+                            <td class="text-end">
+                                <button onclick="iniciarChat({{ contrato.prestador.id }}, '{{ contrato.prestador.nome|replace("'", "\\'") }}')"
+                                        class="btn btn-sm btn-info rounded-pill px-3">
                                     <i class="fas fa-comments me-1"></i> Conversar
                                 </button>
                             </td>
@@ -94,7 +127,9 @@
     </div>
     {% endif %}
 
-    <!-- ALERTA: SERVIÇOS CONCLUÍDOS AGUARDANDO AVALIAÇÃO -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- ALERTA: SERVIÇOS CONCLUÍDOS AGUARDANDO AVALIAÇÃO    -->
+    <!-- ═══════════════════════════════════════════════════ -->
     {% set aguardando_avaliacao = [] %}
     {% for contrato in contratos_concluidos %}
         {% if not contrato.avaliacao %}
@@ -103,43 +138,47 @@
     {% endfor %}
 
     {% if aguardando_avaliacao %}
-    <div class="alert alert-warning shadow-sm rounded-4 mb-4 border-0" role="alert">
-        <div class="d-flex align-items-center">
-            <i class="fas fa-star fa-2x me-3 text-warning"></i>
-            <div>
-                <h5 class="mb-1">🎉 Serviços concluídos aguardando sua avaliação!</h5>
-                <p class="mb-0">Avalie os prestadores e ajude outros clientes a escolherem os melhores profissionais.</p>
-            </div>
+    <div class="alert alert-warning shadow-sm rounded-4 mb-4 border-0 d-flex align-items-center" role="alert">
+        <i class="fas fa-star fa-2x me-3 text-warning"></i>
+        <div>
+            <h5 class="mb-1">🎉 Serviços concluídos aguardando sua avaliação!</h5>
+            <p class="mb-0">Avalie os prestadores e ajude outros clientes a escolherem os melhores profissionais.</p>
         </div>
     </div>
     {% endif %}
 
-    <!-- CONTRATOS CONCLUÍDOS (COM OPÇÃO DE AVALIAR) -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SEÇÃO 2: CONTRATOS CONCLUÍDOS                       -->
+    <!-- ═══════════════════════════════════════════════════ -->
     {% if contratos_concluidos %}
-    <div class="card shadow-sm border-0 rounded-4 mb-5">
-        <div class="card-header bg-success text-white rounded-top-4 py-3">
-            <h5 class="mb-0">
-                <i class="fas fa-history me-2"></i>
-                Serviços Concluídos
-                <span class="badge bg-light text-success ms-2">{{ contratos_concluidos|length }}</span>
-            </h5>
+    <div class="card shadow-sm border-0 rounded-4 mb-5 overflow-hidden">
+        <div class="card-header bg-success text-white py-3 border-0">
+            <div class="d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2"></i>
+                    Serviços Concluídos
+                </h5>
+                <span class="badge bg-light text-success rounded-pill px-3 py-2">
+                    {{ contratos_concluidos|length }}
+                </span>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>Serviço</th>
                             <th>Prestador</th>
-                            <th>Data Conclusão</th>
+                            <th>Conclusão</th>
                             <th>Sua Avaliação</th>
-                            <th>Ações</th>
+                            <th class="text-end">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for contrato in contratos_concluidos %}
                         <tr class="{% if not contrato.avaliacao %}table-warning{% endif %}">
-                            <td>{{ contrato.servico.titulo }}</td>
+                            <td class="fw-semibold">{{ contrato.servico.titulo }}</td>
                             <td>{{ contrato.prestador.nome }}</td>
                             <td>{{ contrato.data_conclusao.strftime('%d/%m/%Y') if contrato.data_conclusao else '-' }}</td>
                             <td>
@@ -152,28 +191,29 @@
                                                 <i class="far fa-star text-warning"></i>
                                             {% endif %}
                                         {% endfor %}
-                                        <span class="ms-2 small text-muted">{{ contrato.avaliacao.nota }}/5</span>
+                                        <span class="ms-2 small text-muted fw-semibold">{{ contrato.avaliacao.nota }}/5</span>
                                         {% if contrato.avaliacao.pode_editar(current_user.id) %}
-                                            <a href="{{ url_for('contrato.editar_avaliacao', avaliacao_id=contrato.avaliacao.id) }}" class="ms-2 small">
+                                            <a href="{{ url_for('contrato.editar_avaliacao', avaliacao_id=contrato.avaliacao.id) }}"
+                                               class="ms-2 small text-decoration-none">
                                                 <i class="fas fa-edit"></i> Editar
                                             </a>
                                         {% endif %}
                                     </div>
                                 {% else %}
-                                    <span class="badge bg-warning text-dark">
+                                    <span class="badge bg-warning text-white rounded-pill px-3 py-2">
                                         <i class="fas fa-star me-1"></i> Pendente
                                     </span>
                                 {% endif %}
                             </td>
-                            <td>
+                            <td class="text-end">
                                 {% if not contrato.avaliacao %}
-                                    <a href="{{ url_for('contrato.avaliar_servico', contrato_id=contrato.id) }}" 
-                                       class="btn btn-sm btn-warning rounded-pill">
-                                        <i class="fas fa-star me-1"></i> Avaliar ⭐
+                                    <a href="{{ url_for('contrato.avaliar_servico', contrato_id=contrato.id) }}"
+                                       class="btn btn-sm btn-warning rounded-pill px-3">
+                                        <i class="fas fa-star me-1"></i> Avaliar
                                     </a>
                                 {% else %}
-                                    <button onclick="iniciarChat({{ contrato.prestador.id }}, '{{ contrato.prestador.nome|replace("'", "\\'") }}')" 
-                                            class="btn btn-sm btn-outline-info rounded-pill">
+                                    <button onclick="iniciarChat({{ contrato.prestador.id }}, '{{ contrato.prestador.nome|replace("'", "\\'") }}')"
+                                            class="btn btn-sm btn-outline-info rounded-pill px-3">
                                         <i class="fas fa-comments me-1"></i> Conversar
                                     </button>
                                 {% endif %}
@@ -187,50 +227,62 @@
     </div>
     {% endif %}
 
-    <!-- SOLICITAÇÕES PENDENTES (AGUARDANDO RESPOSTA DO PRESTADOR) -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SEÇÃO 3: SOLICITAÇÕES PENDENTES                     -->
+    <!-- ═══════════════════════════════════════════════════ -->
     {% if contratos_pendentes %}
-    <div class="card shadow-sm border-0 rounded-4 mb-5">
-        <div class="card-header bg-warning text-dark rounded-top-4 py-3">
-            <h5 class="mb-0">
-                <i class="fas fa-hourglass-half me-2"></i>
-                Aguardando Resposta do Prestador
-                <span class="badge bg-dark text-warning ms-2">{{ contratos_pendentes|length }}</span>
-            </h5>
+    <div class="card shadow-sm border-0 rounded-4 mb-5 overflow-hidden">
+        <div class="card-header bg-warning text-white py-3 border-0">
+            <div class="d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">
+                    <i class="fas fa-hourglass-half me-2"></i>
+                    Aguardando Resposta do Prestador
+                </h5>
+                <span class="badge bg-light text-warning rounded-pill px-3 py-2">
+                    {{ contratos_pendentes|length }}
+                </span>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>Serviço</th>
                             <th>Prestador</th>
-                            <th>Data Solicitação</th>
+                            <th>Data</th>
                             <th>Status</th>
-                            <th>Ações</th>
+                            <th class="text-end">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for contrato in contratos_pendentes %}
                         <tr>
-                            <td>{{ contrato.servico.titulo }}</td>
+                            <td class="fw-semibold">{{ contrato.servico.titulo }}</td>
                             <td>{{ contrato.prestador.nome }}</td>
                             <td>{{ contrato.data_solicitacao.strftime('%d/%m/%Y') }}</td>
                             <td>
-                                <span class="badge bg-secondary rounded-pill">
+                                <span class="badge bg-secondary rounded-pill px-3 py-2">
                                     <i class="fas fa-clock me-1"></i> Pendente
                                 </span>
                             </td>
-                            <td>
-                                <button onclick="iniciarChat({{ contrato.prestador.id }}, '{{ contrato.prestador.nome|replace("'", "\\'") }}')" 
-                                        class="btn btn-sm btn-info rounded-pill">
-                                    <i class="fas fa-comments me-1"></i> Conversar
-                                </button>
-                                <form action="{{ url_for('contrato.atualizar_status', contrato_id=contrato.id) }}" method="POST" class="d-inline">
-                                    <input type="hidden" name="status" value="cancelado">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Tem certeza que deseja cancelar?')">
-                                        <i class="fas fa-times me-1"></i> Cancelar
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-2">
+                                    <button onclick="iniciarChat({{ contrato.prestador.id }}, '{{ contrato.prestador.nome|replace("'", "\\'") }}')"
+                                            class="btn btn-sm btn-info rounded-pill px-3">
+                                        <i class="fas fa-comments me-1"></i> Conversar
                                     </button>
-                                </form>
+                                    <form action="{{ url_for('contrato.atualizar_status', contrato_id=contrato.id) }}"
+                                          method="POST"
+                                          class="d-inline">
+                                        <input type="hidden" name="status" value="cancelado">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                                onclick="return confirm('Tem certeza que deseja cancelar?')">
+                                            <i class="fas fa-times me-1"></i> Cancelar
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -241,33 +293,155 @@
     </div>
     {% endif %}
 
-    <!-- MENSAGEM QUANDO NÃO HÁ NENHUM CONTRATO -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- ESTADO VAZIO                                        -->
+    <!-- ═══════════════════════════════════════════════════ -->
     {% if not contratos %}
     <div class="card shadow-sm border-0 rounded-4 text-center py-5">
         <div class="card-body">
-            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
-            <h5>Você ainda não fez nenhuma solicitação</h5>
-            <p class="text-muted">Explore os serviços disponíveis e solicite o que precisar!</p>
-            <a href="/servicos" class="btn btn-primary rounded-pill px-4 mt-2">
+            <div class="empty-state-icon mx-auto mb-3">
+                <i class="fas fa-inbox fa-3x"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Você ainda não fez nenhuma solicitação</h5>
+            <p class="text-muted mb-4">Explore os serviços disponíveis e solicite o que precisar!</p>
+            <a href="{{ url_for('servico.lista') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold">
                 <i class="fas fa-search me-2"></i> Explorar Serviços
             </a>
         </div>
     </div>
     {% endif %}
+
 </div>
 
 <style>
-    .table td, .table th {
-        vertical-align: middle;
-    }
-    .rating {
+    /* ──────────────────────────────────────────────
+       Ícone do título com caixinha gradiente
+       ────────────────────────────────────────────── */
+    .container > .d-flex .icon-box {
         display: inline-flex;
         align-items: center;
-        gap: 2px;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        color: #ffffff;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        box-shadow: 0 8px 20px -6px rgba(11, 43, 92, 0.4);
     }
-    .alert-warning {
-        background: linear-gradient(135deg, #fff3cd, #ffe69b);
-        border-left: 4px solid #ffc107;
+
+    .container > .d-flex .icon-box.blue {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    }
+
+    /* ──────────────────────────────────────────────
+       Banner "Precisa de um profissional?"
+       ────────────────────────────────────────────── */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #0b2b5c 0%, #14477a 40%, #1a6d8f 100%);
+        border: none !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bg-gradient-primary::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .bg-gradient-primary h4,
+    .bg-gradient-primary p,
+    .bg-gradient-primary i {
+        position: relative;
+        z-index: 1;
+    }
+
+    .bg-gradient-primary .btn-light {
+        font-weight: 700;
+        color: #0b2b5c !important;
+        box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .bg-gradient-primary .btn-light:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.4);
+    }
+
+    /* ──────────────────────────────────────────────
+       Header dos cards de seção
+       ────────────────────────────────────────────── */
+    .card > .card-header.bg-primary {
+        background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%) !important;
+        border: none !important;
+    }
+
+    .card > .card-header.bg-success {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+        border: none !important;
+    }
+
+    .card > .card-header.bg-warning {
+        background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%) !important;
+        border: none !important;
+    }
+
+    .card > .card-header h5 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }
+
+    /* ──────────────────────────────────────────────
+       Empty state
+       ────────────────────────────────────────────── */
+    .empty-state-icon {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .empty-state-icon i {
+        color: #94a3b8;
+    }
+
+    /* ──────────────────────────────────────────────
+       Mobile
+       ────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+        .container > .d-flex .icon-box {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+            border-radius: 12px;
+        }
+
+        .bg-gradient-primary .row > div {
+            text-align: center !important;
+        }
+
+        .bg-gradient-primary .btn-light {
+            width: 100%;
+        }
+
+        .card > .card-header {
+            padding: 0.9rem 1.1rem !important;
+        }
+
+        .card > .card-header h5 {
+            font-size: 0.95rem;
+        }
     }
 </style>
 
@@ -280,4 +454,4 @@
         }
     }
 </script>
-{% endblock %}
+{% endblock %}y

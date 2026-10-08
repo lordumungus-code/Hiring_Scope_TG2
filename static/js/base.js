@@ -1,14 +1,7 @@
-// ============================================
-// BASE.JS - Versão Corrigida
-// ============================================
-
-// Variáveis globais
 let globalSocket = null;
 let notificationCount = 0;
 
-// ============================================
-// INICIALIZAÇÃO PRINCIPAL
-// ============================================
+window.chatAtivoCom = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ DOM carregado - Inicializando sistema');
@@ -137,13 +130,22 @@ function initSocket() {
                 console.log('❌ Erro de conexão Socket.IO:', err);
             });
             
-            socket.on('new_private_message', function(data) {
+           socket.on('new_private_message', function(data) {
                 console.log('📨 Nova mensagem:', data);
                 if (!data) return;
+                
+                const remetenteId = data.remetente_id || (data.remetente && data.remetente.id);
+                
+                if (window.chatAtivoCom && remetenteId == window.chatAtivoCom) {
+                    console.log('🚫 Estou na conversa - não toca som');
+                    return;
+                }
+                
+                tocarSomNotificacao();
                 notificationCount++;
                 updateNotificationBadges();
                 addNotificationToList(data);
-                showToast(data.remetente_nome, data.conteudo, 'primary');
+                showToast(data.remetente_nome || 'Nova mensagem', data.conteudo, 'primary');
             });
             
             socket.on('notification', function(data) {
@@ -157,6 +159,7 @@ function initSocket() {
             socket.on('nova_solicitacao', function(data) {
                 console.log('📢 Nova solicitação:', data);
                 if (!data) return;
+                tocarSomNotificacao();
                 showToast('Nova Solicitação!', `${data.cliente_nome} solicitou: ${data.servico_titulo}`, 'info');
                 addSimpleNotification(data.cliente_nome, `Solicitou o serviço: ${data.servico_titulo}`);
                 updateUnreadCount();
@@ -165,6 +168,7 @@ function initSocket() {
             socket.on('contrato_aceito', function(data) {
                 console.log('✅ Serviço aceito:', data);
                 if (!data) return;
+                tocarSomNotificacao();
                 showToast('Serviço Aceito!', `${data.prestador_nome} aceitou: ${data.servico_titulo}`, 'success');
                 addSimpleNotification(data.prestador_nome, `Aceitou o serviço: ${data.servico_titulo}`);
                 updateUnreadCount();
@@ -173,6 +177,7 @@ function initSocket() {
             socket.on('servico_concluido', function(data) {
                 console.log('🎉 Serviço concluído:', data);
                 if (!data) return;
+                tocarSomNotificacao();
                 showToast('Serviço Concluído!', `${data.prestador_nome} finalizou: ${data.servico_titulo}. Avalie agora!`, 'success');
                 addSimpleNotification(data.prestador_nome, `Concluiu o serviço: ${data.servico_titulo}`);
                 updateUnreadCount();
@@ -181,6 +186,7 @@ function initSocket() {
             socket.on('nova_avaliacao', function(data) {
                 console.log('⭐ Nova avaliação:', data);
                 if (!data) return;
+                tocarSomNotificacao();
                 showToast('Nova Avaliação!', `${data.cliente_nome} te avaliou com ${data.nota} estrelas!`, 'warning');
                 addSimpleNotification(data.cliente_nome, `⭐ Avaliação: ${data.nota}/5`);
                 updateUnreadCount();
@@ -211,6 +217,9 @@ function updateNotificationBadges() {
     const chatBadge = document.getElementById('chatNotificationBadge');
     const notifBadge = document.getElementById('notificationBadge');
     
+     if (chatBadge) {
+        chatBadge.textContent = notificationCount > 0 ? notificationCount : '0';
+
     if (notificationCount > 0) {
         if (chatBadge) {
             chatBadge.style.display = 'inline';
@@ -225,7 +234,19 @@ function updateNotificationBadges() {
         if (notifBadge) notifBadge.style.display = 'none';
     }
 }
-
+}
+        if (notifBadge) {
+                const notifCount = parseInt(notifBadge.dataset.count || '0');
+                notifBadge.textContent = notifCount > 0 ? notifCount : '0';
+                
+                if (notifCount > 0) {
+                    notifBadge.classList.remove('notification-badge--empty');
+                    notifBadge.classList.add('notification-badge--alert');
+                } else {
+                    notifBadge.classList.remove('notification-badge--alert');
+                    notifBadge.classList.add('notification-badge--empty');
+                }
+            }
 async function updateUnreadCount() {
     if (typeof currentUserId === 'undefined' || !currentUserId || currentUserId === 'null') return;
     
@@ -404,11 +425,27 @@ function initImages() {
         };
     });
 }
+// ============================================
+// 🎯 Qual conversa está aberta agora
+// ============================================
+window.chatAtivoCom = null;
+
+
+function tocarSomNotificacao() {
+    const som = document.getElementById('somNotificacao');
+    if (!som) return;
+    try {
+        som.currentTime = 0;
+        som.volume = 0.7;
+        const p = som.play();
+        if (p && p.catch) p.catch(() => {});
+    } catch (e) {}
+}
 
 // ============================================
 // FUNÇÕES EXPORTADAS
 // ============================================
-
+window.tocarSomNotificacao = tocarSomNotificacao;
 window.showToast = showToast;
 window.updateUnreadCount = updateUnreadCount;
 window.escapeHtml = escapeHtml;

@@ -1,133 +1,472 @@
 {% extends "base.html" %}
 
-{% block title %}Meu Perfil - PrestaServiços{% endblock %}
+{% block title %}Meu Perfil - HiringScope{% endblock %}
 
 {% block content %}
-<div class="container mt-4" style="max-width: 800px;">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header bg-primary text-white rounded-top-4 py-3">
-            <h4 class="mb-0">
-                <i class="fas fa-user-circle me-2"></i>
-                Meu Perfil
-            </h4>
-        </div>
-        <div class="card-body p-4">
-            <form method="POST" action="{{ url_for('main.perfil') }}" enctype="multipart/form-data">
-                <!-- Informações básicas -->
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Nome completo</label>
-                        <input type="text" name="nome" class="form-control rounded-3" 
-                               value="{{ usuario.nome }}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">E-mail</label>
-                        <input type="email" name="email" class="form-control rounded-3" 
-                               value="{{ usuario.email }}" required>
-                    </div>
-                </div>
+<div class="perfil-page">
+    <div class="container" style="max-width: 1100px;">
 
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Telefone</label>
-                        <input type="text" name="telefone" class="form-control rounded-3" 
-                               value="{{ usuario.telefone or '' }}" placeholder="(00) 00000-0000">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Tipo de conta</label>
-                        <input type="text" class="form-control rounded-3" 
-                               value="{{ 'Prestador de Serviços' if usuario.tipo == 'prestador' else 'Cliente' }}" disabled>
-                    </div>
-                </div>
+        <div class="row g-4">
 
-                <!-- Foto de perfil -->
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Foto de Perfil</label>
-                    <div class="border rounded-3 p-3 text-center">
-                        <div class="mb-2">
+            <!-- ═══════════════════════════════════════════════ -->
+            <!-- COLUNA ESQUERDA — CARD DE PERFIL                -->
+            <!-- ═══════════════════════════════════════════════ -->
+            <div class="col-lg-4">
+                <div class="perfil-side-card">
+                    <div class="perfil-side-cover"></div>
+
+                    <div class="perfil-side-body">
+                        <div class="perfil-side-avatar-wrapper"
+                             onclick="document.getElementById('fotoPerfil').click()"
+                             title="Clique para trocar a foto">
                             {% if usuario.foto_url %}
-                                <img src="{{ usuario.foto_url }}" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                                <img id="avatarPreview" src="{{ usuario.foto_url }}" alt="Avatar" class="perfil-side-avatar">
                             {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
-                                <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                                <img id="avatarPreview" src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" alt="Avatar" class="perfil-side-avatar">
                             {% else %}
-                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 100px; height: 100px;">
-                                    <span class="text-white fs-1 fw-bold">{{ usuario.nome[0]|upper }}</span>
+                                <div id="avatarPlaceholder" class="perfil-side-avatar placeholder">
+                                    {{ usuario.nome[0]|upper }}
                                 </div>
                             {% endif %}
+                            <div class="perfil-side-avatar-badge" title="Trocar foto">
+                                <i class="fas fa-camera"></i>
+                            </div>
                         </div>
-                        <input type="file" name="foto_perfil" id="fotoPerfil" class="d-none" accept="image/*">
-                        <button type="button" class="btn btn-outline-primary rounded-pill" onclick="document.getElementById('fotoPerfil').click()">
-                            <i class="fas fa-camera me-2"></i> Escolher foto
+
+                        <h2 class="perfil-side-name">{{ usuario.nome }}</h2>
+                        <p class="perfil-side-email">
+                            <i class="fas fa-envelope me-1"></i>
+                            {{ usuario.email }}
+                        </p>
+
+                        {% if usuario.tipo == 'prestador' %}
+                            <span class="perfil-side-badge prestador">
+                                <i class="fas fa-briefcase"></i> Prestador de Serviços
+                            </span>
+                        {% else %}
+                            <span class="perfil-side-badge cliente">
+                                <i class="fas fa-user"></i> Cliente
+                            </span>
+                        {% endif %}
+
+                        <div class="perfil-side-info">
+                            <div class="perfil-side-info-item">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ usuario.telefone or 'Telefone não informado' }}</span>
+                            </div>
+                            <div class="perfil-side-info-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Membro desde {{ usuario.data_cadastro.strftime('%d/%m/%Y') }}</span>
+                            </div>
+                            <div class="perfil-side-info-item">
+                                <i class="fas fa-user-tag"></i>
+                                <span>ID #{{ usuario.id }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════ -->
+            <!-- COLUNA DIREITA — FORMS                          -->
+            <!-- ═══════════════════════════════════════════════ -->
+            <div class="col-lg-8">
+
+                <!-- FORM PRINCIPAL -->
+                <form method="POST" action="{{ url_for('main.perfil') }}" enctype="multipart/form-data" id="perfilForm">
+
+                    <!-- Foto de perfil -->
+                    <div class="perfil-section">
+                        <div class="perfil-section-header">
+                            <div class="icon-box blue">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <div>
+                                <h5>Foto de Perfil</h5>
+                                <small>Enquadre seu rosto para causar uma ótima impressão</small>
+                            </div>
+                        </div>
+                        <div class="perfil-section-body">
+                            <div class="crop-preview-area">
+                                <div class="crop-preview-avatar">
+                                    {% if usuario.foto_url %}
+                                        <img id="avatarPreview2" src="{{ usuario.foto_url }}" alt="Avatar">
+                                    {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
+                                        <img id="avatarPreview2" src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" alt="Avatar">
+                                    {% else %}
+                                        <div id="avatarPlaceholder2" class="placeholder-avatar">
+                                            {{ usuario.nome[0]|upper }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="crop-preview-actions">
+                                    <input type="file" name="foto_perfil" id="fotoPerfil" class="d-none" accept="image/*">
+                                    <button type="button" class="btn-pick-photo"
+                                            onclick="document.getElementById('fotoPerfil').click()">
+                                        <i class="fas fa-folder-open"></i>
+                                        Escolher nova foto
+                                    </button>
+                                    <button type="button" class="btn-remove-photo d-none"
+                                            id="btnRemoverFoto"
+                                            onclick="removerFotoSelecionada()">
+                                        <i class="fas fa-trash"></i>
+                                        Cancelar seleção
+                                    </button>
+                                    <span id="nomeArquivo" class="file-hint">Nenhum arquivo escolhido</span>
+                                    <span class="file-hint">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        JPG, PNG ou GIF — máx 5MB. Após escolher, enquadre o rosto.
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dados básicos -->
+                    <div class="perfil-section">
+                        <div class="perfil-section-header">
+                            <div class="icon-box blue">
+                                <i class="fas fa-user-edit"></i>
+                            </div>
+                            <div>
+                                <h5>Informações Básicas</h5>
+                                <small>Dados visíveis para outros usuários</small>
+                            </div>
+                        </div>
+                        <div class="perfil-section-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="perfil-label">Nome completo</label>
+                                    <div class="perfil-input-group">
+                                        <i class="fas fa-user input-icon-left"></i>
+                                        <input type="text" name="nome" class="form-control"
+                                               value="{{ usuario.nome }}" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="perfil-label">E-mail</label>
+                                    <div class="perfil-input-group">
+                                        <i class="fas fa-envelope input-icon-left"></i>
+                                        <input type="email" name="email" class="form-control"
+                                               value="{{ usuario.email }}" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="perfil-label">Telefone</label>
+                                    <div class="perfil-input-group">
+                                        <i class="fas fa-phone input-icon-left"></i>
+                                        <input type="text" name="telefone" class="form-control"
+                                               value="{{ usuario.telefone or '' }}"
+                                               placeholder="(00) 00000-0000"
+                                               data-mask="telefone">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="perfil-label">Tipo de conta</label>
+                                    <div class="perfil-input-group">
+                                        <i class="fas fa-user-tag input-icon-left"></i>
+                                        <input type="text" class="form-control"
+                                               value="{{ 'Prestador' if usuario.tipo == 'prestador' else 'Cliente' }}"
+                                               disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sobre mim (só prestador) -->
+                    {% if usuario.tipo == 'prestador' %}
+                    <div class="perfil-section">
+                        <div class="perfil-section-header">
+                            <div class="icon-box amber">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <div>
+                                <h5>Sobre Mim</h5>
+                                <small>Compartilhe suas experiências e habilidades</small>
+                            </div>
+                        </div>
+                        <div class="perfil-section-body">
+                            <label class="perfil-label">Descrição profissional</label>
+                            <textarea name="descricao" class="form-control" rows="5"
+                                      placeholder="Conte um pouco sobre você, suas experiências, habilidades e áreas de atuação...">{{ usuario.descricao or '' }}</textarea>
+                            <small class="text-muted d-block mt-2" style="font-size: 0.8rem;">
+                                <i class="fas fa-lightbulb text-warning me-1"></i>
+                                Um bom texto ajuda você a conquistar mais clientes
+                            </small>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Botões -->
+                    <div class="d-flex gap-2 flex-wrap justify-content-end mb-2">
+                        <a href="{{ url_for('main.dashboard') }}" class="btn-perfil-cancel">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn-perfil-save">
+                            <i class="fas fa-save"></i> Salvar Alterações
                         </button>
-                        <span id="nomeArquivo" class="ms-2 text-muted small">Nenhum arquivo escolhido</span>
-                        <small class="text-muted d-block mt-2">Formatos: JPG, PNG. Máx: 5MB</small>
+                    </div>
+                </form>
+
+                <!-- Segurança (form separado) -->
+                <div class="perfil-section">
+                    <div class="perfil-section-header">
+                        <div class="icon-box slate">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <h5>Segurança</h5>
+                            <small>Altere sua senha periodicamente</small>
+                        </div>
+                    </div>
+                    <div class="perfil-section-body">
+                        <form method="POST" action="{{ url_for('main.alterar_senha') }}">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="perfil-label">Senha atual</label>
+                                    <div class="perfil-input-group">
+                                        <i class="fas fa-lock input-icon-left"></i>
+                                        <input type="password" name="senha_atual" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="perfil-label">Nova senha</label>
+                                    <div class="perfil-input-group">
+                                        <i class="fas fa-key input-icon-left"></i>
+                                        <input type="password" name="nova_senha" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="perfil-label">Confirmar senha</label>
+                                    <div class="perfil-input-group">
+                                        <i class="fas fa-key input-icon-left"></i>
+                                        <input type="password" name="confirmar_senha" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn-perfil-security">
+                                    <i class="fas fa-key"></i>
+                                    Alterar Senha
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
-                <!-- Descrição (apenas para prestadores) -->
-                {% if usuario.tipo == 'prestador' %}
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Sobre mim</label>
-                    <textarea name="descricao" class="form-control rounded-3" rows="4" 
-                              placeholder="Conte um pouco sobre você, suas experiências, habilidades e áreas de atuação...">{{ usuario.descricao or '' }}</textarea>
-                    <small class="text-muted">Compartilhe suas experiências, habilidades e áreas de atuação</small>
-                </div>
-                {% endif %}
-
-                <!-- Botões -->
-                <div class="d-flex gap-2 mt-4">
-                    <button type="submit" class="btn btn-primary flex-grow-1 py-2 rounded-pill">
-                        <i class="fas fa-save me-2"></i> Salvar Alterações
-                    </button>
-                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary px-4 rounded-pill">
-                        <i class="fas fa-times me-2"></i> Cancelar
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Seção de segurança (apenas para usuários com senha) -->
-    <div class="card mt-4 shadow-sm border-0 rounded-4">
-        <div class="card-header bg-secondary text-white rounded-top-4 py-3">
-            <h5 class="mb-0">
-                <i class="fas fa-shield-alt me-2"></i>
-                Segurança
-            </h5>
-        </div>
-        <div class="card-body p-4">
-            <form method="POST" action="{{ url_for('main.alterar_senha') }}">
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Senha atual</label>
-                        <input type="password" name="senha_atual" class="form-control rounded-3" required>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Nova senha</label>
-                        <input type="password" name="nova_senha" class="form-control rounded-3" required>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Confirmar nova senha</label>
-                        <input type="password" name="confirmar_senha" class="form-control rounded-3" required>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-warning rounded-pill px-4">
-                    <i class="fas fa-key me-2"></i> Alterar Senha
-                </button>
-            </form>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MODAL DE CROP                                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="cropModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-crop-alt"></i> Ajustar Foto de Perfil
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="crop-container">
+                    <img id="cropImage" src="" alt="Preview">
+                </div>
+                <div class="crop-hint">
+                    <i class="fas fa-info-circle"></i>
+                    Arraste a imagem e use os controles para enquadrar bem o rosto
+                </div>
+                <div class="crop-zoom-controls">
+                    <button type="button" class="btn-crop-circle" id="cropZoomOut" title="Diminuir">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button type="button" class="btn-crop-circle" id="cropRotateLeft" title="Girar 90° esquerda">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn-crop-circle" id="cropRotateRight" title="Girar 90° direita">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                    <button type="button" class="btn-crop-circle" id="cropReset" title="Resetar">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button type="button" class="btn-crop-circle" id="cropZoomIn" title="Aumentar">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-primary rounded-pill" id="cropConfirm">
+                    <i class="fas fa-check me-2"></i> Aplicar Recorte
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCRIPT: Crop + Máscara                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
 <script>
-    document.getElementById('fotoPerfil')?.addEventListener('change', function(e) {
+(function() {
+    'use strict';
+
+    const inputFoto = document.getElementById('fotoPerfil');
+    const nomeArquivo = document.getElementById('nomeArquivo');
+    const btnRemover = document.getElementById('btnRemoverFoto');
+    const cropModalEl = document.getElementById('cropModal');
+    const cropImage = document.getElementById('cropImage');
+
+    if (!inputFoto || !cropModalEl || typeof Cropper === 'undefined') {
+        console.warn('⚠️ Crop não inicializado (faltando Cropper.js?)');
+        return;
+    }
+
+    const cropModal = new bootstrap.Modal(cropModalEl, { backdrop: 'static', keyboard: false });
+    let cropper = null;
+    let arquivoOriginalNome = 'foto-perfil.jpg';
+
+    // Escolher arquivo → abre modal
+    inputFoto.addEventListener('change', function(e) {
         const file = e.target.files[0];
-        const nomeArquivo = document.getElementById('nomeArquivo');
-        if (file) {
-            nomeArquivo.textContent = file.name;
-        } else {
-            nomeArquivo.textContent = 'Nenhum arquivo escolhido';
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert('A imagem deve ter no máximo 5MB');
+            inputFoto.value = '';
+            return;
         }
+        if (!file.type.startsWith('image/')) {
+            alert('Por favor, escolha uma imagem válida');
+            inputFoto.value = '';
+            return;
+        }
+
+        arquivoOriginalNome = file.name || 'foto-perfil.jpg';
+
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            cropImage.src = ev.target.result;
+            cropModal.show();
+
+            cropModalEl.addEventListener('shown.bs.modal', function onShown() {
+                cropModalEl.removeEventListener('shown.bs.modal', onShown);
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(cropImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 0.9,
+                    background: false,
+                    modal: true,
+                    guides: true,
+                    center: true,
+                    highlight: false,
+                    responsive: true,
+                    restore: false,
+                    checkOrientation: false,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false
+                });
+            });
+        };
+        reader.readAsDataURL(file);
     });
+
+    // Controles
+    document.getElementById('cropZoomIn')?.addEventListener('click', () => cropper?.zoom(0.1));
+    document.getElementById('cropZoomOut')?.addEventListener('click', () => cropper?.zoom(-0.1));
+    document.getElementById('cropRotateLeft')?.addEventListener('click', () => cropper?.rotate(-90));
+    document.getElementById('cropRotateRight')?.addEventListener('click', () => cropper?.rotate(90));
+    document.getElementById('cropReset')?.addEventListener('click', () => cropper?.reset());
+
+    // Confirmar
+    document.getElementById('cropConfirm')?.addEventListener('click', function() {
+        if (!cropper) return;
+
+        const canvas = cropper.getCroppedCanvas({
+            width: 500,
+            height: 500,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+            fillColor: '#ffffff'
+        });
+
+        canvas.toBlob(function(blob) {
+            if (!blob) { alert('Erro ao processar imagem'); return; }
+
+            const nomeSaida = arquivoOriginalNome.replace(/\.[^.]+$/, '') + '-cropped.jpg';
+            const novoFile = new File([blob], nomeSaida, { type: 'image/jpeg' });
+
+            const dt = new DataTransfer();
+            dt.items.add(novoFile);
+            inputFoto.files = dt.files;
+
+            const previewUrl = URL.createObjectURL(blob);
+
+            // Atualiza avatar do card lateral
+            const avatarPreview = document.getElementById('avatarPreview');
+            const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+            if (avatarPreview) {
+                avatarPreview.src = previewUrl;
+            } else if (avatarPlaceholder) {
+                const img = document.createElement('img');
+                img.id = 'avatarPreview';
+                img.src = previewUrl;
+                img.alt = 'Avatar';
+                img.className = 'perfil-side-avatar';
+                avatarPlaceholder.parentNode.replaceChild(img, avatarPlaceholder);
+            }
+
+            // Atualiza avatar da seção do form
+            const avatarPreview2 = document.getElementById('avatarPreview2');
+            const avatarPlaceholder2 = document.getElementById('avatarPlaceholder2');
+            if (avatarPreview2) {
+                avatarPreview2.src = previewUrl;
+            } else if (avatarPlaceholder2) {
+                const img2 = document.createElement('img');
+                img2.id = 'avatarPreview2';
+                img2.src = previewUrl;
+                img2.alt = 'Avatar';
+                avatarPlaceholder2.parentNode.replaceChild(img2, avatarPlaceholder2);
+            }
+
+            if (nomeArquivo) {
+                nomeArquivo.textContent = '✓ ' + nomeSaida;
+                nomeArquivo.classList.add('file-chosen');
+            }
+            btnRemover?.classList.remove('d-none');
+
+            cropModal.hide();
+            setTimeout(() => {
+                if (cropper) { cropper.destroy(); cropper = null; }
+            }, 350);
+
+        }, 'image/jpeg', 0.9);
+    });
+
+    cropModalEl.addEventListener('hidden.bs.modal', function() {
+        if (cropper) { cropper.destroy(); cropper = null; }
+    });
+
+    // Cancelar seleção de foto
+    window.removerFotoSelecionada = function() {
+        inputFoto.value = '';
+        nomeArquivo.textContent = 'Nenhum arquivo escolhido';
+        nomeArquivo.classList.remove('file-chosen');
+        btnRemover?.classList.add('d-none');
+    };
+})();
 </script>
 {% endblock %}
