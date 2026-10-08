@@ -224,3 +224,52 @@ def servicos_recentes_api():
         'offset': offset,
         'limit': limit
     })
+
+@main_bp.route('/desentupimento-em-cruzeiro')
+def desentupimento_cruzeiro():
+    """Página SEO local para desentupimento em Cruzeiro - SP"""
+    from models import Servico
+    
+    # Busca serviços de desentupimento/encanamento em destaque
+    servicos_destaque = Servico.query.filter(
+        Servico.destaque == True
+    ).order_by(Servico.data_postagem.desc()).limit(8).all()
+    
+    return render_template('servico/pagina_desentupimento.html',
+                         servicos_destaque=servicos_destaque)
+
+# ============================================
+# PÁGINAS SEO LOCAIS - EMERGÊNCIAS EM CRUZEIRO
+# ============================================
+
+@main_bp.route('/chaveiro-em-cruzeiro')
+def chaveiro_cruzeiro():
+    """Página SEO local para chaveiro em Cruzeiro - SP"""
+    from models import Servico
+    servicos_destaque = Servico.query.filter(
+        Servico.destaque == True
+    ).order_by(Servico.data_postagem.desc()).limit(8).all()
+    return render_template('servico/emergencia/chaveiro.html',
+                         servicos_destaque=servicos_destaque)
+
+
+@main_bp.route('/eletricista-em-cruzeiro')
+def eletricista_cruzeiro():
+    """Página SEO local para eletricista em Cruzeiro - SP"""
+    from models import Servico
+    servicos_destaque = Servico.query.filter(
+        Servico.destaque == True
+    ).order_by(Servico.data_postagem.desc()).limit(8).all()
+    return render_template('servico/emergencia/eletricista.html',
+                         servicos_destaque=servicos_destaque)
+
+
+@main_bp.route('/vidraceiro-em-cruzeiro')
+def vidraceiro_cruzeiro():
+    """Página SEO local para vidraceiro em Cruzeiro - SP"""
+    from models import Servico
+    servicos_destaque = Servico.query.filter(
+        Servico.destaque == True
+    ).order_by(Servico.data_postagem.desc()).limit(8).all()
+    return render_template('servico/emergencia/vidraceiro.html',
+                         servicos_destaque=servicos_destaque)
