@@ -1,37 +1,63 @@
-<!-- Seção: Depoimentos Reais -->
-<div class="section-alt py-4 py-md-5">
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- DEPOIMENTOS PREMIUM — O que dizem nossos clientes          -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section-alt py-5">
     <div class="container">
-        <h2 class="section-title text-center mb-4 mb-md-5" style="font-size: clamp(1.3rem, 5vw, 2rem);">
-            <i class="fas fa-quote-left me-2 text-primary"></i> O que dizem nossos clientes
-        </h2>
-        
+
+        <!-- Cabeçalho -->
+        <div class="depo-header">
+    <span class="depo-eyebrow">
+        <i class="fas fa-quote-left"></i> DEPOIMENTOS
+    </span>
+    <h2 class="section-title mb-3">
+        O que dizem nossos <span class="gradient-text">clientes</span>
+    </h2>
+    <p class="depo-subtitle">
+        Avaliações reais de quem já usou a plataforma
+    </p>
+        </div>
+
         {% if depoimentos %}
         <div class="row g-4">
             {% for depoimento in depoimentos %}
             <div class="col-md-6 col-lg-4">
-                <div class="testimonial-card p-4 rounded-4 shadow-sm bg-white h-100 transition">
-                    <div class="stars mb-3">
+                <div class="testimonial-card">
+                    <!-- Aspas decorativas -->
+                    <div class="testimonial-quote-mark" aria-hidden="true">"</div>
+
+                    <!-- Estrelas -->
+                    <div class="testimonial-stars">
                         {% for i in range(5) %}
                             {% if i < depoimento.nota %}
-                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star"></i>
                             {% else %}
-                                <i class="far fa-star text-warning"></i>
+                                <i class="far fa-star"></i>
                             {% endif %}
                         {% endfor %}
                         {% if depoimento.data %}
-                            <span class="ms-2 text-muted small">{{ depoimento.data }}</span>
+                            <span class="testimonial-date">{{ depoimento.data }}</span>
                         {% endif %}
                     </div>
-                    
-                    <p class="text-muted fst-italic mb-3" style="font-size: clamp(0.85rem, 3.5vw, 1rem);">
+
+                    <!-- Texto -->
+                    <p class="testimonial-text">
                         "{{ depoimento.texto }}"
                     </p>
-                    
-                    <div class="testimonial-author d-flex align-items-center mt-2 pt-2 border-top">
-                        <i class="fas fa-user-circle fa-2x fa-md-3x {% if depoimento.tipo == 'Cliente' %}text-primary{% else %}text-success{% endif %}"></i>
-                        <div class="ms-3">
-                            <strong class="d-block" style="font-size: clamp(0.9rem, 3.5vw, 1rem);">{{ depoimento.nome }}</strong>
-                            <small class="text-muted" style="font-size: clamp(0.7rem, 2.5vw, 0.8rem);">{{ depoimento.tipo }}</small>
+
+                    <!-- Autor -->
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar
+                            {% if depoimento.tipo == 'Cliente' %}avatar-cliente{% else %}avatar-prestador{% endif %}">
+                            <i class="fas
+                                {% if depoimento.tipo == 'Cliente' %}fa-user{% else %}fa-briefcase{% endif %}">
+                            </i>
+                        </div>
+                        <div class="testimonial-info">
+                            <strong class="testimonial-name">{{ depoimento.nome }}</strong>
+                            <span class="testimonial-role
+                                {% if depoimento.tipo == 'Cliente' %}role-cliente{% else %}role-prestador{% endif %}">
+                                {{ depoimento.tipo }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -39,14 +65,390 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="alert alert-info text-center rounded-4 py-5">
-            <i class="fas fa-info-circle fa-3x mb-3"></i>
-            <h5>Seja o primeiro a avaliar um prestador!</h5>
-            <p>Sua opinião é muito importante para outros clientes.</p>
-            <a href="{{ url_for('servico.lista') }}" class="btn btn-primary rounded-pill px-4 mt-2">
+        <!-- Empty state -->
+        <div class="depo-empty">
+            <div class="depo-empty-icon">
+                <i class="fas fa-quote-right"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Seja o primeiro a avaliar um prestador!</h5>
+            <p class="text-muted mb-4">Sua opinião é muito importante para outros clientes.</p>
+            <a href="{{ url_for('servico.lista') }}" class="btn btn-primary rounded-pill px-4 py-2">
                 <i class="fas fa-search me-2"></i> Explorar Serviços
             </a>
         </div>
         {% endif %}
+
     </div>
 </div>
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   💬 DEPOIMENTOS PREMIUM 2025
+   ═══════════════════════════════════════════════════════════ */
+
+/* ──────────────────────────────────────────────
+   CABEÇALHO
+   ────────────────────────────────────────────── */
+.depo-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    color: #1a6d8f;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    border: 1px solid #bfdbfe;
+}
+
+.depo-eyebrow i {
+    font-size: 0.7rem;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.depo-subtitle {
+    color: #64748b;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 0;
+}
+
+/* ──────────────────────────────────────────────
+   CARD DE DEPOIMENTO
+   ────────────────────────────────────────────── */
+.testimonial-card {
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 2rem 1.75rem 1.5rem;
+    border: 1px solid rgba(11, 43, 92, 0.06);
+    box-shadow: 0 4px 20px -8px rgba(11, 43, 92, 0.06);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.testimonial-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #0b2b5c, #1a6d8f, #f59e0b);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.testimonial-card:hover::before {
+    transform: scaleX(1);
+}
+
+.testimonial-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 24px 48px -16px rgba(11, 43, 92, 0.18),
+                0 0 0 1px rgba(26, 109, 143, 0.08);
+    border-color: rgba(26, 109, 143, 0.15);
+}
+
+/* ──────────────────────────────────────────────
+   ASPAS DECORATIVAS
+   ────────────────────────────────────────────── */
+.testimonial-quote-mark {
+    position: absolute;
+    top: -30px;
+    right: 16px;
+    font-size: 8rem;
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 1;
+    background: linear-gradient(180deg, rgba(26, 109, 143, 0.12) 0%, rgba(26, 109, 143, 0.02) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    pointer-events: none;
+    user-select: none;
+    transition: transform 0.4s ease;
+}
+
+.testimonial-card:hover .testimonial-quote-mark {
+    transform: scale(1.08) rotate(-4deg);
+}
+
+/* ──────────────────────────────────────────────
+   ESTRELAS
+   ────────────────────────────────────────────── */
+.testimonial-stars {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.testimonial-stars i {
+    color: #fbbf24;
+    font-size: 0.95rem;
+    filter: drop-shadow(0 1px 3px rgba(245, 158, 11, 0.3));
+    transition: transform 0.3s ease;
+}
+
+.testimonial-card:hover .testimonial-stars i {
+    transform: scale(1.08);
+}
+
+.testimonial-stars .far.fa-star {
+    color: #cbd5e1;
+    filter: none;
+}
+
+.testimonial-date {
+    margin-left: 8px;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* ──────────────────────────────────────────────
+   TEXTO DO DEPOIMENTO
+   ────────────────────────────────────────────── */
+.testimonial-text {
+    color: #475569;
+    font-size: 0.92rem;
+    font-style: italic;
+    line-height: 1.65;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ──────────────────────────────────────────────
+   AUTOR
+   ────────────────────────────────────────────── */
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 1.25rem;
+    border-top: 1px solid #f1f5f9;
+    position: relative;
+    z-index: 1;
+    margin-top: auto;
+}
+
+.testimonial-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1rem;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 12px -4px rgba(11, 43, 92, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.testimonial-card:hover .testimonial-avatar {
+    transform: scale(1.06);
+}
+
+.avatar-cliente {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+}
+
+.avatar-prestador {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: #ffffff;
+}
+
+.testimonial-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.testimonial-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0b2b5c;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.testimonial-role {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 50px;
+    width: fit-content;
+}
+
+.role-cliente {
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+.role-prestador {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+/* ──────────────────────────────────────────────
+   EMPTY STATE
+   ────────────────────────────────────────────── */
+.depo-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 24px;
+    border: 1.5px dashed #cbd5e1;
+}
+
+.depo-empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 8px 20px -6px rgba(26, 109, 143, 0.15);
+}
+
+.depo-empty-icon i {
+    color: #1a6d8f;
+    font-size: 1.85rem;
+}
+
+.depo-empty h5 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #0b2b5c;
+}
+
+.depo-empty .btn-primary {
+    font-weight: 700;
+    box-shadow: 0 8px 20px -6px rgba(11, 43, 92, 0.4);
+    transition: all 0.3s ease;
+}
+
+.depo-empty .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -6px rgba(11, 43, 92, 0.55);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📱 RESPONSIVO
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .testimonial-card {
+        padding: 1.5rem 1.25rem 1.25rem;
+    }
+
+    .testimonial-quote-mark {
+        font-size: 6rem;
+        top: -20px;
+        right: 12px;
+    }
+
+    .testimonial-text {
+        font-size: 0.88rem;
+        -webkit-line-clamp: 4;
+    }
+
+    .testimonial-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+
+    .testimonial-name {
+        font-size: 0.9rem;
+    }
+
+    /* Desativa hover pesado no touch */
+    .testimonial-card:hover {
+        transform: none;
+    }
+
+    .testimonial-card:hover .testimonial-quote-mark {
+        transform: none;
+    }
+
+    .testimonial-card:hover .testimonial-avatar {
+        transform: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .depo-eyebrow {
+        font-size: 0.65rem;
+        padding: 4px 12px;
+    }
+
+    .depo-subtitle {
+        font-size: 0.88rem;
+    }
+
+    .testimonial-card {
+        padding: 1.35rem 1.1rem 1.1rem;
+    }
+}
+    .depo-header {
+        text-align: left;
+        margin-bottom: 3rem;
+        max-width: 640px;
+    }
+
+    .depo-header .section-title {
+        margin-bottom: 0.75rem !important;
+    }
+
+    .depo-header .depo-subtitle {
+        margin: 0;
+        text-align: left;
+    }
+
+/* ═══════════════════════════════════════════════════════════
+   🔒 ACESSIBILIDADE
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    .testimonial-card,
+    .testimonial-avatar,
+    .testimonial-stars i,
+    .testimonial-quote-mark {
+        transition: none !important;
+    }
+}
+</style>

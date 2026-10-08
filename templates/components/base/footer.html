@@ -1,263 +1,799 @@
-<footer class="footer pt-5 pb-4">
-    <div class="container">
-        <div class="row gy-4">
-            
-            <!-- ============================================ -->
-            <!-- COLUNA 1: SOBRE -->
-            <!-- ============================================ -->
-            <div class="col-md-4">
-                <h5 class="fw-bold mb-3 text-white">
-                    <img src="{{ url_for('static', filename='img/logo.png') }}" 
-                         alt="HiringScope" 
-                         style="height: 32px;" 
-                         onerror="this.style.display='none';">
-                    <i class="fas fa-tools me-2 d-none" id="footerFallbackIcon"></i>
-                    <span>HiringScope</span>
-                </h5>
-                <p class="text-white-50 small">
-                    Conectamos clientes e prestadores de serviços em 
-                    <strong class="text-white">Cruzeiro - SP</strong> de forma simples, 
-                    rápida e segura.
-                </p>
-                
-                <!-- Redes sociais -->
-                <div class="social-links mt-3">
-                    <a href="#" class="me-2" aria-label="Facebook" title="Facebook">
-                        <i class="fab fa-facebook-f"></i>
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FOOTER PREMIUM 2025                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<footer class="footer">
+    <!-- Camadas decorativas -->
+    <div class="footer-glow footer-glow-1" aria-hidden="true"></div>
+    <div class="footer-glow footer-glow-2" aria-hidden="true"></div>
+
+    <div class="container position-relative">
+
+        <!-- Grid principal -->
+        <div class="row gy-5 footer-main">
+
+            <!-- Coluna 1: Brand -->
+            <div class="col-lg-4 col-md-12">
+                <div class="footer-brand">
+                    <a href="{{ url_for('main.index') }}" class="footer-logo">
+                        <img src="{{ url_for('static', filename='img/logo.png') }}"
+                            alt="HiringScope"
+                            class="footer-logo-img"
+                            onerror="this.onerror=null; this.parentNode.innerHTML='<span class=&quot;footer-logo-fallback&quot;>HiringScope</span>';">
                     </a>
-                    <a href="#" class="me-2" aria-label="Instagram" title="Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="me-2" aria-label="Twitter" title="Twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="me-2" aria-label="LinkedIn" title="LinkedIn">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
+
+                    <p class="footer-desc">
+                        Conectamos clientes e prestadores de serviços em
+                        <strong>Cruzeiro - SP</strong> de forma simples, rápida e segura.
+                    </p>
+
+                    <!-- Social -->
+                    <div class="footer-social">
+                        <a href="#" class="footer-social-link" aria-label="Facebook" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="footer-social-link" aria-label="Instagram" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="footer-social-link" aria-label="Twitter" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="footer-social-link" aria-label="LinkedIn" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <!-- ============================================ -->
-            <!-- COLUNA 2: LINKS -->
-            <!-- ============================================ -->
-            <div class="col-md-2">
-                <h5 class="fw-bold mb-3 text-white">Links</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <a href="{{ url_for('main.index') }}" class="text-white-50 text-decoration-none">
-                            <i class="fas fa-home me-2"></i>Início
+            <!-- Coluna 2: Links -->
+            <div class="col-lg-2 col-md-4 col-6">
+                <h5 class="footer-title">Links</h5>
+                <ul class="footer-list">
+                    <li>
+                        <a href="{{ url_for('main.index') }}">
+                            <i class="fas fa-home"></i> Início
                         </a>
                     </li>
-                    <li class="mb-2">
-                        <a href="{{ url_for('servico.lista') }}" class="text-white-50 text-decoration-none">
-                            <i class="fas fa-search me-2"></i>Serviços
+                    <li>
+                        <a href="{{ url_for('servico.lista') }}">
+                            <i class="fas fa-search"></i> Serviços
                         </a>
                     </li>
                     {% if current_user.is_authenticated %}
-                        <li class="mb-2">
-                            <a href="{{ url_for('main.dashboard') }}" class="text-white-50 text-decoration-none">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        <li>
+                            <a href="{{ url_for('main.dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
                             </a>
                         </li>
                     {% else %}
-                        <li class="mb-2">
-                            <a href="{{ url_for('auth.cadastro') }}" class="text-white-50 text-decoration-none">
-                                <i class="fas fa-user-plus me-2"></i>Cadastro
+                        <li>
+                            <a href="{{ url_for('auth.cadastro') }}">
+                                <i class="fas fa-user-plus"></i> Cadastro
                             </a>
                         </li>
-                        <li class="mb-2">
-                            <a href="{{ url_for('auth.login') }}" class="text-white-50 text-decoration-none">
-                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                        <li>
+                            <a href="{{ url_for('auth.login') }}">
+                                <i class="fas fa-sign-in-alt"></i> Login
                             </a>
                         </li>
                     {% endif %}
                 </ul>
             </div>
 
-            <!-- ============================================ -->
-            <!-- COLUNA 3: ATENDIMENTO -->
-            <!-- ============================================ -->
-            <div class="col-md-3">
-                <h5 class="fw-bold mb-3 text-white">Atendimento</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2 text-white-50">
-                        <i class="fas fa-map-marker-alt me-2 text-warning"></i>
-                        <strong class="text-white">Cruzeiro - SP</strong>
+            <!-- Coluna 3: Atendimento -->
+            <div class="col-lg-3 col-md-4 col-6">
+                <h5 class="footer-title">Atendimento</h5>
+                <ul class="footer-contact">
+                    <li>
+                        <span class="footer-contact-icon footer-contact-icon-clock">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </span>
+                        <span><strong>Cruzeiro - SP</strong></span>
                     </li>
-                    <li class="mb-2 text-white-50">
-                        <i class="fas fa-envelope me-2"></i>
-                        <a href="mailto:contato@hiring-scope.com.br" class="text-white-50 text-decoration-none">
+                    <li>
+                        <span class="footer-contact-icon footer-contact-icon-email">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <a href="mailto:contato@hiring-scope.com.br" style="color: inherit; text-decoration: none;">
                             contato@hiring-scope.com.br
                         </a>
                     </li>
-                    <li class="mb-2 text-white-50">
-                        <i class="fas fa-phone me-2"></i>
-                        <a href="https://wa.me/5512974085264" target="_blank" class="text-white-50 text-decoration-none">
+                    <li>
+                        <span class="footer-contact-icon footer-contact-icon-phone">
+                            <i class="fas fa-phone"></i>
+                        </span>
+                        <a href="https://wa.me/5512974085264" target="_blank" rel="noopener" style="color: inherit; text-decoration: none;">
                             (12) 974-08 5264
                         </a>
                     </li>
-                    <li class="mb-2 text-white-50">
-                        <i class="fas fa-clock me-2"></i>
-                        Seg - Sex: 9h às 18h
+                    <li>
+                        <span class="footer-contact-icon footer-contact-icon-clock">
+                            <i class="fas fa-clock"></i>
+                        </span>
+                        <span>Seg - Sex: 9h às 18h</span>
                     </li>
                 </ul>
             </div>
 
-            <!-- ============================================ -->
-            <!-- COLUNA 4: NEWSLETTER -->
-            <!-- ============================================ -->
-            <div class="col-md-3">
-                <h5 class="fw-bold mb-3 text-white">Newsletter</h5>
-                <p class="text-white-50 small">
+            <!-- Coluna 4: Newsletter -->
+            <div class="col-lg-3 col-md-4 col-12">
+                <h5 class="footer-title">Newsletter</h5>
+                <p class="footer-newsletter-desc">
                     Receba novidades e ofertas exclusivas
                 </p>
-                <form action="#" method="POST" class="input-group">
-                    <input type="email" 
-                           name="email" 
-                           class="form-control form-control-sm bg-dark text-white border-secondary" 
-                           placeholder="Seu e-mail">
-                    <button class="btn btn-primary btn-sm" type="submit" aria-label="Inscrever">
+
+                <form action="#" method="POST" class="footer-newsletter-form">
+                    <div class="footer-newsletter-input-wrapper">
+                        <i class="fas fa-envelope footer-newsletter-icon"></i>
+                        <input type="email"
+                               name="email"
+                               class="footer-newsletter-input"
+                               placeholder="Seu e-mail"
+                               required>
+                    </div>
+                    <button class="footer-newsletter-btn" type="submit" aria-label="Inscrever">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </form>
-                <small class="text-white-50 d-block mt-2" style="font-size: 0.7rem;">
+
+                <p class="footer-newsletter-note">
+                    <i class="fas fa-lock"></i> Seus dados estão seguros
+                </p>
+                <p class="footer-newsletter-note">
                     Ao se inscrever, você aceita nossos termos.
-                </small>
+                </p>
             </div>
-            
+
         </div>
 
-        <!-- ============================================ -->
-        <!-- RODAPÉ INFERIOR -->
-        <!-- ============================================ -->
-        <hr class="my-4 border-secondary opacity-50">
-        <div class="text-center">
-            <p class="mb-0 text-white-50 small">
-                &copy; 2026 <strong class="text-white">HiringScope</strong>. 
-                Todos os direitos reservados. 
-                Feito com <i class="fas fa-heart text-danger"></i> em 
-                <strong class="text-white">Cruzeiro - SP</strong>.
+        <!-- Divisor -->
+        <div class="footer-divider"></div>
+
+        <!-- Rodapé inferior -->
+        <div class="footer-bottom">
+            <p class="footer-copyright">
+                &copy; 2026 <strong>HiringScope</strong>. Todos os direitos reservados.
+            </p>
+            <p class="footer-made">
+                Feito com <i class="fas fa-heart"></i> para conectar profissionais em <strong>Cruzeiro - SP</strong>
             </p>
         </div>
+
     </div>
 </footer>
 
 <style>
+/* ═══════════════════════════════════════════════════════════
+   🎨 FOOTER PREMIUM 2025
+   ═══════════════════════════════════════════════════════════ */
+
+.footer {
+    position: relative;
+    background:
+        radial-gradient(ellipse at 20% 0%, rgba(59, 178, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
+        linear-gradient(180deg, #071a36 0%, #0a1f3d 50%, #0b2b44 100%);
+    color: #cbd5e6;
+    padding: 5rem 0 2rem;
+    margin-top: 4rem;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+/* Linha gradiente no topo */
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        #0b2b5c 20%,
+        #f59e0b 50%,
+        #0b2b5c 80%,
+        transparent 100%);
+    z-index: 2;
+}
+
+/* Glows decorativos */
+.footer-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.5;
+}
+
+.footer-glow-1 {
+    top: -50px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(59, 178, 255, 0.15) 0%, transparent 70%);
+}
+
+.footer-glow-2 {
+    bottom: -50px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 70%);
+}
+
+.footer .container {
+    position: relative;
+    z-index: 3;
+}
+
+/* ──────────────────────────────────────────────
+   COLUNA 1 — BRAND
+   ────────────────────────────────────────────── */
+.footer-brand {
+    padding-right: 1rem;
+}
+
+.footer-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    margin-bottom: 1.25rem;
+    transition: transform 0.3s ease;
+}
+
+.footer-logo:hover {
+    transform: translateY(-2px);
+}
+
+.footer-logo-img {
+    height: 44px;
+    width: auto;
+    display: block;
+}
+
+.footer-logo-fallback {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff, #c9dcf0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.footer-logo-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.15rem;
+    box-shadow:
+        0 8px 20px -6px rgba(245, 158, 11, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.footer-logo-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff, #c9dcf0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.footer-desc {
+    color: rgba(203, 213, 230, 0.7);
+    font-size: 0.9rem;
+    line-height: 1.65;
+    margin-bottom: 1.5rem;
+    max-width: 320px;
+}
+
+.footer-desc strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* Social */
+.footer-social {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.footer-social-link {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(203, 213, 230, 0.85);
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.footer-social-link:hover {
+    color: #ffffff;
+    transform: translateY(-3px);
+    border-color: transparent;
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.3);
+}
+
+.footer-social-link[aria-label="Facebook"]:hover {
+    background: linear-gradient(135deg, #1877F2, #0d5fcd);
+    box-shadow: 0 12px 24px -8px rgba(24, 119, 242, 0.5);
+}
+
+.footer-social-link[aria-label="Instagram"]:hover {
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    box-shadow: 0 12px 24px -8px rgba(220, 39, 67, 0.5);
+}
+
+.footer-social-link[aria-label="Twitter"]:hover {
+    background: linear-gradient(135deg, #1DA1F2, #0d8ddb);
+    box-shadow: 0 12px 24px -8px rgba(29, 161, 242, 0.5);
+}
+
+.footer-social-link[aria-label="LinkedIn"]:hover {
+    background: linear-gradient(135deg, #0A66C2, #084b8f);
+    box-shadow: 0 12px 24px -8px rgba(10, 102, 194, 0.5);
+}
+
+/* ──────────────────────────────────────────────
+   TÍTULOS DAS COLUNAS
+   ────────────────────────────────────────────── */
+.footer-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.footer-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 32px;
+    height: 2px;
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+}
+
+/* ──────────────────────────────────────────────
+   LINKS
+   ────────────────────────────────────────────── */
+.footer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.footer-list li a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(203, 213, 230, 0.75);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+.footer-list li a i {
+    width: 16px;
+    font-size: 0.75rem;
+    color: rgba(59, 178, 255, 0.7);
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+}
+
+.footer-list li a:hover {
+    color: #ffffff;
+    transform: translateX(4px);
+}
+
+.footer-list li a:hover i {
+    color: #f59e0b;
+    transform: scale(1.15);
+}
+
+/* ──────────────────────────────────────────────
+   CONTATO
+   ────────────────────────────────────────────── */
+.footer-contact {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.footer-contact li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(203, 213, 230, 0.75);
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: color 0.25s ease;
+}
+
+.footer-contact li:hover {
+    color: #ffffff;
+}
+
+.footer-contact li a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.footer-contact-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.footer-contact-icon-email {
+    background: rgba(139, 92, 246, 0.12);
+    color: #a78bfa;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+.footer-contact-icon-phone {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.footer-contact-icon-clock {
+    background: rgba(6, 182, 212, 0.12);
+    color: #22d3ee;
+    border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
+.footer-contact li:hover .footer-contact-icon-email {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    color: #ffffff;
+    box-shadow: 0 8px 20px -6px rgba(139, 92, 246, 0.5);
+}
+
+.footer-contact li:hover .footer-contact-icon-phone {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    box-shadow: 0 8px 20px -6px rgba(16, 185, 129, 0.5);
+}
+
+.footer-contact li:hover .footer-contact-icon-clock {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: #ffffff;
+    box-shadow: 0 8px 20px -6px rgba(6, 182, 212, 0.5);
+}
+
+/* ──────────────────────────────────────────────
+   NEWSLETTER
+   ────────────────────────────────────────────── */
+.footer-newsletter-desc {
+    color: rgba(203, 213, 230, 0.7);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 1.15rem;
+}
+
+.footer-newsletter-form {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.footer-newsletter-input-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.footer-newsletter-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(203, 213, 230, 0.4);
+    font-size: 0.85rem;
+    pointer-events: none;
+    transition: color 0.25s ease;
+}
+
+.footer-newsletter-input {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px 0 40px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.footer-newsletter-input::placeholder {
+    color: rgba(203, 213, 230, 0.4);
+    font-weight: 400;
+}
+
+.footer-newsletter-input:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+}
+
+.footer-newsletter-input-wrapper:focus-within .footer-newsletter-icon {
+    color: #f59e0b;
+}
+
+.footer-newsletter-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border: none;
+    color: #ffffff;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+        0 8px 20px -6px rgba(245, 158, 11, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    flex-shrink: 0;
+}
+
+.footer-newsletter-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow:
+        0 12px 28px -6px rgba(245, 158, 11, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.footer-newsletter-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.footer-newsletter-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 0.85rem;
+    margin-bottom: 0;
+    color: rgba(203, 213, 230, 0.5);
+    font-size: 0.72rem;
+    font-weight: 500;
+}
+
+.footer-newsletter-note i {
+    color: #34d399;
+    font-size: 0.7rem;
+}
+
+/* ──────────────────────────────────────────────
+   DIVISOR
+   ────────────────────────────────────────────── */
+.footer-divider {
+    height: 1px;
+    margin: 3.5rem 0 2rem;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 20%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.1) 80%,
+        transparent 100%);
+}
+
+/* ──────────────────────────────────────────────
+   RODAPÉ INFERIOR
+   ────────────────────────────────────────────── */
+.footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.footer-copyright,
+.footer-made {
+    margin: 0;
+    font-size: 0.82rem;
+    color: rgba(203, 213, 230, 0.6);
+    font-weight: 500;
+}
+
+.footer-copyright strong,
+.footer-made strong {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 700;
+}
+
+.footer-made {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.footer-made i {
+    color: #ef4444;
+    font-size: 0.75rem;
+    animation: heartBeat 2s ease-in-out infinite;
+}
+
+@keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.15); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📱 RESPONSIVO
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 992px) {
     .footer {
-        background: linear-gradient(135deg, #0a2540 0%, #0b2b5c 100%);
-        color: white;
-        position: relative;
-        overflow: hidden;
+        padding: 3.5rem 0 1.5rem;
     }
-    
-    /* Linha decorativa no topo */
-    .footer::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #f59e0b, #1a6d8f, #f59e0b);
+
+    .footer-brand {
+        padding-right: 0;
+        text-align: center;
     }
-    
-    /* Links do footer */
-    .footer a {
-        transition: all 0.2s ease;
+
+    .footer-desc {
+        margin-left: auto;
+        margin-right: auto;
     }
-    
-    .footer a:hover {
-        color: white !important;
-        padding-left: 4px;
-    }
-    
-    /* Ícone no título */
-    .footer h5 {
-        font-size: 1.1rem;
-        display: flex;
-        align-items: center;
-    }
-    
-    /* Social links */
-    .social-links a {
-        display: inline-flex;
-        align-items: center;
+
+    .footer-social {
         justify-content: center;
-        width: 38px;
-        height: 38px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 50%;
-        color: white;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
-    .social-links a:hover {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(245, 158, 11, 0.4);
-        color: white !important;
-        padding-left: 0 !important;
+
+    .footer-title::after {
+        left: 50%;
+        transform: translateX(-50%);
     }
-    
-    .social-links a i {
-        font-size: 0.95rem;
+
+    .footer-title,
+    .footer-list,
+    .footer-contact {
+        text-align: center;
     }
-    
-    /* Newsletter */
-    .footer input[type="email"] {
-        background: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        color: white;
-        padding: 8px 14px;
+
+    .footer-list li a,
+    .footer-contact li {
+        justify-content: center;
+    }
+
+    .footer-newsletter-desc,
+    .footer-newsletter-note {
+        text-align: center;
+    }
+
+    .footer-newsletter-form {
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .footer-newsletter-note {
+        display: flex;
+        justify-content: center;
+    }
+
+    .footer-bottom {
+        justify-content: center;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 576px) {
+    .footer {
+        padding: 3rem 0 1.5rem;
+    }
+
+    .footer-logo-text {
+        font-size: 1.25rem;
+    }
+
+    .footer-logo-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .footer-title {
+        font-size: 0.78rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .footer-list li a,
+    .footer-contact li {
         font-size: 0.85rem;
     }
-    
-    .footer input[type="email"]::placeholder {
-        color: rgba(255, 255, 255, 0.5);
+
+    .footer-social-link {
+        width: 38px;
+        height: 38px;
+        font-size: 0.85rem;
     }
-    
-    .footer input[type="email"]:focus {
-        background: rgba(255, 255, 255, 0.1) !important;
-        border-color: #f59e0b !important;
-        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15) !important;
-        color: white;
+
+    .footer-newsletter-input,
+    .footer-newsletter-btn {
+        height: 42px;
     }
-    
-    .footer .btn-primary {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-        border: none;
-        font-weight: 600;
+
+    .footer-divider {
+        margin: 2.5rem 0 1.5rem;
     }
-    
-    .footer .btn-primary:hover {
-        background: linear-gradient(135deg, #d97706, #b45309);
+
+    .footer-copyright,
+    .footer-made {
+        font-size: 0.75rem;
     }
-    
-    /* Responsividade */
-    @media (max-width: 768px) {
-        .footer h5 {
-            font-size: 1rem;
-        }
-        
-        .social-links a {
-            width: 34px;
-            height: 34px;
-        }
-        
-        .footer .col-md-4,
-        .footer .col-md-3,
-        .footer .col-md-2 {
-            text-align: center;
-        }
-        
-        .footer h5 {
-            justify-content: center;
-        }
-        
-        .footer ul {
-            padding-left: 0;
-        }
+
+    /* Empilhamento em telas bem pequenas */
+    .footer-list li a:hover {
+        transform: none;
     }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🔒 ACESSIBILIDADE
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    .footer-made i {
+        animation: none !important;
+    }
+
+    .footer-logo,
+    .footer-social-link,
+    .footer-list li a,
+    .footer-list li a i,
+    .footer-contact li,
+    .footer-contact-icon,
+    .footer-newsletter-input,
+    .footer-newsletter-btn,
+    .footer-newsletter-icon {
+        transition: none !important;
+    }
+}
 </style>

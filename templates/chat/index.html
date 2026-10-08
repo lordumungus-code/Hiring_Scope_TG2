@@ -698,6 +698,8 @@
     window.carregarConversa = function(usuarioId, usuarioNome, usuarioFoto) {
         console.log('🔍 Carregando conversa com:', usuarioNome, 'ID:', usuarioId);
         
+        window.chatAtivoCom = usuarioId;
+
         usuarioAtual = { id: usuarioId, nome: usuarioNome };
         conversaIdAtual = usuarioId;
         
@@ -866,6 +868,8 @@
     }
     
     function voltarParaLista() {
+         window.chatAtivoCom = null;
+         
         document.getElementById('chatSidebar').classList.remove('hidden-mobile');
         document.getElementById('chatMain').classList.add('hidden-mobile');
         document.getElementById('btnVoltarConversas').style.display = 'none';

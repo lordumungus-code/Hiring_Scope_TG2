@@ -3,160 +3,1106 @@
 {% block title %}Cadastrar Serviço - HiringScope{% endblock %}
 
 {% block content %}
-<div class="container mt-4" style="max-width: 800px;">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header bg-primary text-white rounded-top-4 py-3">
-            <h4 class="mb-0">
-                <i class="fas fa-plus-circle me-2"></i>
-                Cadastrar Novo Serviço
-            </h4>
-        </div>
-        <div class="card-body p-4">
-            <form method="POST" enctype="multipart/form-data">
-                <!-- Título -->
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Título do Serviço <span class="text-danger">*</span></label>
-                    <input type="text" name="titulo" class="form-control rounded-3" required>
-                </div>
+<section class="cadastro-servico-page">
+    <div class="container" style="max-width: 860px;">
 
-                <!-- Categoria -->
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Categoria <span class="text-danger">*</span></label>
-                    <select name="categoria" class="form-select rounded-3" required>
-                        <option value="">Selecione...</option>
-                        <option value="Tecnologia">💻 Tecnologia</option>
-                        <option value="Construção">🏗️ Construção</option>
-                        <option value="Design">🎨 Design</option>
-                        <option value="Limpeza">🧹 Limpeza</option>
-                        <option value="Jardinagem">🌿 Jardinagem</option>
-                        <option value="Educação">📚 Educação</option>
-                        <option value="Saúde">💊 Saúde</option>
-                        <option value="Marketing">📈 Marketing</option>
-                        <option value="Fotografia">📷 Fotografia</option>
-                        <option value="Segurança">🔒 Segurança</option>
-                    </select>
-                </div>
+        <div class="cad-servico-card">
 
-                <!-- Tipo de Precificação -->
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Tipo de Precificação</label>
-                    <div class="row g-2">
-                        <div class="col-md-4">
-                            <div class="form-check p-2 border rounded-3">
-                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoFixo" value="fixo" checked>
-                                <label class="form-check-label" for="precoFixo">💰 Preço Fixo</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-check p-2 border rounded-3">
-                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoHora" value="hora">
-                                <label class="form-check-label" for="precoHora">⏰ Por Hora</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-check p-2 border rounded-3">
-                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoDia" value="dia">
-                                <label class="form-check-label" for="precoDia">📅 Por Dia</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-check p-2 border rounded-3">
-                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoMetro" value="metro">
-                                <label class="form-check-label" for="precoMetro">📏 Por m²</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-check p-2 border rounded-3">
-                                <input class="form-check-input" type="radio" name="tipo_preco" id="precoConsulta" value="consulta">
-                                <label class="form-check-label" for="precoConsulta">💬 Sob Consulta</label>
-                            </div>
-                        </div>
+            <!-- Header -->
+            <div class="cad-header">
+                <div class="cad-header-glow"></div>
+                <div class="cad-header-content">
+                    <div class="cad-header-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <div>
+                        <h1 class="cad-title">Cadastrar Novo Serviço</h1>
+                        <p class="cad-subtitle">Preencha as informações para começar a oferecer</p>
                     </div>
                 </div>
+            </div>
 
-                <!-- Preço -->
-                <div class="mb-3" id="campoPreco">
-                    <label class="form-label fw-bold">Valor</label>
-                    <div class="input-group">
-                        <span class="input-group-text">R$</span>
-                        <input type="number" name="preco" id="precoInput" class="form-control rounded-3" step="0.01" placeholder="Ex: 150.00">
-                        <span class="input-group-text" id="unidadePreco"></span>
+            <!-- Body -->
+            <div class="cad-body">
+                <form method="POST" enctype="multipart/form-data">
+
+                    <!-- Título -->
+                    <div class="cad-field">
+                        <label class="cad-label">
+                            Título do Serviço
+                            <span class="cad-required">*</span>
+                        </label>
+                        <div class="cad-input-wrapper">
+                            <i class="fas fa-heading cad-input-icon"></i>
+                            <input type="text"
+                                   name="titulo"
+                                   class="cad-input"
+                                   placeholder="Ex: Instalação elétrica residencial"
+                                   required>
+                        </div>
                     </div>
-                    <small class="text-muted" id="descricaoPreco">Deixe em branco se for "preço sob consulta"</small>
-                </div>
 
-                <!-- ============================================ -->
-                <!-- DESTAQUE (CORRIGIDO COM VERIFICAÇÃO) -->
-                <!-- ============================================ -->
-                <div class="mb-3">
-                    {% if assinatura_ativa %}
-                        {% set total_destaques = servicos_em_destaque|length %}
-                        {% set limite_plano = 1 if assinatura_ativa.plano == 'basico' else 3 %}
-                        
-                        {% if total_destaques < limite_plano %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="destaque" id="destaqueCheck">
-                                <label class="form-check-label fw-bold" for="destaqueCheck">
-                                    <i class="fas fa-star text-warning me-1"></i> Serviço em Destaque
+                    <!-- Categoria -->
+                    <div class="cad-field">
+                        <label class="cad-label">
+                            Categoria
+                            <span class="cad-required">*</span>
+                        </label>
+                        <div class="cad-input-wrapper">
+                            <i class="fas fa-tag cad-input-icon"></i>
+                            <select name="categoria" class="cad-select" required>
+                            <option value="">Selecione uma categoria...</option>
+                            <optgroup label="🏠 Casa & Serviços">
+                                <option value="Construção">🏗️ Construção</option>
+                                <option value="Limpeza">🧹 Limpeza</option>
+                                <option value="Jardinagem">🌿 Jardinagem</option>
+                                <option value="Assistência Técnica">🔧 Assistência Técnica</option>
+                            </optgroup>
+                            <optgroup label="💼 Profissional & Negócios">
+                                <option value="Tecnologia">💻 Tecnologia</option>
+                                <option value="Design">🎨 Design</option>
+                                <option value="Marketing">📈 Marketing</option>
+                                <option value="Contabilidade">💼 Contabilidade</option>
+                            </optgroup>
+                            <optgroup label="👤 Pessoas & Cuidados">
+                                <option value="Saúde">💊 Saúde</option>
+                                <option value="Beleza & Estética">💅 Beleza & Estética</option>
+                                <option value="Bem-estar & Fitness">🧘 Bem-estar & Fitness</option>
+                                <option value="Educação">📚 Educação</option>
+                            </optgroup>
+                            <optgroup label="🎯 Outros Serviços">
+                                <option value="Fotografia">📷 Fotografia</option>
+                                <option value="Eventos">🎉 Eventos</option>
+                                <option value="Música">🎵 Música</option>    
+                                <option value="Pets">🐾 Pets</option>
+                                <option value="Automotivo">🚗 Automotivo</option>
+                                <option value="Transporte & Mudança">🚚 Transporte & Mudança</option>
+                                <option value="Segurança">🔒 Segurança</option>
+                            </optgroup>
+                        </select>
+                        </div>
+                    </div>
+
+                    <!-- Tipo de Precificação -->
+                    <div class="cad-field">
+                        <label class="cad-label">Tipo de Precificação</label>
+                        <div class="cad-radio-group">
+                            <div class="cad-radio-option">
+                                <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoFixo" value="fixo" checked>
+                                <label class="cad-radio-label" for="precoFixo">
+                                    <span class="cad-radio-emoji">💰</span>
+                                    <span class="cad-radio-text">Preço Fixo</span>
                                 </label>
-                                <br>
-                                <small class="text-success">
-                                    <i class="fas fa-check-circle me-1"></i>
-                                    Você tem {{ limite_plano - total_destaques }} de {{ limite_plano }} vagas de destaque disponíveis no plano {{ assinatura_ativa.plano|capitalize }}
-                                </small>
                             </div>
+                            <div class="cad-radio-option">
+                                <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoHora" value="hora">
+                                <label class="cad-radio-label" for="precoHora">
+                                    <span class="cad-radio-emoji">⏰</span>
+                                    <span class="cad-radio-text">Por Hora</span>
+                                </label>
+                            </div>
+                            <div class="cad-radio-option">
+                                <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoDia" value="dia">
+                                <label class="cad-radio-label" for="precoDia">
+                                    <span class="cad-radio-emoji">📅</span>
+                                    <span class="cad-radio-text">Por Dia</span>
+                                </label>
+                            </div>
+                            <div class="cad-radio-option">
+                                <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoMetro" value="metro">
+                                <label class="cad-radio-label" for="precoMetro">
+                                    <span class="cad-radio-emoji">📏</span>
+                                    <span class="cad-radio-text">Por m²</span>
+                                </label>
+                            </div>
+                            <div class="cad-radio-option">
+                                <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoConsulta" value="consulta">
+                                <label class="cad-radio-label" for="precoConsulta">
+                                    <span class="cad-radio-emoji">💬</span>
+                                    <span class="cad-radio-text">A Combina</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preço -->
+                    <div class="cad-field" id="campoPreco">
+                        <label class="cad-label">Valor</label>
+                        <div class="cad-preco-wrapper">
+                            <span class="cad-preco-prefix">R$</span>
+                            <input type="number"
+                                   name="preco"
+                                   id="precoInput"
+                                   class="cad-preco-input"
+                                   step="0.01"
+                                   placeholder="0,00">
+                            <span class="cad-preco-unit" id="unidadePreco"></span>
+                        </div>
+                        <small class="cad-hint" id="descricaoPreco">
+                            Deixe em branco se for "preço sob consulta"
+                        </small>
+                    </div>
+
+                    <!-- DESTAQUE -->
+                    <div class="cad-field">
+                        {% if assinatura_ativa %}
+                            {% set total_destaques = servicos_em_destaque|length %}
+                            {% set limite_plano = 1 if assinatura_ativa.plano == 'basico' else 3 %}
+                            
+                            {% if total_destaques < limite_plano %}
+                                <div class="cad-destaque-box">
+                                    <input class="cad-destaque-check" type="checkbox" name="destaque" id="destaqueCheck">
+                                    <label class="cad-destaque-label" for="destaqueCheck">
+                                        <div class="cad-destaque-icon">
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <div class="cad-destaque-text">
+                                            <strong>Serviço em Destaque</strong>
+                                            <small>
+                                                Você tem {{ limite_plano - total_destaques }} de {{ limite_plano }} vagas disponíveis no plano {{ assinatura_ativa.plano|capitalize }}
+                                            </small>
+                                        </div>
+                                        <div class="cad-destaque-check-icon">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                    </label>
+                                </div>
+                            {% else %}
+                                <div class="cad-alert cad-alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>
+                                        Você já atingiu o limite de {{ limite_plano }} serviço(s) em destaque do plano {{ assinatura_ativa.plano|capitalize }}.
+                                        <a href="{{ url_for('assinatura.checkout', plano='pro') }}" class="cad-alert-link">Faça upgrade para o Pro</a> para destacar mais serviços.
+                                    </span>
+                                </div>
+                            {% endif %}
                         {% else %}
-                            <div class="alert alert-warning small mb-0">
-                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                Você já atingiu o limite de {{ limite_plano }} serviço(s) em destaque do plano {{ assinatura_ativa.plano|capitalize }}.
-                                <a href="{{ url_for('assinatura.checkout', plano='pro') }}" class="alert-link">Faça upgrade para o Pro</a> para destacar mais serviços.
+                            <div class="cad-alert cad-alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <span>
+                                    Para destacar seus serviços na página inicial, você precisa de um
+                                    <a href="{{ url_for('servico.planos_destaque') }}" class="cad-alert-link">plano de destaque ativo</a>.
+                                </span>
                             </div>
                         {% endif %}
-                    {% else %}
-                        <div class="alert alert-info small mb-0">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Para destacar seus serviços na página inicial, você precisa de um <a href="{{ url_for('servico.planos_destaque') }}" class="alert-link">plano de destaque ativo</a>.
-                        </div>
-                    {% endif %}
-                </div>
-
-                <!-- Imagem -->
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Imagem do Serviço (opcional)</label>
-                    <div class="border rounded-3 p-3 text-center">
-                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
-                        <input type="file" name="imagem" id="imagemInput" class="d-none" accept="image/*">
-                        <button type="button" class="btn btn-outline-primary rounded-pill" onclick="document.getElementById('imagemInput').click()">
-                            <i class="fas fa-folder-open me-2"></i> Escolher arquivo
-                        </button>
-                        <span id="nomeArquivo" class="ms-2 text-muted small">Nenhum arquivo escolhido</span>
-                        <div id="previewImagem" class="mt-3" style="display: none;">
-                            <img id="previewImg" src="#" alt="Preview" style="max-width: 100%; max-height: 150px; border-radius: 10px;">
-                        </div>
-                        <small class="text-muted d-block mt-2">Formatos: JPG, PNG, GIF. Máx: 5MB</small>
                     </div>
-                </div>
 
-                <!-- Descrição -->
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Descrição do Serviço <span class="text-danger">*</span></label>
-                    <textarea name="descricao" class="form-control rounded-3" rows="5" required></textarea>
-                    <small class="text-muted">Descreva detalhadamente o serviço oferecido</small>
-                </div>
+                    <!-- Imagem -->
+                    <div class="cad-field">
+                        <label class="cad-label">Imagem do Serviço <span class="cad-optional">(opcional)</span></label>
+                        <div class="cad-upload" onclick="document.getElementById('imagemInput').click()">
+                            <div class="cad-upload-placeholder">
+                                <div class="cad-upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <p class="cad-upload-title">Clique para escolher uma imagem</p>
+                                <small class="cad-upload-hint">JPG, PNG ou GIF — máx 5MB</small>
+                            </div>
+                            <div id="previewImagem" class="cad-preview" style="display: none;">
+                                <img id="previewImg" src="#" alt="Preview">
+                            </div>
+                            <input type="file" name="imagem" id="imagemInput" class="d-none" accept="image/*">
+                            <span id="nomeArquivo" class="cad-upload-nome">Nenhum arquivo escolhido</span>
+                        </div>
+                    </div>
 
-                <!-- Botões -->
-                <div class="d-flex gap-2 mt-4">
-                    <button type="submit" class="btn btn-primary flex-grow-1 py-2 rounded-pill">
-                        <i class="fas fa-save me-2"></i> Cadastrar Serviço
-                    </button>
-                    <a href="{{ url_for('servico.meus_servicos') }}" class="btn btn-outline-secondary px-4 rounded-pill">
-                        Cancelar
-                    </a>
-                </div>
-            </form>
+                    <!-- Descrição -->
+                    <div class="cad-field">
+                        <label class="cad-label">
+                            Descrição do Serviço
+                            <span class="cad-required">*</span>
+                        </label>
+                        <textarea name="descricao"
+                                  class="cad-textarea"
+                                  rows="6"
+                                  placeholder="Descreva detalhadamente o serviço. Inclua o que está incluso, prazo médio, diferenciais..."
+                                  required></textarea>
+                        <small class="cad-hint">
+                            <i class="fas fa-lightbulb"></i>
+                            Seja detalhado — bons textos aumentam suas chances de contratação
+                        </small>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="cad-actions">
+                        <a href="{{ url_for('servico.meus_servicos') }}" class="cad-btn cad-btn-cancel">
+                            <i class="fas fa-times"></i>
+                            <span>Cancelar</span>
+                        </a>
+                        <button type="submit" class="cad-btn cad-btn-save">
+                            <i class="fas fa-save"></i>
+                            <span>Cadastrar Serviço</span>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
         </div>
+
     </div>
-</div>
+</section>
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   🎨 CADASTRO DE SERVIÇO — Premium 2025
+   ═══════════════════════════════════════════════════════════ */
+
+.cadastro-servico-page {
+    padding: 3rem 0 4rem;
+    min-height: calc(100vh - 200px);
+    background:
+        radial-gradient(ellipse at 20% 0%, rgba(59, 178, 255, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(245, 158, 11, 0.05) 0%, transparent 50%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+}
+
+/* ──────────────────────────────────────────────
+   CARD PRINCIPAL
+   ────────────────────────────────────────────── */
+.cad-servico-card {
+    background: #ffffff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow:
+        0 24px 60px -20px rgba(11, 43, 92, 0.2),
+        0 8px 20px -8px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(11, 43, 92, 0.06);
+}
+
+/* ──────────────────────────────────────────────
+   HEADER
+   ────────────────────────────────────────────── */
+.cad-header {
+    background: linear-gradient(135deg, #0b2b5c 0%, #14477a 45%, #1a6d8f 100%);
+    padding: 1.75rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.cad-header-glow {
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.cad-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.cad-header-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fbbf24;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.4);
+}
+
+.cad-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    margin: 0 0 3px;
+    line-height: 1.2;
+}
+
+.cad-subtitle {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* ──────────────────────────────────────────────
+   BODY
+   ────────────────────────────────────────────── */
+.cad-body {
+    padding: 2rem;
+}
+
+/* ──────────────────────────────────────────────
+   FIELDS
+   ────────────────────────────────────────────── */
+.cad-field {
+    margin-bottom: 1.5rem;
+}
+
+.cad-label {
+    display: block;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: #0b2b5c;
+    letter-spacing: -0.005em;
+    margin-bottom: 0.5rem;
+}
+
+.cad-required {
+    color: #ef4444;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+.cad-optional {
+    color: #94a3b8;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+/* ──────────────────────────────────────────────
+   INPUTS (com ícone)
+   ────────────────────────────────────────────── */
+.cad-input-wrapper {
+    position: relative;
+}
+
+.cad-input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.92rem;
+    pointer-events: none;
+    transition: color 0.25s ease;
+    z-index: 2;
+}
+
+.cad-input-wrapper:focus-within .cad-input-icon {
+    color: #1a6d8f;
+}
+
+.cad-input,
+.cad-select {
+    width: 100%;
+    height: 52px;
+    padding: 0 18px 0 46px;
+    background: #f8fafc;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: #0f172a;
+    outline: none;
+    transition: all 0.25s ease;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.cad-input::placeholder,
+.cad-select:invalid {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.cad-input:focus,
+.cad-select:focus {
+    background: #ffffff;
+    border-color: #1a6d8f;
+    box-shadow: 0 0 0 4px rgba(26, 109, 143, 0.12);
+}
+
+/* Seta customizada no select */
+.cad-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 18px center;
+    padding-right: 46px;
+    cursor: pointer;
+}
+
+/* ──────────────────────────────────────────────
+   RADIO GROUP (tipo de preço)
+   ────────────────────────────────────────────── */
+.cad-radio-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.65rem;
+}
+
+.cad-radio-option {
+    position: relative;
+}
+
+.cad-radio-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cad-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #475569;
+    position: relative;
+    overflow: hidden;
+}
+
+.cad-radio-label:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -8px rgba(11, 43, 92, 0.1);
+}
+
+.cad-radio-emoji {
+    font-size: 1.1rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.cad-radio-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cad-radio-input:checked + .cad-radio-label {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-color: #0b2b5c;
+    color: #0b2b5c;
+    box-shadow:
+        0 8px 24px -8px rgba(11, 43, 92, 0.25),
+        0 0 0 1px rgba(11, 43, 92, 0.1);
+}
+
+/* Ponto check no canto */
+.cad-radio-input:checked + .cad-radio-label::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 0.6rem;
+    color: #0b2b5c;
+}
+
+.cad-radio-input:focus-visible + .cad-radio-label {
+    box-shadow: 0 0 0 4px rgba(26, 109, 143, 0.2);
+}
+
+/* ──────────────────────────────────────────────
+   PREÇO
+   ────────────────────────────────────────────── */
+.cad-preco-wrapper {
+    display: flex;
+    align-items: stretch;
+    background: #f8fafc;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    height: 52px;
+}
+
+.cad-preco-wrapper:focus-within {
+    background: #ffffff;
+    border-color: #1a6d8f;
+    box-shadow: 0 0 0 4px rgba(26, 109, 143, 0.12);
+}
+
+.cad-preco-prefix {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 16px;
+    background: #e2e8f0;
+    color: #0b2b5c;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    border-right: 1.5px solid #e5e7eb;
+    flex-shrink: 0;
+}
+
+.cad-preco-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    min-width: 0;
+}
+
+.cad-preco-input::placeholder {
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+.cad-preco-input:disabled {
+    background: #f1f5f9;
+    cursor: not-allowed;
+    color: #94a3b8;
+}
+
+.cad-preco-unit {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 16px;
+    background: #e2e8f0;
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 700;
+    border-left: 1.5px solid #e5e7eb;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.cad-hint {
+    display: block;
+    margin-top: 0.5rem;
+    color: #94a3b8;
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.cad-hint i {
+    color: #f59e0b;
+    margin-right: 4px;
+}
+
+/* ──────────────────────────────────────────────
+   DESTAQUE (checkbox premium)
+   ────────────────────────────────────────────── */
+.cad-destaque-box {
+    position: relative;
+}
+
+.cad-destaque-check {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cad-destaque-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 2px solid #fcd34d;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    position: relative;
+}
+
+.cad-destaque-label:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -8px rgba(245, 158, 11, 0.3);
+    border-color: #f59e0b;
+}
+
+.cad-destaque-check:checked + .cad-destaque-label {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: #d97706;
+    box-shadow:
+        0 12px 32px -8px rgba(245, 158, 11, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.cad-destaque-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    box-shadow:
+        0 6px 16px -4px rgba(245, 158, 11, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.cad-destaque-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.cad-destaque-text strong {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #78350f;
+    line-height: 1.2;
+}
+
+.cad-destaque-text small {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #92400e;
+    opacity: 0.85;
+}
+
+.cad-destaque-check-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2px solid #fcd34d;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.cad-destaque-check:checked + .cad-destaque-label .cad-destaque-check-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-color: #d97706;
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+/* ──────────────────────────────────────────────
+   ALERTS
+   ────────────────────────────────────────────── */
+.cad-alert {
+    display: flex;
+    gap: 12px;
+    padding: 1rem 1.25rem;
+    border-radius: 14px;
+    border-left: 4px solid;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.5;
+    align-items: flex-start;
+}
+
+.cad-alert i {
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.cad-alert-info {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    color: #0b2b5c;
+    border-left-color: #1a6d8f;
+}
+
+.cad-alert-info i {
+    color: #1a6d8f;
+}
+
+.cad-alert-warning {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    color: #78350f;
+    border-left-color: #f59e0b;
+}
+
+.cad-alert-warning i {
+    color: #d97706;
+}
+
+.cad-alert-link {
+    color: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.cad-alert-link:hover {
+    opacity: 0.8;
+}
+
+/* ──────────────────────────────────────────────
+   UPLOAD DE IMAGEM
+   ────────────────────────────────────────────── */
+.cad-upload {
+    position: relative;
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 1.75rem 1.5rem;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cad-upload:hover {
+    border-color: #1a6d8f;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 8px 24px -8px rgba(26, 109, 143, 0.2);
+}
+
+.cad-upload-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.cad-upload-icon i {
+    color: #1a6d8f;
+    font-size: 1.5rem;
+}
+
+.cad-upload:hover .cad-upload-icon {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    transform: scale(1.08);
+}
+
+.cad-upload:hover .cad-upload-icon i {
+    color: #ffffff;
+}
+
+.cad-upload-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #334155;
+    margin: 0 0 4px;
+}
+
+.cad-upload-hint {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.cad-upload-nome {
+    display: block;
+    margin-top: 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.cad-preview {
+    display: inline-block;
+    margin-top: 0.5rem;
+    animation: cadPreviewIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes cadPreviewIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.cad-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 14px;
+    box-shadow: 0 12px 28px -8px rgba(11, 43, 92, 0.2);
+    border: 3px solid #ffffff;
+    display: block;
+}
+
+/* ──────────────────────────────────────────────
+   TEXTAREA
+   ────────────────────────────────────────────── */
+.cad-textarea {
+    width: 100%;
+    padding: 1rem 1.1rem;
+    background: #f8fafc;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: #0f172a;
+    outline: none;
+    transition: all 0.25s ease;
+    resize: vertical;
+    min-height: 140px;
+    line-height: 1.55;
+}
+
+.cad-textarea::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.cad-textarea:focus {
+    background: #ffffff;
+    border-color: #1a6d8f;
+    box-shadow: 0 0 0 4px rgba(26, 109, 143, 0.12);
+}
+
+/* ──────────────────────────────────────────────
+   AÇÕES (Cancelar + Salvar)
+   ────────────────────────────────────────────── */
+.cad-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 2rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+.cad-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 24px;
+    border-radius: 100px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.92rem;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.cad-btn i {
+    font-size: 0.85rem;
+}
+
+/* Botão Cancelar */
+.cad-btn-cancel {
+    background: #f8fafc;
+    color: #64748b;
+    border: 1.5px solid #e2e8f0;
+    flex: 0 0 auto;
+}
+
+.cad-btn-cancel:hover {
+    background: #f1f5f9;
+    color: #0b2b5c;
+    border-color: #cbd5e1;
+}
+
+/* Botão Salvar */
+.cad-btn-save {
+    flex: 1;
+    background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%);
+    color: #ffffff;
+    box-shadow:
+        0 12px 28px -8px rgba(11, 43, 92, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.cad-btn-save::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.7s ease;
+}
+
+.cad-btn-save:hover::before {
+    left: 100%;
+}
+
+.cad-btn-save:hover {
+    transform: translateY(-3px);
+    color: #ffffff;
+    box-shadow:
+        0 20px 40px -8px rgba(11, 43, 92, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.cad-btn-save:active {
+    transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📱 RESPONSIVO
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .cadastro-servico-page {
+        padding: 1.5rem 0 3rem;
+    }
+
+    .cad-header {
+        padding: 1.4rem 1.25rem;
+    }
+
+    .cad-header-content {
+        gap: 0.85rem;
+    }
+
+    .cad-header-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.3rem;
+        border-radius: 14px;
+    }
+
+    .cad-title {
+        font-size: 1.2rem;
+    }
+
+    .cad-subtitle {
+        font-size: 0.8rem;
+    }
+
+    .cad-body {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .cad-input,
+    .cad-select,
+    .cad-preco-wrapper {
+        height: 50px;
+        font-size: 16px; /* evita zoom iOS */
+    }
+
+    .cad-textarea {
+        font-size: 16px;
+    }
+
+    /* Radio group vira 2 colunas fixas */
+    .cad-radio-group {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .cad-radio-label {
+        padding: 10px 12px;
+        font-size: 0.82rem;
+    }
+
+    .cad-radio-emoji {
+        font-size: 1rem;
+    }
+
+    .cad-radio-input:checked + .cad-radio-label::after {
+        top: 4px;
+        right: 6px;
+    }
+
+    /* Destaque box */
+    .cad-destaque-label {
+        padding: 0.9rem 1rem;
+        gap: 0.85rem;
+    }
+
+    .cad-destaque-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+    }
+
+    .cad-destaque-text strong {
+        font-size: 0.88rem;
+    }
+
+    .cad-destaque-text small {
+        font-size: 0.72rem;
+    }
+
+    /* Botões */
+    .cad-actions {
+        flex-direction: column-reverse;
+        gap: 10px;
+    }
+
+    .cad-btn {
+        width: 100%;
+        padding: 13px 20px;
+    }
+
+    .cad-btn-cancel {
+        flex: 1 1 auto;
+    }
+
+    /* Upload */
+    .cad-upload {
+        padding: 1.5rem 1rem;
+    }
+
+    .cad-upload-icon {
+        width: 52px;
+        height: 52px;
+    }
+
+    .cad-upload-icon i {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .cad-radio-group {
+        grid-template-columns: 1fr;
+    }
+
+    .cad-radio-text {
+        font-size: 0.85rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🔒 ACESSIBILIDADE
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    .cad-servico-card,
+    .cad-radio-label,
+    .cad-destaque-label,
+    .cad-destaque-check-icon,
+    .cad-upload,
+    .cad-upload-icon,
+    .cad-btn,
+    .cad-btn-save::before,
+    .cad-input,
+    .cad-select,
+    .cad-textarea,
+    .cad-preco-wrapper {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .cad-btn-save::before {
+        display: none;
+    }
+}
+</style>
 
 <script>
     // Preview de imagem

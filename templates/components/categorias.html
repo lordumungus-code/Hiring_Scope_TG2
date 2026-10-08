@@ -1,24 +1,47 @@
-<!-- Seção: Categorias Populares -->
-<div class="section-alt py-4 py-md-5">
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- CATEGORIAS POPULARES — Premium 2025                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="categorias-section">
     <div class="container">
-        <h2 class="section-title text-center mb-4 mb-md-5" style="font-size: clamp(1.3rem, 5vw, 2rem);">📌 Categorias Populares</h2>
-        <div class="row g-3 g-md-4">
+
+        <!-- Cabeçalho -->
+        <div class="cat-header">
+            <div>
+                <span class="cat-eyebrow">
+                    <i class="fas fa-th-large"></i> EXPLORE
+                </span>
+                <h2 class="section-title mb-0">
+                    Categorias <span class="cat-gradient-text">Populares</span>
+                </h2>
+                <p class="cat-subtitle">Encontre o profissional ideal por área</p>
+            </div>
+            <a href="{{ url_for('servico.lista') }}" class="cat-see-all">
+                Ver todas <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <!-- Grid de categorias -->
+        <div class="cat-grid">
             {% if categorias_com_contagem %}
                 {% for cat in categorias_com_contagem %}
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="{{ url_for('servico.lista') }}?categoria={{ cat.categoria }}" class="text-decoration-none">
-                            <div class="category-card text-center p-3 p-md-4 rounded-4 shadow-sm bg-white transition h-100">
-                                <div class="category-icon mx-auto mb-2 mb-md-3 rounded-circle d-flex align-items-center justify-content-center" style="width: clamp(50px, 12vw, 70px); height: clamp(50px, 12vw, 70px); background: linear-gradient(135deg, #0b2b5c, #1a6d8f);">
-                                    <i class="fas {{ get_icone_categoria(cat.categoria) }} fa-1x fa-md-2x text-white" style="font-size: clamp(1.2rem, 5vw, 1.8rem);"></i>
-                                </div>
-                                <h6 class="mt-2 mb-1 fw-bold" style="font-size: clamp(0.8rem, 3.5vw, 1rem);">{{ cat.categoria }}</h6>
-                                <small class="text-muted" style="font-size: clamp(0.65rem, 2.5vw, 0.8rem);">{{ cat.total }} serviços</small>
-                            </div>
-                        </a>
-                    </div>
+                    <a href="{{ url_for('servico.lista') }}?categoria={{ cat.categoria }}"
+                       class="cat-card"
+                       data-cat="{{ cat.categoria|lower }}">
+                        <div class="cat-icon">
+                            <i class="fas {{ get_icone_categoria(cat.categoria) }}"></i>
+                        </div>
+                        <div class="cat-info">
+                            <h6 class="cat-name">{{ cat.categoria }}</h6>
+                            <span class="cat-count">
+                                <strong>{{ cat.total }}</strong>
+                                {% if cat.total == 1 %}serviço{% else %}serviços{% endif %}
+                            </span>
+                        </div>
+                        <i class="fas fa-arrow-right cat-arrow"></i>
+                    </a>
                 {% endfor %}
             {% else %}
-                <!-- Fallback estático -->
+                {# Fallback estático #}
                 {% set cores = {
                     'Tecnologia': '#3b82f6',
                     'Construção': '#f59e0b',
@@ -27,26 +50,446 @@
                     'Saúde': '#ef4444',
                     'Marketing': '#8b5cf6'
                 } %}
+                {% set icones = {
+                    'Tecnologia': 'fa-laptop-code',
+                    'Construção': 'fa-hard-hat',
+                    'Design': 'fa-paintbrush',
+                    'Educação': 'fa-chalkboard-user',
+                    'Saúde': 'fa-heartbeat',
+                    'Marketing': 'fa-chart-line'
+                } %}
                 {% for nome, cor in cores.items() %}
-                    <div class="col-6 col-md-4 col-lg-2">
-                        <a href="{{ url_for('servico.lista') }}?categoria={{ nome }}" class="text-decoration-none">
-                            <div class="category-card text-center p-3 p-md-4 rounded-4 shadow-sm bg-white transition h-100">
-                                <div class="category-icon mx-auto mb-2 mb-md-3 rounded-circle d-flex align-items-center justify-content-center" style="width: clamp(50px, 12vw, 70px); height: clamp(50px, 12vw, 70px); background: {{ cor }};">
-                                    <i class="fas 
-                                        {% if nome == 'Tecnologia' %}fa-laptop-code
-                                        {% elif nome == 'Construção' %}fa-hard-hat
-                                        {% elif nome == 'Design' %}fa-paintbrush
-                                        {% elif nome == 'Educação' %}fa-chalkboard-user
-                                        {% elif nome == 'Saúde' %}fa-heartbeat
-                                        {% else %}fa-chart-line{% endif %} text-white" style="font-size: clamp(1.2rem, 5vw, 1.8rem);"></i>
-                                </div>
-                                <h6 class="mt-2 mb-1 fw-bold" style="font-size: clamp(0.8rem, 3.5vw, 1rem);">{{ nome }}</h6>
-                                <small class="text-muted" style="font-size: clamp(0.65rem, 2.5vw, 0.8rem);">Serviços</small>
-                            </div>
-                        </a>
-                    </div>
+                    <a href="{{ url_for('servico.lista') }}?categoria={{ nome }}"
+                       class="cat-card"
+                       data-cat="{{ nome|lower }}">
+                        <div class="cat-icon" style="--cat-color: {{ cor }};">
+                            <i class="fas {{ icones.get(nome, 'fa-tag') }}"></i>
+                        </div>
+                        <div class="cat-info">
+                            <h6 class="cat-name">{{ nome }}</h6>
+                            <span class="cat-count">Explorar</span>
+                        </div>
+                        <i class="fas fa-arrow-right cat-arrow"></i>
+                    </a>
                 {% endfor %}
             {% endif %}
         </div>
+
     </div>
-</div>
+</section>
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   📌 CATEGORIAS PREMIUM 2025
+   ═══════════════════════════════════════════════════════════ */
+
+.categorias-section {
+    padding: 4rem 0;
+    margin: 3rem 0;
+    position: relative;
+}
+
+/* ──────────────────────────────────────────────
+   CABEÇALHO
+   ────────────────────────────────────────────── */
+.cat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.cat-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    color: #1a6d8f;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    border: 1px solid #bfdbfe;
+}
+
+.cat-eyebrow i {
+    font-size: 0.7rem;
+}
+
+.cat-gradient-text {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.cat-subtitle {
+    color: #64748b;
+    font-size: 0.92rem;
+    font-weight: 500;
+    margin: 0.5rem 0 0;
+}
+
+.cat-see-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #1a6d8f;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 10px 18px;
+    border-radius: 100px;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.cat-see-all:hover {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -6px rgba(11, 43, 92, 0.4);
+}
+
+.cat-see-all i {
+    font-size: 0.75rem;
+    transition: transform 0.25s ease;
+}
+
+.cat-see-all:hover i {
+    transform: translateX(3px);
+}
+
+/* ──────────────────────────────────────────────
+   GRID DE CATEGORIAS
+   ────────────────────────────────────────────── */
+.cat-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1rem;
+}
+
+/* ──────────────────────────────────────────────
+   CARD DE CATEGORIA
+   ────────────────────────────────────────────── */
+.cat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 1.75rem 1rem 1.25rem;
+    background: #ffffff;
+    border: 1.5px solid rgba(11, 43, 92, 0.06);
+    border-radius: 20px;
+    text-decoration: none;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px -8px rgba(11, 43, 92, 0.06);
+}
+
+/* Faixa colorida no topo (aparece no hover) */
+.cat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #0b2b5c, #1a6d8f, #f59e0b);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cat-card:hover::before {
+    transform: scaleX(1);
+}
+
+.cat-card:hover {
+    transform: translateY(-6px);
+    box-shadow:
+        0 20px 40px -16px rgba(11, 43, 92, 0.18),
+        0 0 0 1px rgba(26, 109, 143, 0.1);
+    border-color: rgba(26, 109, 143, 0.15);
+}
+
+/* ──────────────────────────────────────────────
+   ÍCONE CIRCULAR
+   ────────────────────────────────────────────── */
+.cat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    box-shadow:
+        0 8px 20px -6px rgba(11, 43, 92, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.cat-card:hover .cat-icon {
+    transform: scale(1.1) rotate(-6deg);
+    box-shadow:
+        0 12px 28px -6px rgba(11, 43, 92, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.cat-icon i {
+    color: #ffffff;
+    font-size: 1.4rem;
+}
+
+/* Cores específicas por categoria (fallback com style inline) */
+.cat-card[data-cat="tecnologia"] .cat-icon {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+    box-shadow: 0 8px 20px -6px rgba(59, 130, 246, 0.4) !important;
+}
+.cat-card[data-cat="construção"] .cat-icon,
+.cat-card[data-cat="construcao"] .cat-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    box-shadow: 0 8px 20px -6px rgba(245, 158, 11, 0.4) !important;
+}
+.cat-card[data-cat="design"] .cat-icon {
+    background: linear-gradient(135deg, #ec4899, #be185d) !important;
+    box-shadow: 0 8px 20px -6px rgba(236, 72, 153, 0.4) !important;
+}
+.cat-card[data-cat="educação"] .cat-icon,
+.cat-card[data-cat="educacao"] .cat-icon {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    box-shadow: 0 8px 20px -6px rgba(16, 185, 129, 0.4) !important;
+}
+.cat-card[data-cat="saúde"] .cat-icon,
+.cat-card[data-cat="saude"] .cat-icon {
+    background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+    box-shadow: 0 8px 20px -6px rgba(239, 68, 68, 0.4) !important;
+}
+.cat-card[data-cat="marketing"] .cat-icon {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9) !important;
+    box-shadow: 0 8px 20px -6px rgba(139, 92, 246, 0.4) !important;
+}
+.cat-card[data-cat="limpeza"] .cat-icon {
+    background: linear-gradient(135deg, #06b6d4, #0891b2) !important;
+    box-shadow: 0 8px 20px -6px rgba(6, 182, 212, 0.4) !important;
+}
+.cat-card[data-cat="jardinagem"] .cat-icon {
+    background: linear-gradient(135deg, #22c55e, #15803d) !important;
+    box-shadow: 0 8px 20px -6px rgba(34, 197, 94, 0.4) !important;
+}
+.cat-card[data-cat="fotografia"] .cat-icon {
+    background: linear-gradient(135deg, #a855f7, #7e22ce) !important;
+    box-shadow: 0 8px 20px -6px rgba(168, 85, 247, 0.4) !important;
+}
+.cat-card[data-cat="segurança"] .cat-icon,
+.cat-card[data-cat="seguranca"] .cat-icon {
+    background: linear-gradient(135deg, #64748b, #475569) !important;
+    box-shadow: 0 8px 20px -6px rgba(100, 116, 139, 0.4) !important;
+}
+
+/* Ícone do fallback com cor inline (usa --cat-color) */
+.cat-icon[style*="--cat-color"] {
+    background: var(--cat-color) !important;
+    box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--cat-color) 40%, transparent) !important;
+}
+
+/* ──────────────────────────────────────────────
+   INFO (nome + contador)
+   ────────────────────────────────────────────── */
+.cat-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+    z-index: 1;
+}
+
+.cat-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    transition: color 0.3s ease;
+}
+
+.cat-card:hover .cat-name {
+    color: #1a6d8f;
+}
+
+.cat-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.cat-count strong {
+    color: #1a6d8f;
+    font-weight: 800;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ──────────────────────────────────────────────
+   SETA (aparece no hover, desktop)
+   ────────────────────────────────────────────── */
+.cat-arrow {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    font-size: 0.65rem;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.cat-card:hover .cat-arrow {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📱 RESPONSIVO
+   ═══════════════════════════════════════════════════════════ */
+
+/* Tablet: 3 colunas */
+@media (max-width: 992px) {
+    .cat-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.85rem;
+    }
+
+    .categorias-section {
+        padding: 3rem 0;
+        margin: 2rem 0;
+    }
+}
+
+/* Mobile grande: 2 colunas */
+@media (max-width: 768px) {
+    .categorias-section {
+        padding: 2.5rem 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .cat-header {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 1.75rem;
+    }
+
+    .cat-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .cat-see-all {
+        font-size: 0.85rem;
+        padding: 8px 16px;
+    }
+
+    .cat-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .cat-card {
+        padding: 1.25rem 0.75rem 1rem;
+        border-radius: 16px;
+    }
+
+    .cat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+    }
+
+    .cat-icon i {
+        font-size: 1.15rem;
+    }
+
+    .cat-name {
+        font-size: 0.82rem;
+    }
+
+    .cat-count {
+        font-size: 0.68rem;
+    }
+
+    /* Desativa hover pesado */
+    .cat-card:hover {
+        transform: none;
+    }
+
+    .cat-card:hover .cat-icon {
+        transform: none;
+    }
+
+    .cat-card:hover::before {
+        transform: scaleX(0);
+    }
+
+    .cat-arrow {
+        display: none;
+    }
+}
+
+@media (max-width: 400px) {
+    .cat-card {
+        padding: 1rem 0.5rem 0.85rem;
+    }
+
+    .cat-icon {
+        width: 44px;
+        height: 44px;
+    }
+
+    .cat-icon i {
+        font-size: 1rem;
+    }
+
+    .cat-name {
+        font-size: 0.78rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🔒 ACESSIBILIDADE
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    .cat-card,
+    .cat-card::before,
+    .cat-icon,
+    .cat-arrow,
+    .cat-name,
+    .cat-see-all,
+    .cat-see-all i {
+        transition: none !important;
+    }
+}
+</style>

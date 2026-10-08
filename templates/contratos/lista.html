@@ -1,76 +1,802 @@
 {% extends "base.html" %}
 
-{% block title %}Meus Contratos - PrestaServiços{% endblock %}
+{% block title %}Meus Contratos - HiringScope{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">
-        <i class="fas fa-file-contract me-2 text-primary"></i>
-        Meus Contratos
-    </h2>
+<section class="contratos-page">
+    <div class="container">
 
-    {% if contratos %}
-        <div class="row">
+        <!-- Cabeçalho -->
+        <div class="contratos-header">
+            <div>
+                <span class="contratos-eyebrow">
+                    <i class="fas fa-file-contract"></i> CONTRATOS
+                </span>
+                <h2 class="contratos-title">
+                    Meus <span class="contratos-gradient">Contratos</span>
+                </h2>
+                <p class="contratos-subtitle">
+                    Acompanhe todas as suas negociações em um só lugar
+                </p>
+            </div>
+            <a href="{{ url_for('servico.lista') }}" class="btn-explorar">
+                <i class="fas fa-search"></i>
+                <span>Explorar serviços</span>
+            </a>
+        </div>
+
+        {% if contratos %}
+        <div class="contratos-grid">
             {% for contrato in contratos %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100 shadow-sm border-0 rounded-4 transition">
-                    <div class="card-header bg-white border-0 pt-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge bg-{{ contrato.get_status_color() }} px-3 py-2 rounded-pill">
-                                <i class="fas {{ contrato.get_status_icon() }} me-1"></i>
-                                {{ contrato.status|replace('_', ' ')|title }}
+            <a href="{{ url_for('contrato.detalhe_contrato', contrato_id=contrato.id) }}"
+               class="contrato-card"
+               data-status="{{ contrato.status }}">
+
+                <!-- Faixa colorida no topo (cor via CSS por status) -->
+                <div class="contrato-status-bar"></div>
+
+                <!-- Cabeçalho: status + data -->
+                <div class="contrato-card-header">
+                    <span class="contrato-badge bg-{{ contrato.get_status_color() }}">
+                        <i class="fas {{ contrato.get_status_icon() }}"></i>
+                        <span>{{ contrato.status|replace('_', ' ')|title }}</span>
+                    </span>
+                    <span class="contrato-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        {{ contrato.data_solicitacao.strftime('%d/%m/%Y') }}
+                    </span>
+                </div>
+
+                <!-- Corpo -->
+                <div class="contrato-card-body">
+                    <h3 class="contrato-servico">
+                        {{ contrato.servico.titulo }}
+                    </h3>
+
+                    <div class="contrato-meta">
+                        <div class="contrato-meta-item">
+                            <span class="contrato-meta-icon">
+                                <i class="fas fa-user"></i>
                             </span>
-                            <small class="text-muted">{{ contrato.data_solicitacao.strftime('%d/%m/%Y') }}</small>
+                            <span class="contrato-meta-text">
+                                {% if current_user.id == contrato.cliente_id %}
+                                    <small>Prestador</small>
+                                    <strong>{{ contrato.prestador.nome }}</strong>
+                                {% else %}
+                                    <small>Cliente</small>
+                                    <strong>{{ contrato.cliente.nome }}</strong>
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="contrato-meta-item">
+                            <span class="contrato-meta-icon">
+                                <i class="fas fa-tag"></i>
+                            </span>
+                            <span class="contrato-meta-text">
+                                <small>Categoria</small>
+                                <strong>{{ contrato.servico.categoria }}</strong>
+                            </span>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ contrato.servico.titulo }}</h5>
-                        <p class="card-text small text-muted mb-2">
-                            <i class="fas fa-user me-1"></i>
-                            {% if current_user.id == contrato.cliente_id %}
-                                Prestador: {{ contrato.prestador.nome }}
-                            {% else %}
-                                Cliente: {{ contrato.cliente.nome }}
-                            {% endif %}
-                        </p>
-                        <p class="card-text small text-muted mb-3">
-                            <i class="fas fa-tag me-1"></i>
-                            {{ contrato.servico.categoria }}
-                        </p>
-                        {% if contrato.preco_acordado %}
-                            <p class="fw-bold text-primary mb-3">
-                                R$ {{ "%.2f"|format(contrato.preco_acordado) }}
-                            </p>
-                        {% endif %}
+
+                    {% if contrato.preco_acordado %}
+                    <div class="contrato-preco">
+                        <span class="contrato-preco-label">Valor acordado</span>
+                        <span class="contrato-preco-value">
+                            R$ {{ "%.2f"|format(contrato.preco_acordado) }}
+                        </span>
                     </div>
-                    <div class="card-footer bg-white border-0 pb-3">
-                        <a href="{{ url_for('contrato.detalhe_contrato', contrato_id=contrato.id) }}" 
-                           class="btn btn-primary btn-sm rounded-pill px-3 w-100">
-                            <i class="fas fa-eye me-1"></i> Ver Detalhes
-                        </a>
-                    </div>
+                    {% endif %}
                 </div>
-            </div>
+
+                <!-- Rodapé -->
+                <div class="contrato-card-footer">
+                    <span class="contrato-ver">
+                        Ver detalhes
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                </div>
+
+                <!-- Glow decorativo (cor via CSS por status) -->
+                <span class="contrato-glow" aria-hidden="true"></span>
+            </a>
             {% endfor %}
         </div>
-    {% else %}
-        <div class="alert alert-info text-center rounded-4">
-            <i class="fas fa-inbox fa-3x mb-3 opacity-50"></i>
-            <p>Nenhum contrato encontrado.</p>
-            <a href="/servicos" class="btn btn-primary rounded-pill px-4">
+
+        {% else %}
+        <div class="contratos-empty">
+            <div class="contratos-empty-icon">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <h5>Nenhum contrato encontrado</h5>
+            <p>Explore os serviços disponíveis e comece uma nova negociação.</p>
+            <a href="{{ url_for('servico.lista') }}" class="btn btn-primary rounded-pill px-4">
                 <i class="fas fa-search me-2"></i> Explorar Serviços
             </a>
         </div>
-    {% endif %}
-</div>
+        {% endif %}
+
+    </div>
+</section>
 
 <style>
-    .transition {
-        transition: all 0.3s ease;
+/* ═══════════════════════════════════════════════════════════
+   📋 MEUS CONTRATOS — Bento Grid colorido por status
+   ═══════════════════════════════════════════════════════════ */
+
+.contratos-page {
+    padding: 3rem 0 4rem;
+    min-height: calc(100vh - 200px);
+    background:
+        radial-gradient(ellipse at 20% 0%, rgba(59, 178, 255, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(245, 158, 11, 0.05) 0%, transparent 50%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+}
+
+/* ──────────────────────────────────────────────
+   CABEÇALHO
+   ────────────────────────────────────────────── */
+.contratos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.contratos-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    color: #1a6d8f;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    border: 1px solid #bfdbfe;
+}
+
+.contratos-eyebrow i {
+    font-size: 0.72rem;
+}
+
+.contratos-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    color: #0b2b5c;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin: 0 0 0.4rem;
+}
+
+.contratos-gradient {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.contratos-subtitle {
+    color: #64748b;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.btn-explorar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    border-radius: 100px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    box-shadow: 0 8px 20px -6px rgba(11, 43, 92, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.btn-explorar:hover {
+    transform: translateY(-3px);
+    color: #ffffff;
+    box-shadow: 0 16px 32px -6px rgba(11, 43, 92, 0.55);
+}
+
+.btn-explorar i {
+    font-size: 0.8rem;
+}
+
+/* ──────────────────────────────────────────────
+   BENTO GRID — tamanhos variados por status
+   ────────────────────────────────────────────── */
+.contratos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: minmax(240px, auto);
+    grid-auto-flow: dense;
+    gap: 1.25rem;
+}
+
+/* Contratos ATIVOS ocupam 2 colunas (mais destaque) */
+.contrato-card[data-status="em_andamento"],
+.contrato-card[data-status="pendente"],
+.contrato-card[data-status="aceito"] {
+    grid-column: span 2;
+}
+
+/* Concluídos e cancelados = 1 coluna (histórico) */
+.contrato-card[data-status="concluido"],
+.contrato-card[data-status="cancelado"] {
+    grid-column: span 1;
+}
+
+/* ──────────────────────────────────────────────
+   CARD DE CONTRATO
+   ────────────────────────────────────────────── */
+.contrato-card {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 1.5rem 1.5rem 1.25rem;
+    border: 1px solid rgba(11, 43, 92, 0.06);
+    box-shadow: 0 4px 16px -8px rgba(11, 43, 92, 0.08);
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    isolation: isolate;
+}
+
+/* Faixa colorida no topo (cor por status) */
+.contrato-status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: 22px 22px 0 0;
+    background: #94a3b8;
+    transition: height 0.3s ease;
+}
+
+.contrato-card:hover {
+    transform: translateY(-6px);
+    box-shadow:
+        0 24px 48px -16px rgba(11, 43, 92, 0.18),
+        0 0 0 1px rgba(26, 109, 143, 0.1);
+    border-color: transparent;
+}
+
+.contrato-card:hover .contrato-status-bar {
+    height: 6px;
+}
+
+/* Glow colorido (aparece no hover, cor via CSS por status) */
+.contrato-glow {
+    position: absolute;
+    bottom: -60px;
+    right: -60px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.contrato-card:hover .contrato-glow {
+    opacity: 1;
+}
+
+/* ──────────────────────────────────────────────
+   🎨 CORES POR STATUS
+   ────────────────────────────────────────────── */
+
+/* PENDENTE — Âmbar */
+.contrato-card[data-status="pendente"] .contrato-status-bar {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+}
+.contrato-card[data-status="pendente"] .contrato-glow {
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.4) 0%, transparent 70%);
+}
+.contrato-card[data-status="pendente"]:hover {
+    box-shadow:
+        0 24px 48px -16px rgba(245, 158, 11, 0.25),
+        0 0 0 1px rgba(245, 158, 11, 0.15);
+}
+.contrato-card[data-status="pendente"] .contrato-preco {
+    border-left-color: #f59e0b;
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+}
+
+/* ACEITO — Ciano */
+.contrato-card[data-status="aceito"] .contrato-status-bar {
+    background: linear-gradient(90deg, #0891b2, #06b6d4);
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
+}
+.contrato-card[data-status="aceito"] .contrato-glow {
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.4) 0%, transparent 70%);
+}
+.contrato-card[data-status="aceito"]:hover {
+    box-shadow:
+        0 24px 48px -16px rgba(6, 182, 212, 0.25),
+        0 0 0 1px rgba(6, 182, 212, 0.15);
+}
+.contrato-card[data-status="aceito"] .contrato-preco {
+    border-left-color: #06b6d4;
+    background: linear-gradient(135deg, #ecfeff, #cffafe);
+}
+
+/* EM ANDAMENTO — Azul */
+.contrato-card[data-status="em_andamento"] .contrato-status-bar {
+    background: linear-gradient(90deg, #0b2b5c, #1a6d8f);
+    box-shadow: 0 0 12px rgba(26, 109, 143, 0.5);
+}
+.contrato-card[data-status="em_andamento"] .contrato-glow {
+    background: radial-gradient(circle, rgba(26, 109, 143, 0.4) 0%, transparent 70%);
+}
+.contrato-card[data-status="em_andamento"] .contrato-preco {
+    border-left-color: #1a6d8f;
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+}
+
+/* CONCLUÍDO — Verde */
+.contrato-card[data-status="concluido"] .contrato-status-bar {
+    background: linear-gradient(90deg, #059669, #10b981);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+}
+.contrato-card[data-status="concluido"] .contrato-glow {
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%);
+}
+.contrato-card[data-status="concluido"]:hover {
+    box-shadow:
+        0 24px 48px -16px rgba(16, 185, 129, 0.25),
+        0 0 0 1px rgba(16, 185, 129, 0.15);
+}
+.contrato-card[data-status="concluido"] .contrato-preco {
+    border-left-color: #10b981;
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+}
+
+/* CANCELADO — Vermelho */
+.contrato-card[data-status="cancelado"] .contrato-status-bar {
+    background: linear-gradient(90deg, #dc2626, #ef4444);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+}
+.contrato-card[data-status="cancelado"] .contrato-glow {
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.4) 0%, transparent 70%);
+}
+.contrato-card[data-status="cancelado"]:hover {
+    box-shadow:
+        0 24px 48px -16px rgba(239, 68, 68, 0.25),
+        0 0 0 1px rgba(239, 68, 68, 0.15);
+}
+.contrato-card[data-status="cancelado"] .contrato-preco {
+    border-left-color: #ef4444;
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+}
+
+/* ──────────────────────────────────────────────
+   CABEÇALHO DO CARD
+   ────────────────────────────────────────────── */
+.contrato-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.contrato-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
+
+.contrato-badge i {
+    font-size: 0.72rem;
+}
+
+/* Força cores nos badges (sobrescreve bg-* do Bootstrap) */
+.contrato-card[data-status="pendente"] .contrato-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+.contrato-card[data-status="aceito"] .contrato-badge {
+    background: linear-gradient(135deg, #0891b2, #06b6d4) !important;
+}
+.contrato-card[data-status="em_andamento"] .contrato-badge {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f) !important;
+}
+.contrato-card[data-status="concluido"] .contrato-badge {
+    background: linear-gradient(135deg, #059669, #10b981) !important;
+}
+.contrato-card[data-status="cancelado"] .contrato-badge {
+    background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+}
+
+.contrato-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+.contrato-date i {
+    font-size: 0.68rem;
+}
+
+/* ──────────────────────────────────────────────
+   CORPO
+   ────────────────────────────────────────────── */
+.contrato-card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.contrato-servico {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.3s ease;
+}
+
+.contrato-card:hover .contrato-servico {
+    color: #1a6d8f;
+}
+
+/* Cards que ocupam 2 colunas: título maior */
+.contrato-card[data-status="em_andamento"] .contrato-servico,
+.contrato-card[data-status="pendente"] .contrato-servico,
+.contrato-card[data-status="aceito"] .contrato-servico {
+    font-size: 1.25rem;
+}
+
+/* Meta items */
+.contrato-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.contrato-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.contrato-meta-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.contrato-card:hover .contrato-meta-icon {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+}
+
+.contrato-card[data-status="pendente"]:hover .contrato-meta-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+.contrato-card[data-status="concluido"]:hover .contrato-meta-icon {
+    background: linear-gradient(135deg, #059669, #10b981);
+}
+.contrato-card[data-status="cancelado"]:hover .contrato-meta-icon {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+.contrato-card[data-status="aceito"]:hover .contrato-meta-icon {
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
+}
+
+.contrato-meta-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+}
+
+.contrato-meta-text small {
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+}
+
+.contrato-meta-text strong {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #334155;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ──────────────────────────────────────────────
+   PREÇO
+   ────────────────────────────────────────────── */
+.contrato-preco {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border-radius: 12px;
+    border-left: 3px solid #1a6d8f;
+    margin-top: auto;
+    transition: all 0.3s ease;
+}
+
+.contrato-preco-label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748b;
+}
+
+.contrato-preco-value {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #0b2b5c;
+    line-height: 1.2;
+}
+
+/* ──────────────────────────────────────────────
+   RODAPÉ
+   ────────────────────────────────────────────── */
+.contrato-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f5f9;
+    position: relative;
+    z-index: 1;
+}
+
+.contrato-ver {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #0b2b5c;
+    transition: all 0.3s ease;
+}
+
+.contrato-ver i {
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+}
+
+.contrato-card:hover .contrato-ver {
+    color: #f59e0b;
+}
+
+.contrato-card:hover .contrato-ver i {
+    transform: translateX(4px);
+}
+
+/* ──────────────────────────────────────────────
+   EMPTY STATE
+   ────────────────────────────────────────────── */
+.contratos-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #ffffff;
+    border-radius: 24px;
+    border: 1.5px dashed #cbd5e1;
+    max-width: 560px;
+    margin: 0 auto;
+    box-shadow: 0 8px 32px -12px rgba(11, 43, 92, 0.08);
+}
+
+.contratos-empty-icon {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 20px -6px rgba(26, 109, 143, 0.2);
+}
+
+.contratos-empty-icon i {
+    color: #1a6d8f;
+    font-size: 2rem;
+}
+
+.contratos-empty h5 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #0b2b5c;
+    margin-bottom: 0.5rem;
+}
+
+.contratos-empty p {
+    color: #64748b;
+    font-size: 0.92rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📱 RESPONSIVO
+   ═══════════════════════════════════════════════════════════ */
+
+/* Tablet: 2 colunas */
+@media (max-width: 992px) {
+    .contratos-page {
+        padding: 2.5rem 0 3rem;
     }
-    .transition:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+
+    .contratos-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: minmax(220px, auto);
+        gap: 1rem;
     }
+
+    .contrato-card[data-status="em_andamento"],
+    .contrato-card[data-status="pendente"],
+    .contrato-card[data-status="aceito"] {
+        grid-column: span 2;
+    }
+}
+
+/* Mobile: 1 coluna */
+@media (max-width: 768px) {
+    .contratos-page {
+        padding: 2rem 1rem 3rem;
+    }
+
+    .contratos-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .btn-explorar {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 20px;
+    }
+
+    .contratos-grid {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+        gap: 1rem;
+    }
+
+    .contrato-card[data-status="em_andamento"],
+    .contrato-card[data-status="pendente"],
+    .contrato-card[data-status="aceito"],
+    .contrato-card[data-status="concluido"],
+    .contrato-card[data-status="cancelado"] {
+        grid-column: span 1;
+    }
+
+    .contrato-card {
+        padding: 1.25rem 1.25rem 1rem;
+        border-radius: 18px;
+    }
+
+    .contrato-card:hover {
+        transform: none;
+    }
+
+    .contrato-servico,
+    .contrato-card[data-status="em_andamento"] .contrato-servico,
+    .contrato-card[data-status="pendente"] .contrato-servico,
+    .contrato-card[data-status="aceito"] .contrato-servico {
+        font-size: 1.05rem;
+    }
+
+    .contrato-card:hover .contrato-meta-icon {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+}
+
+@media (max-width: 480px) {
+    .contrato-badge {
+        font-size: 0.66rem;
+        padding: 5px 11px;
+    }
+
+    .contrato-date {
+        font-size: 0.68rem;
+    }
+
+    .contrato-meta-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.72rem;
+    }
+
+    .contrato-meta-text strong {
+        font-size: 0.8rem;
+    }
+
+    .contrato-preco-value {
+        font-size: 1rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🔒 ACESSIBILIDADE
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    .contrato-card,
+    .contrato-status-bar,
+    .contrato-glow,
+    .contrato-servico,
+    .contrato-meta-icon,
+    .contrato-ver,
+    .contrato-ver i,
+    .btn-explorar {
+        transition: none !important;
+    }
+
+    .contrato-card:hover {
+        transform: none;
+    }
+}
 </style>
 {% endblock %}

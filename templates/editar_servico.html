@@ -23,18 +23,35 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold">Categoria <span class="text-danger">*</span></label>
                     <select name="categoria" class="form-select rounded-3" required>
-                        <option value="">Selecione...</option>
-                        <option value="Tecnologia" {% if servico.categoria == 'Tecnologia' %}selected{% endif %}>💻 Tecnologia</option>
+                    <option value="">Selecione...</option>
+                    <optgroup label="🏠 Casa & Serviços">
                         <option value="Construção" {% if servico.categoria == 'Construção' %}selected{% endif %}>🏗️ Construção</option>
-                        <option value="Design" {% if servico.categoria == 'Design' %}selected{% endif %}>🎨 Design</option>
                         <option value="Limpeza" {% if servico.categoria == 'Limpeza' %}selected{% endif %}>🧹 Limpeza</option>
                         <option value="Jardinagem" {% if servico.categoria == 'Jardinagem' %}selected{% endif %}>🌿 Jardinagem</option>
-                        <option value="Educação" {% if servico.categoria == 'Educação' %}selected{% endif %}>📚 Educação</option>
-                        <option value="Saúde" {% if servico.categoria == 'Saúde' %}selected{% endif %}>💊 Saúde</option>
+                        <option value="Assistência Técnica" {% if servico.categoria == 'Assistência Técnica' %}selected{% endif %}>🔧 Assistência Técnica</option>
+                    </optgroup>
+                    <optgroup label="💼 Profissional & Negócios">
+                        <option value="Tecnologia" {% if servico.categoria == 'Tecnologia' %}selected{% endif %}>💻 Tecnologia</option>
+                        <option value="Design" {% if servico.categoria == 'Design' %}selected{% endif %}>🎨 Design</option>
                         <option value="Marketing" {% if servico.categoria == 'Marketing' %}selected{% endif %}>📈 Marketing</option>
+                        <option value="Contabilidade" {% if servico.categoria == 'Contabilidade' %}selected{% endif %}>💼 Contabilidade</option>
+                    </optgroup>
+                    <optgroup label="👤 Pessoas & Cuidados">
+                        <option value="Saúde" {% if servico.categoria == 'Saúde' %}selected{% endif %}>💊 Saúde</option>
+                        <option value="Beleza & Estética" {% if servico.categoria == 'Beleza & Estética' %}selected{% endif %}>💅 Beleza & Estética</option>
+                        <option value="Bem-estar & Fitness" {% if servico.categoria == 'Bem-estar & Fitness' %}selected{% endif %}>🧘 Bem-estar & Fitness</option>
+                        <option value="Educação" {% if servico.categoria == 'Educação' %}selected{% endif %}>📚 Educação</option>
+                    </optgroup>
+                    <optgroup label="🎯 Outros Serviços">
                         <option value="Fotografia" {% if servico.categoria == 'Fotografia' %}selected{% endif %}>📷 Fotografia</option>
+                        <option value="Eventos" {% if servico.categoria == 'Eventos' %}selected{% endif %}>🎉 Eventos</option>
+                        <option value="Música" {% if servico.categoria == 'Música' %}selected{% endif %}>🎵 Música</option>
+                        <option value="Pets" {% if servico.categoria == 'Pets' %}selected{% endif %}>🐾 Pets</option>
+                        <option value="Automotivo" {% if servico.categoria == 'Automotivo' %}selected{% endif %}>🚗 Automotivo</option>
+                        <option value="Transporte & Mudança" {% if servico.categoria == 'Transporte & Mudança' %}selected{% endif %}>🚚 Transporte & Mudança</option>
                         <option value="Segurança" {% if servico.categoria == 'Segurança' %}selected{% endif %}>🔒 Segurança</option>
-                    </select>
+                    </optgroup>
+                </select>
                 </div>
 
                 <!-- Tipo de Precificação -->

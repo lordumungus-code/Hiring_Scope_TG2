@@ -10,3 +10,21 @@ backups/
 *.env
 instance/
 marketing/
+__pycache__/
+*.pyc
+
+# Ambiente virtual
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.cpython-*.pyc
+
+# Arquivos locais
+.env
+instance/
+backups/
+*.db

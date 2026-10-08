@@ -1,114 +1,836 @@
-<!-- Seção: Top Prestadores -->
-<div class="container mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h2 class="section-title" style="font-size: clamp(1.3rem, 5vw, 2rem);">
-            <i class="fas fa-trophy text-warning me-2"></i> Top Prestadores
-            <span class="badge bg-primary ms-2 px-2 px-md-3 py-2 rounded-pill" style="font-size: clamp(0.7rem, 3vw, 0.9rem);">Mais Bem Avaliados</span>
-        </h2>
-        <a href="{{ url_for('main.lista_prestadores') }}" class="text-decoration-none fw-semibold" style="font-size: clamp(0.8rem, 3vw, 1rem);">Ver todos <i class="fas fa-arrow-right ms-1"></i></a>
-    </div>
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- TOP PRESTADORES — Premium 2025                             -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="top-prestadores-section">
+    <div class="container">
 
-    {% if top_prestadores %}
-        <div class="row g-4">
+        <!-- Cabeçalho -->
+        <div class="top-header">
+            <div>
+                <span class="top-eyebrow">
+                    <i class="fas fa-trophy"></i> RANKING
+                </span>
+                <h2 class="section-title mb-0">
+                    Top <span class="top-gradient-text">Prestadores</span>
+                    <span class="top-badge">Mais Bem Avaliados</span>
+                </h2>
+            </div>
+            <a href="{{ url_for('main.lista_prestadores') }}" class="top-see-all">
+                Ver todos <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        {% if top_prestadores %}
+        <div class="top-grid">
             {% for item in top_prestadores %}
-            <div class="col-md-6 col-lg-3">
-                <div class="card top-prestador-card h-100 border-0 rounded-4 shadow-sm overflow-hidden transition position-relative">
-                    <div class="card-body text-center p-4">
-                        <!-- Medalha de posição -->
-                        <div class="medalha position-absolute top-0 start-0 m-2">
-                            {% if loop.index == 1 %}
-                                <span class="badge bg-warning rounded-pill px-3 py-2 shadow-sm">
-                                    <i class="fas fa-crown me-1"></i> #1
-                                </span>
-                            {% elif loop.index == 2 %}
-                                <span class="badge bg-secondary rounded-pill px-3 py-2 shadow-sm">
-                                    <i class="fas fa-medal me-1"></i> #2
-                                </span>
-                            {% elif loop.index == 3 %}
-                                <span class="badge rounded-pill px-3 py-2 shadow-sm" style="background: #cd7f32; color: white;">
-                                    <i class="fas fa-medal me-1"></i> #3
-                                </span>
-                            {% else %}
-                                <span class="badge bg-light text-dark rounded-pill px-3 py-2 shadow-sm">
-                                    #{{ loop.index }}
-                                </span>
-                            {% endif %}
-                        </div>
+            <div class="top-card {% if loop.index == 1 %}top-card--1st{% endif %}">
 
-                        <!-- Avatar -->
-                        <div class="prestador-avatar mx-auto mb-3">
-                            {% if item.prestador.foto_url %}
-                                <img src="{{ item.prestador.foto_url }}" alt="{{ item.prestador.nome }}" 
-                                     class="rounded-circle shadow-sm" style="width: 85px; height: 85px; object-fit: cover;">
-                            {% elif item.prestador.foto_perfil and item.prestador.foto_perfil != 'default.jpg' %}
-                                <img src="data:image/jpeg;base64,{{ item.prestador.foto_perfil }}" alt="{{ item.prestador.nome }}" 
-                                     class="rounded-circle shadow-sm" style="width: 85px; height: 85px; object-fit: cover;">
-                            {% else %}
-                                <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto" 
-                                     style="width: 85px; height: 85px; background: linear-gradient(135deg, #0b2b5c, #1a6d8f);">
-                                    <span class="text-white fs-1 fw-bold">{{ item.prestador.nome[0]|upper }}</span>
-                                </div>
-                            {% endif %}
-                        </div>
+                <!-- Medalha de posição -->
+                <div class="top-medal
+                    {% if loop.index == 1 %}medal-gold
+                    {% elif loop.index == 2 %}medal-silver
+                    {% elif loop.index == 3 %}medal-bronze
+                    {% else %}medal-default{% endif %}">
+                    {% if loop.index == 1 %}
+                        <i class="fas fa-crown"></i> #1
+                    {% elif loop.index == 2 %}
+                        <i class="fas fa-medal"></i> #2
+                    {% elif loop.index == 3 %}
+                        <i class="fas fa-medal"></i> #3
+                    {% else %}
+                        #{{ loop.index }}
+                    {% endif %}
+                </div>
 
-                        <!-- Nome -->
-                        <a href="{{ url_for('main.perfil_prestador', prestador_id=item.prestador.id) }}" class="text-decoration-none">
-                            <h5 class="card-title mb-1 fw-bold text-dark hover-primary">{{ item.prestador.nome }}</h5>
-                        </a>
-                        
-                        <!-- Avaliação com estrelas -->
-                        <div class="rating mb-2">
-                            {% set media = item.media %}
-                            {% for i in range(5) %}
-                                {% if i < media|round(0, 'floor') %}
-                                    <i class="fas fa-star text-warning"></i>
-                                {% elif i < media %}
-                                    <i class="fas fa-star-half-alt text-warning"></i>
-                                {% else %}
-                                    <i class="far fa-star text-warning"></i>
-                                {% endif %}
-                            {% endfor %}
-                            <span class="ms-2 text-muted small fw-bold">{{ "%.1f"|format(media) }}/5</span>
+                <!-- Avatar com moldura -->
+                <div class="top-avatar-wrapper">
+                    {% if item.prestador.foto_url %}
+                        <img src="{{ item.prestador.foto_url }}"
+                             alt="{{ item.prestador.nome }}"
+                             class="top-avatar">
+                    {% elif item.prestador.foto_perfil and item.prestador.foto_perfil != 'default.jpg' %}
+                        <img src="data:image/jpeg;base64,{{ item.prestador.foto_perfil }}"
+                             alt="{{ item.prestador.nome }}"
+                             class="top-avatar">
+                    {% else %}
+                        <div class="top-avatar top-avatar-placeholder">
+                            {{ item.prestador.nome[0]|upper }}
                         </div>
-                        
-                        <p class="small text-muted mb-2">
-                            <i class="fas fa-star me-1 text-warning"></i> {{ item.total_avaliacoes }} avaliações
-                            <br>
-                            <i class="fas fa-briefcase me-1 text-primary"></i> {{ item.servicos_count }} serviços
-                        </p>
+                    {% endif %}
+                    {% if loop.index == 1 %}
+                        <span class="top-avatar-crown" aria-hidden="true">
+                            <i class="fas fa-crown"></i>
+                        </span>
+                    {% endif %}
+                </div>
 
-                        <!-- Serviços mais populares -->
-                        {% if item.prestador.servicos_oferecidos[:2] %}
-                            <div class="servicos-mini mt-2 mb-3">
-                                {% for servico in item.prestador.servicos_oferecidos[:2] %}
-                                    <span class="badge bg-light text-dark rounded-pill me-1 mb-1 px-3 py-2">
-                                        <i class="fas fa-tag me-1 text-muted"></i> {{ servico.titulo|truncate(20) }}
-                                    </span>
-                                {% endfor %}
-                            </div>
+                <!-- Nome -->
+                <a href="{{ url_for('main.perfil_prestador', prestador_id=item.prestador.id) }}"
+                   class="top-name-link">
+                    <h5 class="top-name">{{ item.prestador.nome }}</h5>
+                </a>
+
+                <!-- Rating -->
+                <div class="top-rating">
+                    {% set media = item.media %}
+                    {% for i in range(5) %}
+                        {% if i < media|round(0, 'floor') %}
+                            <i class="fas fa-star"></i>
+                        {% elif i < media %}
+                            <i class="fas fa-star-half-alt"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
                         {% endif %}
+                    {% endfor %}
+                    <span class="top-rating-value">{{ "%.1f"|format(media) }}</span>
+                </div>
 
-                        <div class="d-flex gap-2 mt-3">
-                            <a href="{{ url_for('servico.lista') }}?prestador={{ item.prestador.id }}" class="btn btn-outline-primary btn-sm rounded-pill flex-grow-1">
-                                <i class="fas fa-briefcase me-1"></i> Ver Serviços
-                            </a>
-                            {% if current_user.is_authenticated and current_user.id != item.prestador.id %}
-                                <button onclick="iniciarChat({{ item.prestador.id }}, '{{ item.prestador.nome|replace("'", "\\'") }}')" 
-                                        class="btn btn-primary btn-sm rounded-pill px-3">
-                                    <i class="fas fa-comments"></i>
-                                </button>
-                            {% endif %}
-                        </div>
+                <!-- Stats (avaliações + serviços) -->
+                <div class="top-stats">
+                    <div class="top-stat">
+                        <i class="fas fa-star"></i>
+                        <span><strong>{{ item.total_avaliacoes }}</strong> avaliações</span>
                     </div>
+                    <div class="top-stat">
+                        <i class="fas fa-briefcase"></i>
+                        <span><strong>{{ item.servicos_count }}</strong> serviços</span>
+                    </div>
+                </div>
+
+                <!-- Serviços populares -->
+                {% if item.prestador.servicos_oferecidos[:2] %}
+                <div class="top-services">
+                    {% for servico in item.prestador.servicos_oferecidos[:2] %}
+                        <span class="top-service-tag">
+                            <i class="fas fa-tag"></i>
+                            {{ servico.titulo|truncate(20) }}
+                        </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Ações -->
+                <div class="top-actions">
+                    <a href="{{ url_for('servico.lista') }}?prestador={{ item.prestador.id }}"
+                       class="btn-top-outline">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Ver Serviços</span>
+                    </a>
+                    {% if current_user.is_authenticated and current_user.id != item.prestador.id %}
+                        <button onclick="iniciarChat({{ item.prestador.id }}, '{{ item.prestador.nome|replace("'", "\\'") }}')"
+                                class="btn-top-chat"
+                                title="Conversar com {{ item.prestador.nome }}">
+                            <i class="fas fa-comments"></i>
+                        </button>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
         </div>
-    {% else %}
-        <div class="alert alert-info text-center rounded-4">
-            <i class="fas fa-info-circle me-2"></i>
-            Ainda não há avaliações suficientes para mostrar o ranking. 
-            Seja o primeiro a avaliar um prestador!
+        {% else %}
+        <div class="top-empty">
+            <div class="top-empty-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Ainda não há ranking</h5>
+            <p class="text-muted mb-0">
+                Ainda não há avaliações suficientes para mostrar o ranking.
+                Seja o primeiro a avaliar um prestador!
+            </p>
         </div>
-    {% endif %}
-</div>
+        {% endif %}
+
+    </div>
+</section>
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   🏆 TOP PRESTADORES — Premium 2025
+   ═══════════════════════════════════════════════════════════ */
+
+.top-prestadores-section {
+    padding: 4rem 0;
+    margin: 2rem 0;
+    position: relative;
+}
+
+/* ──────────────────────────────────────────────
+   CABEÇALHO
+   ────────────────────────────────────────────── */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.top-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #78350f;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+    border: 1px solid #fcd34d;
+}
+
+.top-eyebrow i {
+    color: #d97706;
+    font-size: 0.75rem;
+}
+
+.top-gradient-text {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.top-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 14px;
+    border-radius: 100px;
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-left: 12px;
+    vertical-align: middle;
+    box-shadow: 0 6px 16px -6px rgba(11, 43, 92, 0.4);
+}
+
+.top-see-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #1a6d8f;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 10px 18px;
+    border-radius: 100px;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.top-see-all:hover {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -6px rgba(11, 43, 92, 0.4);
+}
+
+.top-see-all i {
+    font-size: 0.75rem;
+    transition: transform 0.25s ease;
+}
+
+.top-see-all:hover i {
+    transform: translateX(3px);
+}
+
+/* ──────────────────────────────────────────────
+   GRID
+   ────────────────────────────────────────────── */
+.top-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+/* ──────────────────────────────────────────────
+   CARD
+   ────────────────────────────────────────────── */
+.top-card {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 2.25rem 1.25rem 1.25rem;
+    border: 1px solid rgba(11, 43, 92, 0.06);
+    box-shadow: 0 4px 20px -8px rgba(11, 43, 92, 0.06);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+}
+
+.top-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #0b2b5c, #1a6d8f, #f59e0b);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.top-card:hover::before {
+    transform: scaleX(1);
+}
+
+.top-card:hover {
+    transform: translateY(-8px);
+    box-shadow:
+        0 24px 48px -16px rgba(11, 43, 92, 0.2),
+        0 0 0 1px rgba(26, 109, 143, 0.1);
+    border-color: transparent;
+}
+
+/* Card #1 (coroa) — destaque especial */
+.top-card--1st {
+    border: 2px solid #fbbf24;
+    box-shadow:
+        0 16px 40px -12px rgba(245, 158, 11, 0.35),
+        0 0 0 1px rgba(245, 158, 11, 0.1);
+    background: linear-gradient(180deg, #ffffff 0%, #fffbeb 100%);
+}
+
+.top-card--1st::before {
+    background: linear-gradient(90deg, #fbbf24, #d97706, #fbbf24);
+    transform: scaleX(1);
+}
+
+.top-card--1st:hover {
+    box-shadow:
+        0 32px 64px -16px rgba(245, 158, 11, 0.5),
+        0 0 0 1px rgba(245, 158, 11, 0.15);
+}
+
+/* ──────────────────────────────────────────────
+   MEDALHA DE POSIÇÃO
+   ────────────────────────────────────────────── */
+.top-medal {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.15);
+    z-index: 3;
+}
+
+.top-medal i {
+    font-size: 0.75rem;
+}
+
+.medal-gold {
+    background: linear-gradient(135deg, #fbbf24, #d97706);
+    color: #ffffff;
+    box-shadow: 0 6px 20px -4px rgba(245, 158, 11, 0.6);
+}
+
+.medal-silver {
+    background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+    color: #ffffff;
+    box-shadow: 0 6px 20px -4px rgba(148, 163, 184, 0.5);
+}
+
+.medal-bronze {
+    background: linear-gradient(135deg, #cd7f32, #a16207);
+    color: #ffffff;
+    box-shadow: 0 6px 20px -4px rgba(205, 127, 50, 0.5);
+}
+
+.medal-default {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.08);
+}
+
+/* ──────────────────────────────────────────────
+   AVATAR com moldura colorida
+   ────────────────────────────────────────────── */
+.top-avatar-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+    display: inline-block;
+}
+
+.top-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #ffffff;
+    box-shadow:
+        0 8px 24px -8px rgba(11, 43, 92, 0.25),
+        0 0 0 1px rgba(11, 43, 92, 0.06);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+}
+
+.top-card:hover .top-avatar {
+    transform: scale(1.05);
+    box-shadow:
+        0 12px 32px -8px rgba(11, 43, 92, 0.35),
+        0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+
+.top-avatar-placeholder {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+}
+
+/* Card #1: avatar com anel dourado */
+.top-card--1st .top-avatar {
+    border-color: #fbbf24;
+    box-shadow:
+        0 12px 32px -8px rgba(245, 158, 11, 0.4),
+        0 0 0 4px rgba(245, 158, 11, 0.15);
+}
+
+.top-card--1st:hover .top-avatar {
+    box-shadow:
+        0 16px 40px -8px rgba(245, 158, 11, 0.55),
+        0 0 0 6px rgba(245, 158, 11, 0.2);
+}
+
+/* Coroa flutuante no card #1 */
+.top-avatar-crown {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fbbf24, #d97706);
+    border: 3px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.75rem;
+    box-shadow: 0 6px 16px -4px rgba(245, 158, 11, 0.6);
+    animation: crownBounce 2.5s ease-in-out infinite;
+}
+
+@keyframes crownBounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-3px) rotate(-8deg); }
+}
+
+/* ──────────────────────────────────────────────
+   NOME
+   ────────────────────────────────────────────── */
+.top-name-link {
+    text-decoration: none;
+    display: block;
+    width: 100%;
+}
+
+.top-name {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    margin: 0 0 0.5rem;
+    transition: color 0.25s ease;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.top-name-link:hover .top-name {
+    color: #1a6d8f;
+}
+
+/* ──────────────────────────────────────────────
+   RATING
+   ────────────────────────────────────────────── */
+.top-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 1rem;
+}
+
+.top-rating i {
+    color: #fbbf24;
+    font-size: 0.85rem;
+    filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.3));
+}
+
+.top-rating .far.fa-star {
+    color: #cbd5e1;
+    filter: none;
+}
+
+.top-rating-value {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #0b2b5c;
+    margin-left: 6px;
+    background: #f1f5f9;
+    padding: 3px 8px;
+    border-radius: 50px;
+}
+
+/* ──────────────────────────────────────────────
+   STATS
+   ────────────────────────────────────────────── */
+.top-stats {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.85rem 0;
+    margin-bottom: 0.75rem;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.top-stat {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.top-stat i {
+    color: #1a6d8f;
+    font-size: 0.72rem;
+}
+
+.top-stat strong {
+    color: #0b2b5c;
+    font-weight: 800;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ──────────────────────────────────────────────
+   SERVIÇOS POPULARES
+   ────────────────────────────────────────────── */
+.top-services {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 0.85rem;
+    min-height: 28px;
+}
+
+.top-service-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.68rem;
+    font-weight: 600;
+    border-radius: 50px;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.25s ease;
+}
+
+.top-service-tag i {
+    font-size: 0.62rem;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+
+.top-card:hover .top-service-tag {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.top-card:hover .top-service-tag i {
+    color: #6366f1;
+}
+
+/* ──────────────────────────────────────────────
+   AÇÕES
+   ────────────────────────────────────────────── */
+.top-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-top: auto;
+}
+
+.btn-top-outline {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 14px;
+    background: #f8fafc;
+    color: #0b2b5c;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 100px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.btn-top-outline i {
+    font-size: 0.7rem;
+}
+
+.btn-top-outline:hover {
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -6px rgba(11, 43, 92, 0.4);
+}
+
+.btn-top-chat {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 6px 16px -6px rgba(11, 43, 92, 0.4);
+    flex-shrink: 0;
+}
+
+.btn-top-chat:hover {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px -6px rgba(245, 158, 11, 0.5);
+}
+
+/* ──────────────────────────────────────────────
+   EMPTY STATE
+   ────────────────────────────────────────────── */
+.top-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 24px;
+    border: 1.5px dashed #cbd5e1;
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.top-empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 8px 20px -6px rgba(245, 158, 11, 0.25);
+}
+
+.top-empty-icon i {
+    color: #d97706;
+    font-size: 1.85rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📱 RESPONSIVO
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 992px) {
+    .top-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .top-prestadores-section {
+        padding: 3rem 0;
+        margin: 1.5rem 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-prestadores-section {
+        padding: 2.5rem 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .top-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .top-badge {
+        display: none;
+    }
+
+    .top-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        max-width: 380px;
+        margin: 0 auto;
+    }
+
+    /* No mobile o card #1 fica igual aos outros (só borda mais forte) */
+    .top-card--1st {
+        border-width: 2px;
+    }
+
+    .top-card {
+        padding: 2rem 1.25rem 1.25rem;
+    }
+
+    .top-avatar {
+        width: 80px;
+        height: 80px;
+    }
+
+    .top-avatar-placeholder {
+        font-size: 2rem;
+    }
+
+    .top-name {
+        font-size: 0.98rem;
+    }
+
+    /* Desativa hovers pesados */
+    .top-card:hover {
+        transform: none;
+    }
+
+    .top-card:hover .top-avatar {
+        transform: none;
+    }
+
+    .top-card:hover::before {
+        transform: scaleX(0);
+    }
+
+    .top-card--1st:hover::before {
+        transform: scaleX(1);
+    }
+
+    .top-avatar-crown {
+        animation: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .top-eyebrow {
+        font-size: 0.65rem;
+        padding: 4px 12px;
+    }
+
+    .top-card {
+        padding: 1.75rem 1rem 1rem;
+    }
+
+    .top-medal {
+        font-size: 0.65rem;
+        padding: 5px 10px;
+        top: 12px;
+        left: 12px;
+    }
+
+    .top-avatar {
+        width: 72px;
+        height: 72px;
+        border-width: 3px;
+    }
+
+    .top-avatar-placeholder {
+        font-size: 1.85rem;
+    }
+
+    .top-avatar-crown {
+        width: 28px;
+        height: 28px;
+        font-size: 0.65rem;
+        border-width: 2px;
+    }
+
+    .top-rating i {
+        font-size: 0.8rem;
+    }
+
+    .top-stats {
+        padding: 0.7rem 0;
+    }
+
+    .top-stat {
+        font-size: 0.74rem;
+    }
+
+    .btn-top-outline {
+        font-size: 0.72rem;
+        padding: 8px 12px;
+    }
+
+    .btn-top-chat {
+        width: 34px;
+        height: 34px;
+        font-size: 0.78rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🔒 ACESSIBILIDADE
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    .top-card,
+    .top-card::before,
+    .top-avatar,
+    .top-avatar-crown,
+    .top-service-tag,
+    .btn-top-outline,
+    .btn-top-chat,
+    .top-see-all,
+    .top-see-all i {
+        transition: none !important;
+    }
+
+    .top-avatar-crown {
+        animation: none !important;
+    }
+}
+</style>

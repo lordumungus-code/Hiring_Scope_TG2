@@ -64,12 +64,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     
+    <!-- Cropper.js — crop de foto de perfil -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
+    
     <!-- ============================================ -->
     <!-- PRELOAD DE RECURSOS CRÍTICOS -->
     <!-- ============================================ -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    
+    <!-- Fontes Premium -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- ============================================ -->
     <!-- JS -->
@@ -124,6 +131,37 @@
         <div class="loader-text" style="color: white; margin-top: 20px;">Carregando experiência incrível...</div>
     </div>
     
+    <script>
+        (function() {
+            var loader = document.getElementById('loader');
+            if (!loader) return;
+            
+            var jaViu = sessionStorage.getItem('hs_loader_visto');
+            
+            if (jaViu) {
+                loader.remove();
+                return;
+            }
+            
+            sessionStorage.setItem('hs_loader_visto', '1');
+            
+            function hideLoader() {
+                loader.style.transition = 'opacity 2.5s ease, visibility 0.5s ease';
+                loader.style.opacity = '0';
+                loader.style.visibility = 'hidden';
+                setTimeout(function() {
+                    if (loader && loader.parentNode) loader.remove();
+                }, 500);
+            }
+            
+            window.addEventListener('load', function() {
+                setTimeout(hideLoader, 600);
+            });
+            
+            setTimeout(hideLoader, 3000);
+        })();
+    </script>
+    
     <!-- ============================================ -->
     <!-- COMPONENTES BASE -->
     <!-- ============================================ -->
@@ -151,8 +189,188 @@
     <!-- SCRIPTS -->
     <!-- ============================================ -->
     <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/masks.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mobile.js') }}"></script>
+    
+    <!-- Cropper.js — crop de foto de perfil -->
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
     
     {% block scripts %}{% endblock %}
+    
+    <!-- ============================================ -->
+    <!-- SISTEMA DE NOTIFICAÇÕES -->
+    <!-- ============================================ -->
+    <audio id="somNotificacao" preload="auto" style="display:none;">
+        <source src="{{ url_for('static', filename='sounds/notificacao.mp3') }}" type="audio/mpeg">
+    </audio>
+
+    <script>
+    (function() {
+        'use strict';
+        
+        if (!currentUserId) return;
+        
+        const badge = document.getElementById('notificationBadge');
+        const bell  = document.getElementById('notificationDropdown');
+        const list  = document.getElementById('notificationList');
+        const som   = document.getElementById('somNotificacao');
+        
+        if (!badge || !bell) return;
+        
+        let lastKnownCount = 0;
+        let somDesbloqueado = false;
+        
+        /* ─────────────────────────────────────────
+           DESBLOQUEIO DE ÁUDIO (1º clique)
+           ───────────────────────────────────────── */
+        function desbloquearSom() {
+            if (somDesbloqueado || !som) return;
+            som.volume = 0.01;
+            const p = som.play();
+            if (p && p.then) {
+                p.then(() => {
+                    som.pause();
+                    som.currentTime = 0;
+                    som.volume = 0.7;
+                    somDesbloqueado = true;
+                    console.log('🔊 Som desbloqueado');
+                }).catch(() => {});
+            }
+        }
+        document.addEventListener('click', desbloquearSom, { once: true });
+        document.addEventListener('touchstart', desbloquearSom, { once: true });
+        document.addEventListener('keydown', desbloquearSom, { once: true });
+        
+        /* ─────────────────────────────────────────
+           TOCAR SOM
+           ───────────────────────────────────────── */
+        function tocarSom() {
+            if (!som) return;
+            try {
+                som.currentTime = 0;
+                som.volume = 1.0;
+                const p = som.play();
+                if (p && p.catch) {
+                    p.catch(err => {
+                        console.warn('⚠️ Som bloqueado. Clique na página primeiro.');
+                    });
+                }
+            } catch (e) {
+                console.warn('Erro som:', e);
+            }
+        }
+        
+        /* ─────────────────────────────────────────
+           🎯 ATUALIZA BADGE
+           Regra nova: reflete SEMPRE o servidor
+             0 notificações  → cinza
+             >0 notificações → vermelho
+           ───────────────────────────────────────── */
+        function atualizarBadge(totalCount, options = {}) {
+            badge.dataset.count = totalCount;
+            
+            if (totalCount > 0) {
+                badge.classList.remove('notification-badge--empty');
+                badge.classList.add('notification-badge--alert');
+                badge.textContent = totalCount > 9 ? '9+' : totalCount;
+                
+                // Toca som SÓ se a contagem aumentou (evita bip a cada 30s)
+                if (options.playSound && totalCount > lastKnownCount) {
+                    tocarSom();
+                }
+            } else {
+                badge.classList.remove('notification-badge--alert');
+                badge.classList.add('notification-badge--empty');
+                badge.textContent = '0';
+            }
+            
+            lastKnownCount = totalCount;
+        }
+        
+        /* ─────────────────────────────────────────
+           LISTA DO DROPDOWN
+           ───────────────────────────────────────── */
+        async function carregarLista() {
+            if (!list) return;
+            try {
+                const res  = await fetch('/api/notificacoes');
+                const data = await res.json();
+                
+                if (!data.notificacoes || data.notificacoes.length === 0) {
+                    list.innerHTML = `
+                        <div class="text-center p-3 text-muted">
+                            <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                            <p class="mb-0">Nenhuma notificação</p>
+                        </div>`;
+                    return;
+                }
+                
+                list.innerHTML = data.notificacoes.map(n => `
+                    <a href="${n.url}" class="dropdown-item notification-item">
+                        <div class="notification-icon notification-icon--${n.cor}">
+                            <i class="fas ${n.icone}"></i>
+                        </div>
+                        <div class="notification-body">
+                            <strong>${escapeHtml(n.titulo)}</strong>
+                            <small>${escapeHtml(n.descricao)}</small>
+                            <span class="notification-time">${n.data}</span>
+                        </div>
+                    </a>
+                `).join('');
+            } catch (e) {
+                console.error('Erro lista:', e);
+            }
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        /* ─────────────────────────────────────────
+           SYNC COM A API
+           ───────────────────────────────────────── */
+        async function sincronizar(options = {}) {
+            try {
+                const res  = await fetch('/api/notificacoes');
+                const data = await res.json();
+                const total = (data.notificacoes || []).length;
+                atualizarBadge(total, options);
+            } catch (e) {
+                console.warn('Erro sync:', e);
+            }
+        }
+        
+        /* ─────────────────────────────────────────
+           CLIQUE NO SINO
+           (só abre a lista e toca — NÃO zera o badge)
+           ───────────────────────────────────────── */
+        bell.addEventListener('click', function() {
+            carregarLista();
+            desbloquearSom();
+        });
+        
+        /* ─────────────────────────────────────────
+           INICIALIZAÇÃO
+           ───────────────────────────────────────── */
+        const initialCount = parseInt(badge.dataset.count) || 0;
+        atualizarBadge(initialCount, { playSound: false });
+        lastKnownCount = initialCount;
+        
+        // Sync inicial depois de 1s (sem som)
+        setTimeout(() => sincronizar({ playSound: false }), 1000);
+        
+        // A cada 30s COM SOM (detecta notificação nova)
+        setInterval(() => sincronizar({ playSound: true }), 30000);
+        
+        // A cada 5s SÓ ATUALIZA O BADGE (sem som)
+        setInterval(() => sincronizar({ playSound: false }), 5000);
+        
+        console.log('🔔 Sistema de notificações ativo');
+    })();
+    </script>
     
 </body>
 </html>

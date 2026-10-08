@@ -1,436 +1,668 @@
 {% extends "base.html" %}
 
-{% block title %}Login - HiringScope{% endblock %}
+{% block title %}Entrar - HiringScope{% endblock %}
 {% block search_bar_desktop %}{% endblock %}
 {% block search_bar_mobile %}{% endblock %}
 
 {% block content %}
 <div class="login-page">
-    <div class="container mt-5 pt-4">
+    <div class="container py-5">
         <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
+            <div class="col-md-7 col-lg-5 col-xl-4">
+
                 <!-- Card Principal -->
-                <div class="login-card shadow-lg border-0 rounded-4 overflow-hidden">
-                    <div class="login-header text-center py-4">
-                        <div class="logo-icon mb-3">
-                            <i class="fas fa-tools fa-3x text-white"></i>
+                <div class="login-card">
+
+                    <!-- Header -->
+                    <div class="login-header">
+                        <div class="login-header-glow"></div>
+                        <div class="logo-icon">
+                            <i class="fas fa-tools"></i>
                         </div>
-                        <h3 class="text-white mb-1 fw-bold">Bem-vindo de volta!</h3>
-                        <p class="text-white-50 small mb-0">Faça login para continuar</p>
+                        <h3 class="login-title">Bem-vindo de volta!</h3>
+                        <p class="login-subtitle">Faça login para continuar</p>
                     </div>
-                    
-                    <div class="card-body p-4 p-lg-5">
-                        
-                        <!-- ============================================ -->
-                        <!-- LOGIN SOCIAL (DESTAQUE) -->
-                        <!-- ============================================ -->
-                        <div class="social-login mb-4">
-                            <a href="/auth/firebase/google" class="btn btn-social btn-google w-100 py-3 mb-3">
-                                <i class="fab fa-google me-2"></i>
+
+                    <!-- Body -->
+                    <div class="login-body">
+
+                        <!-- Login Social -->
+                        <div class="social-login">
+                            <a href="/auth/firebase/google" class="btn-social btn-google">
+                                <i class="fab fa-google"></i>
                                 <span>Continuar com Google</span>
                             </a>
-                            <button class="btn btn-social btn-facebook w-100 py-3" disabled>
-                                <i class="fab fa-facebook-f me-2"></i>
+                            <button class="btn-social btn-facebook" disabled>
+                                <i class="fab fa-facebook-f"></i>
                                 <span>Continuar com Facebook</span>
-                                <small class="ms-2 opacity-75">(Em breve)</small>
+                                <small>(Em breve)</small>
                             </button>
                         </div>
-                        
+
                         <!-- Divisor -->
-                        <div class="divider text-center my-4">
+                        <div class="divider">
                             <span class="divider-text">ou entre com e-mail</span>
                         </div>
-                        
-                        <!-- Formulário de Login -->
+
+                        <!-- Formulário -->
                         <form method="POST" id="loginForm">
-                            <div class="input-group-modern mb-4">
+
+                            <div class="input-group-modern">
                                 <div class="input-icon">
                                     <i class="fas fa-envelope"></i>
                                 </div>
-                                <input type="email" 
-                                       class="form-control form-control-lg rounded-pill" 
-                                       id="email" 
-                                       name="email" 
+                                <input type="email"
+                                       class="form-control"
+                                       id="email"
+                                       name="email"
                                        placeholder="Seu e-mail"
+                                       autocomplete="email"
                                        required>
                             </div>
-                            
-                            <div class="input-group-modern mb-3">
+
+                            <div class="input-group-modern">
                                 <div class="input-icon">
                                     <i class="fas fa-lock"></i>
                                 </div>
-                                <input type="password" 
-                                       class="form-control form-control-lg rounded-pill" 
-                                       id="senha" 
-                                       name="senha" 
+                                <input type="password"
+                                       class="form-control"
+                                       id="senha"
+                                       name="senha"
                                        placeholder="Sua senha"
+                                       autocomplete="current-password"
                                        required>
                             </div>
-                            
-                            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                            <div class="login-options">
                                 <div class="form-check">
                                     <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                                    <label class="form-check-label small" for="remember">Lembrar-me</label>
+                                    <label class="form-check-label" for="remember">Lembrar-me</label>
                                 </div>
-                                <a href="#" class="text-decoration-none small forgot-link">Esqueceu a senha?</a>
+                                <a href="#" class="forgot-link">Esqueceu a senha?</a>
                             </div>
-                            
-                            <button type="submit" class="btn btn-login w-100 rounded-pill py-3 mb-4">
-                                <i class="fas fa-sign-in-alt me-2"></i> Entrar
-                                <span class="btn-loader d-none"><i class="fas fa-spinner fa-spin ms-2"></i></span>
+
+                            <button type="submit" class="btn-login">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Entrar</span>
+                                <span class="btn-loader d-none">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
                             </button>
                         </form>
-                        
+
                         <!-- Link Cadastro -->
-                        <div class="text-center mt-3 pt-2">
-                            <p class="mb-0 text-muted">
-                                Não tem uma conta? 
-                                <a href="{{ url_for('auth.cadastro') }}" class="text-primary fw-bold text-decoration-none signup-link">
-                                    Cadastre-se <i class="fas fa-arrow-right ms-1"></i>
-                                </a>
-                            </p>
+                        <div class="signup-prompt">
+                            Não tem uma conta?
+                            <a href="{{ url_for('auth.cadastro') }}" class="signup-link">
+                                Cadastre-se <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
+
                     </div>
                 </div>
-                
-                <!-- Feature Badges -->
-                <div class="feature-badges d-flex justify-content-center gap-3 mt-4">
-                    <div class="badge bg-light text-dark rounded-pill px-3 py-2">
-                        <i class="fas fa-shield-alt text-success me-1"></i> Seguro
-                    </div>
-                    <div class="badge bg-light text-dark rounded-pill px-3 py-2">
-                        <i class="fas fa-bolt text-warning me-1"></i> Rápido
-                    </div>
-                    <div class="badge bg-light text-dark rounded-pill px-3 py-2">
-                        <i class="fas fa-headset text-info me-1"></i> Suporte 24/7
-                    </div>
+
+                <!-- Selos de confiança -->
+                <div class="login-trust">
+                    <span><i class="fas fa-shield-alt"></i> Seguro</span>
+                    <span><i class="fas fa-bolt"></i> Rápido</span>
+                    <span><i class="fas fa-headset"></i> Suporte 24/7</span>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
 
 <style>
+/* ═══════════════════════════════════════════════════════════
+   🎨 LOGIN PREMIUM 2025
+   ═══════════════════════════════════════════════════════════ */
+
+.login-page {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    background:
+        radial-gradient(ellipse at 20% 10%, rgba(59, 178, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 90%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ──────────────────────────────────────────────
+   CARD
+   ────────────────────────────────────────────── */
+.login-card {
+    background: #ffffff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow:
+        0 24px 60px -20px rgba(11, 43, 92, 0.25),
+        0 8px 20px -8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(11, 43, 92, 0.06);
+    position: relative;
+    animation: hs-login-in 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes hs-login-in {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ──────────────────────────────────────────────
+   HEADER (gradiente azul)
+   ────────────────────────────────────────────── */
+.login-header {
+    background: linear-gradient(135deg, #0b2b5c 0%, #14477a 45%, #1a6d8f 100%);
+    padding: 2.25rem 1.75rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-header-glow {
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(59, 178, 255, 0.25) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.login-header-glow::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    left: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+}
+
+.logo-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.4);
+}
+
+.logo-icon i {
+    color: #ffffff;
+    font-size: 1.75rem;
+}
+
+.login-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: #ffffff;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.02em;
+    position: relative;
+    z-index: 1;
+}
+
+.login-subtitle {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* ──────────────────────────────────────────────
+   BODY
+   ────────────────────────────────────────────── */
+.login-body {
+    padding: 2rem 1.75rem 1.75rem;
+}
+
+/* ──────────────────────────────────────────────
+   BOTÕES SOCIAIS
+   ────────────────────────────────────────────── */
+.social-login {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 100px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-social i {
+    font-size: 1.05rem;
+}
+
+.btn-social small {
+    font-size: 0.72rem;
+    opacity: 0.7;
+    font-weight: 500;
+}
+
+/* Google */
+.btn-google {
+    background: #ffffff;
+    color: #334155;
+    border: 1.5px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.btn-google i {
+    color: #DB4437;
+}
+
+.btn-google:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -6px rgba(11, 43, 92, 0.1);
+    color: #0b2b5c;
+}
+
+/* Facebook */
+.btn-facebook {
+    background: #1877F2;
+    color: #ffffff;
+    border: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-facebook i {
+    color: #ffffff;
+}
+
+/* ──────────────────────────────────────────────
+   DIVISOR
+   ────────────────────────────────────────────── */
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 1.5rem 0 1.25rem;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+}
+
+.divider-text {
+    background: #ffffff;
+    padding: 0 16px;
+    position: relative;
+    z-index: 1;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+/* ──────────────────────────────────────────────
+   INPUTS
+   ────────────────────────────────────────────── */
+.input-group-modern {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.input-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    transition: color 0.25s ease;
+    pointer-events: none;
+}
+
+.input-group-modern:focus-within .input-icon {
+    color: #1a6d8f;
+}
+
+.input-group-modern .form-control {
+    height: 52px;
+    padding: 0 18px 0 48px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    background: #f8fafc;
+    color: #0f172a;
+    transition: all 0.25s ease;
+    box-shadow: none;
+}
+
+.input-group-modern .form-control::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.input-group-modern .form-control:focus {
+    border-color: #1a6d8f;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(26, 109, 143, 0.12);
+    outline: none;
+}
+
+/* ──────────────────────────────────────────────
+   LEMBRAR-ME + ESQUECEU SENHA
+   ────────────────────────────────────────────── */
+.login-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1.25rem 0 1.5rem;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.login-options .form-check {
+    margin: 0;
+    padding-left: 1.75em;
+    display: inline-flex;
+    align-items: center;
+}
+
+.login-options .form-check-input {
+    border: 1.5px solid #cbd5e1;
+    cursor: pointer;
+    margin-top: 0;
+    transition: all 0.2s ease;
+}
+
+.login-options .form-check-input:checked {
+    background-color: #0b2b5c;
+    border-color: #0b2b5c;
+}
+
+.login-options .form-check-input:focus {
+    box-shadow: 0 0 0 3px rgba(11, 43, 92, 0.15);
+    border-color: #0b2b5c;
+}
+
+.login-options .form-check-label {
+    font-size: 0.85rem;
+    color: #475569;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+}
+
+.forgot-link {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.forgot-link:hover {
+    color: #1a6d8f;
+    text-decoration: underline;
+}
+
+/* ──────────────────────────────────────────────
+   BOTÃO ENTRAR
+   ────────────────────────────────────────────── */
+.btn-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 1rem 1.75rem;
+    background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 100px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.005em;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+        0 12px 28px -8px rgba(11, 43, 92, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.btn-login::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transition: left 0.6s ease;
+}
+
+.btn-login:hover::before {
+    left: 100%;
+}
+
+.btn-login:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 20px 40px -8px rgba(11, 43, 92, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btn-login:active {
+    transform: translateY(-1px);
+}
+
+.btn-login:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ──────────────────────────────────────────────
+   PROMPT DE CADASTRO
+   ────────────────────────────────────────────── */
+.signup-prompt {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 0.5rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.signup-link {
+    color: #1a6d8f;
+    text-decoration: none;
+    font-weight: 700;
+    margin-left: 4px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.signup-link i {
+    font-size: 0.75rem;
+    transition: transform 0.25s ease;
+}
+
+.signup-link:hover {
+    color: #0b2b5c;
+}
+
+.signup-link:hover i {
+    transform: translateX(4px);
+}
+
+/* ──────────────────────────────────────────────
+   SELOS DE CONFIANÇA
+   ────────────────────────────────────────────── */
+.login-trust {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem 1.75rem;
+    margin-top: 1.75rem;
+    padding: 0 1rem;
+}
+
+.login-trust span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+    letter-spacing: 0.01em;
+}
+
+.login-trust i {
+    color: #10b981;
+    font-size: 0.85rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   📱 RESPONSIVO
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
     .login-page {
-        min-height: calc(100vh - 300px);
-        display: flex;
-        align-items: center;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        position: relative;
-        overflow: hidden;
+        padding: 1rem 0 2rem;
+        align-items: flex-start;
     }
-    
-    .login-page::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -20%;
-        width: 80%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(11,43,92,0.05) 1%, transparent 1%);
-        background-size: 40px 40px;
-        pointer-events: none;
-    }
-    
-    .login-page::after {
-        content: '';
-        position: absolute;
-        bottom: -30%;
-        right: -10%;
-        width: 60%;
-        height: 100%;
-        background: radial-gradient(circle, rgba(26,109,143,0.08) 0%, transparent 70%);
-        pointer-events: none;
-        border-radius: 50%;
-    }
-    
-    .login-card {
-        background: white;
-        position: relative;
-        z-index: 2;
-        transition: transform 0.3s ease;
-        animation: fadeInUp 0.6s ease-out;
-    }
-    
-    .login-card:hover {
-        transform: translateY(-5px);
-    }
-    
+
     .login-header {
-        background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%);
-        position: relative;
-        overflow: hidden;
+        padding: 1.75rem 1.25rem 1.5rem;
     }
-    
-    .login-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 150%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 1%);
-        background-size: 20px 20px;
-        pointer-events: none;
-    }
-    
+
     .logo-icon {
-        width: 70px;
-        height: 70px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-        backdrop-filter: blur(5px);
+        width: 62px;
+        height: 62px;
+        margin-bottom: 1rem;
     }
-    
-    /* ============================================ */
-    /* BOTÕES SOCIAIS (DESTAQUE) */
-    /* ============================================ */
-    .btn-social {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-size: 1rem;
-        border: none;
-        border-radius: 50px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        position: relative;
-        overflow: hidden;
+
+    .logo-icon i {
+        font-size: 1.5rem;
     }
-    
-    .btn-social i {
-        font-size: 1.2rem;
+
+    .login-title {
+        font-size: 1.3rem;
     }
-    
-    .btn-social:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+
+    .login-subtitle {
+        font-size: 0.82rem;
     }
-    
-    .btn-social:active {
-        transform: translateY(0);
+
+    .login-body {
+        padding: 1.5rem 1.25rem 1.25rem;
     }
-    
-    /* Botão Google */
-    .btn-google {
-        background: white;
-        color: #333;
-        border: 2px solid #e2e8f0;
-    }
-    
-    .btn-google:hover {
-        background: #f8fafc;
-        border-color: #cbd5e1;
-        color: #333;
-    }
-    
-    .btn-google i {
-        color: #DB4437;
-    }
-    
-    /* Botão Facebook */
-    .btn-facebook {
-        background: #1877F2;
-        color: white;
-    }
-    
-    .btn-facebook:hover {
-        background: #166FE5;
-        color: white;
-    }
-    
-    .btn-facebook:disabled {
-        background: #1877F2;
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: none;
-    }
-    
-    .btn-facebook i {
-        color: white;
-    }
-    
-    /* ============================================ */
-    /* INPUTS */
-    /* ============================================ */
-    .input-group-modern {
-        position: relative;
-    }
-    
-    .input-icon {
-        position: absolute;
-        left: 18px;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 10;
-        color: #94a3b8;
-        font-size: 1rem;
-    }
-    
+
     .input-group-modern .form-control {
-        padding-left: 50px;
-        border: 1px solid #e2e8f0;
-        transition: all 0.3s ease;
-        background-color: #f8fafc;
+        height: 50px;
+        font-size: 16px; /* evita zoom no iOS */
     }
-    
-    .input-group-modern .form-control:focus {
-        border-color: #0b2b5c;
-        box-shadow: 0 0 0 3px rgba(11, 43, 92, 0.1);
-        background-color: white;
-    }
-    
-    /* ============================================ */
-    /* BOTÃO DE LOGIN TRADICIONAL */
-    /* ============================================ */
+
     .btn-login {
-        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
-        border: none;
-        color: white;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
+        padding: 0.95rem 1.5rem;
+        font-size: 0.95rem;
     }
-    
+
+    .btn-social {
+        padding: 0.85rem 1.25rem;
+        font-size: 0.9rem;
+    }
+
+    .login-trust {
+        gap: 0.75rem 1.25rem;
+        margin-top: 1.25rem;
+    }
+
+    .login-trust span {
+        font-size: 0.72rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🔒 ACESSIBILIDADE
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    .login-card,
+    .btn-social,
+    .btn-login,
+    .input-group-modern .form-control {
+        animation: none !important;
+        transition: none !important;
+    }
+
     .btn-login::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s ease;
+        display: none;
     }
-    
-    .btn-login:hover::before {
-        left: 100%;
-    }
-    
-    .btn-login:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(11, 43, 92, 0.3);
-    }
-    
-    /* ============================================ */
-    /* DIVISOR */
-    /* ============================================ */
-    .divider {
-        position: relative;
-    }
-    
-    .divider::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
-    }
-    
-    .divider-text {
-        background: white;
-        padding: 0 15px;
-        position: relative;
-        z-index: 1;
-        font-size: 0.85rem;
-        color: #94a3b8;
-    }
-    
-    /* ============================================ */
-    /* LINKS */
-    /* ============================================ */
-    .forgot-link {
-        color: #64748b;
-        transition: color 0.2s;
-    }
-    
-    .forgot-link:hover {
-        color: #0b2b5c;
-    }
-    
-    .signup-link {
-        transition: all 0.2s;
-    }
-    
-    .signup-link:hover {
-        letter-spacing: 0.5px;
-    }
-    
-    /* ============================================ */
-    /* BADGES DE RECURSOS */
-    /* ============================================ */
-    .feature-badges .badge {
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        transition: all 0.2s;
-    }
-    
-    .feature-badges .badge:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    
-    /* ============================================ */
-    /* ANIMAÇÕES */
-    /* ============================================ */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    /* ============================================ */
-    /* RESPONSIVIDADE */
-    /* ============================================ */
-    @media (max-width: 768px) {
-        .login-card .card-body {
-            padding: 1.5rem !important;
-        }
-        
-        .logo-icon {
-            width: 55px;
-            height: 55px;
-        }
-        
-        .logo-icon i {
-            font-size: 2rem;
-        }
-        
-        .btn-login {
-            padding: 0.75rem !important;
-        }
-        
-        .btn-social {
-            font-size: 0.95rem;
-            padding: 0.75rem !important;
-        }
-    }
+}
 </style>
 
 <script>
-    document.getElementById('loginForm')?.addEventListener('submit', function(e) {
-        const btn = this.querySelector('.btn-login');
-        const spinner = btn.querySelector('.btn-loader');
-        
-        btn.disabled = true;
-        spinner.classList.remove('d-none');
-        
-        setTimeout(() => {
-            btn.disabled = false;
-            spinner.classList.add('d-none');
-        }, 5000);
-    });
+/* ═══════════════════════════════════════════════════════════
+   LOGIN — JS mantido 100% original + failsafe
+   ═══════════════════════════════════════════════════════════ */
+document.getElementById('loginForm')?.addEventListener('submit', function() {
+    const btn = this.querySelector('.btn-login');
+    const spinner = btn?.querySelector('.btn-loader');
+    const icon = btn?.querySelector('i.fa-sign-in-alt');
+    const text = btn?.querySelector('span:not(.btn-loader)');
+
+    if (btn) btn.disabled = true;
+    if (spinner) spinner.classList.remove('d-none');
+    if (icon) icon.style.display = 'none';
+    if (text) text.textContent = 'Entrando...';
+
+    // Failsafe: se o backend demorar, reabilita em 8s
+    setTimeout(() => {
+        if (btn) btn.disabled = false;
+        if (spinner) spinner.classList.add('d-none');
+        if (icon) icon.style.display = '';
+        if (text) text.textContent = 'Entrar';
+    }, 8000);
+});
 </script>
 {% endblock %}
