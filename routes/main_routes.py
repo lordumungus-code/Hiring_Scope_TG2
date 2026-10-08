@@ -273,3 +273,19 @@ def vidraceiro_cruzeiro():
     ).order_by(Servico.data_postagem.desc()).limit(8).all()
     return render_template('servico/emergencia/vidraceiro.html',
                          servicos_destaque=servicos_destaque)
+
+@main_bp.route('/sitemap.xml')
+def sitemap():
+    """Serve o sitemap.xml para o Google"""
+    import os
+    from flask import Response
+    
+    sitemap_path = os.path.join('static', 'sitemap.xml')
+    
+    if not os.path.exists(sitemap_path):
+        return "Sitemap não encontrado", 404
+    
+    with open(sitemap_path, 'r', encoding='utf-8') as f:
+        xml = f.read()
+    
+    return Response(xml, mimetype='application/xml')
