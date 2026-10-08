@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Desentupimento e Encanador em Cruzeiro - SP | HiringScope{% endblock %}
+
+{% block meta_description %}Precisa de desentupidor ou encanador em Cruzeiro - SP? Encontre profissionais qualificados para emergências 24h. Pia, vaso, esgoto entupido. Grátis para clientes.{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero Section da Página -->
+    <div class="hero-desentupimento mb-5">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <div class="badge-emergencia mb-3">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    EMERGÊNCIA 24 HORAS
+                </div>
+                <h1 class="display-4 fw-bold text-white mb-3">
+                    Esgoto entupido em<br>
+                    <span class="text-warning">Cruzeiro - SP?</span>
+                </h1>
+                <p class="lead text-white-50 mb-4">
+                    Encontre desentupidores e encanadores perto de você. 
+                    Atendimento rápido para pias, vasos, ralos e esgoto.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{{ url_for('servico.lista') }}?q=desentupimento" class="btn btn-warning btn-lg rounded-pill px-4">
+                        <i class="fas fa-search me-2"></i>Ver profissionais
+                    </a>
+                    <a href="https://wa.me/5512999999999" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                        <i class="fab fa-whatsapp me-2"></i>WhatsApp
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center d-none d-lg-block">
+                <i class="fas fa-tools fa-10x text-white opacity-25"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- O que atendemos -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card-servico h-100 text-center p-4">
+                <div class="icon-servico">
+                    <i class="fas fa-toilet"></i>
+                </div>
+                <h4 class="fw-bold">Vaso Sanitário</h4>
+                <p class="text-muted">Entupimento, vazamento ou troca de vaso.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-servico h-100 text-center p-4">
+                <div class="icon-servico">
+                    <i class="fas fa-sink"></i>
+                </div>
+                <h4 class="fw-bold">Pias e Ralos</h4>
+                <p class="text-muted">Desentupimento de pia da cozinha, banheiro e ralos.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-servico h-100 text-center p-4">
+                <div class="icon-servico">
+                    <i class="fas fa-water"></i>
+                </div>
+                <h4 class="fw-bold">Esgoto Principal</h4>
+                <p class="text-muted">Entupimento na rede de esgoto da casa.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Por que escolher -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h2 class="fw-bold mb-4">Por que contratar pelo HiringScope?</h2>
+            <ul class="list-unstyled">
+                <li class="mb-3 d-flex">
+                    <i class="fas fa-check-circle text-success fa-lg me-3"></i>
+                    <div>
+                        <strong>Profissionais de Cruzeiro</strong>
+                        <p class="text-muted mb-0">Atendem rápido e conhecem a região.</p>
+                    </div>
+                </li>
+                <li class="mb-3 d-flex">
+                    <i class="fas fa-check-circle text-success fa-lg me-3"></i>
+                    <div>
+                        <strong>Chat direto com o prestador</strong>
+                        <p class="text-muted mb-0">Negocie o preço antes de contratar.</p>
+                    </div>
+                </li>
+                <li class="mb-3 d-flex">
+                    <i class="fas fa-check-circle text-success fa-lg me-3"></i>
+                    <div>
+                        <strong>Avaliações reais</strong>
+                        <p class="text-muted mb-0">Veja a opinião de outros clientes.</p>
+                    </div>
+                </li>
+                <li class="mb-3 d-flex">
+                    <i class="fas fa-check-circle text-success fa-lg me-3"></i>
+                    <div>
+                        <strong>Grátis para clientes</strong>
+                        <p class="text-muted mb-0">Você não paga nada para usar a plataforma.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-6">
+            <div class="cta-box p-4 rounded-4 text-center">
+                <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                <h3 class="fw-bold">Precisa de ajuda agora?</h3>
+                <p class="text-muted mb-4">Fale com um profissional em minutos.</p>
+                <a href="{{ url_for('servico.lista') }}?q=desentupimento" class="btn btn-primary btn-lg w-100 rounded-pill">
+                    <i class="fas fa-search me-2"></i>Encontrar desentupidor
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profissionais em destaque -->
+    {% if servicos_destaque %}
+    <div class="mb-5">
+        <h2 class="fw-bold mb-4">Desentupidores em Destaque em Cruzeiro</h2>
+        <div class="row g-4">
+            {% for servico in servicos_destaque %}
+            {% if 'desentupimento' in servico.titulo|lower or 'encanador' in servico.titulo|lower or 'vazamento' in servico.titulo|lower %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="position-relative">
+                        {% if servico.imagem_base64 %}
+                            <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" class="card-img-top" style="height: 160px; object-fit: cover;">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center bg-primary" style="height: 160px;">
+                                <i class="fas fa-tools fa-3x text-white"></i>
+                            </div>
+                        {% endif %}
+                        {% if servico.destaque %}
+                            <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2">
+                                <i class="fas fa-star me-1"></i>Destaque
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h6 class="fw-bold">{{ servico.titulo }}</h6>
+                        <p class="text-muted small">{{ servico.descricao[:70] }}...</p>
+                        {% if servico.preco %}
+                            <p class="fw-bold text-primary mb-2">R$ {{ "%.2f"|format(servico.preco) }}</p>
+                        {% endif %}
+                        <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-outline-primary btn-sm w-100 rounded-pill">
+                            Ver Detalhes
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- FAQ -->
+    <div class="mb-5">
+        <h2 class="fw-bold mb-4">Perguntas Frequentes</h2>
+        <div class="accordion" id="faqDesentupimento">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                        Quanto custa um desentupimento em Cruzeiro?
+                    </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqDesentupimento">
+                    <div class="accordion-body">
+                        O valor varia conforme a complexidade do entupimento e o profissional escolhido. 
+                        Você pode negociar diretamente pelo chat antes de contratar. 
+                        A média na região fica entre R$ 150 e R$ 350.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                        Os profissionais atendem 24 horas?
+                    </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqDesentupimento">
+                    <div class="accordion-body">
+                        Muitos profissionais cadastrados atendem em regime de emergência, 
+                        inclusive à noite e nos fins de semana. Você pode confirmar a disponibilidade 
+                        pelo chat antes de fechar o serviço.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                        Preciso pagar algo para usar o HiringScope?
+                    </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqDesentupimento">
+                    <div class="accordion-body">
+                        Não! O HiringScope é <strong>100% grátis para clientes</strong>. 
+                        Você só paga o valor combinado com o profissional pelo serviço prestado.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Final -->
+    <div class="text-center py-5">
+        <h3 class="fw-bold mb-3">Não deixe o esgoto entupido estragar seu dia</h3>
+        <p class="text-muted mb-4">Encontre um profissional em minutos.</p>
+        <a href="{{ url_for('servico.lista') }}?q=desentupimento" class="btn btn-warning btn-lg rounded-pill px-5">
+            <i class="fas fa-search me-2"></i>Buscar desentupidor agora
+        </a>
+    </div>
+</div>
+
+<style>
+    .hero-desentupimento {
+        background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%);
+        border-radius: 24px;
+        padding: 60px 40px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-desentupimento::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 60%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    
+    .badge-emergencia {
+        display: inline-block;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+    
+    .card-servico {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .card-servico:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .icon-servico {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 1.8rem;
+        color: #0b2b5c;
+    }
+    
+    .cta-box {
+        background: linear-gradient(135deg, #f8fafc, #eef2ff);
+        border: 1px solid #e5e7eb;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-desentupimento {
+            padding: 40px 20px;
+        }
+        
+        .hero-desentupimento h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}

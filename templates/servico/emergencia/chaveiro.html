@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Chaveiro 24h em Cruzeiro - SP | Atendimento Imediato | HiringScope{% endblock %}
+
+{% block meta_description %}Chaveiro 24h em Cruzeiro - SP. Atendimento imediato para porta trancada, chave perdida ou troca de fechadura. Profissionais qualificados perto de você.{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero -->
+    <div class="hero-emergencia mb-5" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <div class="badge-emergencia mb-3">
+                    <i class="fas fa-clock me-2"></i>
+                    ATENDIMENTO 24 HORAS
+                </div>
+                <h1 class="display-4 fw-bold text-white mb-3">
+                    Porta trancada em<br>
+                    <span class="text-warning">Cruzeiro - SP?</span>
+                </h1>
+                <p class="lead text-white-50 mb-4">
+                    Chaveiros de plantão prontos para atender agora. 
+                    Abertura de porta, troca de fechadura e cópia de chaves.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{{ url_for('servico.lista') }}?q=chaveiro" class="btn btn-warning btn-lg rounded-pill px-4">
+                        <i class="fas fa-search me-2"></i>Ver chaveiros
+                    </a>
+                    <a href="https://wa.me/5512999999999" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                        <i class="fab fa-whatsapp me-2"></i>WhatsApp
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center d-none d-lg-block">
+                <i class="fas fa-key fa-10x text-white opacity-25"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- O que atendemos -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card-servico h-100 text-center p-4">
+                <div class="icon-servico" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe);">
+                    <i class="fas fa-door-closed"></i>
+                </div>
+                <h4 class="fw-bold">Porta Trancada</h4>
+                <p class="text-muted">Perdeu a chave ou ficou do lado de fora? Abertura rápida sem danificar.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-servico h-100 text-center p-4">
+                <div class="icon-servico" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe);">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h4 class="fw-bold">Troca de Fechadura</h4>
+                <p class="text-muted">Substituição de fechaduras antigas por modelos mais seguros.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-servico h-100 text-center p-4">
+                <div class="icon-servico" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe);">
+                    <i class="fas fa-copy"></i>
+                </div>
+                <h4 class="fw-bold">Cópia de Chaves</h4>
+                <p class="text-muted">Cópias de chaves residenciais, comerciais e automotivas.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Por que escolher -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h2 class="fw-bold mb-4">Por que contratar pelo HiringScope?</h2>
+            <ul class="list-unstyled">
+                <li class="mb-3 d-flex">
+                    <i class="fas fa-check-circle text-success fa-lg me-3"></i>
+                    <div>
+                        <strong>Chaveiros de Cruzeiro</strong>
+                        <p class="text-muted mb-0">Chegam rápido e conhecem a cidade.</p>
+                    </div>
+                </li>
+                <li class="mb-3 d-flex">
+                    <i class="fas fa-check-circle text-success fa-lg me-3"></i>
+                    <div>
+                        <strong>Atendimento 24h</strong>
+                        <p class="text-muted mb-0">Emergências a qualquer hora, incluindo fins de semana.</p>
+                    </div>
+                </li>
+                <li class="mb-3 d-flex">
+                    <i class="fas fa-check-circle text-success fa-lg me-3"></i>
+                    <div>
+                        <strong>Preço justo</strong>
+                        <p class="text-muted mb-0">Você negocia direto pelo chat antes de fechar.</p>
+                    </div>
+                </li>
+                <li class="mb-3 d-flex">
+                    <i class="fas fa-check-circle text-success fa-lg me-3"></i>
+                    <div>
+                        <strong>Grátis para clientes</strong>
+                        <p class="text-muted mb-0">Não cobramos nada para usar a plataforma.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-6">
+            <div class="cta-box p-4 rounded-4 text-center">
+                <i class="fas fa-lock-open fa-3x text-primary mb-3"></i>
+                <h3 class="fw-bold">Está preso do lado de fora?</h3>
+                <p class="text-muted mb-4">Fale com um chaveiro agora mesmo.</p>
+                <a href="{{ url_for('servico.lista') }}?q=chaveiro" class="btn btn-primary btn-lg w-100 rounded-pill">
+                    <i class="fas fa-search me-2"></i>Encontrar chaveiro
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="mb-5">
+        <h2 class="fw-bold mb-4">Perguntas Frequentes</h2>
+        <div class="accordion" id="faqChaveiro">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqC1">
+                        Quanto custa abrir uma porta em Cruzeiro?
+                    </button>
+                </h2>
+                <div id="faqC1" class="accordion-collapse collapse show" data-bs-parent="#faqChaveiro">
+                    <div class="accordion-body">
+                        O valor varia conforme o tipo de fechadura e o horário. 
+                        Você pode negociar direto pelo chat antes de fechar. 
+                        A média na região fica entre R$ 80 e R$ 250.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqC2">
+                        Os chaveiros atendem de madrugada?
+                    </button>
+                </h2>
+                <div id="faqC2" class="accordion-collapse collapse" data-bs-parent="#faqChaveiro">
+                    <div class="accordion-body">
+                        Muitos profissionais cadastrados atendem em regime 24h, 
+                        inclusive de madrugada e nos fins de semana. Você pode confirmar 
+                        a disponibilidade pelo chat.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqC3">
+                        Preciso pagar algo para usar o HiringScope?
+                    </button>
+                </h2>
+                <div id="faqC3" class="accordion-collapse collapse" data-bs-parent="#faqChaveiro">
+                    <div class="accordion-body">
+                        Não! O HiringScope é <strong>100% grátis para clientes</strong>. 
+                        Você só paga o valor combinado com o chaveiro pelo serviço.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Final -->
+    <div class="text-center py-5">
+        <h3 class="fw-bold mb-3">Não fique preso do lado de fora</h3>
+        <p class="text-muted mb-4">Chame um chaveiro agora.</p>
+        <a href="{{ url_for('servico.lista') }}?q=chaveiro" class="btn btn-warning btn-lg rounded-pill px-5">
+            <i class="fas fa-search me-2"></i>Buscar chaveiro agora
+        </a>
+    </div>
+</div>
+
+<style>
+    .hero-emergencia {
+        border-radius: 24px;
+        padding: 60px 40px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-emergencia::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 60%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    
+    .badge-emergencia {
+        display: inline-block;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+    
+    .card-servico {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .card-servico:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .icon-servico {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 1.8rem;
+        color: #1e3a8a;
+    }
+    
+    .cta-box {
+        background: linear-gradient(135deg, #f8fafc, #eff6ff);
+        border: 1px solid #e5e7eb;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-emergencia {
+            padding: 40px 20px;
+        }
+        
+        .hero-emergencia h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}

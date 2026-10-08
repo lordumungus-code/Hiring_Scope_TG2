@@ -17,7 +17,7 @@
                 <!-- Badge de confiança -->
                 <div class="hero-badge animate__animated animate__fadeInDown">
                     <span class="badge-dot"></span>
-                    <span>{{ total_usuarios or '22' }}+ profissionais ativos agora</span>
+                    <span>{{ total_usuarios or '22' }}+ profissionais ativos em Cruzeiro - SP</span>
                 </div>
 
                 <!-- Título -->
@@ -25,13 +25,13 @@
                     Encontre
                     <span class="highlight">profissionais qualificados</span>
                     <br class="d-none d-md-inline">
-                    para qualquer serviço
+                    para qualquer serviço em <span class="highlight-city">Cruzeiro - SP</span>
                 </h1>
 
                 <!-- Descrição -->
                 <p class="hero-description animate__animated animate__fadeInUp animate__delay-1s">
-                    Conectamos você aos melhores prestadores da sua região.
-                    <strong>Grátis para clientes.</strong>
+                    Conectamos você aos melhores prestadores de serviços da sua cidade.
+                    <strong class="text-warning">Grátis para clientes.</strong>
                 </p>
 
                 <!-- Botões CTA -->
@@ -44,14 +44,14 @@
                         </a>
                         <a href="{{ url_for('auth.cadastro') }}?tipo=prestador" class="btn-hero-outline">
                             <i class="fas fa-briefcase"></i>
-                            <span>Quero trabalhar</span>
+                            <span>Sou de Cruzeiro e quero trabalhar</span>
                         </a>
                     </div>
                 {% else %}
                     <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
                         <a href="{{ url_for('servico.lista') }}" class="btn-hero">
                             <i class="fas fa-search"></i>
-                            <span>Buscar serviços</span>
+                            <span>Buscar em Cruzeiro</span>
                             <i class="fas fa-arrow-right btn-hero-arrow"></i>
                         </a>
                         {% if current_user.tipo == 'prestador' %}
@@ -71,7 +71,7 @@
                             <input type="text"
                                    name="q"
                                    class="hero-search-input"
-                                   placeholder="Buscar serviços... Ex: pintor, encanador, designer"
+                                   placeholder="Buscar em Cruzeiro... Ex: pintor, encanador, designer"
                                    autocomplete="off">
                         </div>
                         <button type="submit" class="hero-search-btn">
@@ -82,7 +82,7 @@
 
                     <!-- Sugestões populares -->
                     <div class="hero-popular">
-                        <span class="hero-popular-label">Popular:</span>
+                        <span class="hero-popular-label">Popular em Cruzeiro:</span>
                         <a href="{{ url_for('servico.lista') }}?q=eletricista">Eletricista</a>
                         <a href="{{ url_for('servico.lista') }}?q=diarista">Diarista</a>
                         <a href="{{ url_for('servico.lista') }}?q=encanador">Encanador</a>
@@ -105,8 +105,8 @@
                         <span>Avaliações reais</span>
                     </div>
                     <div class="hero-trust-item">
-                        <i class="fas fa-lock"></i>
-                        <span>Dados protegidos</span>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Profissionais de Cruzeiro</span>
                     </div>
                 </div>
 
@@ -132,7 +132,7 @@
    IMAGEM DE FUNDO
    ────────────────────────────────────────────── */
 .hero-bg {
-      position: absolute;
+    position: absolute;
     inset: 0;
     background-image: url("{{ url_for('static', filename='img/banner1.jpg') }}");
     background-size: cover;
@@ -260,6 +260,28 @@
     background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 40px rgba(245, 158, 11, 0.4);
+}
+
+/* ──────────────────────────────────────────────
+   DESTAQUE DA CIDADE (Cruzeiro - SP)
+   ────────────────────────────────────────────── */
+.highlight-city {
+    position: relative;
+    display: inline-block;
+    background: linear-gradient(135deg, #06b6d4, #0ea5e9);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding: 0 4px;
+    text-shadow: 0 0 40px rgba(6, 182, 212, 0.4);
+}
+
+.highlight-city::after {
+    content: '📍';
+    font-size: 0.9em;
+    margin-left: 6px;
+    -webkit-text-fill-color: initial;
+    color: #06b6d4;
 }
 
 /* ──────────────────────────────────────────────

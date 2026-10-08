@@ -9,3 +9,6 @@ backups/
 .env
 *.env
 instance/
+marketing/
+__pycache__/
+*.pyc

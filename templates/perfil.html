@@ -72,6 +72,55 @@
             <!-- ═══════════════════════════════════════════════ -->
             <div class="col-lg-8">
 
+                <!-- ═══════════════════════════════════════════ -->
+                <!-- ESTATÍSTICAS (só prestador) — do amigo      -->
+                <!-- ═══════════════════════════════════════════ -->
+                {% if usuario.tipo == 'prestador' %}
+                <div class="perfil-section">
+                    <div class="perfil-section-header">
+                        <div class="icon-box amber">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <h5>Suas Estatísticas</h5>
+                            <small>Como você está performando na plataforma</small>
+                        </div>
+                    </div>
+                    <div class="perfil-section-body">
+                        <div class="row g-3">
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card text-center">
+                                    <i class="fas fa-briefcase fa-2x text-primary mb-2"></i>
+                                    <h4 class="fw-bold mb-0">{{ usuario.servicos_oferecidos|length }}</h4>
+                                    <small class="text-muted">Serviços</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card text-center">
+                                    <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                                    <h4 class="fw-bold mb-0">{{ "%.1f"|format(usuario.media_avaliacoes()) }}</h4>
+                                    <small class="text-muted">Avaliação</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card text-center">
+                                    <i class="fas fa-comment-dots fa-2x text-success mb-2"></i>
+                                    <h4 class="fw-bold mb-0">{{ usuario.total_avaliacoes() }}</h4>
+                                    <small class="text-muted">Avaliações</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card text-center">
+                                    <i class="fas fa-check-circle fa-2x text-info mb-2"></i>
+                                    <h4 class="fw-bold mb-0">{{ usuario.contratos_concluidos_como_prestador()|length }}</h4>
+                                    <small class="text-muted">Concluídos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
                 <!-- FORM PRINCIPAL -->
                 <form method="POST" action="{{ url_for('main.perfil') }}" enctype="multipart/form-data" id="perfilForm">
 
@@ -155,7 +204,7 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="perfil-label">Telefone</label>
+                                    <label class="perfil-label">Telefone / WhatsApp</label>
                                     <div class="perfil-input-group">
                                         <i class="fas fa-phone input-icon-left"></i>
                                         <input type="text" name="telefone" class="form-control"
@@ -196,7 +245,7 @@
                                       placeholder="Conte um pouco sobre você, suas experiências, habilidades e áreas de atuação...">{{ usuario.descricao or '' }}</textarea>
                             <small class="text-muted d-block mt-2" style="font-size: 0.8rem;">
                                 <i class="fas fa-lightbulb text-warning me-1"></i>
-                                Um bom texto ajuda você a conquistar mais clientes
+                                Prestadores com bio completa recebem <strong>3x mais</strong> contatos
                             </small>
                         </div>
                     </div>
@@ -212,6 +261,72 @@
                         </button>
                     </div>
                 </form>
+
+                <!-- ═══════════════════════════════════════════ -->
+                <!-- MUDAR TIPO DE CONTA — do amigo              -->
+                <!-- ═══════════════════════════════════════════ -->
+                <div class="perfil-section">
+                    <div class="perfil-section-header">
+                        <div class="icon-box amber">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div>
+                            <h5>Mudar Tipo de Conta</h5>
+                            <small>Você pode alternar entre Cliente e Prestador</small>
+                        </div>
+                    </div>
+                    <div class="perfil-section-body">
+
+                        {% if usuario.tipo == 'cliente' %}
+                            <!-- Cliente → Prestador -->
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="icon-box-warning">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold mb-2">Quero me tornar um Prestador</h6>
+                                    <p class="text-muted mb-3">
+                                        Se você oferece serviços (eletricista, diarista, designer, etc.),
+                                        torne-se um prestador e comece a receber clientes.
+                                        <strong>É grátis para começar!</strong>
+                                    </p>
+                                    <ul class="text-muted small mb-3">
+                                        <li><i class="fas fa-check text-success me-1"></i> Cadastre seus serviços</li>
+                                        <li><i class="fas fa-check text-success me-1"></i> Receba clientes pelo chat</li>
+                                        <li><i class="fas fa-check text-success me-1"></i> Receba avaliações</li>
+                                        <li><i class="fas fa-crown text-warning me-1"></i> Opcional: assine um plano de destaque</li>
+                                    </ul>
+                                    <button type="button" class="btn-perfil-save" data-bs-toggle="modal" data-bs-target="#modalVirarPrestador">
+                                        <i class="fas fa-briefcase"></i> Quero ser Prestador
+                                    </button>
+                                </div>
+                            </div>
+                        {% else %}
+                            <!-- Prestador → Cliente -->
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="icon-box-info">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold mb-2">Quero me tornar um Cliente</h6>
+                                    <p class="text-muted mb-3">
+                                        Se você não quer mais oferecer serviços, pode mudar para cliente
+                                        e contratar profissionais pelo HiringScope.
+                                    </p>
+                                    <div class="alert alert-warning small mb-3">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <strong>Atenção:</strong> Se você tiver serviços cadastrados, eles serão
+                                        <strong>desativados</strong> e sua assinatura (se houver) será <strong>cancelada</strong>.
+                                    </div>
+                                    <button type="button" class="btn-perfil-cancel" data-bs-toggle="modal" data-bs-target="#modalVirarCliente">
+                                        <i class="fas fa-user"></i> Quero ser Cliente
+                                    </button>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                </div>
 
                 <!-- Segurança (form separado) -->
                 <div class="perfil-section">
@@ -238,14 +353,14 @@
                                     <label class="perfil-label">Nova senha</label>
                                     <div class="perfil-input-group">
                                         <i class="fas fa-key input-icon-left"></i>
-                                        <input type="password" name="nova_senha" class="form-control" required>
+                                        <input type="password" name="nova_senha" class="form-control" required minlength="6">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="perfil-label">Confirmar senha</label>
                                     <div class="perfil-input-group">
                                         <i class="fas fa-key input-icon-left"></i>
-                                        <input type="password" name="confirmar_senha" class="form-control" required>
+                                        <input type="password" name="confirmar_senha" class="form-control" required minlength="6">
                                     </div>
                                 </div>
                             </div>
@@ -260,12 +375,13 @@
                 </div>
 
             </div>
+
         </div>
     </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
-<!-- MODAL DE CROP                                              -->
+<!-- MODAL DE CROP (do usuário)                                 -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div class="modal fade" id="cropModal" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -309,6 +425,88 @@
                 <button type="button" class="btn btn-primary rounded-pill" id="cropConfirm">
                     <i class="fas fa-check me-2"></i> Aplicar Recorte
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MODAL: VIRAR PRESTADOR (do amigo)                          -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalVirarPrestador" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header bg-warning text-white rounded-top-4">
+                <h5 class="modal-title">
+                    <i class="fas fa-briefcase me-2"></i>
+                    Confirmar mudança para Prestador
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="mb-3">Ao se tornar prestador, você poderá:</p>
+                <ul class="mb-3">
+                    <li><i class="fas fa-check text-success me-2"></i> Cadastrar serviços</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Receber clientes pelo chat</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Receber avaliações</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Assinar planos de destaque</li>
+                </ul>
+                <div class="alert alert-info small mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Você pode voltar a ser cliente quando quiser.
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <form method="POST" action="{{ url_for('main.mudar_para_prestador') }}" class="d-inline">
+                    <button type="submit" class="btn btn-warning rounded-pill px-4">
+                        <i class="fas fa-check me-2"></i> Confirmar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MODAL: VIRAR CLIENTE (do amigo)                            -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalVirarCliente" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header bg-secondary text-white rounded-top-4">
+                <h5 class="modal-title">
+                    <i class="fas fa-user me-2"></i>
+                    Confirmar mudança para Cliente
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Atenção!</strong> Ao se tornar cliente:
+                </div>
+                <ul class="mb-3">
+                    <li><i class="fas fa-times text-danger me-2"></i> Seus serviços serão <strong>desativados</strong></li>
+                    <li><i class="fas fa-times text-danger me-2"></i> Sua assinatura (se houver) será <strong>cancelada</strong></li>
+                    <li><i class="fas fa-times text-danger me-2"></i> Você não aparecerá mais nas buscas</li>
+                </ul>
+                <p class="text-muted small mb-0">
+                    Você poderá voltar a ser prestador quando quiser, mas precisará
+                    cadastrar seus serviços novamente.
+                </p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <form method="POST" action="{{ url_for('main.mudar_para_cliente') }}" class="d-inline">
+                    <button type="submit" class="btn btn-secondary rounded-pill px-4">
+                        <i class="fas fa-check me-2"></i> Confirmar
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -469,4 +667,51 @@
     };
 })();
 </script>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- CSS extra: stat-card + icon-boxes (adaptado do amigo)      -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<style>
+    .stat-card {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 16px 8px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        border-color: #0b2b5c;
+    }
+    .stat-card h4 {
+        color: #0b2b5c;
+    }
+    .icon-box-warning {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: #92400e;
+        flex-shrink: 0;
+    }
+    .icon-box-info {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: #1e40af;
+        flex-shrink: 0;
+    }
+</style>
+
 {% endblock %}

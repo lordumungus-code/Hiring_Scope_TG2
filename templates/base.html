@@ -7,9 +7,12 @@
     <!-- ============================================ -->
     <!-- SEO BÁSICO -->
     <!-- ============================================ -->
-    <title>{% block title %}HiringScope - Contrate Eletricistas, Diaristas, Encanadores e Mais{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}Encontre profissionais qualificados perto de você. Eletricistas, diaristas, pintores, designers e mais. Grátis para clientes. Chat em tempo real e avaliações reais.{% endblock %}">
-    <meta name="keywords" content="eletricista, diarista, encanador, pintor, designer, freelancer, serviços, contratar profissional, prestador de serviços">
+    <title>{% block title %}HiringScope - Profissionais em Cruzeiro - SP | Eletricistas, Diaristas, Encanadores{% endblock %}</title>
+     <!-- ⬇️ COLE A META TAG DO GOOGLE AQUI ⬇️ -->
+    <meta name="google-site-verification" content="NnmSl_WgIyY7wrPQYnCm-ZbR4dWPuNeYuz1iuF8nmiM" />
+    <!-- ⬆️ COLE A META TAG DO GOOGLE AQUI ⬆️ -->
+    <meta name="description" content="{% block meta_description %}Encontre profissionais qualificados em Cruzeiro - SP. Eletricistas, diaristas, encanadores, pintores e mais. Grátis para clientes. Chat em tempo real e avaliações reais.{% endblock %}">
+    <meta name="keywords" content="eletricista em Cruzeiro, diarista em Cruzeiro, encanador em Cruzeiro, pintor em Cruzeiro, profissionais Cruzeiro SP, serviços Cruzeiro">
     <meta name="author" content="HiringScope">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://hiring-scope.com.br{{ request.path }}">
@@ -19,8 +22,8 @@
     <!-- ============================================ -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="HiringScope">
-    <meta property="og:title" content="{% block og_title %}HiringScope - Contrate profissionais qualificados{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Encontre o profissional perfeito em minutos. Grátis para clientes.{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}HiringScope - Profissionais em Cruzeiro - SP{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Encontre o profissional perfeito em Cruzeiro - SP em minutos. Grátis para clientes.{% endblock %}">
     <meta property="og:url" content="https://hiring-scope.com.br{{ request.path }}">
     <meta property="og:image" content="{{ url_for('static', filename='img/logo.png', _external=True) }}">
     <meta property="og:image:width" content="1200">
@@ -31,7 +34,7 @@
     <!-- TWITTER CARD -->
     <!-- ============================================ -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="HiringScope - Contrate profissionais qualificados">
+    <meta name="twitter:title" content="HiringScope - Profissionais em Cruzeiro - SP">
     <meta name="twitter:description" content="Encontre o profissional perfeito em minutos.">
     <meta name="twitter:image" content="{{ url_for('static', filename='img/logo.png', _external=True) }}">
     
@@ -44,6 +47,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="HiringScope">
+    
+    <!-- ============================================ -->
+    <!-- GEO TAGS (SEO LOCAL) -->
+    <!-- ============================================ -->
+    <meta name="geo.region" content="BR-SP">
+    <meta name="geo.placename" content="Cruzeiro">
+    <meta name="geo.position" content="-22.5762;-44.9627">
+    <meta name="ICBM" content="-22.5762, -44.9627">
     
     <!-- ============================================ -->
     <!-- CSS -->
@@ -87,7 +98,6 @@
         
         // ============================================
         // FUNÇÃO GLOBAL PARA INICIAR CHAT
-        // Usada em qualquer lugar do site
         // ============================================
         window.iniciarChat = function(prestadorId, prestadorNome) {
             console.log('📞 Iniciando chat com:', prestadorNome, 'ID:', prestadorId);
@@ -104,24 +114,21 @@
                 return;
             }
             
-            // Salvar dados no sessionStorage para o chat recuperar
             sessionStorage.setItem('chat_with_id', prestadorId);
             sessionStorage.setItem('chat_with_name', prestadorNome);
             
-            // Redirecionar para o chat
             window.location.href = '/chat/';
         };
         
         console.log('✅ Função iniciarChat disponível globalmente');
     </script>
     
-   <div id="loader">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" 
-            class="loader-logo" 
-            alt="HiringScope">
-        <div class="loader-text">Carregando experiência incrível...</div>
-    </div>
-
+    <!-- ============================================ -->
+    <!-- LOADER -->
+    <!-- ============================================ -->
+    <div id="loader" style="position: fixed; inset: 0; background: linear-gradient(135deg, #0a2540, #1a6d8f); display: flex; align-items: center; justify-content: center; flex-direction: column; z-index: 9999;">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" class="loader-logo" style="width: 120px;" alt="HiringScope">
+        <div class="loader-text" style="color: white; margin-top: 20px;">Carregando experiência incrível...</div>
     </div>
     
     <script>
@@ -190,7 +197,9 @@
     
     {% block scripts %}{% endblock %}
     
-
+    <!-- ============================================ -->
+    <!-- SISTEMA DE NOTIFICAÇÕES -->
+    <!-- ============================================ -->
     <audio id="somNotificacao" preload="auto" style="display:none;">
         <source src="{{ url_for('static', filename='sounds/notificacao.mp3') }}" type="audio/mpeg">
     </audio>
