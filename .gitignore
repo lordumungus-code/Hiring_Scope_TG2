@@ -1,30 +1,72 @@
-# Backups do banco de dados (não commitar!)
+# ============================================
+# CREDENCIAIS SENSÍVEIS (PRIORIDADE MÁXIMA!)
+# ============================================
+# Firebase - NUNCA commite estas chaves!
+firebase-adminsdk*.json
+**/firebase-adminsdk*.json
+config/firebase-adminsdk.json
+
+# Variáveis de ambiente
+.env
+*.env
+.env.local
+.env.production
+
+# Outras credenciais
+*.pem
+*.key
+*.p12
+serviceAccountKey.json
+
+# ============================================
+# BACKUPS DO BANCO DE DADOS
+# ============================================
 backups/
 *.db
 *.sql
 *.sqlite
 *.sqlite3
+*.db.backup
 
-# Arquivos locais de desenvolvimento
-.env
-*.env
-instance/
-marketing/
-__pycache__/
-*.pyc
-
-# Ambiente virtual
+# ============================================
+# AMBIENTE VIRTUAL PYTHON
+# ============================================
 venv/
 .venv/
 env/
+ENV/
 
-# Python
+# ============================================
+# PYTHON
+# ============================================
 __pycache__/
 *.py[cod]
 *.cpython-*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
 
-# Arquivos locais
-.env
+# ============================================
+# ARQUIVOS LOCAIS
+# ============================================
 instance/
-backups/
-*.db
+marketing/
+*.log
+
+# ============================================
+# IDEs E EDITORES
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ============================================
+# OUTROS
+# ============================================
+node_modules/
+*.zip
+*.tar.gz

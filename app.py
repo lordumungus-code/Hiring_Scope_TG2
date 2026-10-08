@@ -239,4 +239,4 @@ if __name__ == '__main__':
     else:
         print("⚠️ Token Mercado Pago NÃO encontrado! Verifique o arquivo .env")
     
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug=True)
