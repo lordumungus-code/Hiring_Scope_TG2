@@ -1,22 +1,19 @@
 # ============================================
 # CREDENCIAIS SENSÍVEIS (PRIORIDADE MÁXIMA!)
 # ============================================
-# Firebase - NUNCA commite estas chaves!
 firebase-adminsdk*.json
 **/firebase-adminsdk*.json
 config/firebase-adminsdk.json
+*.pem
+*.key
+*.p12
+serviceAccountKey.json
 
 # Variáveis de ambiente
 .env
 *.env
 .env.local
 .env.production
-
-# Outras credenciais
-*.pem
-*.key
-*.p12
-serviceAccountKey.json
 
 # ============================================
 # BACKUPS DO BANCO DE DADOS
@@ -48,10 +45,21 @@ __pycache__/
 .mypy_cache/
 
 # ============================================
+# CÓPIA ACIDENTAL DO REPOSITÓRIO
+# ============================================
+Hiring_Scope_TG2.git/
+*.git/
+
+# ============================================
+# PASTAS DE TESTE
+# ============================================
+imagem teste/
+marketing/
+
+# ============================================
 # ARQUIVOS LOCAIS
 # ============================================
 instance/
-marketing/
 *.log
 
 # ============================================
