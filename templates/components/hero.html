@@ -7,17 +7,17 @@
                 <!-- Badge de confiança no topo -->
                 <div class="hero-badge animate__animated animate__fadeInDown">
                     <span class="badge-dot"></span>
-                    <span>{{ total_usuarios or '22' }}+ profissionais ativos agora</span>
+                    <span>{{ total_usuarios or '22' }}+ profissionais ativos em Cruzeiro - SP</span>
                 </div>
                 
                 <!-- Título -->
                 <h1 class="hero-title animate__animated animate__fadeInUp">
                     Encontre <span class="highlight">profissionais qualificados</span><br>
-                    para qualquer serviço
+                    em <span class="highlight-city">Cruzeiro - SP</span>
                 </h1>
                 
                 <p class="hero-description animate__animated animate__fadeInUp animate__delay-1s">
-                    Conectamos você aos melhores prestadores de serviços da sua região. 
+                    Conectamos você aos melhores prestadores de serviços da sua cidade. 
                     <strong class="text-warning">Grátis para clientes.</strong>
                 </p>
                 
@@ -28,13 +28,13 @@
                             <i class="fas fa-search me-2"></i>Encontrar profissional
                         </a>
                         <a href="{{ url_for('auth.cadastro') }}?tipo=prestador" class="btn btn-hero-outline">
-                            <i class="fas fa-briefcase me-2"></i>Quero trabalhar
+                            <i class="fas fa-briefcase me-2"></i>Sou de Cruzeiro e quero trabalhar
                         </a>
                     </div>
                 {% else %}
                     <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
                         <a href="{{ url_for('servico.lista') }}" class="btn btn-hero">
-                            <i class="fas fa-search me-2"></i>Buscar serviços
+                            <i class="fas fa-search me-2"></i>Buscar em Cruzeiro
                         </a>
                         {% if current_user.tipo == 'prestador' %}
                             <a href="{{ url_for('servico.cadastro') }}" class="btn btn-hero-outline">
@@ -52,7 +52,7 @@
                             <input type="text" 
                                    name="q" 
                                    class="search-input-minimal" 
-                                   placeholder="Buscar serviços... Ex: pintor, encanador, designer"
+                                   placeholder="Buscar em Cruzeiro... Ex: pintor, encanador, designer"
                                    autocomplete="off">
                         </div>
                         <button type="submit" class="search-btn-minimal">
@@ -63,7 +63,7 @@
                     
                     <!-- Sugestões populares -->
                     <div class="popular-searches">
-                        <span class="popular-label">Popular:</span>
+                        <span class="popular-label">Popular em Cruzeiro:</span>
                         <a href="{{ url_for('servico.lista') }}?q=eletricista">Eletricista</a>
                         <a href="{{ url_for('servico.lista') }}?q=diarista">Diarista</a>
                         <a href="{{ url_for('servico.lista') }}?q=encanador">Encanador</a>
@@ -86,8 +86,8 @@
                         <span>Avaliações reais</span>
                     </div>
                     <div class="trust-badge">
-                        <i class="fas fa-lock"></i>
-                        <span>Dados protegidos</span>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Profissionais de Cruzeiro</span>
                     </div>
                 </div>
                 
@@ -172,6 +172,25 @@
         color: transparent;
         position: relative;
         display: inline-block;
+    }
+    
+    /* Destaque da cidade */
+    .highlight-city {
+        background: linear-gradient(135deg, #06b6d4, #0ea5e9);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+        display: inline-block;
+        padding: 0 4px;
+    }
+    
+    .highlight-city::after {
+        content: '📍';
+        font-size: 0.9em;
+        margin-left: 6px;
+        -webkit-text-fill-color: initial;
+        color: #06b6d4;
     }
     
     /* Descrição */
@@ -346,7 +365,6 @@
         font-size: 0.95rem;
     }
     
-    /* Responsividade */
     @media (max-width: 768px) {
         .hero-section-minimal {
             padding: 2.5rem 0 3rem 0;
@@ -389,10 +407,6 @@
             font-size: 0.78rem;
         }
         
-        .popular-searches a {
-            padding: 2px 10px;
-        }
-        
         .trust-badges {
             gap: 1rem;
             margin-top: 2rem;
@@ -401,10 +415,6 @@
         
         .trust-badge {
             font-size: 0.78rem;
-        }
-        
-        .trust-badge i {
-            font-size: 0.85rem;
         }
     }
     

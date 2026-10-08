@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>HiringScope - Documentação</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        color: #1f2937;
+        background: #f8fafc;
+        padding: 0;
+        max-width: 210mm;
+        margin: 0 auto;
+        background: white;
+    }
+    
+    /* ============================================ */
+    /* CAPA */
+    /* ============================================ */
+    .cover {
+        background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%);
+        color: white;
+        padding: 80px 60px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .cover::before {
+        content: '';
+        position: absolute;
+        top: -200px;
+        right: -200px;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    
+    .cover-logo {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .cover-logo-icon {
+        width: 60px;
+        height: 60px;
+        background: white;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        color: #0b2b5c;
+        font-weight: 900;
+    }
+    
+    .cover-logo-text {
+        font-size: 32px;
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+    
+    .cover-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .cover-title {
+        font-size: 72px;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 20px;
+        letter-spacing: -2px;
+    }
+    
+    .cover-title .highlight {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    .cover-subtitle {
+        font-size: 24px;
+        opacity: 0.9;
+        margin-bottom: 40px;
+        max-width: 500px;
+    }
+    
+    .cover-meta {
+        display: flex;
+        gap: 40px;
+        font-size: 16px;
+        opacity: 0.7;
+    }
+    
+    .cover-meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .cover-meta-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        opacity: 0.6;
+    }
+    
+    .cover-footer {
+        position: relative;
+        z-index: 2;
+        font-size: 14px;
+        opacity: 0.6;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        padding-top: 20px;
+        margin-top: 40px;
+    }
+    
+    /* ============================================ */
+    /* CONTEÚDO PRINCIPAL */
+    /* ============================================ */
+    .content {
+        padding: 60px 60px;
+    }
+    
+    .section {
+        margin-bottom: 60px;
+        page-break-inside: avoid;
+    }
+    
+    .section-number {
+        display: inline-block;
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 36px;
+        font-weight: 700;
+        margin-right: 12px;
+        font-size: 16px;
+    }
+    
+    h1 {
+        font-size: 36px;
+        color: #0b2b5c;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 3px solid #f59e0b;
+        display: flex;
+        align-items: center;
+    }
+    
+    h2 {
+        font-size: 24px;
+        color: #0b2b5c;
+        margin-top: 32px;
+        margin-bottom: 16px;
+        padding-left: 12px;
+        border-left: 4px solid #f59e0b;
+    }
+    
+    h3 {
+        font-size: 18px;
+        color: #1a6d8f;
+        margin-top: 24px;
+        margin-bottom: 12px;
+    }
+    
+    p {
+        margin-bottom: 16px;
+        font-size: 15px;
+        color: #374151;
+        text-align: justify;
+    }
+    
+    /* ============================================ */
+    /* LISTAS */
+    /* ============================================ */
+    ul, ol {
+        margin-left: 24px;
+        margin-bottom: 16px;
+    }
+    
+    li {
+        margin-bottom: 8px;
+        font-size: 15px;
+        color: #374151;
+    }
+    
+    /* ============================================ */
+    /* TABELAS */
+    /* ============================================ */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        font-size: 14px;
+    }
+    
+    thead {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        color: white;
+    }
+    
+    th {
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e5e7eb;
+        color: #374151;
+    }
+    
+    tr:last-child td {
+        border-bottom: none;
+    }
+    
+    tbody tr:nth-child(even) {
+        background: #f8fafc;
+    }
+    
+    /* ============================================ */
+    /* CAIXAS DE DESTAQUE */
+    /* ============================================ */
+    .highlight-box {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        border-left: 4px solid #f59e0b;
+        padding: 20px 24px;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    
+    .highlight-box strong {
+        color: #92400e;
+    }
+    
+    .info-box {
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        padding: 20px 24px;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    
+    .success-box {
+        background: #f0fdf4;
+        border-left: 4px solid #22c55e;
+        padding: 20px 24px;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    
+    .warning-box {
+        background: #fef2f2;
+        border-left: 4px solid #ef4444;
+        padding: 20px 24px;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    
+    /* ============================================ */
+    /* CÓDIGO */
+    /* ============================================ */
+    code {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+    }
+    
+    pre {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 20px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 20px 0;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    
+    pre code {
+        background: transparent;
+        padding: 0;
+        color: inherit;
+    }
+    
+    /* ============================================ */
+    /* BADGES */
+    /* ============================================ */
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    
+    /* ============================================ */
+    /* IMPRESSÃO */
+    /* ============================================ */
+    @media print {
+        body {
+            background: white;
+            font-size: 12pt;
+        }
+        
+        .cover {
+            min-height: auto;
+            padding: 40px;
+            page-break-after: always;
+        }
+        
+        .content {
+            padding: 30px 40px;
+        }
+        
+        .section {
+            page-break-inside: avoid;
+        }
+        
+        h1, h2, h3 {
+            page-break-after: avoid;
+        }
+        
+        @page {
+            margin: 2cm;
+            size: A4;
+        }
+    }
+    
+    /* ============================================ */
+    /* SUMÁRIO */
+    /* ============================================ */
+    .toc {
+        background: #f8fafc;
+        padding: 32px;
+        border-radius: 12px;
+        margin-bottom: 40px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .toc-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #0b2b5c;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .toc ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        counter-reset: toc-counter;
+    }
+    
+    .toc li {
+        counter-increment: toc-counter;
+        padding: 10px 0;
+        border-bottom: 1px dashed #cbd5e1;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .toc li:last-child {
+        border-bottom: none;
+    }
+    
+    .toc li::before {
+        content: counter(toc-counter);
+        background: #0b2b5c;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    
+    /* ============================================ */
+    /* CARDS */
+    /* ============================================ */
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin: 20px 0;
+    }
+    
+    .card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+    
+    .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .card-icon {
+        font-size: 28px;
+        margin-bottom: 12px;
+    }
+    
+    .card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0b2b5c;
+        margin-bottom: 8px;
+    }
+    
+    .card-text {
+        font-size: 14px;
+        color: #6b7280;
+        line-height: 1.5;
+    }
+</style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- CAPA -->
+<!-- ============================================ -->
+<div class="cover">
+    <div class="cover-logo">
+        <div class="cover-logo-icon">H</div>
+        <div class="cover-logo-text">HiringScope</div>
+    </div>
+    
+    <div class="cover-content">
+        <h1 class="cover-title">
+            Documentação<br>
+            <span class="highlight">Completa</span><br>
+            do Projeto
+        </h1>
+        
+        <p class="cover-subtitle">
+            Tudo o que você precisa saber sobre o HiringScope: 
+            arquitetura, funcionalidades, deploy e operação.
+        </p>
+        
+        <div class="cover-meta">
+            <div class="cover-meta-item">
+                <span class="cover-meta-label">Versão</span>
+                <span>1.0.0</span>
+            </div>
+            <div class="cover-meta-item">
+                <span class="cover-meta-label">Data</span>
+                <span>Outubro 2026</span>
+            </div>
+            <div class="cover-meta-item">
+                <span class="cover-meta-label">Autor</span>
+                <span>Alessandro Costa</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="cover-footer">
+        hiring-scope.com.br • contato@hiring-scope.com.br
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- CONTEÚDO -->
+<!-- ============================================ -->
+<div class="content">
+
+    <!-- SUMÁRIO -->
+    <div class="toc">
+        <div class="toc-title">
+            <span>📋</span> Sumário
+        </div>
+        <ol>
+            <li>Apresentação do Projeto</li>
+            <li>Como Usar — Guia do Cliente</li>
+            <li>Como Usar — Guia do Prestador</li>
+            <li>Tecnologias Utilizadas</li>
+            <li>Arquitetura do Sistema</li>
+            <li>Modelo de Dados</li>
+            <li>Rotas da Aplicação</li>
+            <li>Guia de Deploy</li>
+            <li>Backup e Recuperação</li>
+            <li>Solução de Problemas</li>
+            <li>Roadmap Futuro</li>
+        </ol>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SEÇÃO 1 -->
+    <!-- ============================================ -->
+    <div class="section">
+        <h1><span class="section-number">1</span> Apresentação do Projeto</h1>
+        
+        <p>
+            O <strong>HiringScope</strong> é um marketplace que conecta clientes e prestadores 
+            de serviços de forma simples, rápida e segura. A plataforma permite que qualquer 
+            pessoa encontre profissionais qualificados para realizar serviços domésticos, 
+            técnicos, criativos e muito mais.
+        </p>
+        
+        <h2>Objetivo</h2>
+        <p>
+            Facilitar a contratação de serviços, eliminando intermediários desnecessários 
+            e oferecendo uma experiência transparente tanto para quem contrata quanto para 
+            quem oferece serviços.
+        </p>
+        
+        <h2>Principais Funcionalidades</h2>
+        
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-icon">👤</div>
+                <div class="card-title">Cadastro e Login</div>
+                <div class="card-text">Login tradicional e via Google (Firebase Auth).</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔧</div>
+                <div class="card-title">Cadastro de Serviços</div>
+                <div class="card-text">Prestadores publicam serviços com fotos, preços e descrição.</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔍</div>
+                <div class="card-title">Busca Inteligente</div>
+                <div class="card-text">Filtros por categoria, cidade e termo de busca.</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">💬</div>
+                <div class="card-title">Chat em Tempo Real</div>
+                <div class="card-text">Comunicação direta entre cliente e prestador.</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">⭐</div>
+                <div class="card-title">Avaliações</div>
+                <div class="card-text">Sistema de notas e comentários com estrelas.</div>
+            </div>
+            <div class="card">
+                <div class="card-icon">👑</div>
+                <div class="card-title">Planos de Destaque</div>
+                <div class="card-text">Prestadores pagam para ter mais visibilidade.</div>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <strong>ℹ️ Sobre este documento:</strong> Esta documentação cobre desde a visão 
+            geral do projeto até guias técnicos de deploy e operação. Use o sumário acima 
+            para navegar entre as seções.
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SEÇÃO 2 -->
+    <!-- ============================================ -->
+    <div class="section">
+        <h1><span class="section-number">2</span> Como Usar — Guia do Cliente</h1>
+        
+        <p>
+            Este guia mostra o passo a passo para contratar um serviço no HiringScope.
+        </p>
+        
+        <h2>Passo 1: Criar sua Conta</h2>
+        <ol>
+            <li>Acesse <strong>hiring-scope.com.br</strong></li>
+            <li>Clique em <span class="badge badge-yellow">Cadastrar</span></li>
+            <li>Preencha seus dados ou use o botão "Entrar com Google"</li>
+            <li>Pronto! Sua conta de cliente está criada</li>
+        </ol>
+        
+        <h2>Passo 2: Buscar Serviços</h2>
+        <ol>
+            <li>Na barra de busca, digite o que você precisa (ex: "eletricista")</li>
+            <li>Ou navegue pelas categorias disponíveis</li>
+            <li>Use os filtros para refinar a busca</li>
+        </ol>
+        
+        <h2>Passo 3: Conversar com o Prestador</h2>
+        <ol>
+            <li>Clique no botão <span class="badge badge-blue">💬</span> do serviço que te interessou</li>
+            <li>O chat abre automaticamente</li>
+            <li>Negocie valores, prazos e detalhes</li>
+        </ol>
+        
+        <h2>Passo 4: Avaliar o Serviço</h2>
+        <ol>
+            <li>Após a conclusão, avalie o prestador</li>
+            <li>Dê uma nota de 1 a 5 estrelas</li>
+            <li>Escreva um comentário sobre sua experiência</li>
+        </ol>
+        
+        <div class="success-box">
+            <strong>✅ Dica:</strong> Sempre verifique as avaliações do prestador antes 
+            de contratar. Prestadores com boas notas são mais confiáveis.
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SEÇÃO 3 -->
+    <!-- ============================================ -->
+    <div class="section">
+        <h1><span class="section-number">3</span> Como Usar — Guia do Prestador</h1>
+        
+        <p>
+            Este guia mostra como se cadastrar como prestador e começar a ganhar dinheiro 
+            no HiringScope.
+        </p>
+        
+        <h2>Passo 1: Cadastro como Prestador</h2>
+        <ol>
+            <li>Acesse <strong>hiring-scope.com.br</strong></li>
+            <li>Clique em <span class="badge badge-yellow">Cadastrar</span></li>
+            <li>Escolha a opção <strong>"Sou Prestador"</strong></li>
+            <li>Preencha seus dados profissionais</li>
+        </ol>
+        
+        <h2>Passo 2: Cadastrar seus Serviços</h2>
+        <ol>
+            <li>No Dashboard, clique em <strong>"Novo Serviço"</strong></li>
+            <li>Preencha título, descrição e categoria</li>
+            <li>Defina o preço (fixo, por hora, por dia, por m² ou sob consulta)</li>
+            <li>Adicione uma foto do serviço</li>
+            <li>Clique em <strong>"Cadastrar"</strong></li>
+        </ol>
+        
+        <h2>Passo 3: Destacar seus Serviços</h2>
+        <p>
+            Para aumentar sua visibilidade, assine um dos planos:
+        </p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Plano</th>
+                    <th>Preço</th>
+                    <th>Serviços em Destaque</th>
+                    <th>Extras</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Básico</strong></td>
+                    <td>R$ 9,99/mês</td>
+                    <td>1</td>
+                    <td>Selo Premium</td>
+                </tr>
+                <tr>
+                    <td><strong>Pro</strong></td>
+                    <td>R$ 29,90/mês</td>
+                    <td>3</td>
+                    <td>Selo Pro + Prioridade na busca</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2>Passo 4: Receber Clientes</h2>
+        <ol>
+            <li>Clientes entrarão em contato pelo chat</li>
+            <li>Responda rápido para fechar mais negócios</li>
+            <li>Após o serviço, peça uma avaliação</li>
+            <li>Boas avaliações = mais clientes</li>
+        </ol>
+        
+        <div class="highlight-box">
+            <strong>💰 Dica de ouro:</strong> Prestadores que respondem em até 1 hora 
+            têm <strong>3x mais chances</strong> de fechar o serviço. Ative as notificações 
+            no seu celular!
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SEÇÃO 4 -->
+    <!-- ============================================ -->
+    <div class="section">
+        <h1><span class="section-number">4</span> Tecnologias Utilizadas</h1>
+        
+        <p>
+            O HiringScope foi construído com tecnologias modernas e amplamente utilizadas 
+            no mercado.
+        </p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Camada</th>
+                    <th>Tecnologia</th>
+                    <th>Função</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Backend</strong></td>
+                    <td>Python 3.12 + Flask</td>
+                    <td>Framework web principal</td>
+                </tr>
+                <tr>
+                    <td><strong>Banco de Dados</strong></td>
+                    <td>SQLite</td>
+                    <td>Armazenamento de dados</td>
+                </tr>
+                <tr>
+                    <td><strong>ORM</strong></td>
+                    <td>SQLAlchemy</td>
+                    <td>Mapeamento objeto-relacional</td>
+                </tr>
+                <tr>
+                    <td><strong>Autenticação</strong></td>
+                    <td>Flask-Login + Firebase</td>
+                    <td>Gerenciamento de sessões</td>
+                </tr>
+                <tr>
+                    <td><strong>Chat em Tempo Real</strong></td>
+                    <td>Flask-SocketIO + Eventlet</td>
+                    <td>WebSocket para mensagens</td>
+                </tr>
+                <tr>
+                    <td><strong>Pagamentos</strong></td>
+                    <td>Mercado Pago</td>
+                    <td>Checkout Pro</td>
+                </tr>
+                <tr>
+                    <td><strong>Frontend</strong></td>
+                    <td>Bootstrap 5 + Jinja2</td>
+                    <td>Interface responsiva</td>
+                </tr>
+                <tr>
+                    <td><strong>Deploy</strong></td>
+                    <td>Railway</td>
+                    <td>Hospedagem em produção</td>
+                </tr>
+                <tr>
+                    <td><strong>DNS / CDN</strong></td>
+                    <td>Cloudflare</td>
+                    <td>Distribuição e segurança</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SEÇÃO 5 -->
+    <!-- ============================================ -->
+    <div class="section">
+        <h1><span class="section-number">5</span> Arquitetura do Sistema</h1>
+        
+        <p>
+            O HiringScope é uma aplicação <strong>monolítica em Flask</strong>, organizada 
+            em <strong>blueprints</strong> para separação de responsabilidades.
+        </p>
+        
+        <h2>Visão Geral</h2>
+        
+        <pre><code>┌─────────────────────────────────────────┐
+│         NAVEGADOR (Cliente)             │
+│  HTML + CSS + JS + Socket.IO            │
+└─────────────────┬───────────────────────┘
+                  │ HTTPS
+                  ▼
+┌─────────────────────────────────────────┐
+│         FLASK (Railway)                 │
+│  ┌───────────────────────────────────┐ │
+│  │ Blueprints (routes/)              │ │
+│  │ - auth, main, servico, chat       │ │
+│  │ - contrato, admin, assinatura     │ │
+│  └───────────────────────────────────┘ │
+│  ┌───────────────────────────────────┐ │
+│  │ Services (services/)              │ │
+│  │ - mercado_pago_service            │ │
+│  └───────────────────────────────────┘ │
+│  ┌───────────────────────────────────┐ │
+│  │ Models (models.py)                │ │
+│  │ - Usuario, Servico, Contrato...   │ │
+│  └───────────────────────────────────┘ │
+└─────────────────┬───────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────┐
+│       BANCO DE DADOS (SQLite)           │
+│  Volume persistente no Railway          │
+└─────────────────────────────────────────┘</code></pre>
+        
+        <h2>Fluxo de Autenticação</h2>
+        <ol>
+            <li>Usuário clica em "Entrar com Google"</li>
+            <li>Frontend chama Firebase Auth (JavaScript)</li>
+            <li>Firebase retorna um <code>idToken</code></li>
+            <li>Frontend envia <code>idToken</code> para <code>/auth/firebase/callback</code></li>
+            <li>Backend verifica <code>idToken</code> com Firebase Admin SDK</li>
+            <li>Backend cria/recupera usuário no banco</li>
+            <li>Backend cria sessão Flask-Login</li>
+        </ol>
+        
+        <h2>Fluxo de Pagamento</h2>
+        <ol>
+            <li>Prestador clica em "Assinar Plano"</li>
+            <li>Backend cria uma "preference" no Mercado Pago</li>
+            <li>Backend retorna URL de checkout</li>
+            <li>Prestador é redirecionado para o Mercado Pago</li>
+            <li>Após pagamento, MP redireciona para <code>/assinatura/sucesso</code></li>
+            <li>Backend ativa a assinatura e o destaque</li>
+            <li>MP também envia webhook para <code>/assinatura/webhook</code></li>
+        </ol>
+        
+        <h2>Fluxo do Chat</h2>
+        <ol>
+            <li>Cliente clica em "Conversar" no card do prestador</li>
+            <li>Função <code>iniciarChat()</code> salva dados no <code>sessionStorage</code></li>
+            <li>Redireciona para <code>/chat/</code></li>
+            <li>Página do chat verifica <code>sessionStorage</code> e abre conversa</li>
+            <li>Mensagens são enviadas via POST <code>/chat/enviar</code></li>
+            <li>WebSocket (Socket.IO) entrega em tempo real</li>
+            <li>Fallback: polling a cada 4 segundos</li>
+        </ol>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SEÇÃO 6 -->
+    <!-- ============================================ -->
+    <div class="section">
+        <h1><span class="section-number">6</span> Modelo de Dados</h1>
+        
+        <p>
+            O banco é composto por 8 tabelas principais. Veja abaixo a estrutura das 
+            mais importantes.
+        </p>
+        
+        <h2>Tabela: usuarios</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>id</code></td><td>Integer</td><td>Chave primária</td></tr>
+                <tr><td><code>nome</code></td><td>String(100)</td><td>Nome completo</td></tr>
+                <tr><td><code>email</code></td><td>String(100)</td><td>Único, usado para login</td></tr>
+                <tr><td><code>senha_hash</code></td><td>String(200)</td><td>Hash seguro da senha</td></tr>
+                <tr><td><code>telefone</code></td><td>String(20)</td><td>Contato</td></tr>
+                <tr><td><code>tipo</code></td><td>String(20)</td><td>cliente / prestador / admin</td></tr>
+                <tr><td><code>is_admin</code></td><td>Boolean</td><td>Flag de administrador</td></tr>
+                <tr><td><code>data_cadastro</code></td><td>DateTime</td><td>Data de criação</td></tr>
+                <tr><td><code>foto_perfil</code></td><td>String(200)</td><td>Base64 ou URL</td></tr>
+                <tr><td><code>foto_url</code></td><td>String(500)</td><td>URL externa (Firebase)</td></tr>
+                <tr><td><code>descricao</code></td><td>Text</td><td>Bio do prestador</td></tr>
+            </tbody>
+        </table>
+        
+        <h2>Tabela: servicos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>id</code></td><td>Integer</td><td>Chave primária</td></tr>
+                <tr><td><code>prestador_id</code></td><td>FK</td><td>→ usuarios.id</td></tr>
+                <tr><td><code>titulo</code></td><td>String(200)</td><td>Título do serviço</td></tr>
+                <tr><td><code>descricao</code></td><td>Text</td><td>Descrição detalhada</td></tr>
+                <tr><td><code>categoria</code></td><td>String(100)</td><td>Categoria do serviço</td></tr>
+                <tr><td><code>tipo_preco</code></td><td>String(20)</td><td>fixo, hora, dia, metro, consulta</td></tr>
+                <tr><td><code>preco</code></td><td>Float</td><td>Valor do serviço</td></tr>
+                <tr><td><code>destaque</code></td><td>Boolean</td><td>Se está em destaque</td></tr>
+                <tr><td><code>imagem_base64</code></td><td>Text</td><td>Imagem do serviço</td></tr>
+                <tr><td><code>data_postagem</code></td><td>DateTime</td><td>Data de publicação</td></tr>
+            </tbody>
+        </table>
+        
+        <div class="info-box">
+            <strong>ℹ️ Observação:</strong> As tabelas <code>contratos</code>, <code>avaliacoes</code>, 
+            <code>assinaturas</code>, <code>mensagens</code> e <code>favoritos</code> seguem a 
+            mesma lógica e podem ser consultadas no arquivo <code>models.py</code>.
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SEÇÃO 7 -->
+    <!-- ============================================ -->
+    <div class="section">
+        <h1><span class="section-number">7</span> Rotas da Aplicação</h1>
+        
+        <h2>Autenticação (<code>/auth</code>)</h2>
+        <table>
+            <thead>
+                <tr><th>Rota</th><th>Método</th><th>Descrição</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>/auth/login</code></td><td>GET/POST</td><td>Login tradicional</td></tr>
+                <tr><td><code>/auth/cadastro</code></td><td>GET/POST</td><td>Cadastro de usuário</td></tr>
+                <tr><td><code>/auth/logout</code></td><td>GET</td><td>Logout</td></tr>
+                <tr><td><code>/auth/firebase/google</code></td><td>GET</td><td>Login com Google</td></tr>
+                <tr><td><code>/auth/firebase/callback</code></td><td>POST</td><td>Callback do Firebase</td></tr>
+            </tbody>
+        </table>
+        
+        <h2>Serviços (<code>/servico</code>)</h2>
+        <table>
+            <thead>
+                <tr><th>Rota</th><th>Método</th><th>Descrição</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>/servico/lista</code></td><td>GET</td><td>Lista todos os serviços</td></tr>
+                <tr><td><code>/servico/cadastro</code></td><td>GET/POST</td><td>Cadastrar serviço</td></tr>
+                <tr><td><code>/servico/&lt;id&gt;</code></td><td>GET</td><td>Detalhes do serviço</td></tr>
+                <tr><td><code>/servico/editar/&lt;id&gt;</code></td><td>GET/POST</td><td>Editar serviço</td></tr>
+                <tr><td><code>/servico/planos</code></td><td>GET</td><td>Planos de destaque</td></tr>
+            </tbody>
+        </table>
+        
+        <h2>Chat (<code>/chat</code>)</h2>
+        <table>
+            <thead>
+                <tr><th>Rota</th><th>Método</th><th>Descrição</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>/chat/</code></td><td>GET</td><td>Página principal do chat</td></tr>
+                <tr><td><code>/chat/historico/&lt;id&gt;</code></td><td>GET</td><td>Histórico de mensagens</td></tr>
+                <tr><td><code>/chat/enviar</code></td><td>POST</td><td>Enviar mensagem</td></tr>
+                <tr><td><code>/chat/nao-lidas</code></td><td>GET</td><td>Contagem de não lidas</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SEÇÃO 8 -->
+    <!-- ============================================ -->
+    <div class="section">
+        <h1><span class="section-number">8</span> Guia de Deploy</h1>
+        
+        <h2>Pré-requisitos</h2>
+        <ul>
+            <li>Conta no Railway (plano Hobby)</li>
+            <li>Conta no Mercado Pago Developers</li>
+            <li>Conta no Firebase</li>
+            <li>Domínio registrado (Registro.br)</li>
+            <li>DNS configurado (Cloudflare)</li>
+        </ul>
+        
+        <h2>Passo 1: Deploy no Railway</h2>
+        <ol>
+            <li>Acesse <strong>railway.app</strong></li>
+            <li>Conecte ao GitHub</li>
+            <li>Selecione o repositório <code>Hiring_Scope_TG2</code></li>
+            <li>Adicione as variáveis de ambiente (ver <code>.env.example</code>)</li>
+            <li>Aguarde o deploy automático</li>
+        </ol>
+        
+        <h2>Passo 2: Banco de Dados</h2>
+        <ol>
+            <li>No Railway, crie um Volume montado em <code>/app/instance</code></li>
+            <li>O SQLite será persistido automaticamente</li>
+        </ol>
+        
+        <h2>Passo 3: Firebase</h2>
+        <ol>
+            <li>Acesse <strong>console.firebase.google.com</strong></li>
+            <li>Authentication → Settings → Authorized domains</li>
+            <li>Adicione: <code>hiring-scope.com.br</code> e <code>www.hiring-scope.com.br</code></li>
+        </ol>
+        
+        <h2>Passo 4: Mercado Pago</h2>
+        <ol>
+            <li>Acesse <strong>mercadopago.com.br/developers/panel/app</strong></li>
+            <li>Copie o <strong>Access Token de produção</strong></li>
+            <li>Adicione no Railway como <code>MERCADOPAGO_ACCESS_TOKEN</code></li>
+        </ol>
+        
+        <h2>Passo 5: Domínio Customizado</h2>
+        <ol>
+            <li>Registro.br → Altere os Nameservers para os do Cloudflare</li>
+            <li>Cloudflare → Adicione os registros CNAME apontando para o Railway</li>
+            <li>Aguarde a propagação (1-2 horas)</li>
+        </ol>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SEÇÃO 9 -->
+    <!-- ============================================ -->
+    <div class="section">
+        <h1><span class="section-number">9</span> Backup e Recuperação</h1>
+        
+        <h2>Backup Manual</h2>
+        <p>Faça backup do banco de dados semanalmente:</p>
+        
+        <pre><code># No Console do Railway:
+railway volume files download /app/instance/prestadores.db ./backups/backup_2026-10-07.db</code></pre>
+        
+        <h2>Backup Automático</h2>
+        <ol>
+            <li>No Railway, acesse a aba <strong>Backups</strong></li>
+            <li>Ative o <strong>Daily Backup</strong> (mantido por 6 dias)</li>
+            <li>Ative também o <strong>Weekly Backup</strong> (mantido por 27 dias)</li>
+        </ol>
+        
+        <h2>Restaurar Backup</h2>
+        <pre><code># Enviar backup para o Railway:
+railway volume files upload ./backups/backup_2026-10-07.db /app/instance/prestadores.db
+
+# Depois, no painel do Railway:
+# Settings → Restart</code></pre>
+        
+        <div class="warning-box">
+            <strong>⚠️ Atenção:</strong> Nunca delete o Volume do Railway. Isso apagaria 
+            todos os dados permanentemente, incluindo os backups automáticos.
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SEÇÃO 10 -->
+    <!-- ============================================ -->
+    <div class="section">
+        <h1><span class="section-number">10</span> Solução de Problemas</h1>
+        
+        <h2>Erro: "The default Firebase app does not exist"</h2>
+        <p><strong>Causa:</strong> A variável <code>FIREBASE_CREDENTIALS</code> não está configurada.</p>
+        <p><strong>Solução:</strong> Adicione o JSON da service account no Railway.</p>
+        
+        <h2>Erro: "MERCADOPAGO_ACCESS_TOKEN não configurado"</h2>
+        <p><strong>Causa:</strong> A variável de ambiente está faltando ou tem nome errado.</p>
+        <p><strong>Solução:</strong> Certifique-se de que o nome é exatamente <code>MERCADOPAGO_ACCESS_TOKEN</code> (sem underline entre MERCADO e PAGO).</p>
+        
+        <h2>Erro: "The train has not arrived at the station"</h2>
+        <p><strong>Causa:</strong> Domínio não propagou ainda ou SSL não foi emitido.</p>
+        <p><strong>Solução:</strong> Aguarde 1-2 horas. Se persistir, desligue o Proxy do Cloudflare temporariamente.</p>
+        
+        <h2>Chat não carrega mensagens</h2>
+        <p><strong>Causa:</strong> Função <code>iniciarChat</code> não definida ou sessionStorage vazio.</p>
+        <p><strong>Solução:</strong> Verifique se o <code>base.html</code> tem a função <code>iniciarChat</code> no escopo global.</p>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SEÇÃO 11 -->
+    <!-- ============================================ -->
+    <div class="section">
+        <h1><span class="section-number">11</span> Roadmap Futuro</h1>
+        
+        <h2>Curto Prazo (1-3 meses)</h2>
+        <ul>
+            <li>Migração para PostgreSQL (mais robusto em produção)</li>
+            <li>Adicionar páginas SEO por categoria/cidade</li>
+            <li>Programa de indicação (indique e ganhe)</li>
+            <li>Notificações push em tempo real</li>
+            <li>Integração com WhatsApp</li>
+        </ul>
+        
+        <h2>Médio Prazo (3-6 meses)</h2>
+        <ul>
+            <li>Sistema de pagamento integrado (não só assinatura)</li>
+            <li>App mobile (PWA)</li>
+            <li>Sistema de verificação de identidade</li>
+            <li>Chat com envio de arquivos</li>
+            <li>Suporte a múltiplas cidades</li>
+        </ul>
+        
+        <h2>Longo Prazo (6-12 meses)</h2>
+        <ul>
+            <li>Marketplace completo com comissão por serviço</li>
+            <li>Sistema de disputas e mediação</li>
+            <li>API pública para integrações</li>
+            <li>Expansão para outros países</li>
+        </ul>
+        
+        <div class="success-box">
+            <strong>🎯 Meta:</strong> Alcançar 500 prestadores ativos e 5.000 serviços 
+            cadastrados até outubro de 2027.
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- RODAPÉ -->
+    <!-- ============================================ -->
+    <div style="text-align: center; margin-top: 80px; padding-top: 40px; border-top: 2px solid #e5e7eb;">
+        <p style="color: #6b7280; font-size: 13px;">
+            <strong>HiringScope</strong> · Documentação v1.0.0 · Outubro 2026<br>
+            hiring-scope.com.br · contato@hiring-scope.com.br
+        </p>
+    </div>
+
+</div>
+
+</body>
+</html>
