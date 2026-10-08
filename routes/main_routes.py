@@ -289,3 +289,61 @@ def sitemap():
         xml = f.read()
     
     return Response(xml, mimetype='application/xml')
+
+# ============================================
+# ROTA PARA TROCAR TIPO DE CONTA
+# ============================================
+
+@main_bp.route('/mudar-para-prestador', methods=['POST'])
+@login_required
+def mudar_para_prestador():
+    """Permite que um cliente se torne prestador"""
+    from models import Servico
+    
+    if current_user.tipo == 'prestador':
+        flash('Você já é um prestador.', 'info')
+        return redirect(url_for('main.perfil'))
+    
+    # Verificar se tem serviços antigos (não deveria ter)
+    servicos_antigos = Servico.query.filter_by(prestador_id=current_user.id).count()
+    
+    # Mudar o tipo
+    current_user.tipo = 'prestador'
+    db.session.commit()
+    
+    flash('✅ Parabéns! Agora você é um prestador. Cadastre seu primeiro serviço!', 'success')
+    return redirect(url_for('servico.cadastro'))
+
+
+@main_bp.route('/mudar-para-cliente', methods=['POST'])
+@login_required
+def mudar_para_cliente():
+    """Permite que um prestador se torne cliente"""
+    from models import Servico, Assinatura
+    
+    if current_user.tipo == 'cliente':
+        flash('Você já é um cliente.', 'info')
+        return redirect(url_for('main.perfil'))
+    
+    # Verificar se tem serviços ativos
+    servicos = Servico.query.filter_by(prestador_id=current_user.id).count()
+    
+    if servicos > 0:
+        flash(f'⚠️ Você tem {servicos} serviço(s) cadastrado(s). Eles serão desativados se você mudar para cliente. Confirme novamente.', 'warning')
+        return redirect(url_for('main.perfil'))
+    
+    # Cancelar assinatura ativa, se houver
+    assinatura = Assinatura.query.filter_by(
+        prestador_id=current_user.id,
+        status='ativa'
+    ).first()
+    
+    if assinatura:
+        assinatura.status = 'cancelada'
+    
+    # Mudar o tipo
+    current_user.tipo = 'cliente'
+    db.session.commit()
+    
+    flash('✅ Agora você é um cliente. Você pode contratar serviços!', 'success')
+    return redirect(url_for('main.dashboard'))

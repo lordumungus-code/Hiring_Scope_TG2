@@ -1,66 +1,160 @@
 {% extends "base.html" %}
 
-{% block title %}Meu Perfil - PrestaServiços{% endblock %}
+{% block title %}Meu Perfil - HiringScope{% endblock %}
 
 {% block content %}
-<div class="container mt-4" style="max-width: 800px;">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header bg-primary text-white rounded-top-4 py-3">
-            <h4 class="mb-0">
-                <i class="fas fa-user-circle me-2"></i>
-                Meu Perfil
-            </h4>
+<div class="container py-4" style="max-width: 900px;">
+    
+    <!-- ============================================ -->
+    <!-- CABEÇALHO DO PERFIL -->
+    <!-- ============================================ -->
+    <div class="profile-header-card mb-4">
+        <div class="profile-cover"></div>
+        <div class="profile-info">
+            <div class="profile-avatar-wrapper">
+                {% if usuario.foto_url %}
+                    <img src="{{ usuario.foto_url }}" alt="{{ usuario.nome }}" class="profile-avatar">
+                {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
+                    <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" alt="{{ usuario.nome }}" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar profile-avatar-placeholder">
+                        {{ usuario.nome[0]|upper }}
+                    </div>
+                {% endif %}
+                <span class="profile-status-badge">
+                    <i class="fas fa-check"></i>
+                </span>
+            </div>
+            <h2 class="profile-name">{{ usuario.nome }}</h2>
+            <p class="profile-email">{{ usuario.email }}</p>
+            <div class="profile-badges">
+                {% if usuario.tipo == 'prestador' %}
+                    <span class="badge bg-success">
+                        <i class="fas fa-briefcase me-1"></i> Prestador
+                    </span>
+                {% else %}
+                    <span class="badge bg-info">
+                        <i class="fas fa-user me-1"></i> Cliente
+                    </span>
+                {% endif %}
+                <span class="badge bg-light text-dark">
+                    <i class="fas fa-calendar me-1"></i> Desde {{ usuario.data_cadastro.strftime('%m/%Y') if usuario.data_cadastro else 'hoje' }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ESTATÍSTICAS (se for prestador) -->
+    <!-- ============================================ -->
+    {% if usuario.tipo == 'prestador' %}
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card text-center">
+                <i class="fas fa-briefcase fa-2x text-primary mb-2"></i>
+                <h4 class="fw-bold mb-0">{{ usuario.servicos_oferecidos|length }}</h4>
+                <small class="text-muted">Serviços</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card text-center">
+                <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                <h4 class="fw-bold mb-0">{{ "%.1f"|format(usuario.media_avaliacoes()) }}</h4>
+                <small class="text-muted">Avaliação</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card text-center">
+                <i class="fas fa-comment-dots fa-2x text-success mb-2"></i>
+                <h4 class="fw-bold mb-0">{{ usuario.total_avaliacoes() }}</h4>
+                <small class="text-muted">Avaliações</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card text-center">
+                <i class="fas fa-check-circle fa-2x text-info mb-2"></i>
+                <h4 class="fw-bold mb-0">{{ usuario.contratos_concluidos_como_prestador()|length }}</h4>
+                <small class="text-muted">Concluídos</small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ============================================ -->
+    <!-- FORMULÁRIO DE DADOS -->
+    <!-- ============================================ -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-header bg-white border-0 py-3 rounded-top-4">
+            <h5 class="mb-0 fw-bold text-primary">
+                <i class="fas fa-user-circle me-2"></i> Informações Pessoais
+            </h5>
         </div>
         <div class="card-body p-4">
             <form method="POST" action="{{ url_for('main.perfil') }}" enctype="multipart/form-data">
-                <!-- Informações básicas -->
+                
+                <!-- Foto de perfil -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Foto de Perfil</label>
+                    <div class="photo-upload-area">
+                        <div class="photo-preview">
+                            {% if usuario.foto_url %}
+                                <img src="{{ usuario.foto_url }}" alt="Avatar" id="photoPreview">
+                            {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
+                                <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" alt="Avatar" id="photoPreview">
+                            {% else %}
+                                <div class="photo-placeholder" id="photoPreview">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="photo-upload-info">
+                            <input type="file" name="foto_perfil" id="fotoPerfil" class="d-none" accept="image/*">
+                            <button type="button" class="btn btn-outline-primary rounded-pill" onclick="document.getElementById('fotoPerfil').click()">
+                                <i class="fas fa-camera me-2"></i> Escolher foto
+                            </button>
+                            <span id="nomeArquivo" class="ms-2 text-muted small">Nenhum arquivo escolhido</span>
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Formatos: JPG, PNG. Máx: 5MB
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Nome e Email -->
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">Nome completo</label>
+                        <label class="form-label fw-bold">Nome completo <span class="text-danger">*</span></label>
                         <input type="text" name="nome" class="form-control rounded-3" 
                                value="{{ usuario.nome }}" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">E-mail</label>
+                        <label class="form-label fw-bold">E-mail <span class="text-danger">*</span></label>
                         <input type="email" name="email" class="form-control rounded-3" 
                                value="{{ usuario.email }}" required>
                     </div>
                 </div>
 
+                <!-- Telefone e Tipo -->
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">Telefone</label>
+                        <label class="form-label fw-bold">Telefone / WhatsApp</label>
                         <input type="text" name="telefone" class="form-control rounded-3" 
                                value="{{ usuario.telefone or '' }}" placeholder="(00) 00000-0000">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Tipo de conta</label>
-                        <input type="text" class="form-control rounded-3" 
-                               value="{{ 'Prestador de Serviços' if usuario.tipo == 'prestador' else 'Cliente' }}" disabled>
-                    </div>
-                </div>
-
-                <!-- Foto de perfil -->
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Foto de Perfil</label>
-                    <div class="border rounded-3 p-3 text-center">
-                        <div class="mb-2">
-                            {% if usuario.foto_url %}
-                                <img src="{{ usuario.foto_url }}" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
-                            {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
-                                <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
-                            {% else %}
-                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 100px; height: 100px;">
-                                    <span class="text-white fs-1 fw-bold">{{ usuario.nome[0]|upper }}</span>
-                                </div>
-                            {% endif %}
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                {% if usuario.tipo == 'prestador' %}
+                                    <i class="fas fa-briefcase text-success"></i>
+                                {% else %}
+                                    <i class="fas fa-user text-info"></i>
+                                {% endif %}
+                            </span>
+                            <input type="text" class="form-control rounded-end-3" 
+                                   value="{{ 'Prestador de Serviços' if usuario.tipo == 'prestador' else 'Cliente' }}" disabled>
                         </div>
-                        <input type="file" name="foto_perfil" id="fotoPerfil" class="d-none" accept="image/*">
-                        <button type="button" class="btn btn-outline-primary rounded-pill" onclick="document.getElementById('fotoPerfil').click()">
-                            <i class="fas fa-camera me-2"></i> Escolher foto
-                        </button>
-                        <span id="nomeArquivo" class="ms-2 text-muted small">Nenhum arquivo escolhido</span>
-                        <small class="text-muted d-block mt-2">Formatos: JPG, PNG. Máx: 5MB</small>
                     </div>
                 </div>
 
@@ -70,7 +164,10 @@
                     <label class="form-label fw-bold">Sobre mim</label>
                     <textarea name="descricao" class="form-control rounded-3" rows="4" 
                               placeholder="Conte um pouco sobre você, suas experiências, habilidades e áreas de atuação...">{{ usuario.descricao or '' }}</textarea>
-                    <small class="text-muted">Compartilhe suas experiências, habilidades e áreas de atuação</small>
+                    <small class="text-muted">
+                        <i class="fas fa-lightbulb text-warning me-1"></i>
+                        Prestadores com bio completa recebem <strong>3x mais</strong> contatos
+                    </small>
                 </div>
                 {% endif %}
 
@@ -87,15 +184,82 @@
         </div>
     </div>
 
-    <!-- Seção de segurança (apenas para usuários com senha) -->
-    <div class="card mt-4 shadow-sm border-0 rounded-4">
-        <div class="card-header bg-secondary text-white rounded-top-4 py-3">
-            <h5 class="mb-0">
-                <i class="fas fa-shield-alt me-2"></i>
-                Segurança
+    <!-- ============================================ -->
+    <!-- MUDAR TIPO DE CONTA -->
+    <!-- ============================================ -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-header border-0 py-3 rounded-top-4" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+            <h5 class="mb-0 fw-bold text-white">
+                <i class="fas fa-exchange-alt me-2"></i> Mudar Tipo de Conta
             </h5>
         </div>
         <div class="card-body p-4">
+            
+            {% if usuario.tipo == 'cliente' %}
+                <!-- Cliente → Prestador -->
+                <div class="d-flex align-items-start gap-3">
+                    <div class="icon-box-warning">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="fw-bold mb-2">Quero me tornar um Prestador</h6>
+                        <p class="text-muted mb-3">
+                            Se você oferece serviços (eletricista, diarista, designer, etc.), 
+                            torne-se um prestador e comece a receber clientes. 
+                            <strong>É grátis para começar!</strong>
+                        </p>
+                        <ul class="text-muted small mb-3">
+                            <li><i class="fas fa-check text-success me-1"></i> Cadastre seus serviços</li>
+                            <li><i class="fas fa-check text-success me-1"></i> Receba clientes pelo chat</li>
+                            <li><i class="fas fa-check text-success me-1"></i> Receba avaliações</li>
+                            <li><i class="fas fa-crown text-warning me-1"></i> Opcional: assine um plano de destaque</li>
+                        </ul>
+                        <button type="button" class="btn btn-warning rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalVirarPrestador">
+                            <i class="fas fa-briefcase me-2"></i> Quero ser Prestador
+                        </button>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Prestador → Cliente -->
+                <div class="d-flex align-items-start gap-3">
+                    <div class="icon-box-info">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="fw-bold mb-2">Quero me tornar um Cliente</h6>
+                        <p class="text-muted mb-3">
+                            Se você não quer mais oferecer serviços, pode mudar para cliente 
+                            e contratar profissionais pelo HiringScope.
+                        </p>
+                        <div class="alert alert-warning small mb-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Atenção:</strong> Se você tiver serviços cadastrados, eles serão 
+                            <strong>desativados</strong> e sua assinatura (se houver) será <strong>cancelada</strong>.
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalVirarCliente">
+                            <i class="fas fa-user me-2"></i> Quero ser Cliente
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+            
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SEGURANÇA -->
+    <!-- ============================================ -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 py-3 rounded-top-4">
+            <h5 class="mb-0 fw-bold text-primary">
+                <i class="fas fa-shield-alt me-2"></i> Segurança
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <p class="text-muted small mb-3">
+                <i class="fas fa-lock me-1"></i>
+                Altere sua senha regularmente para manter sua conta segura.
+            </p>
             <form method="POST" action="{{ url_for('main.alterar_senha') }}">
                 <div class="row">
                     <div class="col-md-4 mb-3">
@@ -104,11 +268,11 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Nova senha</label>
-                        <input type="password" name="nova_senha" class="form-control rounded-3" required>
+                        <input type="password" name="nova_senha" class="form-control rounded-3" required minlength="6">
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Confirmar nova senha</label>
-                        <input type="password" name="confirmar_senha" class="form-control rounded-3" required>
+                        <input type="password" name="confirmar_senha" class="form-control rounded-3" required minlength="6">
                     </div>
                 </div>
                 <button type="submit" class="btn btn-warning rounded-pill px-4">
@@ -117,14 +281,338 @@
             </form>
         </div>
     </div>
+    
 </div>
+
+<!-- ============================================ -->
+<!-- MODAL: VIRAR PRESTADOR -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalVirarPrestador" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header bg-warning text-white rounded-top-4">
+                <h5 class="modal-title">
+                    <i class="fas fa-briefcase me-2"></i>
+                    Confirmar mudança para Prestador
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="mb-3">Ao se tornar prestador, você poderá:</p>
+                <ul class="mb-3">
+                    <li><i class="fas fa-check text-success me-2"></i> Cadastrar serviços</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Receber clientes pelo chat</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Receber avaliações</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Assinar planos de destaque</li>
+                </ul>
+                <div class="alert alert-info small mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Você pode voltar a ser cliente quando quiser.
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <form method="POST" action="{{ url_for('main.mudar_para_prestador') }}" class="d-inline">
+                    <button type="submit" class="btn btn-warning rounded-pill px-4">
+                        <i class="fas fa-check me-2"></i> Confirmar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODAL: VIRAR CLIENTE -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalVirarCliente" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header bg-secondary text-white rounded-top-4">
+                <h5 class="modal-title">
+                    <i class="fas fa-user me-2"></i>
+                    Confirmar mudança para Cliente
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Atenção!</strong> Ao se tornar cliente:
+                </div>
+                <ul class="mb-3">
+                    <li><i class="fas fa-times text-danger me-2"></i> Seus serviços serão <strong>desativados</strong></li>
+                    <li><i class="fas fa-times text-danger me-2"></i> Sua assinatura (se houver) será <strong>cancelada</strong></li>
+                    <li><i class="fas fa-times text-danger me-2"></i> Você não aparecerá mais nas buscas</li>
+                </ul>
+                <p class="text-muted small mb-0">
+                    Você poderá voltar a ser prestador quando quiser, mas precisará 
+                    cadastrar seus serviços novamente.
+                </p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <form method="POST" action="{{ url_for('main.mudar_para_cliente') }}" class="d-inline">
+                    <button type="submit" class="btn btn-secondary rounded-pill px-4">
+                        <i class="fas fa-check me-2"></i> Confirmar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ============================================ */
+    /* CABEÇALHO DO PERFIL */
+    /* ============================================ */
+    .profile-header-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+    }
+    
+    .profile-cover {
+        height: 120px;
+        background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%);
+        position: relative;
+    }
+    
+    .profile-cover::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.3) 0%, transparent 50%);
+    }
+    
+    .profile-info {
+        padding: 0 32px 32px;
+        text-align: center;
+        margin-top: -50px;
+        position: relative;
+    }
+    
+    .profile-avatar-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 12px;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid white;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .profile-avatar-placeholder {
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 700;
+    }
+    
+    .profile-status-badge {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        width: 32px;
+        height: 32px;
+        background: #22c55e;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        border: 3px solid white;
+        font-size: 0.85rem;
+    }
+    
+    .profile-name {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+    
+    .profile-email {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-bottom: 12px;
+    }
+    
+    .profile-badges {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .profile-badges .badge {
+        padding: 6px 14px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: 50px;
+    }
+    
+    /* ============================================ */
+    /* CARDS DE ESTATÍSTICA */
+    /* ============================================ */
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px 12px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        border-color: #0b2b5c;
+    }
+    
+    /* ============================================ */
+    /* UPLOAD DE FOTO */
+    /* ============================================ */
+    .photo-upload-area {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 16px;
+        border: 2px dashed #cbd5e1;
+    }
+    
+    .photo-preview {
+        flex-shrink: 0;
+    }
+    
+    .photo-preview img,
+    .photo-placeholder {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .photo-placeholder {
+        background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+        color: #0b2b5c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+    }
+    
+    .photo-upload-info {
+        flex-grow: 1;
+    }
+    
+    /* ============================================ */
+    /* ÍCONES DE MUDANÇA DE TIPO */
+    /* ============================================ */
+    .icon-box-warning {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #92400e;
+        flex-shrink: 0;
+    }
+    
+    .icon-box-info {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #1e40af;
+        flex-shrink: 0;
+    }
+    
+    /* ============================================ */
+    /* FORM CONTROLS */
+    /* ============================================ */
+    .form-control:focus {
+        border-color: #0b2b5c;
+        box-shadow: 0 0 0 3px rgba(11, 43, 92, 0.1);
+    }
+    
+    /* ============================================ */
+    /* RESPONSIVIDADE */
+    /* ============================================ */
+    @media (max-width: 768px) {
+        .profile-info {
+            padding: 0 20px 24px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-width: 4px;
+        }
+        
+        .profile-name {
+            font-size: 1.4rem;
+        }
+        
+        .photo-upload-area {
+            flex-direction: column;
+            text-align: center;
+            gap: 16px;
+        }
+        
+        .photo-upload-info .btn {
+            width: 100%;
+        }
+    }
+</style>
 
 <script>
     document.getElementById('fotoPerfil')?.addEventListener('change', function(e) {
         const file = e.target.files[0];
         const nomeArquivo = document.getElementById('nomeArquivo');
+        const preview = document.getElementById('photoPreview');
+        
         if (file) {
             nomeArquivo.textContent = file.name;
+            
+            // Preview da nova imagem
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                if (preview.tagName === 'IMG') {
+                    preview.src = event.target.result;
+                } else {
+                    // Se for o placeholder, substitui por img
+                    const newImg = document.createElement('img');
+                    newImg.src = event.target.result;
+                    newImg.id = 'photoPreview';
+                    preview.parentNode.replaceChild(newImg, preview);
+                }
+            };
+            reader.readAsDataURL(file);
         } else {
             nomeArquivo.textContent = 'Nenhum arquivo escolhido';
         }
