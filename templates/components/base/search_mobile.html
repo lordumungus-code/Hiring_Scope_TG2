@@ -1,9 +1,195 @@
 {% set _ep = request.endpoint or '' %}
-{% if not ('login' in _ep or 'cadastro' in _ep or 'firebase' in _ep) %}
+{% if 'login' not in _ep and 'cadastro' not in _ep and 'firebase' not in _ep %}
 <div class="search-bar-mobile container mt-2 d-md-none">
-    <div class="search-bar-wrapper">
-        <div class="search-icon"><i class="fas fa-search"></i></div>
-<input type="text" id="globalSearchInputMobile" class="search-input" placeholder="Buscar serviços...">        <button id="globalSearchBtnMobile" class="search-btn">Buscar</button>
+    <div class="search-bar-wrapper-mobile">
+        <div class="search-icon-mobile">
+            <i class="fas fa-search"></i>
+        </div>
+        <input type="text"
+               id="globalSearchInputMobile"
+               class="search-input-mobile"
+               placeholder="Buscar serviços...">
+        <button id="globalSearchBtnMobile" class="search-btn-mobile">
+            <span>Buscar</span>
+            <i class="fas fa-arrow-right"></i>
+        </button>
     </div>
 </div>
+
+<style>
+/* ============================================
+   BUSCA MOBILE (fora da navbar)
+   ============================================ */
+.search-bar-mobile {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.search-bar-wrapper-mobile {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 50px;
+    padding: 4px 4px 4px 16px;
+    height: 44px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.search-bar-wrapper-mobile:focus-within {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+.search-icon-mobile {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-right: 8px;
+    flex-shrink: 0;
+    transition: color 0.3s ease;
+}
+
+.search-bar-wrapper-mobile:focus-within .search-icon-mobile {
+    color: #1a6d8f;
+}
+
+.search-input-mobile {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #0f172a;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    min-width: 0;
+}
+
+.search-input-mobile::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+/* Botão de busca mobile - CORRIGIDO */
+.search-btn-mobile {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 0 16px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px -4px rgba(245, 158, 11, 0.5);
+    flex-shrink: 0;
+    white-space: nowrap;
+    min-width: auto;
+    font-family: 'Inter', sans-serif;
+}
+
+.search-btn-mobile span {
+    display: inline-block;
+    line-height: 1;
+}
+
+.search-btn-mobile i {
+    display: none;
+    font-size: 0.75rem;
+    transition: transform 0.3s ease;
+}
+
+.search-btn-mobile:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 16px -4px rgba(245, 158, 11, 0.7);
+}
+
+.search-btn-mobile:hover i {
+    transform: translateX(2px);
+}
+
+.search-btn-mobile:active {
+    transform: scale(0.98);
+}
+
+/* Em telas MUITO pequenas (≤ 360px), esconde o texto e mostra só o ícone */
+@media (max-width: 360px) {
+    .search-btn-mobile span {
+        display: none;
+    }
+    
+    .search-btn-mobile i {
+        display: inline-block;
+    }
+    
+    .search-btn-mobile {
+        padding: 0 12px;
+        width: 36px;
+    }
+}
+
+/* Em telas pequenas (≤ 400px), reduz o padding */
+@media (max-width: 400px) {
+    .search-bar-wrapper-mobile {
+        padding: 4px 4px 4px 12px;
+        height: 42px;
+    }
+    
+    .search-icon-mobile {
+        font-size: 0.85rem;
+        margin-right: 6px;
+    }
+    
+    .search-input-mobile {
+        font-size: 0.8rem;
+    }
+    
+    .search-btn-mobile {
+        padding: 0 14px;
+        height: 34px;
+        font-size: 0.75rem;
+    }
+}
+</style>
+
+<script>
+/* ============================================
+   FUNCIONALIDADE DA BUSCA MOBILE
+   ============================================ */
+(function() {
+    'use strict';
+    
+    const input = document.getElementById('globalSearchInputMobile');
+    const button = document.getElementById('globalSearchBtnMobile');
+    
+    if (!input || !button) return;
+    
+    function buscar() {
+        const termo = input.value.trim();
+        if (termo) {
+            window.location.href = '{{ url_for("servico.lista") }}?q=' + encodeURIComponent(termo);
+        } else {
+            window.location.href = '{{ url_for("servico.lista") }}';
+        }
+    }
+    
+    button.addEventListener('click', buscar);
+    
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            buscar();
+        }
+    });
+})();
+</script>
 {% endif %}

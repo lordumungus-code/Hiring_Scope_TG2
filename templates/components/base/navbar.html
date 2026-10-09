@@ -6,21 +6,26 @@
 
     <div class="container position-relative">
 
-        <!-- Logo -->
-      <a class="navbar-brand" href="{{ url_for('main.index') }}">
-    <img src="{{ url_for('static', filename='img/logo.png') }}"
-         alt="HiringScope"
-         class="navbar-logo"
-         onerror="this.onerror=null; this.parentNode.innerHTML='<span class=&quot;brand-text-fallback&quot;>HiringScope</span>';">
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- LOGO                                                -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <a class="navbar-brand" href="{{ url_for('main.index') }}">
+            <img src="{{ url_for('static', filename='img/logo.png') }}"
+                 alt="HiringScope"
+                 class="navbar-logo"
+                 onerror="this.style.display='none'; this.parentNode.classList.add('brand-fallback');">
         </a>
 
-        <!-- Search Desktop (oculta em login/cadastro/firebase) -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- SEARCH DESKTOP (oculta em login/cadastro/firebase)  -->
+        <!-- ═══════════════════════════════════════════════════ -->
         {% set _ep = request.endpoint or '' %}
-        {% if not ('login' in _ep or 'cadastro' in _ep or 'firebase' in _ep) %}
+        {% if 'login' not in _ep and 'cadastro' not in _ep and 'firebase' not in _ep %}
         <div class="search-bar-desktop d-none d-lg-block">
             <div class="search-bar-wrapper">
                 <div class="search-icon"><i class="fas fa-search"></i></div>
-<input type="text" id="globalSearchInput" class="search-input" placeholder="Buscar serviços...">                <button id="globalSearchBtn" class="search-btn">
+                <input type="text" id="globalSearchInput" class="search-input" placeholder="Buscar serviços ou prestadores...">
+                <button id="globalSearchBtn" class="search-btn">
                     <span>Buscar</span>
                     <i class="fas fa-arrow-right"></i>
                 </button>
@@ -33,16 +38,20 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Menu -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- MENU                                                -->
+        <!-- ═══════════════════════════════════════════════════ -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-lg-center">
 
+                <!-- Serviços -->
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('servico.lista') }}">
                         <i class="fas fa-search me-1"></i> Serviços
                     </a>
                 </li>
 
+                <!-- Admin -->
                 {% if current_user.is_authenticated and current_user.is_admin %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
@@ -52,24 +61,28 @@
                 {% endif %}
 
                 {% if current_user.is_authenticated %}
-                    <!-- Chat -->
+                    <!-- ═════════════════════════════════════════════ -->
+                    <!-- CHAT                                         -->
+                    <!-- ═════════════════════════════════════════════ -->
                     <li class="nav-item position-relative">
                         <a class="nav-link chat-link" href="{{ url_for('chat.index') }}">
                             <i class="fas fa-comments me-1"></i> Chat
                             <span class="notification-badge {% if chat_count and chat_count > 0 %}notification-badge--alert{% else %}notification-badge--empty{% endif %}"
-                                id="chatNotificationBadge">
+                                  id="chatNotificationBadge">
                                 {{ chat_count or 0 }}
-                            </span>                      
+                            </span>
                         </a>
                     </li>
 
-                    <!-- Notificações -->
+                    <!-- ═════════════════════════════════════════════ -->
+                    <!-- NOTIFICAÇÕES                                 -->
+                    <!-- ═════════════════════════════════════════════ -->
                     <li class="nav-item dropdown">
                         <a class="nav-link nav-icon-link" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-label="Notificações">
                             <i class="fas fa-bell"></i>
                             <span class="notification-badge {% if notificacoes_count and notificacoes_count > 0 %}notification-badge--alert{% else %}notification-badge--empty{% endif %}"
-                                id="notificationBadge"
-                                data-count="{{ notificacoes_count or 0 }}">
+                                  id="notificationBadge"
+                                  data-count="{{ notificacoes_count or 0 }}">
                                 {{ notificacoes_count or 0 }}
                             </span>
                         </a>
@@ -96,34 +109,55 @@
                         </ul>
                     </li>
 
-                    <!-- Dashboard -->
+                    <!-- ═════════════════════════════════════════════ -->
+                    <!-- DASHBOARD                                    -->
+                    <!-- ═════════════════════════════════════════════ -->
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.dashboard') }}">
                             <i class="fas fa-tachometer-alt me-1"></i> Dashboard
                         </a>
                     </li>
 
-                    <!-- User dropdown -->
+                    <!-- ═════════════════════════════════════════════ -->
+                    <!-- USER DROPDOWN                                -->
+                    <!-- ═════════════════════════════════════════════ -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle user-pill" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+
+                            {# ═══════════════════════════════════════════ #}
+                            {# AVATAR: mostra SOMENTE uma opção           #}
+                            {# 1) foto_url (se tiver)                     #}
+                            {# 2) foto_perfil (se não for default)        #}
+                            {# 3) placeholder com inicial (fallback)      #}
+                            {# ═══════════════════════════════════════════ #}
+
                             {% if current_user.foto_url %}
-                                <img src="{{ current_user.foto_url }}" class="user-avatar-nav" alt="Avatar" onerror="this.style.display='none'; this.parentNode.querySelector('.user-avatar-nav-placeholder').style.display='inline-flex';">
+                                <img src="{{ current_user.foto_url }}"
+                                     class="user-avatar-nav"
+                                     alt="{{ current_user.nome }}"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
                                 <div class="user-avatar-nav-placeholder" style="display: none;">{{ current_user.nome[0]|upper }}</div>
                             {% elif current_user.foto_perfil and current_user.foto_perfil != 'default.jpg' %}
-                                <img src="data:image/jpeg;base64,{{ current_user.foto_perfil }}" class="user-avatar-nav" alt="Avatar" onerror="this.style.display='none'; this.parentNode.querySelector('.user-avatar-nav-placeholder').style.display='inline-flex';">
+                                <img src="data:image/jpeg;base64,{{ current_user.foto_perfil }}"
+                                     class="user-avatar-nav"
+                                     alt="{{ current_user.nome }}"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
                                 <div class="user-avatar-nav-placeholder" style="display: none;">{{ current_user.nome[0]|upper }}</div>
                             {% else %}
                                 <div class="user-avatar-nav-placeholder">{{ current_user.nome[0]|upper }}</div>
                             {% endif %}
+
                             <span class="user-name-nav ms-1">{{ current_user.nome.split()[0] }}</span>
                         </a>
+
                         <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                            <!-- Header do dropdown -->
                             <li class="user-dropdown-header">
                                 <div class="d-flex align-items-center gap-3">
                                     {% if current_user.foto_url %}
-                                        <img src="{{ current_user.foto_url }}" class="user-header-avatar" alt="Avatar">
+                                        <img src="{{ current_user.foto_url }}" class="user-header-avatar" alt="{{ current_user.nome }}">
                                     {% elif current_user.foto_perfil and current_user.foto_perfil != 'default.jpg' %}
-                                        <img src="data:image/jpeg;base64,{{ current_user.foto_perfil }}" class="user-header-avatar" alt="Avatar">
+                                        <img src="data:image/jpeg;base64,{{ current_user.foto_perfil }}" class="user-header-avatar" alt="{{ current_user.nome }}">
                                     {% else %}
                                         <div class="user-header-avatar user-header-avatar-placeholder">
                                             {{ current_user.nome[0]|upper }}
@@ -136,24 +170,38 @@
                                 </div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
+
+                            <!-- Perfil -->
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('main.perfil') }}">
                                     <i class="fas fa-user me-2"></i> Meu Perfil
                                 </a>
                             </li>
+
                             {% if current_user.tipo == 'prestador' %}
+                            <!-- Meus Serviços -->
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('servico.meus_servicos') }}">
                                     <i class="fas fa-briefcase me-2"></i> Meus Serviços
                                 </a>
                             </li>
+                            <!-- Novo Serviço -->
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('servico.cadastro') }}">
                                     <i class="fas fa-plus-circle me-2"></i> Novo Serviço
                                 </a>
                             </li>
+                            <!-- Planos -->
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('servico.planos_destaque') }}">
+                                    <i class="fas fa-crown text-warning me-2"></i> Planos de Destaque
+                                </a>
+                            </li>
                             {% endif %}
+
                             <li><hr class="dropdown-divider"></li>
+
+                            <!-- Sair -->
                             <li>
                                 <a class="dropdown-item dropdown-item-danger" href="{{ url_for('auth.logout') }}">
                                     <i class="fas fa-sign-out-alt me-2"></i> Sair
@@ -163,13 +211,14 @@
                     </li>
 
                 {% else %}
-                    <!-- Login -->
+                    <!-- ═════════════════════════════════════════════ -->
+                    <!-- NÃO LOGADO: LOGIN + CADASTRAR                -->
+                    <!-- ═════════════════════════════════════════════ -->
                     <li class="nav-item">
                         <a class="nav-link btn-login" href="{{ url_for('auth.login') }}">
                             <i class="fas fa-sign-in-alt me-1"></i> Login
                         </a>
                     </li>
-                    <!-- Cadastrar -->
                     <li class="nav-item">
                         <a class="nav-link btn-cadastro-destaque" href="{{ url_for('auth.cadastro') }}">
                             <i class="fas fa-user-plus me-1"></i> Cadastrar
@@ -198,7 +247,6 @@
     box-shadow: 0 2px 8px rgba(11, 43, 92, 0.15);
 }
 
-/* Quando rolar a página, fica mais escuro e ganha blur */
 .navbar.navbar-scrolled {
     padding: 0.65rem 0 !important;
     background: linear-gradient(135deg, rgba(7, 26, 54, 0.92) 0%, rgba(11, 43, 92, 0.92) 50%, rgba(15, 58, 107, 0.92) 100%) !important;
@@ -210,7 +258,6 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Linha gradiente no rodapé da navbar */
 .navbar::after {
     content: '';
     position: absolute;
@@ -232,7 +279,6 @@
     opacity: 1;
 }
 
-/* Glow decorativo (background) */
 .navbar-glow {
     position: absolute;
     inset: 0;
@@ -259,53 +305,29 @@
     padding: 0 !important;
     margin-right: 1.5rem !important;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
 }
 
 .navbar-brand:hover {
     transform: translateY(-2px);
 }
 
-.brand-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    font-size: 1rem;
-    box-shadow:
-        0 8px 20px -6px rgba(245, 158, 11, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.25);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
+/* Logo (imagem) */
+.navbar-logo {
+    height: 42px !important;
+    width: auto !important;
+    display: block;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
 }
 
-.brand-icon::before {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #fbbf24, #d97706);
-    z-index: -1;
-    filter: blur(12px);
-    opacity: 0;
-    transition: opacity 0.4s ease;
+.navbar-brand:hover .navbar-logo {
+    transform: scale(1.05);
 }
 
-.navbar-brand:hover .brand-icon::before {
-    opacity: 0.7;
-}
-
-.navbar-brand:hover .brand-icon {
-    transform: scale(1.08) rotate(-6deg);
-    box-shadow:
-        0 12px 28px -6px rgba(245, 158, 11, 0.7),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.brand-text {
+/* Fallback (se a imagem quebrar) */
+.navbar-brand.brand-fallback::after {
+    content: 'HiringScope';
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 1.4rem;
     font-weight: 800;
@@ -317,15 +339,8 @@
     white-space: nowrap;
 }
 
-.brand-text-highlight {
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
 /* ──────────────────────────────────────────────
-   SEARCH BAR (integra na navbar)
+   SEARCH BAR
    ────────────────────────────────────────────── */
 .search-bar-desktop {
     flex: 1 !important;
@@ -430,10 +445,6 @@
     box-shadow: 0 6px 16px -4px rgba(245, 158, 11, 0.7);
 }
 
-.search-bar-wrapper .search-btn:hover i {
-    transform: translateX(2px);
-}
-
 .search-bar-wrapper:focus-within .search-btn {
     background: linear-gradient(135deg, #0b2b5c, #1a6d8f) !important;
     box-shadow: 0 4px 12px -4px rgba(11, 43, 92, 0.5);
@@ -466,7 +477,6 @@
     transition: transform 0.3s ease;
 }
 
-/* Hover: fundo translúcido + glow */
 .navbar .nav-link:hover {
     background: rgba(255, 255, 255, 0.1);
     color: #ffffff !important;
@@ -477,7 +487,6 @@
     transform: scale(1.15);
 }
 
-/* Linha laranja embaixo (hover) */
 .navbar .nav-link::after {
     content: '';
     position: absolute;
@@ -496,7 +505,6 @@
     width: 30%;
 }
 
-/* Link de ícone (sino) */
 .navbar .nav-icon-link {
     width: 42px;
     height: 42px;
@@ -527,6 +535,10 @@
     animation: badgePulse 2s infinite;
 }
 
+.notification-badge--empty {
+    display: none !important;
+}
+
 @keyframes badgePulse {
     0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
     70%  { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
@@ -534,7 +546,7 @@
 }
 
 /* ──────────────────────────────────────────────
-   USER PILL (avatar + nome)
+   USER PILL (avatar + nome) - CORRIGIDO
    ────────────────────────────────────────────── */
 .navbar .user-pill {
     padding: 5px 14px 5px 6px !important;
@@ -543,6 +555,8 @@
     border-radius: 50px !important;
     gap: 8px;
     margin-left: 6px;
+    display: inline-flex;
+    align-items: center;
 }
 
 .navbar .user-pill:hover {
@@ -568,6 +582,7 @@
     transform: rotate(180deg);
 }
 
+/* Avatar do usuário */
 .user-avatar-nav {
     width: 32px !important;
     height: 32px !important;
@@ -582,12 +597,13 @@
     border-color: rgba(245, 158, 11, 0.6);
 }
 
+/* Placeholder do avatar (inicial) */
 .user-avatar-nav-placeholder {
     width: 32px !important;
     height: 32px !important;
     border-radius: 50% !important;
     background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-    display: inline-flex !important;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     color: #ffffff;
@@ -674,7 +690,7 @@
 }
 
 /* ──────────────────────────────────────────────
-   DROPDOWN (Notificações + User)
+   DROPDOWN
    ────────────────────────────────────────────── */
 .navbar .dropdown-menu {
     border: none !important;
@@ -690,14 +706,8 @@
 }
 
 @keyframes dropdownIn {
-    from {
-        opacity: 0;
-        transform: translateY(-8px) scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+    from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .navbar .dropdown-menu .dropdown-item {
@@ -732,15 +742,6 @@
     transform: scale(1.1);
 }
 
-.navbar .dropdown-menu .dropdown-item:active {
-    background: linear-gradient(135deg, #0b2b5c, #1a6d8f) !important;
-    color: #ffffff !important;
-}
-
-.navbar .dropdown-menu .dropdown-item:active i {
-    color: #ffffff;
-}
-
 .navbar .dropdown-menu .dropdown-item-danger {
     color: #dc2626 !important;
 }
@@ -760,7 +761,7 @@
     opacity: 1 !important;
 }
 
-/* Cabeçalho do dropdown de usuário */
+/* Header do dropdown de usuário */
 .user-dropdown-header {
     padding: 14px 14px 12px !important;
     background: linear-gradient(135deg, #f8fafc, #eef2f7);
@@ -873,17 +874,10 @@
         padding: 0.55rem 0 !important;
     }
 
-    .brand-text {
-        font-size: 1.25rem;
+    .navbar-logo {
+        height: 34px !important;
     }
 
-    .brand-icon {
-        width: 34px;
-        height: 34px;
-        font-size: 0.9rem;
-    }
-
-    /* Menu mobile */
     .navbar-collapse {
         margin-top: 0.85rem;
         padding: 0.85rem;
@@ -917,10 +911,6 @@
         border-radius: 12px;
     }
 
-    .navbar .nav-icon-link i {
-        font-size: 0.9rem;
-    }
-
     .notification-badge {
         position: static;
         margin-left: auto;
@@ -932,6 +922,7 @@
         margin-left: 0;
         margin-top: 4px;
         width: 100%;
+        justify-content: flex-start;
     }
 
     .navbar .user-pill::before {
@@ -958,13 +949,12 @@
 }
 
 @media (max-width: 576px) {
-    .brand-text {
-        font-size: 1.15rem;
+    .navbar-logo {
+        height: 30px !important;
     }
 
-    .brand-icon {
-        width: 32px;
-        height: 32px;
+    .navbar-brand.brand-fallback::after {
+        font-size: 1.15rem;
     }
 }
 
@@ -974,8 +964,7 @@
 @media (prefers-reduced-motion: reduce) {
     .navbar,
     .navbar-brand,
-    .brand-icon,
-    .brand-icon::before,
+    .navbar-logo,
     .navbar .nav-link,
     .navbar .nav-link i,
     .navbar .nav-link::after,
@@ -1009,7 +998,6 @@
     const navbar = document.getElementById('mainNavbar');
     if (!navbar) return;
 
-    let lastScrollY = 0;
     let ticking = false;
 
     function updateNavbar() {
@@ -1021,7 +1009,6 @@
             navbar.classList.remove('navbar-scrolled');
         }
 
-        lastScrollY = scrollY;
         ticking = false;
     }
 
@@ -1032,10 +1019,7 @@
         }
     }
 
-    // Estado inicial
     updateNavbar();
-
-    // Listener
     window.addEventListener('scroll', onScroll, { passive: true });
 
     console.log('✅ Navbar scroll-aware ativada');
