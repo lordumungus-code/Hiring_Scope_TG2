@@ -315,3 +315,179 @@ def assinar_plano(plano):
     """Redireciona para o checkout da assinatura no blueprint assinatura"""
     return redirect(url_for('assinatura.checkout', plano=plano))
 
+# ============================================
+# IA: SUGESTÃO DE PREÇO COM GOOGLE GEMINI
+# ============================================
+
+@servico_bp.route('/api/sugerir-preco', methods=['POST'])
+@login_required
+def sugerir_preco_ia():
+    """Usa Google Gemini para sugerir um preço justo baseado em serviços similares"""
+    from flask import jsonify
+    import os
+    import json
+    
+    dados = request.get_json()
+    titulo = dados.get('titulo', '').strip()
+    categoria = dados.get('categoria', '').strip()
+    tipo_preco = dados.get('tipo_preco', 'fixo')
+    
+    if not titulo:
+        return jsonify({'erro': 'Título é obrigatório'}), 400
+    
+    # ============================================
+    # 1. ANALISAR SERVIÇOS SIMILARES
+    # ============================================
+    servicos_similares = Servico.query.filter(
+        Servico.categoria == categoria,
+        Servico.preco.isnot(None),
+        Servico.preco > 0
+    ).all()
+    
+    palavras_titulo = [p.lower() for p in titulo.split() if len(p) > 3]
+    servicos_mesmo_titulo = []
+    
+    for servico in Servico.query.filter(Servico.preco.isnot(None)).all():
+        for palavra in palavras_titulo:
+            if palavra in servico.titulo.lower():
+                servicos_mesmo_titulo.append(servico)
+                break
+    
+    todos_relevantes = list(set(servicos_similares + servicos_mesmo_titulo))
+    
+    if todos_relevantes:
+        precos = [s.preco for s in todos_relevantes if s.preco]
+        media = sum(precos) / len(precos)
+        minimo = min(precos)
+        maximo = max(precos)
+        total = len(precos)
+    else:
+        media = None
+        minimo = None
+        maximo = None
+        total = 0
+    
+    # ============================================
+    # 2. CHAMAR O GEMINI
+    # ============================================
+    api_key = os.environ.get('GEMINI_API_KEY')
+    
+    if api_key:
+        try:
+            from google import genai
+            from google.genai import types
+            
+            client = genai.Client(api_key=api_key)
+            
+            # Contexto com dados da plataforma
+            if total > 0:
+                contexto = f"""
+DADOS DA PLATAFORMA (HiringScope - Cruzeiro/SP):
+- Serviços similares cadastrados: {total}
+- Preço médio: R$ {media:.2f}
+- Preço mínimo: R$ {minimo:.2f}
+- Preço máximo: R$ {maximo:.2f}
+"""
+            else:
+                contexto = """
+DADOS DA PLATAFORMA:
+- Ainda não há serviços similares cadastrados com preço.
+- Use conhecimento geral do mercado brasileiro (2026).
+"""
+            
+            tipo_preco_descricao = {
+                'fixo': 'preço fixo pelo serviço completo',
+                'hora': 'valor cobrado por hora trabalhada',
+                'dia': 'valor por diária (8h de trabalho)',
+                'metro': 'valor por metro quadrado',
+                'consulta': 'sob consulta'
+            }.get(tipo_preco, 'preço fixo')
+            
+            prompt = f"""Você é um especialista em precificação de serviços no Brasil.
+
+SERVIÇO A SER PRECIFICADO:
+- Título: "{titulo}"
+- Categoria: {categoria}
+- Tipo de cobrança: {tipo_preco_descricao}
+
+{contexto}
+
+TAREFA:
+1. Analise o serviço e o mercado brasileiro
+2. Sugira uma FAIXA de preço justa (mínimo e máximo em reais)
+3. Sugira um valor IDEAL para começar
+4. Dê uma justificativa CURTA (máximo 3 linhas)
+5. Dê 2 dicas práticas para o prestador
+
+Responda APENAS com JSON no formato:
+{{
+    "preco_minimo": 100.00,
+    "preco_maximo": 250.00,
+    "preco_ideal": 180.00,
+    "justificativa": "texto curto aqui",
+    "dicas": ["dica 1", "dica 2"]
+}}
+
+Use valores REALISTAS do mercado brasileiro de 2026."""
+
+            response = client.models.generate_content(
+                model='gemini-3.8-flash',
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type='application/json',
+                    temperature=0.7
+                )
+            )
+            
+            dados_ia = json.loads(response.text)
+            
+            return jsonify({
+                'sucesso': True,
+                'preco_minimo': dados_ia.get('preco_minimo'),
+                'preco_maximo': dados_ia.get('preco_maximo'),
+                'preco_ideal': dados_ia.get('preco_ideal'),
+                'justificativa': dados_ia.get('justificativa', ''),
+                'dicas': dados_ia.get('dicas', []),
+                'servicos_similares': total,
+                'fonte': 'IA'
+            })
+            
+        except Exception as e:
+            print(f"❌ Erro Gemini: {e}")
+            import traceback
+            traceback.print_exc()
+            # Cai no fallback abaixo
+    
+    # ============================================
+    # 3. FALLBACK: calcular sem IA
+    # ============================================
+    precos_base = {
+        'fixo': {'min': 80, 'max': 300, 'ideal': 150},
+        'hora': {'min': 40, 'max': 120, 'ideal': 70},
+        'dia': {'min': 150, 'max': 400, 'ideal': 250},
+        'metro': {'min': 20, 'max': 80, 'ideal': 45},
+    }
+    base = precos_base.get(tipo_preco, precos_base['fixo'])
+    
+    if total > 0 and media:
+        return jsonify({
+            'sucesso': True,
+            'preco_minimo': round(minimo, 2),
+            'preco_maximo': round(maximo, 2),
+            'preco_ideal': round(media, 2),
+            'justificativa': f'Baseado em {total} serviços similares na plataforma.',
+            'dicas': ['Preços competitivos recebem mais contatos', 'Você pode ajustar depois'],
+            'servicos_similares': total,
+            'fonte': 'plataforma'
+        })
+    
+    return jsonify({
+        'sucesso': True,
+        'preco_minimo': base['min'],
+        'preco_maximo': base['max'],
+        'preco_ideal': base['ideal'],
+        'justificativa': f'Valores médios do mercado para {tipo_preco}.',
+        'dicas': ['Pesquise concorrentes na sua região', 'Considere incluir material no preço'],
+        'servicos_similares': 0,
+        'fonte': 'mercado'
+    })

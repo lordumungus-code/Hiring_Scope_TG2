@@ -51,35 +51,35 @@
                         <div class="cad-input-wrapper">
                             <i class="fas fa-tag cad-input-icon"></i>
                             <select name="categoria" class="cad-select" required>
-                            <option value="">Selecione uma categoria...</option>
-                            <optgroup label="🏠 Casa & Serviços">
-                                <option value="Construção">🏗️ Construção</option>
-                                <option value="Limpeza">🧹 Limpeza</option>
-                                <option value="Jardinagem">🌿 Jardinagem</option>
-                                <option value="Assistência Técnica">🔧 Assistência Técnica</option>
-                            </optgroup>
-                            <optgroup label="💼 Profissional & Negócios">
-                                <option value="Tecnologia">💻 Tecnologia</option>
-                                <option value="Design">🎨 Design</option>
-                                <option value="Marketing">📈 Marketing</option>
-                                <option value="Contabilidade">💼 Contabilidade</option>
-                            </optgroup>
-                            <optgroup label="👤 Pessoas & Cuidados">
-                                <option value="Saúde">💊 Saúde</option>
-                                <option value="Beleza & Estética">💅 Beleza & Estética</option>
-                                <option value="Bem-estar & Fitness">🧘 Bem-estar & Fitness</option>
-                                <option value="Educação">📚 Educação</option>
-                            </optgroup>
-                            <optgroup label="🎯 Outros Serviços">
-                                <option value="Fotografia">📷 Fotografia</option>
-                                <option value="Eventos">🎉 Eventos</option>
-                                <option value="Música">🎵 Música</option>    
-                                <option value="Pets">🐾 Pets</option>
-                                <option value="Automotivo">🚗 Automotivo</option>
-                                <option value="Transporte & Mudança">🚚 Transporte & Mudança</option>
-                                <option value="Segurança">🔒 Segurança</option>
-                            </optgroup>
-                        </select>
+                                <option value="">Selecione uma categoria...</option>
+                                <optgroup label="🏠 Casa & Serviços">
+                                    <option value="Construção">🏗️ Construção</option>
+                                    <option value="Limpeza">🧹 Limpeza</option>
+                                    <option value="Jardinagem">🌿 Jardinagem</option>
+                                    <option value="Assistência Técnica">🔧 Assistência Técnica</option>
+                                </optgroup>
+                                <optgroup label="💼 Profissional & Negócios">
+                                    <option value="Tecnologia">💻 Tecnologia</option>
+                                    <option value="Design">🎨 Design</option>
+                                    <option value="Marketing">📈 Marketing</option>
+                                    <option value="Contabilidade">💼 Contabilidade</option>
+                                </optgroup>
+                                <optgroup label="👤 Pessoas & Cuidados">
+                                    <option value="Saúde">💊 Saúde</option>
+                                    <option value="Beleza & Estética">💅 Beleza & Estética</option>
+                                    <option value="Bem-estar & Fitness">🧘 Bem-estar & Fitness</option>
+                                    <option value="Educação">📚 Educação</option>
+                                </optgroup>
+                                <optgroup label="🎯 Outros Serviços">
+                                    <option value="Fotografia">📷 Fotografia</option>
+                                    <option value="Eventos">🎉 Eventos</option>
+                                    <option value="Música">🎵 Música</option>
+                                    <option value="Pets">🐾 Pets</option>
+                                    <option value="Automotivo">🚗 Automotivo</option>
+                                    <option value="Transporte & Mudança">🚚 Transporte & Mudança</option>
+                                    <option value="Segurança">🔒 Segurança</option>
+                                </optgroup>
+                            </select>
                         </div>
                     </div>
 
@@ -119,7 +119,7 @@
                                 <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoConsulta" value="consulta">
                                 <label class="cad-radio-label" for="precoConsulta">
                                     <span class="cad-radio-emoji">💬</span>
-                                    <span class="cad-radio-text">A Combina</span>
+                                    <span class="cad-radio-text">A Combinar</span>
                                 </label>
                             </div>
                         </div>
@@ -128,6 +128,27 @@
                     <!-- Preço -->
                     <div class="cad-field" id="campoPreco">
                         <label class="cad-label">Valor</label>
+                        
+                        <!-- Botão de IA -->
+                        <button type="button" 
+                                class="cad-btn-ia"
+                                id="btnSugerirPreco"
+                                onclick="sugerirPrecoIA()">
+                            <i class="fas fa-magic"></i>
+                            <span>✨ Sugerir preço com IA</span>
+                        </button>
+                        
+                        <!-- Resultado da sugestão IA -->
+                        <div id="resultadoIA" class="cad-resultado-ia" style="display: none;">
+                            <div class="cad-resultado-header">
+                                <strong><i class="fas fa-lightbulb"></i> Sugestão de Preço</strong>
+                                <button type="button" class="cad-resultado-close" onclick="fecharSugestao()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div id="conteudoIA"></div>
+                        </div>
+                        
                         <div class="cad-preco-wrapper">
                             <span class="cad-preco-prefix">R$</span>
                             <input type="number"
@@ -256,9 +277,9 @@
         linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
 }
 
-/* ──────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
    CARD PRINCIPAL
-   ────────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════ */
 .cad-servico-card {
     background: #ffffff;
     border-radius: 24px;
@@ -269,9 +290,9 @@
     border: 1px solid rgba(11, 43, 92, 0.06);
 }
 
-/* ──────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
    HEADER
-   ────────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════ */
 .cad-header {
     background: linear-gradient(135deg, #0b2b5c 0%, #14477a 45%, #1a6d8f 100%);
     padding: 1.75rem 2rem;
@@ -331,16 +352,16 @@
     margin: 0;
 }
 
-/* ──────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
    BODY
-   ────────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════ */
 .cad-body {
     padding: 2rem;
 }
 
-/* ──────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
    FIELDS
-   ────────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════ */
 .cad-field {
     margin-bottom: 1.5rem;
 }
@@ -367,9 +388,9 @@
     font-size: 0.8rem;
 }
 
-/* ──────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
    INPUTS (com ícone)
-   ────────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════ */
 .cad-input-wrapper {
     position: relative;
 }
@@ -408,8 +429,7 @@
     -webkit-appearance: none;
 }
 
-.cad-input::placeholder,
-.cad-select:invalid {
+.cad-input::placeholder {
     color: #94a3b8;
     font-weight: 400;
 }
@@ -430,9 +450,9 @@
     cursor: pointer;
 }
 
-/* ──────────────────────────────────────────────
-   RADIO GROUP (tipo de preço)
-   ────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   RADIO GROUP
+   ═══════════════════════════════════════════════════════════ */
 .cad-radio-group {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -494,7 +514,6 @@
         0 0 0 1px rgba(11, 43, 92, 0.1);
 }
 
-/* Ponto check no canto */
 .cad-radio-input:checked + .cad-radio-label::after {
     content: '\f00c';
     font-family: 'Font Awesome 6 Free';
@@ -506,13 +525,9 @@
     color: #0b2b5c;
 }
 
-.cad-radio-input:focus-visible + .cad-radio-label {
-    box-shadow: 0 0 0 4px rgba(26, 109, 143, 0.2);
-}
-
-/* ──────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
    PREÇO
-   ────────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════ */
 .cad-preco-wrapper {
     display: flex;
     align-items: stretch;
@@ -594,9 +609,91 @@
     margin-right: 4px;
 }
 
-/* ──────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
+   BOTÃO DE IA
+   ═══════════════════════════════════════════════════════════ */
+.cad-btn-ia {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #78350f;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px -6px rgba(245, 158, 11, 0.4);
+}
+
+.cad-btn-ia:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -6px rgba(245, 158, 11, 0.6);
+}
+
+.cad-btn-ia:disabled {
+    opacity: 0.7;
+    cursor: wait;
+    transform: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESULTADO DA IA
+   ═══════════════════════════════════════════════════════════ */
+.cad-resultado-ia {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1.5px solid #93c5fd;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    animation: fadeIn 0.3s ease;
+}
+
+.cad-resultado-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    color: #0b2b5c;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.92rem;
+}
+
+.cad-resultado-header i {
+    color: #f59e0b;
+    margin-right: 4px;
+}
+
+.cad-resultado-close {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.cad-resultado-close:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #0b2b5c;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════
    DESTAQUE (checkbox premium)
-   ────────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════ */
 .cad-destaque-box {
     position: relative;
 }
@@ -696,9 +793,9 @@
     transform: scale(1.1);
 }
 
-/* ──────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
    ALERTS
-   ────────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════ */
 .cad-alert {
     display: flex;
     gap: 12px;
@@ -748,9 +845,9 @@
     opacity: 0.8;
 }
 
-/* ──────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
    UPLOAD DE IMAGEM
-   ────────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════ */
 .cad-upload {
     position: relative;
     border: 2px dashed #cbd5e1;
@@ -836,9 +933,9 @@
     display: block;
 }
 
-/* ──────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
    TEXTAREA
-   ────────────────────────────────────────────── */
+   ═══════════════════════════════════════════════════════════ */
 .cad-textarea {
     width: 100%;
     padding: 1rem 1.1rem;
@@ -867,9 +964,9 @@
     box-shadow: 0 0 0 4px rgba(26, 109, 143, 0.12);
 }
 
-/* ──────────────────────────────────────────────
-   AÇÕES (Cancelar + Salvar)
-   ────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   AÇÕES
+   ═══════════════════════════════════════════════════════════ */
 .cad-actions {
     display: flex;
     gap: 12px;
@@ -901,7 +998,6 @@
     font-size: 0.85rem;
 }
 
-/* Botão Cancelar */
 .cad-btn-cancel {
     background: #f8fafc;
     color: #64748b;
@@ -915,7 +1011,6 @@
     border-color: #cbd5e1;
 }
 
-/* Botão Salvar */
 .cad-btn-save {
     flex: 1;
     background: linear-gradient(135deg, #0b2b5c 0%, #1a6d8f 100%);
@@ -948,10 +1043,6 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
-.cad-btn-save:active {
-    transform: translateY(-1px);
-}
-
 /* ═══════════════════════════════════════════════════════════
    📱 RESPONSIVO
    ═══════════════════════════════════════════════════════════ */
@@ -962,10 +1053,6 @@
 
     .cad-header {
         padding: 1.4rem 1.25rem;
-    }
-
-    .cad-header-content {
-        gap: 0.85rem;
     }
 
     .cad-header-icon {
@@ -979,10 +1066,6 @@
         font-size: 1.2rem;
     }
 
-    .cad-subtitle {
-        font-size: 0.8rem;
-    }
-
     .cad-body {
         padding: 1.5rem 1.25rem;
     }
@@ -991,14 +1074,13 @@
     .cad-select,
     .cad-preco-wrapper {
         height: 50px;
-        font-size: 16px; /* evita zoom iOS */
+        font-size: 16px;
     }
 
     .cad-textarea {
         font-size: 16px;
     }
 
-    /* Radio group vira 2 colunas fixas */
     .cad-radio-group {
         grid-template-columns: repeat(2, 1fr);
         gap: 0.5rem;
@@ -1009,16 +1091,6 @@
         font-size: 0.82rem;
     }
 
-    .cad-radio-emoji {
-        font-size: 1rem;
-    }
-
-    .cad-radio-input:checked + .cad-radio-label::after {
-        top: 4px;
-        right: 6px;
-    }
-
-    /* Destaque box */
     .cad-destaque-label {
         padding: 0.9rem 1rem;
         gap: 0.85rem;
@@ -1027,7 +1099,6 @@
     .cad-destaque-icon {
         width: 38px;
         height: 38px;
-        font-size: 1rem;
     }
 
     .cad-destaque-text strong {
@@ -1038,7 +1109,6 @@
         font-size: 0.72rem;
     }
 
-    /* Botões */
     .cad-actions {
         flex-direction: column-reverse;
         gap: 10px;
@@ -1046,25 +1116,10 @@
 
     .cad-btn {
         width: 100%;
-        padding: 13px 20px;
     }
 
-    .cad-btn-cancel {
-        flex: 1 1 auto;
-    }
-
-    /* Upload */
     .cad-upload {
         padding: 1.5rem 1rem;
-    }
-
-    .cad-upload-icon {
-        width: 52px;
-        height: 52px;
-    }
-
-    .cad-upload-icon i {
-        font-size: 1.3rem;
     }
 }
 
@@ -1072,40 +1127,13 @@
     .cad-radio-group {
         grid-template-columns: 1fr;
     }
-
-    .cad-radio-text {
-        font-size: 0.85rem;
-    }
-}
-
-/* ═══════════════════════════════════════════════════════════
-   🔒 ACESSIBILIDADE
-   ═══════════════════════════════════════════════════════════ */
-@media (prefers-reduced-motion: reduce) {
-    .cad-servico-card,
-    .cad-radio-label,
-    .cad-destaque-label,
-    .cad-destaque-check-icon,
-    .cad-upload,
-    .cad-upload-icon,
-    .cad-btn,
-    .cad-btn-save::before,
-    .cad-input,
-    .cad-select,
-    .cad-textarea,
-    .cad-preco-wrapper {
-        transition: none !important;
-        animation: none !important;
-    }
-
-    .cad-btn-save::before {
-        display: none;
-    }
 }
 </style>
 
 <script>
-    // Preview de imagem
+    // ============================================
+    // PREVIEW DE IMAGEM
+    // ============================================
     document.getElementById('imagemInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
         const nomeArquivo = document.getElementById('nomeArquivo');
@@ -1126,7 +1154,9 @@
         }
     });
 
-    // Gerenciar tipo de preço
+    // ============================================
+    // TIPO DE PREÇO
+    // ============================================
     const precoInput = document.getElementById('precoInput');
     const unidade = document.getElementById('unidadePreco');
     const descricao = document.getElementById('descricaoPreco');
@@ -1161,5 +1191,153 @@
         radio.addEventListener('change', updateTipoPreco);
     });
     updateTipoPreco();
+
+    // ============================================
+    // IA: SUGESTÃO DE PREÇO
+    // ============================================
+    async function sugerirPrecoIA() {
+        const titulo = document.querySelector('input[name="titulo"]').value.trim();
+        const categoria = document.querySelector('select[name="categoria"]').value;
+        const tipoPreco = document.querySelector('input[name="tipo_preco"]:checked').value;
+        
+        if (!titulo) {
+            alert('⚠️ Preencha o Título do Serviço primeiro!');
+            document.querySelector('input[name="titulo"]').focus();
+            return;
+        }
+        
+        if (!categoria) {
+            alert('⚠️ Selecione a Categoria primeiro!');
+            document.querySelector('select[name="categoria"]').focus();
+            return;
+        }
+        
+        if (tipoPreco === 'consulta') {
+            alert('⚠️ Para "A Combinar" não é necessário sugerir preço.');
+            return;
+        }
+        
+        const btn = document.getElementById('btnSugerirPreco');
+        const textoOriginal = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analisando mercado...';
+        
+        try {
+            const res = await fetch('/servico/api/sugerir-preco', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    titulo: titulo,
+                    categoria: categoria,
+                    tipo_preco: tipoPreco
+                })
+            });
+            
+            const data = await res.json();
+            
+            if (data.sucesso) {
+                mostrarSugestao(data);
+            } else {
+                alert('❌ Erro: ' + (data.erro || 'Tente novamente'));
+            }
+        } catch (e) {
+            console.error('Erro:', e);
+            alert('❌ Erro de conexão. Tente novamente.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = textoOriginal;
+        }
+    }
+
+    function mostrarSugestao(data) {
+        const container = document.getElementById('resultadoIA');
+        const conteudo = document.getElementById('conteudoIA');
+        
+        let fonteIcone = '🤖';
+        let fonteTexto = 'Análise com IA';
+        
+        if (data.fonte === 'plataforma') {
+            fonteIcone = '📊';
+            fonteTexto = `Baseado em ${data.servicos_similares} serviços similares`;
+        } else if (data.fonte === 'mercado') {
+            fonteIcone = '🌎';
+            fonteTexto = 'Baseado em valores do mercado';
+        }
+        
+        const fmt = (v) => `R$ ${parseFloat(v).toFixed(2).replace('.', ',')}`;
+        
+        let html = `
+            <div style="text-align: center; margin-bottom: 12px;">
+                <div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 6px;">
+                    ${fonteIcone} ${fonteTexto}
+                </div>
+                <div style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+                    <div>
+                        <div style="font-size: 0.7rem; color: #6b7280;">Mínimo</div>
+                        <div style="font-weight: 700; color: #16a34a;">${fmt(data.preco_minimo)}</div>
+                    </div>
+                    <div style="border-left: 2px solid #e5e7eb; height: 40px;"></div>
+                    <div>
+                        <div style="font-size: 0.7rem; color: #6b7280;">Ideal</div>
+                        <div style="font-weight: 800; color: #0b2b5c; font-size: 1.3rem;">
+                            ${fmt(data.preco_ideal)}
+                        </div>
+                    </div>
+                    <div style="border-left: 2px solid #e5e7eb; height: 40px;"></div>
+                    <div>
+                        <div style="font-size: 0.7rem; color: #6b7280;">Máximo</div>
+                        <div style="font-weight: 700; color: #dc2626;">${fmt(data.preco_maximo)}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        if (data.justificativa) {
+            html += `
+                <div style="font-size: 0.82rem; color: #4b5563; margin-bottom: 12px; 
+                            padding: 8px 12px; background: white; border-radius: 8px;">
+                    <i class="fas fa-info-circle" style="color: #1a6d8f;"></i>
+                    ${data.justificativa}
+                </div>
+            `;
+        }
+        
+        if (data.dicas && data.dicas.length > 0) {
+            html += `<div style="font-size: 0.78rem; color: #6b7280; margin-bottom: 12px;">`;
+            html += `<strong style="display: block; margin-bottom: 4px;">💡 Dicas:</strong>`;
+            html += `<ul style="margin: 0; padding-left: 20px;">`;
+            data.dicas.forEach(dica => {
+                html += `<li>${dica}</li>`;
+            });
+            html += `</ul></div>`;
+        }
+        
+        html += `
+            <button type="button" 
+                    class="cad-btn cad-btn-save"
+                    style="width: 100%; padding: 10px;"
+                    onclick="aplicarPreco(${data.preco_ideal})">
+                <i class="fas fa-check"></i>
+                <span>Usar ${fmt(data.preco_ideal)}</span>
+            </button>
+        `;
+        
+        conteudo.innerHTML = html;
+        container.style.display = 'block';
+        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function aplicarPreco(valor) {
+        document.getElementById('precoInput').value = valor.toFixed(2);
+        fecharSugestao();
+        
+        const input = document.getElementById('precoInput');
+        input.style.borderColor = '#16a34a';
+        setTimeout(() => input.style.borderColor = '', 2000);
+    }
+
+    function fecharSugestao() {
+        document.getElementById('resultadoIA').style.display = 'none';
+    }
 </script>
 {% endblock %}
