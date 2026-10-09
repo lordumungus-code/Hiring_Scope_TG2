@@ -87,9 +87,9 @@
     {% block head_extra %}{% endblock %}
 </head>
 
-<body>
+<body style="overflow-x: hidden;">
     <!-- ============================================ -->
-    <!-- VARIÁVEIS GLOBAIS DO USUÁRIO -->
+    <!-- VARIÁVEIS GLOBAIS-->
     <!-- ============================================ -->
     <script>
         var currentUserId = {% if current_user.is_authenticated %}{{ current_user.id }}{% else %}null{% endif %};

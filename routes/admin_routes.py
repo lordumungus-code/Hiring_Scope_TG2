@@ -98,7 +98,7 @@ def usuario_detalhe(user_id):
     """Detalhes de um usuário específico"""
     usuario = Usuario.query.get_or_404(user_id)
     
-    # Estatísticas do usuário
+    # Estatísticas 
     if usuario.tipo == 'prestador':
         total_servicos = Servico.query.filter_by(prestador_id=usuario.id).count()
         total_contratos = Contrato.query.filter_by(prestador_id=usuario.id).count()

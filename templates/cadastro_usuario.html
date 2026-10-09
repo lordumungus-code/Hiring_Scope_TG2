@@ -43,6 +43,7 @@
                                                name="nome"
                                                placeholder="Nome completo"
                                                autocomplete="name"
+                                               value="{{ nome or '' }}"
                                                required>
                                     </div>
                                 </div>
@@ -59,6 +60,7 @@
                                                name="email"
                                                placeholder="Seu melhor e-mail"
                                                autocomplete="email"
+                                               value="{{ email or '' }}"
                                                required>
                                     </div>
                                 </div>
@@ -75,6 +77,12 @@
                                                name="telefone"
                                                placeholder="(00) 00000-0000"
                                                autocomplete="tel"
+                                               inputmode="numeric"
+                                               maxlength="15"
+                                               minlength="14"
+                                               pattern="\(\d{2}\)\s?\d{4,5}-\d{4}"
+                                               title="Digite DDD + número. Ex: (12) 97408-5264"
+                                               value="{{ telefone or '' }}"
                                                required>
                                     </div>
                                 </div>
@@ -969,13 +977,41 @@
 const telefoneInput = document.getElementById('telefone');
 if (telefoneInput) {
     telefoneInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length <= 10) {
-            value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-        } else {
-            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        let value = e.target.value.replace(/\D/g, '').slice(0, 11);
+        
+        // Bloqueia DDD inválido (< 11) enquanto digita
+        if (value.length >= 2) {
+            const ddd = parseInt(value.substring(0, 2));
+            if (ddd < 11) {
+                value = value.substring(0, 1);
+            }
         }
-        e.target.value = value;
+        
+        // Bloqueia 3º dígito diferente de 9 quando for celular (11 dígitos)
+        if (value.length >= 3 && value.length <= 11) {
+            // deixa digitar, só valida no final
+        }
+        
+        // Aplica a máscara
+        if (value.length <= 10) {
+            value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+        } else {
+            value = value.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+        }
+        
+        // Remove traço solto no fim
+        e.target.value = value.replace(/-$/, '');
+    });
+    
+    // Validação no envio do form
+    telefoneInput.addEventListener('blur', function() {
+        const limpo = this.value.replace(/\D/g, '');
+        if (limpo.length === 11 && limpo[2] !== '9') {
+            this.setCustomValidity('Celular deve começar com 9 após o DDD.');
+            this.reportValidity();
+        } else {
+            this.setCustomValidity('');
+        }
     });
 }
 

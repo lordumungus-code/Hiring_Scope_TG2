@@ -8,7 +8,7 @@ from flask_socketio import join_room
 # CARREGAR .env PRIMEIRO (antes de usar os.environ)
 load_dotenv()
 
-from extensions import db, login_manager, socketio
+from extensions import db, login_manager, socketio, limiter
 
 # Blueprints
 from routes.auth_routes import auth_bp
@@ -21,6 +21,9 @@ from routes.assinatura_routes import assinatura_bp
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'chave-secreta')
+if app.config['SECRET_KEY'] == 'chave-secreta':
+    print("⚠️  AVISO: SECRET_KEY usando valor padrão! Configure no .env para produção.")
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///prestadores.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -30,7 +33,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
 login_manager.login_message = 'Por favor, faça login para acessar esta página.'
 socketio.init_app(app, cors_allowed_origins="*")
-
+limiter.init_app(app)
 # Registrar blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(main_bp)
@@ -239,4 +242,6 @@ if __name__ == '__main__':
     else:
         print("⚠️ Token Mercado Pago NÃO encontrado! Verifique o arquivo .env")
     
-    socketio.run(app, debug=True)
+    if __name__ == '__main__':
+        debug_mode = os.environ.get('FLASK_DEBUG', '1') == '1'
+        socketio.run(app, debug=debug_mode)

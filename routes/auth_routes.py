@@ -1,15 +1,17 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
-from extensions import db
+from extensions import db, limiter
 from models import Usuario
 import base64
 import secrets
 from firebase_admin import auth as admin_auth
 from config.firebase_config import firebase_auth
+from utils.validators import validar_telefone, formatar_telefone, telefone_ja_existe
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
+@limiter.limit('10 per minute')
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -26,9 +28,10 @@ def login():
         else:
             flash('Email ou senha inválidos', 'danger')
     
-    return render_template('login.html')
+    return render_template('login.html', email=request.form.get('email', ''))
 
 @auth_bp.route('/cadastro', methods=['GET', 'POST'])
+@limiter.limit('5 per minute')
 def cadastro():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -43,6 +46,18 @@ def cadastro():
         if Usuario.query.filter_by(email=email).first():
             flash('Email já cadastrado!', 'danger')
             return redirect(url_for('auth.cadastro'))
+        # ─── VALIDAÇÃO DE TELEFONE ───
+        ok, msg, tel_limpo = validar_telefone(telefone)
+        if not ok:
+            flash(msg, 'danger')
+            return redirect(url_for('auth.cadastro'))
+        
+        if telefone_ja_existe(tel_limpo):
+            flash('Este telefone já está cadastrado em outra conta. Faça login ou use outro número.', 'danger')
+            return redirect(url_for('auth.cadastro'))
+        
+        # Padroniza o telefone antes de salvar
+        telefone = formatar_telefone(tel_limpo)
         
         foto_perfil = None
         if 'foto_perfil' in request.files:
@@ -62,7 +77,10 @@ def cadastro():
         flash('Cadastro realizado com sucesso! Faça login.', 'success')
         return redirect(url_for('auth.login'))
     
-    return render_template('cadastro_usuario.html')
+    return render_template('cadastro_usuario.html',
+                          nome=request.form.get('nome', ''),
+                          email=request.form.get('email', ''),
+                          telefone=request.form.get('telefone', ''))
 
 @auth_bp.route('/logout')
 @login_required
@@ -120,19 +138,30 @@ def cadastro_firebase():
     if request.method == 'POST':
         tipo = request.form.get('tipo')
         telefone = request.form.get('telefone', '')
+    
+        ok, msg, tel_limpo = validar_telefone(telefone)
+        if not ok:
+            flash(msg, 'danger')
+            return redirect(url_for('auth.cadastro_firebase'))
         
+        if telefone_ja_existe(tel_limpo):
+            flash('Este telefone já está cadastrado em outra conta.', 'danger')
+            return redirect(url_for('auth.cadastro_firebase'))
+    
+        telefone = formatar_telefone(tel_limpo)
+
         novo_usuario = Usuario(
             nome=firebase_user['nome'], email=firebase_user['email'],
             telefone=telefone, tipo=tipo, foto_url=firebase_user.get('foto_url')
-        )
+            )
         senha_aleatoria = secrets.token_urlsafe(16)
         novo_usuario.set_password(senha_aleatoria)
-        
+            
         db.session.add(novo_usuario)
         db.session.commit()
         session.pop('firebase_user', None)
         login_user(novo_usuario)
         flash(f'Cadastro realizado! Bem-vindo, {novo_usuario.nome}!', 'success')
         return redirect(url_for('main.index'))
-    
+        
     return render_template('cadastro_firebase.html', usuario=firebase_user)

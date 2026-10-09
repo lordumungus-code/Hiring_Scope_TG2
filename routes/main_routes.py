@@ -4,6 +4,7 @@ from datetime import datetime
 from extensions import db
 from models import Servico, Usuario, Avaliacao, Contrato
 from sqlalchemy import desc
+from utils.validators import validar_telefone, formatar_telefone, telefone_ja_existe
 
 main_bp = Blueprint('main', __name__)
 
@@ -119,7 +120,18 @@ def perfil():
             if email_existente:
                 flash('Este e-mail já está em uso por outra conta.', 'danger')
                 return redirect(url_for('main.perfil'))
+         # ─── VALIDAÇÃO DE TELEFONE ───
+        ok, msg, tel_limpo = validar_telefone(telefone)
+        if not ok:
+            flash(msg, 'danger')
+            return redirect(url_for('main.perfil'))
         
+        if telefone_ja_existe(tel_limpo, ignorar_usuario_id=current_user.id):
+            flash('Este telefone já está em uso por outra conta.', 'danger')
+            return redirect(url_for('main.perfil'))
+        
+        # Padroniza
+        telefone = formatar_telefone(tel_limpo)
         if 'foto_perfil' in request.files:
             file = request.files['foto_perfil']
             if file and file.filename != '':

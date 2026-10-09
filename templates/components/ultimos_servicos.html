@@ -85,8 +85,7 @@
 
 <style>
 /* ═══════════════════════════════════════════════════════════
-   🕒 ÚLTIMOS SERVIÇOS — Premium 2025
-   (JS de carregar-mais permanece intacto)
+   🕒 ÚLTIMOS SERVIÇOS — Premium 2025 + efeitos do exemplo
    ═══════════════════════════════════════════════════════════ */
 
 .ultimos-section {
@@ -146,7 +145,7 @@
     border-radius: 100px;
     background: #f8fafc;
     border: 1.5px solid #e2e8f0;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0, 1);
     white-space: nowrap;
 }
 
@@ -154,7 +153,7 @@
     background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
     color: #ffffff;
     border-color: transparent;
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.03);
     box-shadow: 0 8px 20px -6px rgba(11, 43, 92, 0.4);
 }
 
@@ -168,41 +167,47 @@
 }
 
 /* ──────────────────────────────────────────────
-   CARDS DE SERVIÇO (mesmas classes .recent-card)
-   ═══════════════════════════════════════════════════════════ */
+   CARDS
+   ────────────────────────────────────────────── */
 
-/* Container */
 #servicos-container .servico-item {
     display: flex;
+    align-items: stretch;
 }
-
-/* Card base */
+#servicos-container.row {
+    align-items: stretch;
+}
+#servicos-container .servico-item > .recent-card {
+    width: 100%;
+}
 .recent-card {
-    display: flex;
+    display: block;   
     flex-direction: column;
     background: #ffffff !important;
     border-radius: 18px !important;
     overflow: hidden !important;
     border: 1px solid rgba(11, 43, 92, 0.06) !important;
     box-shadow: 0 4px 16px -8px rgba(11, 43, 92, 0.06) !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    height: 100%;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0, 1) !important;
     position: relative;
+    will-change: transform, box-shadow;
+    isolation: isolate;
+    height: 340px !important;
+    min-height: 340px !important;
+    max-height: 340px !important;
+    width: 100%;
 }
 
-/* Linha gradiente no topo (hover) */
 .recent-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     height: 3px;
     background: linear-gradient(90deg, #0b2b5c, #1a6d8f, #f59e0b);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 3;
+    z-index: 4;
     border-radius: 18px 18px 0 0;
 }
 
@@ -210,29 +215,61 @@
     transform: scaleX(1);
 }
 
+/* 🎬 Shine diagonal cruzando o card (adaptado do card__img--hover) */
+.recent-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        rgba(11, 43, 92, 0.05) 0%,
+        rgba(11, 43, 92, 0.45) 35%,
+        rgba(11, 43, 92, 0.88) 100%);
+    opacity: 0;
+    transition: opacity 0.7s ease;
+    z-index: 2;
+    pointer-events: none;
+
+.recent-card:hover::after {
+opacity: 1;
+    transform: translateX(100%) translateY(100%);
+}
+
 .recent-card:hover {
-    transform: translateY(-6px);
-    box-shadow:
-        0 20px 40px -12px rgba(11, 43, 92, 0.18),
-        0 0 0 1px rgba(26, 109, 143, 0.1) !important;
-    border-color: transparent !important;
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.35) 50%,
+        transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 4;
+}
+.recent-card:hover::before {
+    transform: translateX(100%);
 }
 
-/* Imagem */
 .recent-card .card-img-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
     width: 100%;
-    height: 140px !important;
+    height: 140px;
     object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
     display: block;
-    flex-shrink: 0;
+    transition: height 0.75s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* 🎬 Imagem dá zoom forte no hover (efeito do exemplo) */
 .recent-card:hover .card-img-top {
-    transform: scale(1.06);
+    height: 100%;
+    transform: scale(1.15);
 }
 
-/* Placeholder (sem imagem) */
 .recent-card .card-img-top.bg-light {
     background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 50%, #f3e8ff 100%) !important;
 }
@@ -244,19 +281,30 @@
 }
 
 .recent-card:hover .card-img-top.bg-light i {
-    opacity: 0.7 !important;
-    transform: scale(1.1);
+    opacity: 0.75 !important;
+    transform: scale(1.15);
 }
 
-/* Body */
+
 .recent-card .card-body {
+    position: absolute;
+    top: 140px;
+    left: 0;
+    right: 0;
+    bottom: 0;
     padding: 0.95rem 1rem 1rem !important;
     display: flex;
     flex-direction: column;
     gap: 6px;
-    flex-grow: 1;
+    z-index: 3;
+    background: #ffffff;
+    color: #0f172a;
+    transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
+.recent-card:hover .card-body {
+    background: transparent;
+    color: #ffffff;
 /* Badge categoria */
 .recent-card .badge.bg-secondary {
     align-self: flex-start;
@@ -271,9 +319,14 @@
     box-shadow: 0 4px 10px -4px rgba(11, 43, 92, 0.3);
     margin-bottom: 8px !important;
     width: fit-content;
+    transition: all 0.3s ease;
 }
 
-/* Título */
+.recent-card:hover .badge.bg-secondary {
+        transform: translateY(-2px);
+    box-shadow: 0 6px 14px -4px rgba(0, 0, 0, 0.4);
+}
+
 .recent-card .card-title {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     font-size: 0.94rem !important;
@@ -286,14 +339,38 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    min-height: 2.6em;
+    height: 2.6em !important;
+    min-height: 2.6em !important;
+    max-height: 2.6em !important;
     transition: color 0.25s ease;
 }
 
 .recent-card:hover .card-title {
-    color: #1a6d8f !important;
+    color: #ffffff !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+
+.recent-card:hover .card-text i {
+    color: #fbbf24;
+}
+.recent-card:hover .card-text a {
+    color: #ffffff !important;
+}
+.recent-card:hover .price {
+    background: none;
+    -webkit-text-fill-color: #ffffff;
+    color: #ffffff !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.recent-card:hover .text-muted.small {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+
+.recent-card:hover .card-text {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
 /* Prestador */
 .recent-card .card-text {
     font-size: 0.78rem !important;
@@ -318,15 +395,17 @@
     text-decoration: underline !important;
 }
 
-/* Rodapé (preço + CTA) */
 .recent-card .card-body > .d-flex {
     padding-top: 8px !important;
     margin-top: auto !important;
     border-top: 1px solid #f1f5f9;
     gap: 8px !important;
+    min-height: 48px !important;      
+    max-height: 48px !important;
+    align-items: center !important;
+    flex-shrink: 0;
 }
 
-/* Preço */
 .recent-card .price {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     font-size: 1rem !important;
@@ -340,13 +419,14 @@
     line-height: 1.1;
 }
 
-/* "Sob consulta" */
 .recent-card .text-muted.small {
     font-size: 0.75rem !important;
     color: #94a3b8 !important;
     font-weight: 600;
 }
-
+.recent-card:hover .card-body > .d-flex {
+    border-top-color: rgba(255, 255, 255, 0.25) !important;
+}
 /* Botão "Ver" */
 .recent-card .btn-outline-primary {
     border: 1.5px solid #0b2b5c !important;
@@ -357,21 +437,27 @@
     padding: 6px 14px !important;
     border-radius: 50px !important;
     background: transparent !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0, 1);
     white-space: nowrap;
 }
 
-.recent-card .btn-outline-primary:hover {
-    background: linear-gradient(135deg, #0b2b5c, #1a6d8f) !important;
+.recent-card:hover .btn-outline-primary {
+    border-color: #ffffff !important;
     color: #ffffff !important;
-    border-color: transparent !important;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px -6px rgba(11, 43, 92, 0.4);
+    background: transparent !important;
+}
+.recent-card:hover .btn-outline-primary:hover {
+    background: #ffffff !important;
+    color: #0b2b5c !important;
+    border-color: #ffffff !important;
+
+.recent-card .btn-outline-primary:hover {
+    transform: translateY(-2px) scale(1.05);
 }
 
 /* ──────────────────────────────────────────────
    BOTÃO "CARREGAR MAIS"
-   ═══════════════════════════════════════════════════════════ */
+   ────────────────────────────────────────────── */
 .btn-carregar-mais {
     display: inline-flex;
     align-items: center;
@@ -386,7 +472,7 @@
     font-weight: 700;
     font-size: 0.92rem;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0, 1);
     box-shadow: 0 4px 12px -4px rgba(11, 43, 92, 0.1);
 }
 
@@ -394,7 +480,7 @@
     background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
     color: #ffffff;
     border-color: transparent;
-    transform: translateY(-3px);
+    transform: translateY(-3px) scale(1.03);
     box-shadow: 0 12px 28px -6px rgba(11, 43, 92, 0.4);
 }
 
@@ -405,7 +491,7 @@
 
 /* ──────────────────────────────────────────────
    EMPTY STATE
-   ═══════════════════════════════════════════════════════════ */
+   ────────────────────────────────────────────── */
 #servicos-container > .col-12 > .alert-info {
     background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
     border: 1.5px dashed #cbd5e1 !important;
@@ -437,17 +523,11 @@
    📱 RESPONSIVO
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 992px) {
-    .ultimos-section {
-        padding: 3rem 0;
-        margin: 1.5rem 0;
-    }
+    .ultimos-section { padding: 3rem 0; margin: 1.5rem 0; }
 }
 
 @media (max-width: 768px) {
-    .ultimos-section {
-        padding: 2.5rem 1rem;
-        margin: 1.5rem 0;
-    }
+    .ultimos-section { padding: 2.5rem 1rem; margin: 1.5rem 0; }
 
     .ultimos-header {
         flex-direction: column;
@@ -456,53 +536,65 @@
         margin-bottom: 1.75rem;
     }
 
-    .ultimos-see-all {
-        font-size: 0.85rem;
-        padding: 8px 16px;
+    .ultimos-see-all { font-size: 0.85rem; padding: 8px 16px; }
+
+    .recent-card {
+        height: 330px !important;
+        min-height: 330px !important;
+        max-height: 330px !important;
     }
 
     .recent-card .card-img-top {
         height: 150px !important;
+        min-height: 150px !important;
+        max-height: 150px !important;
     }
 
     .recent-card .card-title {
         font-size: 0.9rem;
+        height: 2.4em !important;
+        min-height: 2.4em !important;
+        max-height: 2.4em !important;
     }
 
-    /* Desativa hovers pesados no touch */
     .recent-card:hover {
         transform: none;
+        box-shadow: 0 4px 16px -8px rgba(11, 43, 92, 0.06) !important;
     }
-
-    .recent-card:hover .card-img-top {
-        transform: none;
-    }
-
-    .recent-card:hover::before {
-        transform: scaleX(0);
-    }
-
-    .recent-card:hover .card-img-top.bg-light i {
-        transform: none;
+    .recent-card:hover .card-img-top { transform: none; }
+    .recent-card:hover::before { transform: scaleX(0); }
+    .recent-card:hover::after { transform: translateX(-100%) translateY(-100%); }
+    .recent-card:hover .card-img-top.bg-light i { transform: none; }
+    .recent-card:hover .badge.bg-secondary { transform: none; }
+    .recent-card:hover .btn-outline-primary {
+        background: transparent !important;
+        color: #0b2b5c !important;
+        border-color: #0b2b5c !important;
+        box-shadow: none;
     }
 }
-
 @media (max-width: 480px) {
-    .ultimos-eyebrow {
-        font-size: 0.65rem;
-        padding: 4px 12px;
+    .ultimos-eyebrow { font-size: 0.65rem; padding: 4px 12px; }
+
+    .recent-card {
+        height: 320px !important;
+        min-height: 320px !important;
+        max-height: 320px !important;
     }
 
     .recent-card .card-img-top {
         height: 140px !important;
+        min-height: 140px !important;
+        max-height: 140px !important;
     }
 
-    .recent-card .card-body {
-        padding: 0.85rem 0.9rem 0.9rem !important;
-    }
+    .recent-card .card-body { padding: 0.85rem 0.9rem 0.9rem !important; }
 
     .recent-card .card-title {
         font-size: 0.88rem;
+        height: 2.4em !important;
+        min-height: 2.4em !important;
+        max-height: 2.4em !important;
     }
 
     .btn-carregar-mais {
@@ -519,13 +611,16 @@
 @media (prefers-reduced-motion: reduce) {
     .recent-card,
     .recent-card::before,
+    .recent-card::after,
     .recent-card .card-img-top,
     .recent-card .card-title,
+    .recent-card .badge.bg-secondary,
     .recent-card .btn-outline-primary,
     .btn-carregar-mais,
     .ultimos-see-all,
     .ultimos-see-all i {
         transition: none !important;
+        transform: none !important;
     }
 }
 </style>

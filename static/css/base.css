@@ -153,13 +153,19 @@
 /* ──────────────────────────────────────────────
    RESET GLOBAL (para footer não subir)
    ────────────────────────────────────────────── */
-html, body {
+   html {
     height: 100%;
     margin: 0;
     padding: 0;
 }
 
 body {
+
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;      
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -1772,4 +1778,10 @@ main {
     .navbar .notification-badge:not(.notification-badge--empty) {
         animation: none !important;
     }
+}
+.hero-premium,
+.hero-section-minimal,
+.footer {
+    overflow: hidden;
+    max-width: 100%;
 }
