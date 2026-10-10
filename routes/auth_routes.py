@@ -64,7 +64,8 @@ def login():
         
         if usuario and usuario.check_password(senha):
             reativar_se_desativada(usuario)
-            login_user(usuario)
+            # Com "Lembrar-me" marcado, o login continua valendo depois de fechar o navegador
+            login_user(usuario, remember=request.form.get('remember') == 'on')
             flash(f'Bem-vindo, {usuario.nome}!', 'success')
             return redirect(destino_apos_login())
         else:
@@ -184,7 +185,7 @@ def firebase_callback():
             db.session.commit()
         
         reativar_se_desativada(usuario)
-        login_user(usuario)
+        login_user(usuario, remember=True)
         return jsonify({'success': True}), 200
         
     except Exception as e:
@@ -226,7 +227,7 @@ def cadastro_firebase():
         db.session.add(novo_usuario)
         db.session.commit()
         session.pop('firebase_user', None)
-        login_user(novo_usuario)
+        login_user(novo_usuario, remember=True)
         flash(f'Cadastro realizado! Bem-vindo, {novo_usuario.nome}!', 'success')
         return redirect(url_for('main.index'))
         

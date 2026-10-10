@@ -1,5 +1,5 @@
 from flask import Flask
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
 import secrets
@@ -36,6 +36,12 @@ if not app.config['SECRET_KEY']:
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///prestadores.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+# "Lembrar-me": mantém o login por 30 dias, mesmo fechando o navegador.
+# (Não usar REMEMBER_COOKIE_REFRESH_EACH_REQUEST: nesta versão do Flask-Login ele cria o cookie
+# para todo mundo, inclusive para quem desmarcou a opção.)
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
+app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+app.config['REMEMBER_COOKIE_SAMESITE'] = 'Lax'
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # uploads de até 10MB
 
 # Inicializar extensões
@@ -60,9 +66,20 @@ app.register_blueprint(assinatura_bp)
 @login_manager.user_loader
 def load_user(user_id):
     from models import Usuario
-    usuario = Usuario.query.get(int(user_id))
+    
+    # O identificador da sessão é "<id>:<marca da senha>" (ver Usuario.get_id); sessões antigas têm só o id
+    partes = str(user_id).split(':', 1)
+    if not partes[0].isdigit():
+        return None
+    usuario = Usuario.query.get(int(partes[0]))
+    
     # Conta desativada/excluída: encerra as sessões abertas em outros aparelhos
-    return usuario if usuario and not usuario.desativada else None
+    if not usuario or usuario.desativada:
+        return None
+    # Senha trocada depois deste login: a sessão deixa de valer
+    if len(partes) == 2 and partes[1] != usuario.marca_da_senha():
+        return None
+    return usuario
 
 
 def garantir_colunas():

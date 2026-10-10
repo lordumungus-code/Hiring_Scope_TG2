@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request, jsonify, abort
-from flask_login import login_required, current_user, logout_user
+from flask_login import login_required, current_user, logout_user, login_user
 from datetime import datetime
 from extensions import db
 from models import Servico, Usuario, Avaliacao, Contrato, servicos_visiveis
@@ -253,9 +253,13 @@ def alterar_senha():
         flash('A nova senha deve ter pelo menos 6 caracteres.', 'danger')
         return redirect(url_for('main.perfil'))
     
-    current_user.set_password(nova_senha)
+    usuario = current_user._get_current_object()
+    usuario.set_password(nova_senha)
     db.session.commit()
-    flash('Senha alterada com sucesso!', 'success')
+    
+    # A troca de senha encerra os logins em outros aparelhos; este continua logado
+    login_user(usuario, remember='remember_token' in request.cookies)
+    flash('Senha alterada com sucesso! Os outros aparelhos foram desconectados.', 'success')
     return redirect(url_for('main.perfil'))
 
 

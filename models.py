@@ -34,6 +34,15 @@ class Usuario(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.senha_hash, password)
     
+    def marca_da_senha(self):
+        """Trecho do hash da senha: muda quando a senha muda"""
+        return (self.senha_hash or '')[-10:]
+    
+    def get_id(self):
+        # Entra no cookie de login. Com a marca da senha, trocar a senha encerra os logins
+        # em outros aparelhos (importante agora que o login pode durar 30 dias).
+        return f'{self.id}:{self.marca_da_senha()}'
+    
     def media_avaliacoes(self):
         """Calcula a média das avaliações recebidas"""
         if self.avaliacoes_recebidas:
