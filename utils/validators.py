@@ -2,9 +2,14 @@ import re
 
 
 def limpar_telefone(telefone):
+    """Só os dígitos, sem o código do país (55) quando ele vier junto"""
     if not telefone:
         return ''
-    return re.sub(r'\D', '', str(telefone))
+    digitos = re.sub(r'\D', '', str(telefone))
+    # "+55 12 97408-5264" ou "5512974085264": tira o 55 e fica DDD + número
+    if len(digitos) in (12, 13) and digitos.startswith('55'):
+        digitos = digitos[2:]
+    return digitos
 
 
 def validar_telefone(telefone):

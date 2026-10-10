@@ -446,16 +446,21 @@
 
                             <!-- Info rows -->
                             <div class="sd-prestador-info">
+                                {# Telefone e e-mail só aparecem se o prestador escolheu mostrar #}
+                                {% set _tel = servico.prestador.telefone and servico.prestador.mostrar_telefone %}
+                                {% if _tel %}
                                 <div class="sd-info-row">
                                     <span class="sd-info-icon sd-info-icon--phone">
                                         <i class="fas fa-phone"></i>
                                     </span>
                                     <div class="sd-info-text">
                                         <small>Telefone</small>
-                                        <strong>{{ servico.prestador.telefone or 'Não informado' }}</strong>
+                                        <strong>{{ servico.prestador.telefone }}</strong>
                                     </div>
                                 </div>
+                                {% endif %}
 
+                                {% if servico.prestador.mostrar_email %}
                                 <div class="sd-info-row">
                                     <span class="sd-info-icon sd-info-icon--email">
                                         <i class="fas fa-envelope"></i>
@@ -465,6 +470,19 @@
                                         <strong>{{ servico.prestador.email }}</strong>
                                     </div>
                                 </div>
+                                {% endif %}
+
+                                {% if not _tel and not servico.prestador.mostrar_email %}
+                                <div class="sd-info-row">
+                                    <span class="sd-info-icon sd-info-icon--phone">
+                                        <i class="fas fa-comments"></i>
+                                    </span>
+                                    <div class="sd-info-text">
+                                        <small>Contato</small>
+                                        <strong>Pelo chat do site</strong>
+                                    </div>
+                                </div>
+                                {% endif %}
 
                                 <div class="sd-info-row">
                                     <span class="sd-info-icon sd-info-icon--date">

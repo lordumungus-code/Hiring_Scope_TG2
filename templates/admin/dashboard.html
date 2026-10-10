@@ -1,320 +1,587 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard Admin - PrestaServiços{% endblock %}
+{% block title %}Painel do Administrador - HiringScope{% endblock %}
+
+{% macro avatar(usuario, tamanho=36) %}
+    {% if usuario.foto_url %}
+        <img src="{{ usuario.foto_url }}" class="adm-avatar" width="{{ tamanho }}" height="{{ tamanho }}" alt="" referrerpolicy="no-referrer">
+    {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
+        <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" class="adm-avatar" width="{{ tamanho }}" height="{{ tamanho }}" alt="">
+    {% else %}
+        <span class="adm-avatar adm-avatar-inicial" style="width: {{ tamanho }}px; height: {{ tamanho }}px;">{{ (usuario.nome or '?')[0]|upper }}</span>
+    {% endif %}
+{% endmacro %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <!-- Menu lateral -->
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-header bg-primary text-white rounded-top-4">
-                    <h5 class="mb-0">
-                        <i class="fas fa-shield-alt me-2"></i>
-                        Menu Admin
-                    </h5>
-                </div>
-                <div class="list-group list-group-flush">
-                    <a href="{{ url_for('admin.dashboard') }}" class="list-group-item list-group-item-action active">
-                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                    </a>
-                    <a href="{{ url_for('admin.usuarios') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-users me-2"></i> Usuários
-                    </a>
-                    <a href="{{ url_for('admin.servicos') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-briefcase me-2"></i> Serviços
-                    </a>
-                    <a href="{{ url_for('admin.avaliacoes') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-star me-2"></i> Avaliações
-                    </a>
-                    <a href="{{ url_for('admin.contratos') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-file-contract me-2"></i> Contratos
-                    </a>
-                    <a href="{{ url_for('admin.estatisticas') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-chart-line me-2"></i> Estatísticas
-                    </a>
-                </div>
-            </div>
+<div class="container mt-4 mb-5 adm-page">
+    {% set admin_ativo = 'dashboard' %}
+    {% include 'admin/_nav.html' %}
 
-            <!-- Links rápidos -->
-            <div class="card mt-3 shadow-sm border-0 rounded-4">
-                <div class="card-body p-3">
-                    <i class="fas fa-lightbulb text-warning me-2"></i>
-                    <strong>Links Rápidos</strong>
-                    <div class="mt-2">
-                        <a href="{{ url_for('main.index') }}" class="d-block text-decoration-none small mb-1">
-                            <i class="fas fa-home me-1"></i> Ir para o site
-                        </a>
-                        <a href="{{ url_for('servico.lista') }}" class="d-block text-decoration-none small mb-1">
-                            <i class="fas fa-search me-1"></i> Ver serviços
-                        </a>
-                        <a href="{{ url_for('auth.cadastro') }}" class="d-block text-decoration-none small">
-                            <i class="fas fa-user-plus me-1"></i> Novo usuário
-                        </a>
-                    </div>
+    <!-- Cabeçalho -->
+    <div class="adm-topo">
+        <div>
+            <h2 class="mb-1">Olá, {{ (current_user.nome or 'Admin').split()[0] }} 👋</h2>
+            <p class="text-muted mb-0">Resumo do que está acontecendo no HiringScope.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ url_for('admin.usuarios') }}" class="btn btn-outline-primary rounded-pill px-3"><i class="fas fa-users me-1"></i> Gerenciar usuários</a>
+            <a href="{{ url_for('admin.servicos') }}" class="btn btn-primary rounded-pill px-3"><i class="fas fa-briefcase me-1"></i> Gerenciar serviços</a>
+        </div>
+    </div>
+
+    <!-- Indicadores principais -->
+    <div class="adm-kpis">
+        <a href="{{ url_for('admin.usuarios') }}" class="adm-kpi">
+            <span class="adm-kpi-icone azul"><i class="fas fa-users"></i></span>
+            <div>
+                <span class="adm-kpi-numero" id="kpiUsuarios">{{ total_usuarios }}</span>
+                <span class="adm-kpi-rotulo">Usuários</span>
+                <span class="adm-kpi-detalhe {% if novos_usuarios %}positivo{% endif %}">+{{ novos_usuarios }} nos últimos 7 dias</span>
+            </div>
+        </a>
+        <a href="{{ url_for('admin.servicos') }}" class="adm-kpi">
+            <span class="adm-kpi-icone verde"><i class="fas fa-briefcase"></i></span>
+            <div>
+                <span class="adm-kpi-numero" id="kpiServicos">{{ total_servicos }}</span>
+                <span class="adm-kpi-rotulo">Serviços no ar</span>
+                <span class="adm-kpi-detalhe {% if novos_servicos %}positivo{% endif %}">+{{ novos_servicos }} nos últimos 7 dias</span>
+            </div>
+        </a>
+        <a href="{{ url_for('admin.contratos') }}" class="adm-kpi">
+            <span class="adm-kpi-icone ambar"><i class="fas fa-handshake"></i></span>
+            <div>
+                <span class="adm-kpi-numero">{{ total_contratos }}</span>
+                <span class="adm-kpi-rotulo">Solicitações de serviço</span>
+                <span class="adm-kpi-detalhe">{{ contratos_abertos }} em aberto</span>
+            </div>
+        </a>
+        <a href="{{ url_for('admin.avaliacoes') }}" class="adm-kpi">
+            <span class="adm-kpi-icone roxo"><i class="fas fa-star"></i></span>
+            <div>
+                <span class="adm-kpi-numero">{{ total_avaliacoes }}</span>
+                <span class="adm-kpi-rotulo">Avaliações</span>
+                <span class="adm-kpi-detalhe">{% if total_avaliacoes %}média {{ media_geral }} de 5{% else %}nenhuma ainda{% endif %}</span>
+            </div>
+        </a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Cadastros por dia -->
+        <div class="col-lg-7">
+            <div class="adm-card h-100">
+                <div class="adm-card-titulo">
+                    <h5><i class="fas fa-user-plus text-primary me-2"></i> Novos cadastros</h5>
+                    <small class="text-muted">últimos 14 dias</small>
+                </div>
+                <div class="adm-barras" role="img" aria-label="Cadastros por dia nos últimos 14 dias">
+                    {% for d in cadastros_por_dia %}
+                        <div class="adm-barra-col" title="{{ d.dia }}: {{ d.total }} cadastro(s)">
+                            <span class="adm-barra-valor">{{ d.total if d.total else '' }}</span>
+                            <div class="adm-barra" style="height: {{ d.altura if d.total else 2 }}%;{% if not d.total %} background: #e2e8f0;{% endif %}"></div>
+                            <span class="adm-barra-dia">{{ d.dia[:2] }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="adm-legenda-dias">
+                    <span>{{ cadastros_por_dia[0].dia }}</span>
+                    <span>{{ cadastros_por_dia[-1].dia }} (hoje)</span>
                 </div>
             </div>
         </div>
 
-        <!-- Conteúdo principal -->
-        <div class="col-md-9">
-            <h2 class="mb-4">
-                <i class="fas fa-tachometer-alt text-primary me-2"></i>
-                Painel do Administrador
-            </h2>
+        <!-- Quem são os usuários -->
+        <div class="col-lg-5">
+            <div class="adm-card h-100">
+                <div class="adm-card-titulo">
+                    <h5><i class="fas fa-id-badge text-primary me-2"></i> Contas</h5>
+                </div>
+                {% set base = total_usuarios or 1 %}
+                {% for rotulo, total, cor, filtro in [
+                    ('Prestadores', total_prestadores, '#1a6d8f', 'prestador'),
+                    ('Clientes', total_clientes, '#16a34a', 'cliente'),
+                    ('Administradores', total_admins, '#7c3aed', 'admin'),
+                    ('Desativadas pelo usuário', total_dormindo, '#94a3b8', 'dormindo'),
+                    ('Bloqueadas', total_bloqueados, '#dc2626', 'bloqueado'),
+                ] %}
+                    <a href="{{ url_for('admin.usuarios', tipo=filtro) }}" class="adm-linha">
+                        <span class="adm-linha-rotulo">{{ rotulo }}</span>
+                        <span class="adm-linha-trilho"><span style="width: {{ (total * 100 / base)|round|int }}%; background: {{ cor }};"></span></span>
+                        <span class="adm-linha-valor">{{ total }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 
-            <!-- Cards de estatísticas -->
-            <div class="row g-4 mb-5">
-                <div class="col-md-3 col-6">
-                    <a href="{{ url_for('admin.usuarios') }}" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 rounded-4 bg-primary text-white">
-                            <div class="card-body text-center py-3">
-                                <i class="fas fa-users fa-2x mb-2 opacity-75"></i>
-                                <h3 class="mb-0">{{ total_usuarios }}</h3>
-                                <small>Total de Usuários</small>
-                            </div>
-                        </div>
-                    </a>
+    <div class="row g-4 mb-4">
+        <!-- Solicitações por status -->
+        <div class="col-lg-7">
+            <div class="adm-card h-100">
+                <div class="adm-card-titulo">
+                    <h5><i class="fas fa-tasks text-primary me-2"></i> Solicitações por situação</h5>
+                    <small class="text-muted">{{ total_contratos }} no total</small>
                 </div>
-                <div class="col-md-3 col-6">
-                    <a href="{{ url_for('admin.servicos') }}" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 rounded-4 bg-success text-white">
-                            <div class="card-body text-center py-3">
-                                <i class="fas fa-briefcase fa-2x mb-2 opacity-75"></i>
-                                <h3 class="mb-0">{{ total_servicos }}</h3>
-                                <small>Serviços</small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-md-3 col-6">
-                    <a href="{{ url_for('admin.contratos') }}" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 rounded-4 bg-warning text-dark">
-                            <div class="card-body text-center py-3">
-                                <i class="fas fa-file-contract fa-2x mb-2 opacity-75"></i>
-                                <h3 class="mb-0">{{ total_contratos }}</h3>
-                                <small>Contratos</small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-md-3 col-6">
-                    <a href="{{ url_for('admin.avaliacoes') }}" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 rounded-4 bg-info text-white">
-                            <div class="card-body text-center py-3">
-                                <i class="fas fa-star fa-2x mb-2 opacity-75"></i>
-                                <h3 class="mb-0">{{ total_avaliacoes }}</h3>
-                                <small>Avaliações</small>
-                            </div>
-                        </div>
-                    </a>
+                {% if total_contratos %}
+                    <div class="progress adm-progresso">
+                        {% for chave, rotulo, cor, total in status_contratos %}{% if total %}
+                            <div class="progress-bar bg-{{ cor }}" style="width: {{ total * 100 / total_contratos }}%" title="{{ rotulo }}: {{ total }}"></div>
+                        {% endif %}{% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted small mb-3">Ainda não houve nenhuma solicitação de serviço.</p>
+                {% endif %}
+                <div class="adm-status">
+                    {% for chave, rotulo, cor, total in status_contratos %}
+                        <a href="{{ url_for('admin.contratos', status=chave) }}" class="adm-status-item">
+                            <span class="adm-ponto bg-{{ cor }}"></span>
+                            <span>{{ rotulo }}</span>
+                            <strong>{{ total }}</strong>
+                        </a>
+                    {% endfor %}
                 </div>
             </div>
+        </div>
 
-            <!-- Detalhamento de usuários -->
-            <div class="row g-4 mb-5">
-                <div class="col-md-4 col-6">
-                    <a href="{{ url_for('admin.usuarios') }}?tipo=prestador" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 rounded-4">
-                            <div class="card-body text-center">
-                                <i class="fas fa-user-tie fa-2x text-primary mb-2"></i>
-                                <h4>{{ total_prestadores }}</h4>
-                                <small class="text-muted">Prestadores</small>
-                            </div>
-                        </div>
-                    </a>
+        <!-- Recursos do site -->
+        <div class="col-lg-5">
+            <div class="adm-card h-100">
+                <div class="adm-card-titulo">
+                    <h5><i class="fas fa-coins text-primary me-2"></i> Recursos do site</h5>
                 </div>
-                <div class="col-md-4 col-6">
-                    <a href="{{ url_for('admin.usuarios') }}?tipo=cliente" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 rounded-4">
-                            <div class="card-body text-center">
-                                <i class="fas fa-user fa-2x text-success mb-2"></i>
-                                <h4>{{ total_clientes }}</h4>
-                                <small class="text-muted">Clientes</small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-md-4 col-6">
-                    <a href="{{ url_for('admin.usuarios') }}?tipo=admin" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 rounded-4">
-                            <div class="card-body text-center">
-                                <i class="fas fa-user-shield fa-2x text-danger mb-2"></i>
-                                <h4>{{ total_admins }}</h4>
-                                <small class="text-muted">Administradores</small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Status dos contratos -->
-            <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <a href="{{ url_for('admin.contratos') }}?status=pendente" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 rounded-4">
-                            <div class="card-header bg-warning text-dark rounded-top-4">
-                                <i class="fas fa-clock me-2"></i> Pendentes
-                            </div>
-                            <div class="card-body text-center">
-                                <h2 class="mb-0">{{ contratos_pendentes }}</h2>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-md-4">
-                    <a href="{{ url_for('admin.contratos') }}?status=em_andamento" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 rounded-4">
-                            <div class="card-header bg-primary text-white rounded-top-4">
-                                <i class="fas fa-spinner me-2"></i> Em Andamento
-                            </div>
-                            <div class="card-body text-center">
-                                <h2 class="mb-0">{{ contratos_andamento }}</h2>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-md-4">
-                    <a href="{{ url_for('admin.contratos') }}?status=concluido" class="text-decoration-none">
-                        <div class="card shadow-sm border-0 rounded-4">
-                            <div class="card-header bg-success text-white rounded-top-4">
-                                <i class="fas fa-check-circle me-2"></i> Concluídos
-                            </div>
-                            <div class="card-body text-center">
-                                <h2 class="mb-0">{{ contratos_concluidos }}</h2>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Usuários recentes -->
-            <div class="card shadow-sm border-0 rounded-4 mb-4">
-                <div class="card-header bg-dark text-white rounded-top-4 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-user-plus me-2"></i> Últimos Usuários Cadastrados
-                    </h5>
-                    <a href="{{ url_for('admin.usuarios') }}" class="btn btn-sm btn-outline-light rounded-pill">
-                        Ver todos <i class="fas fa-arrow-right ms-1"></i>
-                    </a>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Email</th>
-                                    <th>Tipo</th>
-                                    <th>Data</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for usuario in usuarios_recentes %}
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            {% if usuario.foto_url %}
-                                                <img src="{{ usuario.foto_url }}" class="rounded-circle" width="30" height="30">
-                                            {% elif usuario.foto_perfil and usuario.foto_perfil != 'default.jpg' %}
-                                                <img src="data:image/jpeg;base64,{{ usuario.foto_perfil }}" class="rounded-circle" width="30" height="30">
-                                            {% else %}
-                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
-                                                    <span class="text-white small">{{ usuario.nome[0]|upper }}</span>
-                                                </div>
-                                            {% endif %}
-                                            {{ usuario.nome }}
-                                        </div>
-                                    </td>
-                                    <td>{{ usuario.email }}</td>
-                                    <td>
-                                        {% if usuario.tipo == 'prestador' %}
-                                            <span class="badge bg-info">Prestador</span>
-                                        {% elif usuario.is_admin %}
-                                            <span class="badge bg-danger">Admin</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">Cliente</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ usuario.data_cadastro.strftime('%d/%m/%Y') }}</td>
-                                    <td>
-                                        <a href="{{ url_for('admin.usuario_detalhe', user_id=usuario.id) }}" class="btn btn-sm btn-outline-primary rounded-pill">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                <div class="adm-minis">
+                    <div class="adm-mini">
+                        <i class="fas fa-crown text-warning"></i>
+                        <strong>{{ planos_ativos }}</strong>
+                        <span>Planos de destaque ativos</span>
+                    </div>
+                    <div class="adm-mini">
+                        <i class="fas fa-star text-warning"></i>
+                        <strong>{{ servicos_destaque }}</strong>
+                        <span>Serviços em destaque</span>
+                    </div>
+                    <div class="adm-mini">
+                        <i class="fas fa-file-signature text-success"></i>
+                        <strong>{{ formais_pagos }}</strong>
+                        <span>Contratos formais pagos ({{ formais_assinados }} assinados)</span>
+                    </div>
+                    <div class="adm-mini">
+                        <i class="fas fa-bullhorn text-primary"></i>
+                        <strong>{{ pedidos_abertos }}</strong>
+                        <span>Pedidos de orçamento abertos</span>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Serviços recentes -->
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-header bg-secondary text-white rounded-top-4 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-briefcase me-2"></i> Últimos Serviços Cadastrados
-                    </h5>
-                    <a href="{{ url_for('admin.servicos') }}" class="btn btn-sm btn-outline-light rounded-pill">
-                        Ver todos <i class="fas fa-arrow-right ms-1"></i>
+    <div class="row g-4">
+        <!-- Últimos usuários -->
+        <div class="col-lg-6">
+            <div class="adm-card h-100">
+                <div class="adm-card-titulo">
+                    <h5><i class="fas fa-user-clock text-primary me-2"></i> Últimos cadastros</h5>
+                    <a href="{{ url_for('admin.usuarios') }}" class="small">Ver todos <i class="fas fa-arrow-right"></i></a>
+                </div>
+                {% for usuario in usuarios_recentes %}
+                    <a href="{{ url_for('admin.usuario_detalhe', user_id=usuario.id) }}" class="adm-item">
+                        {{ avatar(usuario) }}
+                        <span class="adm-item-texto">
+                            <strong>{{ usuario.nome }}</strong>
+                            <small>{{ usuario.email }}</small>
+                        </span>
+                        <span class="adm-item-lado">
+                            {% if usuario.bloqueada %}<span class="badge bg-danger">Bloqueada</span>
+                            {% elif usuario.is_admin %}<span class="badge" style="background: #7c3aed;">Admin</span>
+                            {% elif usuario.tipo == 'prestador' %}<span class="badge bg-info text-dark">Prestador</span>
+                            {% else %}<span class="badge bg-secondary">Cliente</span>{% endif %}
+                            <small>{{ usuario.data_cadastro.strftime('%d/%m') }}</small>
+                        </span>
                     </a>
+                {% else %}
+                    <p class="text-muted small mb-0">Nenhum usuário cadastrado.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Últimos serviços -->
+        <div class="col-lg-6">
+            <div class="adm-card h-100">
+                <div class="adm-card-titulo">
+                    <h5><i class="fas fa-clock text-primary me-2"></i> Últimos serviços</h5>
+                    <a href="{{ url_for('admin.servicos') }}" class="small">Ver todos <i class="fas fa-arrow-right"></i></a>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Título</th>
-                                    <th>Prestador</th>
-                                    <th>Categoria</th>
-                                    <th>Preço</th>
-                                    <th>Data</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for servico in servicos_recentes %}
-                                <tr>
-                                    <td>{{ servico.titulo[:40] }}{% if servico.titulo|length > 40 %}...{% endif %}</td>
-                                    <td>{{ servico.prestador.nome }}</td>
-                                    <td>{{ servico.categoria }}</td>
-                                    <td>R$ {{ "%.2f"|format(servico.preco) if servico.preco else 'Sob consulta' }}</td>
-                                    <td>{{ servico.data_postagem.strftime('%d/%m/%Y') }}</td>
-                                    <td>
-                                        <a href="{{ url_for('servico.detalhe', id=servico.id) }}" class="btn btn-sm btn-outline-primary rounded-pill" target="_blank">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                {% for servico in servicos_recentes %}
+                    <div class="adm-item">
+                        {% if servico.imagem_base64 %}
+                            <img src="{{ url_for('servico.foto', id=servico.id, n=0) }}" class="adm-miniatura" alt="" loading="lazy">
+                        {% else %}
+                            <span class="adm-miniatura adm-miniatura-vazia"><i class="fas fa-image"></i></span>
+                        {% endif %}
+                        <span class="adm-item-texto">
+                            <strong>{{ servico.titulo }}</strong>
+                            <small>{{ servico.prestador.nome }} · {{ servico.categoria }}</small>
+                        </span>
+                        <span class="adm-item-acoes">
+                            <a href="{{ url_for('servico.detalhe', id=servico.id) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-circle" title="Ver no site"><i class="fas fa-eye"></i></a>
+                            <form action="{{ url_for('admin.delete_servico', servico_id=servico.id) }}" method="POST" class="d-inline"
+                                  onsubmit='return confirm({{ ("Remover o serviço \"" ~ servico.titulo ~ "\" do site?")|tojson }})'>
+                                <input type="hidden" name="voltar" value="{{ url_for('admin.dashboard') }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle" title="Remover serviço"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </span>
                     </div>
-                </div>
+                {% else %}
+                    <p class="text-muted small mb-0">Nenhum serviço cadastrado.</p>
+                {% endfor %}
             </div>
         </div>
     </div>
 </div>
 
 <style>
-    .list-group-item.active {
-        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
-        border-color: #0b2b5c;
+    .adm-topo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 1.5rem;
     }
-    .list-group-item-action:hover {
-        background-color: #f8f9fa;
-        transform: translateX(5px);
+    .adm-topo h2 {
+        color: #0b2b5c;
+        font-weight: 800;
     }
-    .card {
-        transition: all 0.3s ease;
+
+    /* Indicadores */
+    .adm-kpis {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
     }
-    .card:hover {
+    .adm-kpi {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        text-decoration: none;
+        color: inherit;
+        box-shadow: 0 6px 18px -12px rgba(11, 43, 92, 0.3);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .adm-kpi:hover {
         transform: translateY(-3px);
+        box-shadow: 0 14px 28px -14px rgba(11, 43, 92, 0.45);
+        color: inherit;
     }
-    a.text-decoration-none .card:hover {
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
+    .adm-kpi-icone {
+        flex-shrink: 0;
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: #ffffff;
+    }
+    .adm-kpi-icone.azul  { background: linear-gradient(135deg, #0b2b5c, #1a6d8f); }
+    .adm-kpi-icone.verde { background: linear-gradient(135deg, #15803d, #22c55e); }
+    .adm-kpi-icone.ambar { background: linear-gradient(135deg, #d97706, #fbbf24); }
+    .adm-kpi-icone.roxo  { background: linear-gradient(135deg, #6d28d9, #a78bfa); }
+    .adm-kpi-numero {
+        display: block;
+        font-size: 1.7rem;
+        font-weight: 800;
+        line-height: 1.1;
+        color: #0f172a;
+    }
+    .adm-kpi-rotulo {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+    }
+    .adm-kpi-detalhe {
+        display: block;
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+    .adm-kpi-detalhe.positivo {
+        color: #15803d;
+        font-weight: 600;
+    }
+
+    /* Cartões */
+    .adm-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 6px 18px -12px rgba(11, 43, 92, 0.3);
+    }
+    .adm-card-titulo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .adm-card-titulo h5 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0b2b5c;
+    }
+    .adm-card-titulo a {
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    /* Gráfico de barras dos cadastros */
+    .adm-barras {
+        display: flex;
+        align-items: flex-end;
+        gap: 6px;
+        height: 150px;
+    }
+    .adm-barra-col {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 3px;
+    }
+    .adm-barra {
+        width: 100%;
+        max-width: 26px;
+        min-height: 3px;
+        border-radius: 6px 6px 2px 2px;
+        background: linear-gradient(180deg, #1a6d8f, #0b2b5c);
+    }
+    .adm-barra-valor {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #0b2b5c;
+        min-height: 14px;
+    }
+    .adm-barra-dia {
+        font-size: 0.65rem;
+        color: #94a3b8;
+    }
+    .adm-legenda-dias {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 6px;
+        font-size: 0.72rem;
+        color: #94a3b8;
+    }
+
+    /* Linhas com barra (contas) */
+    .adm-linha {
+        display: grid;
+        grid-template-columns: 170px 1fr 34px;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 0;
+        text-decoration: none;
+        color: #334155;
+        font-size: 0.88rem;
+    }
+    .adm-linha:hover .adm-linha-rotulo {
+        color: #0b2b5c;
+        text-decoration: underline;
+    }
+    .adm-linha-trilho {
+        height: 8px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        overflow: hidden;
+    }
+    .adm-linha-trilho span {
+        display: block;
+        height: 100%;
+        border-radius: 999px;
+        min-width: 0;
+    }
+    .adm-linha-valor {
+        text-align: right;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    /* Status das solicitações */
+    .adm-progresso {
+        height: 14px;
+        border-radius: 999px;
+        margin-bottom: 1rem;
+    }
+    .adm-status {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 8px;
+    }
+    .adm-status-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: #f8fafc;
+        text-decoration: none;
+        color: #334155;
+        font-size: 0.82rem;
+    }
+    .adm-status-item:hover {
+        background: #eef2f7;
+        color: #0b2b5c;
+    }
+    .adm-status-item strong {
+        margin-left: auto;
+        color: #0f172a;
+    }
+    .adm-ponto {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    /* Mini indicadores */
+    .adm-minis {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .adm-mini {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 12px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        column-gap: 8px;
+        align-items: center;
+    }
+    .adm-mini strong {
+        font-size: 1.3rem;
+        color: #0f172a;
+    }
+    .adm-mini span {
+        grid-column: 1 / -1;
+        font-size: 0.76rem;
+        color: #64748b;
+        line-height: 1.3;
+    }
+
+    /* Listas */
+    .adm-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 9px 8px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: inherit;
+    }
+    .adm-item + .adm-item {
+        border-top: 1px solid #f1f5f9;
+    }
+    a.adm-item:hover {
+        background: #f8fafc;
+        color: inherit;
+    }
+    .adm-item-texto {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .adm-item-texto strong,
+    .adm-item-texto small {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .adm-item-texto strong {
+        font-size: 0.9rem;
+        color: #0f172a;
+    }
+    .adm-item-texto small {
+        color: #94a3b8;
+        font-size: 0.78rem;
+    }
+    .adm-item-lado {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+    }
+    .adm-item-lado small {
+        color: #94a3b8;
+        font-size: 0.72rem;
+    }
+    .adm-item-acoes {
+        flex-shrink: 0;
+        display: flex;
+        gap: 6px;
+    }
+    .adm-item-acoes .btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .adm-avatar {
+        flex-shrink: 0;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .adm-avatar-inicial {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+    .adm-miniatura {
+        flex-shrink: 0;
+        width: 44px;
+        height: 36px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: #f1f5f9;
+    }
+    .adm-miniatura-vazia {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e1;
+    }
+
+    @media (max-width: 992px) {
+        .adm-kpis {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    @media (max-width: 576px) {
+        .adm-kpis {
+            grid-template-columns: 1fr;
+        }
+        .adm-linha {
+            grid-template-columns: 120px 1fr 30px;
+        }
+        .adm-minis {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}

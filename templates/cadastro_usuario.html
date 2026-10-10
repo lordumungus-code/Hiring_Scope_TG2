@@ -181,6 +181,23 @@
 
                             </div>
 
+                            <!-- Prestador: o que fica público e escolha de divulgar o contato -->
+                            <div class="contato-publico mt-3" id="contatoPublico" hidden>
+                                <p class="small mb-2">
+                                    <i class="fas fa-eye me-1"></i>
+                                    <strong>Seu perfil de prestador é público:</strong> nome, foto, descrição, serviços e avaliações ficam visíveis para qualquer visitante.
+                                    Telefone e e-mail só aparecem se você escolher:
+                                </p>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="mostrarTelefone" name="mostrar_telefone">
+                                    <label class="form-check-label small" for="mostrarTelefone">Mostrar meu telefone no perfil público</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="mostrarEmail" name="mostrar_email">
+                                    <label class="form-check-label small" for="mostrarEmail">Mostrar meu e-mail no perfil público</label>
+                                </div>
+                                <small class="text-muted d-block mt-1">Você pode mudar isso depois em Meu Perfil. Sem eles, os clientes falam com você pelo chat.</small>
+                            </div>
                             <!-- Termos -->
                             <div class="form-check terms-check mt-4">
                                 <input type="checkbox" class="form-check-input" id="terms" required>
@@ -1152,4 +1169,29 @@ document.getElementById('registerForm')?.addEventListener('submit', function() {
     }, 8000);
 });
 </script>
-{% endblock %}
+<style>
+    .contato-publico {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 12px;
+        padding: 12px 14px;
+        color: #1e3a8a;
+    }
+    .contato-publico[hidden] {
+        display: none;
+    }
+</style><script>
+    // Mostra a escolha de divulgar o contato só para quem está se cadastrando como prestador
+    (function () {
+        var bloco = document.getElementById('contatoPublico');
+        if (!bloco) return;
+        function atualizar() {
+            var prestador = document.querySelector('input[name="tipo"][value="prestador"]');
+            bloco.hidden = !(prestador && prestador.checked);
+        }
+        document.querySelectorAll('input[name="tipo"]').forEach(function (r) { r.addEventListener('change', atualizar); });
+        // o cartão de tipo marca o rádio por script: confere logo depois do clique
+        document.querySelectorAll('.type-option').forEach(function (c) { c.addEventListener('click', function () { setTimeout(atualizar, 0); }); });
+        atualizar();
+    })();
+</script>{% endblock %}

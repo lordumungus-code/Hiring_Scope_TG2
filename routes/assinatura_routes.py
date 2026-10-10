@@ -178,7 +178,7 @@ def ativar_assinatura(plano, prestador_id, pagamento_id=None):
     limites = {'basico': 1, 'pro': 3}
     limite = limites.get(plano, 1)
 
-    servicos = Servico.query.filter_by(prestador_id=prestador_id).limit(limite).all()
+    servicos = Servico.query.filter_by(prestador_id=prestador_id, removido=False).limit(limite).all()
     for servico in servicos:
         servico.destaque = True
         servico.destaque_pago = True

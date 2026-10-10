@@ -36,7 +36,7 @@ def pedidos_abertos():
 
 
 def categorias_do_prestador(prestador_id):
-    return [c for (c,) in db.session.query(Servico.categoria).filter_by(prestador_id=prestador_id).distinct() if c]
+    return [c for (c,) in db.session.query(Servico.categoria).filter_by(prestador_id=prestador_id, removido=False).distinct() if c]
 
 
 def contar_pedidos_para(prestador_id):
@@ -93,7 +93,7 @@ def novo():
 
         # Avisa em tempo real os prestadores que atuam nessa categoria
         prestadores = db.session.query(Servico.prestador_id).filter(
-            Servico.categoria == categoria, Servico.prestador_id != current_user.id
+            Servico.categoria == categoria, Servico.prestador_id != current_user.id, Servico.removido == False
         ).distinct().all()
         for (prestador_id,) in prestadores:
             avisar(prestador_id, 'Novo pedido de orçamento', f'{categoria}: {descricao[:80]}', url_for('orcamento.pedidos'))

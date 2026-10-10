@@ -44,16 +44,25 @@
                     
                     <!-- Contato -->
                     <div class="mt-3 text-start">
-                        {% if prestador.telefone %}
+                        {# Telefone e e-mail só aparecem se o prestador escolheu mostrar #}
+                        {% if prestador.telefone and prestador.mostrar_telefone %}
                             <p class="mb-2">
                                 <i class="fas fa-phone text-primary me-2"></i> 
                                 <strong>Telefone:</strong> {{ prestador.telefone }}
                             </p>
                         {% endif %}
-                        <p class="mb-2">
-                            <i class="fas fa-envelope text-primary me-2"></i> 
-                            <strong>Email:</strong> {{ prestador.email }}
-                        </p>
+                        {% if prestador.mostrar_email %}
+                            <p class="mb-2">
+                                <i class="fas fa-envelope text-primary me-2"></i> 
+                                <strong>Email:</strong> {{ prestador.email }}
+                            </p>
+                        {% endif %}
+                        {% if not (prestador.telefone and prestador.mostrar_telefone) and not prestador.mostrar_email %}
+                            <p class="mb-2">
+                                <i class="fas fa-comments text-primary me-2"></i>
+                                <strong>Contato:</strong> pelo chat do site
+                            </p>
+                        {% endif %}
                         <p class="mb-2">
                             <i class="fas fa-calendar-alt text-primary me-2"></i> 
                             <strong>Membro desde:</strong> {{ prestador.data_cadastro.strftime('%d/%m/%Y') }}

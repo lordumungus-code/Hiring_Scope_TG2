@@ -240,6 +240,22 @@
                             </div>
                         </div>
                         <div class="perfil-section-body">
+                            <div class="perfil-visibilidade mb-4">
+                                <label class="perfil-label">O que aparece no seu perfil público</label>
+                                <p class="text-muted small mb-2">
+                                    Seu nome, foto, descrição, serviços e avaliações ficam visíveis para qualquer visitante.
+                                    Telefone e e-mail só aparecem se você marcar abaixo; sem eles, os clientes falam com você pelo chat do site.
+                                </p>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" name="mostrar_telefone" id="mostrarTelefone" {% if usuario.mostrar_telefone %}checked{% endif %}>
+                                    <label class="form-check-label" for="mostrarTelefone">Mostrar meu <strong>telefone</strong> no perfil e nos meus serviços</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" name="mostrar_email" id="mostrarEmail" {% if usuario.mostrar_email %}checked{% endif %}>
+                                    <label class="form-check-label" for="mostrarEmail">Mostrar meu <strong>e-mail</strong> no perfil e nos meus serviços</label>
+                                </div>
+                            </div>
+
                             <label class="perfil-label">Descrição profissional</label>
                             <textarea name="descricao" class="form-control" rows="5"
                                       placeholder="Conte um pouco sobre você, suas experiências, habilidades e áreas de atuação...">{{ usuario.descricao or '' }}</textarea>

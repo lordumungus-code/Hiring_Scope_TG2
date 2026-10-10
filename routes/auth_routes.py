@@ -62,7 +62,9 @@ def login():
         senha = request.form.get('senha')
         usuario = Usuario.query.filter_by(email=email).first()
         
-        if usuario and usuario.check_password(senha):
+        if usuario and usuario.check_password(senha) and usuario.bloqueada:
+            flash('Esta conta foi bloqueada pela administração do site. Fale com o suporte se achar que foi um engano.', 'danger')
+        elif usuario and usuario.check_password(senha):
             reativar_se_desativada(usuario)
             # Com "Lembrar-me" marcado, o login continua valendo depois de fechar o navegador
             login_user(usuario, remember=request.form.get('remember') == 'on')
@@ -123,7 +125,10 @@ def cadastro():
         
         novo_usuario = Usuario(
             nome=nome, email=email, telefone=telefone,
-            tipo=tipo, foto_perfil=foto_perfil
+            tipo=tipo, foto_perfil=foto_perfil,
+            # Só aparecem no perfil público se o prestador marcar no cadastro
+            mostrar_telefone=tipo == 'prestador' and request.form.get('mostrar_telefone') == 'on',
+            mostrar_email=tipo == 'prestador' and request.form.get('mostrar_email') == 'on'
         )
         novo_usuario.set_password(senha)
         db.session.add(novo_usuario)
@@ -178,6 +183,9 @@ def firebase_callback():
             }
             return jsonify({'redirect': '/auth/cadastro-firebase'}), 200
         
+        if usuario.bloqueada:
+            return jsonify({'error': 'Esta conta foi bloqueada pela administração do site.'}), 403
+        
         # Só usa a foto do Google se o usuário não enviou uma própria
         tem_foto_propria = usuario.foto_perfil and usuario.foto_perfil != 'default.jpg'
         if foto_url and not usuario.foto_url and not tem_foto_propria:
@@ -219,7 +227,9 @@ def cadastro_firebase():
 
         novo_usuario = Usuario(
             nome=firebase_user['nome'], email=firebase_user['email'],
-            telefone=telefone, tipo=tipo, foto_url=firebase_user.get('foto_url')
+            telefone=telefone, tipo=tipo, foto_url=firebase_user.get('foto_url'),
+            mostrar_telefone=tipo == 'prestador' and request.form.get('mostrar_telefone') == 'on',
+            mostrar_email=tipo == 'prestador' and request.form.get('mostrar_email') == 'on'
             )
         senha_aleatoria = secrets.token_urlsafe(16)
         novo_usuario.set_password(senha_aleatoria)

@@ -88,12 +88,17 @@ def garantir_colunas():
 
     novas_colunas = [
         ('usuarios', 'desativada', 'BOOLEAN NOT NULL DEFAULT FALSE'),
+        ('usuarios', 'bloqueada', 'BOOLEAN NOT NULL DEFAULT FALSE'),
+        # TRUE para quem já tinha conta: o contato já era público e continua até a pessoa mudar no perfil
+        ('usuarios', 'mostrar_telefone', 'BOOLEAN NOT NULL DEFAULT TRUE'),
+        ('usuarios', 'mostrar_email', 'BOOLEAN NOT NULL DEFAULT TRUE'),
+        ('servicos', 'removido', 'BOOLEAN NOT NULL DEFAULT FALSE'),
         ('mensagens', 'imagem_base64', 'TEXT'),
         ('mensagens', 'apagada_remetente', 'BOOLEAN NOT NULL DEFAULT FALSE'),
         ('mensagens', 'apagada_destinatario', 'BOOLEAN NOT NULL DEFAULT FALSE'),
     ]
     inspetor = inspect(db.engine)
-    existentes = {tabela: [c['name'] for c in inspetor.get_columns(tabela)] for tabela in ('usuarios', 'mensagens')}
+    existentes = {tabela: [c['name'] for c in inspetor.get_columns(tabela)] for tabela in ('usuarios', 'servicos', 'mensagens')}
 
     for tabela, coluna, tipo in novas_colunas:
         if coluna not in existentes[tabela]:

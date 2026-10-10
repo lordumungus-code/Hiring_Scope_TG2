@@ -25,7 +25,7 @@ def solicitar_servico(servico_id):
         return redirect(url_for('servico.detalhe', id=servico_id))
     
     servico = Servico.query.get_or_404(servico_id)
-    if servico.prestador.desativada:
+    if servico.prestador.desativada or servico.removido:
         abort(404)
     mensagem = request.form.get('mensagem')
     

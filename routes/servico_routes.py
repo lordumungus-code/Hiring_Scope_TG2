@@ -176,7 +176,7 @@ def meus_servicos():
         flash('Acesso negado', 'danger')
         return redirect(url_for('main.index'))
     
-    servicos = Servico.query.filter_by(prestador_id=current_user.id).order_by(Servico.data_postagem.desc()).all()
+    servicos = Servico.query.filter_by(prestador_id=current_user.id, removido=False).order_by(Servico.data_postagem.desc()).all()
     return render_template('meus_servicos.html', servicos=servicos)
 
 
@@ -210,7 +210,7 @@ def lista():
 @servico_bp.route('/<int:id>')
 def detalhe(id):
     servico = Servico.query.get_or_404(id)
-    if servico.prestador.desativada:
+    if servico.prestador.desativada or servico.removido:
         abort(404)
     return render_template('detalhe_servico.html', servico=servico)
 
@@ -220,7 +220,7 @@ def foto(id, n):
     """Entrega a foto número n do serviço (0 = capa) como imagem, para a galeria"""
     servico = Servico.query.get_or_404(id)
     fotos = servico.fotos()
-    if servico.prestador.desativada or n < 0 or n >= len(fotos):
+    if servico.prestador.desativada or servico.removido or n < 0 or n >= len(fotos):
         abort(404)
     
     resposta = Response(base64.b64decode(fotos[n]), mimetype='image/jpeg')
@@ -233,6 +233,8 @@ def foto(id, n):
 @login_required
 def editar(id):
     servico = Servico.query.get_or_404(id)
+    if servico.removido:
+        abort(404)
     
     if servico.prestador_id != current_user.id:
         flash('Você não tem permissão para editar este serviço', 'danger')
@@ -356,7 +358,7 @@ def perfil_prestador(prestador_id):
         return redirect(url_for('main.index'))
     
     # Buscar os serviços do prestador
-    servicos = Servico.query.filter_by(prestador_id=prestador_id).order_by(
+    servicos = Servico.query.filter_by(prestador_id=prestador_id, removido=False).order_by(
         Servico.destaque.desc(),
         Servico.data_postagem.desc()
     ).all()
@@ -519,7 +521,7 @@ def sugerir_preco_ia():
     # Só as colunas necessárias (sem carregar as imagens em base64)
     servicos_com_preco = db.session.query(
         Servico.titulo, Servico.categoria, Servico.preco
-    ).filter(Servico.preco > 0).all()
+    ).filter(Servico.preco > 0, Servico.removido == False).all()
 
     precos = [
         s.preco for s in servicos_com_preco

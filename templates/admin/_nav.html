@@ -1,0 +1,69 @@
+{# Navegação do painel do administrador, igual em todas as telas. Uso: {% set admin_ativo = 'usuarios' %}{% include 'admin/_nav.html' %} #}
+<nav class="adm-nav" aria-label="Painel do administrador">
+    <span class="adm-nav-marca"><i class="fas fa-shield-alt"></i> Admin</span>
+    {% for chave, rota, icone, rotulo in [
+        ('dashboard', 'admin.dashboard', 'fa-tachometer-alt', 'Visão geral'),
+        ('usuarios', 'admin.usuarios', 'fa-users', 'Usuários'),
+        ('servicos', 'admin.servicos', 'fa-briefcase', 'Serviços'),
+        ('contratos', 'admin.contratos', 'fa-file-contract', 'Contratos'),
+        ('avaliacoes', 'admin.avaliacoes', 'fa-star', 'Avaliações'),
+        ('estatisticas', 'admin.estatisticas', 'fa-chart-line', 'Estatísticas'),
+    ] %}
+        <a href="{{ url_for(rota) }}" class="adm-nav-link {% if admin_ativo == chave %}ativo{% endif %}"
+           {% if admin_ativo == chave %}aria-current="page"{% endif %}>
+            <i class="fas {{ icone }}"></i> {{ rotulo }}
+        </a>
+    {% endfor %}
+    <a href="{{ url_for('main.index') }}" class="adm-nav-link adm-nav-site"><i class="fas fa-external-link-alt"></i> Ver o site</a>
+</nav>
+
+<style>
+    .adm-nav {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px;
+        margin-bottom: 1.5rem;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 4px 14px -8px rgba(11, 43, 92, 0.25);
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .adm-nav-marca {
+        flex-shrink: 0;
+        padding: 8px 14px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+    .adm-nav-link {
+        flex-shrink: 0;
+        padding: 8px 14px;
+        border-radius: 10px;
+        color: #475569;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.88rem;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+    .adm-nav-link i {
+        margin-right: 4px;
+        opacity: 0.8;
+    }
+    .adm-nav-link:hover {
+        background: #f1f5f9;
+        color: #0b2b5c;
+    }
+    .adm-nav-link.ativo {
+        background: #e0f2fe;
+        color: #0b2b5c;
+    }
+    .adm-nav-site {
+        margin-left: auto;
+        color: #1a6d8f;
+    }
+</style>

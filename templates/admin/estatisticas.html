@@ -4,6 +4,9 @@
 
 {% block content %}
 <div class="container mt-4">
+    {% set admin_ativo = 'estatisticas' %}
+    {% include 'admin/_nav.html' %}
+
     <h2 class="mb-4">
         <i class="fas fa-chart-line text-primary me-2"></i>
         Estatísticas e Relatórios

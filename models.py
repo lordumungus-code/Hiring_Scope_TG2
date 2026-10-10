@@ -15,18 +15,32 @@ class Usuario(UserMixin, db.Model):
     tipo = db.Column(db.String(20), nullable=False)  # cliente, prestador
     is_admin = db.Column(db.Boolean, default=False)
     desativada = db.Column(db.Boolean, default=False, nullable=False, server_default=db.false())  # conta "dormindo" ou excluída
+    bloqueada = db.Column(db.Boolean, default=False, nullable=False, server_default=db.false())  # bloqueada pelo administrador
+    # Prestador escolhe se o telefone e o e-mail aparecem no perfil público (LGPD).
+    # Contas novas começam ocultas; as que já existiam continuam como estavam (visíveis) até o dono mudar.
+    mostrar_telefone = db.Column(db.Boolean, default=False, nullable=False, server_default=db.true())
+    mostrar_email = db.Column(db.Boolean, default=False, nullable=False, server_default=db.true())
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
     foto_perfil = db.Column(db.String(200), default='default.jpg')
     foto_url = db.Column(db.String(500), nullable=True)
     descricao = db.Column(db.Text)
     
     # Relacionamentos
-    servicos_oferecidos = db.relationship('Servico', back_populates='prestador', lazy=True)
+    # Só os serviços que estão no ar (os removidos pelo administrador ficam de fora)
+    servicos_oferecidos = db.relationship(
+        'Servico', back_populates='prestador', lazy=True,
+        primaryjoin='and_(Usuario.id == Servico.prestador_id, Servico.removido == False)'
+    )
     avaliacoes_recebidas = db.relationship('Avaliacao', foreign_keys='Avaliacao.prestador_id', back_populates='prestador', lazy=True)
     avaliacoes_feitas = db.relationship('Avaliacao', foreign_keys='Avaliacao.cliente_id', back_populates='cliente', lazy=True)
     favoritos = db.relationship('Favorito', foreign_keys='Favorito.cliente_id', back_populates='cliente', lazy=True)
     contratos_como_cliente = db.relationship('Contrato', foreign_keys='Contrato.cliente_id', back_populates='cliente', lazy=True)
     contratos_como_prestador = db.relationship('Contrato', foreign_keys='Contrato.prestador_id', back_populates='prestador', lazy=True)
+    
+    @property
+    def excluida(self):
+        """Conta excluída: o registro fica só para preservar o histórico de outras pessoas"""
+        return (self.email or '').endswith('@removido.invalid')
     
     def set_password(self, password):
         self.senha_hash = generate_password_hash(password)
@@ -136,6 +150,8 @@ class Servico(db.Model):
     
     data_postagem = db.Column(db.DateTime, default=datetime.utcnow)
     imagem_base64 = db.Column(db.Text, nullable=True)
+    # Removido pelo administrador: some do site, mas o registro fica por causa dos contratos já feitos
+    removido = db.Column(db.Boolean, default=False, nullable=False, server_default=db.false())
     
     # Relacionamentos
     prestador = db.relationship('Usuario', foreign_keys=[prestador_id], back_populates='servicos_oferecidos')
@@ -529,4 +545,11 @@ class Assinatura(db.Model):
 
 def servicos_visiveis():
     """Serviços de contas ativas (os de contas desativadas ou excluídas ficam ocultos)"""
-    return Servico.query.join(Usuario, Servico.prestador_id == Usuario.id).filter(Usuario.desativada == False)
+    return Servico.query.join(Usuario, Servico.prestador_id == Usuario.id).filter(
+        Usuario.desativada == False, Servico.removido == False
+    )
+
+
+def servicos_ativos():
+    """Serviços que não foram removidos (inclui os de contas desativadas; use nas telas do dono e do admin)"""
+    return Servico.query.filter(Servico.removido == False)

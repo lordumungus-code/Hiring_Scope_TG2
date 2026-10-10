@@ -4,6 +4,9 @@
 
 {% block content %}
 <div class="container mt-4" style="max-width: 800px;">
+    {% set admin_ativo = 'usuarios' %}
+    {% include 'admin/_nav.html' %}
+
     <div class="mb-3">
         <a href="{{ url_for('admin.usuarios') }}" class="btn btn-outline-secondary rounded-pill">
             <i class="fas fa-arrow-left me-2"></i> Voltar para lista
@@ -42,6 +45,17 @@
                         {% if usuario.is_admin %}
                             <span class="badge bg-danger fs-6 px-3 py-2 ms-2">Admin</span>
                         {% endif %}
+                        <div class="mt-2">
+                            {% if usuario.excluida %}
+                                <span class="badge bg-dark px-3 py-2">Conta excluída</span>
+                            {% elif usuario.bloqueada %}
+                                <span class="badge bg-danger px-3 py-2"><i class="fas fa-ban me-1"></i> Bloqueada</span>
+                            {% elif usuario.desativada %}
+                                <span class="badge bg-secondary px-3 py-2"><i class="fas fa-moon me-1"></i> Desativada pelo usuário</span>
+                            {% else %}
+                                <span class="badge bg-success px-3 py-2"><i class="fas fa-check me-1"></i> Ativa</span>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
 
@@ -111,9 +125,13 @@
                 <strong>Área de Administração</strong> - Ações abaixo afetam o usuário diretamente.
             </div>
 
-            <div class="d-flex gap-2">
+            {% set eu = usuario.id == current_user.id %}
+            {% if usuario.excluida %}
+                <p class="text-muted mb-0">Esta conta foi excluída. O registro permanece apenas para preservar contratos e avaliações de outras pessoas.</p>
+            {% else %}
+            <div class="d-flex gap-2 flex-wrap">
                 <form action="{{ url_for('admin.toggle_admin', user_id=usuario.id) }}" method="POST" class="d-inline">
-                    <button type="submit" class="btn {% if usuario.is_admin %}btn-outline-danger{% else %}btn-outline-success{% endif %} rounded-pill">
+                    <button type="submit" class="btn {% if usuario.is_admin %}btn-outline-danger{% else %}btn-outline-success{% endif %} rounded-pill" {% if eu %}disabled{% endif %}>
                         {% if usuario.is_admin %}
                             <i class="fas fa-user-slash me-2"></i> Remover Admin
                         {% else %}
@@ -121,8 +139,71 @@
                         {% endif %}
                     </button>
                 </form>
+
+                <form action="{{ url_for('admin.bloquear', user_id=usuario.id) }}" method="POST" class="d-inline"
+                      onsubmit="return confirm('{% if usuario.bloqueada %}Desbloquear esta conta?{% else %}Bloquear esta conta? Ela não poderá mais entrar, e o perfil e os serviços saem do ar.{% endif %}')">
+                    <button type="submit" class="btn {% if usuario.bloqueada %}btn-outline-success{% else %}btn-outline-warning{% endif %} rounded-pill" {% if eu or usuario.is_admin %}disabled{% endif %}>
+                        {% if usuario.bloqueada %}
+                            <i class="fas fa-unlock me-2"></i> Desbloquear conta
+                        {% else %}
+                            <i class="fas fa-ban me-2"></i> Bloquear conta
+                        {% endif %}
+                    </button>
+                </form>
+
+                <button type="button" class="btn btn-danger rounded-pill" data-bs-toggle="modal" data-bs-target="#modalExcluirUsuario" {% if eu or usuario.is_admin %}disabled{% endif %}>
+                    <i class="fas fa-trash-alt me-2"></i> Excluir conta
+                </button>
             </div>
+            {% if eu %}
+                <small class="text-muted d-block mt-2">Esta é a sua própria conta: as ações ficam desativadas para você não se trancar para fora.</small>
+            {% elif usuario.is_admin %}
+                <small class="text-muted d-block mt-2">Para bloquear ou excluir um administrador, remova antes o acesso de admin.</small>
+            {% endif %}
+            {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Confirmar exclusão da conta -->
+<div class="modal fade" id="modalExcluirUsuario" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <form method="POST" action="{{ url_for('admin.excluir_usuario', user_id=usuario.id) }}">
+                <div class="modal-header bg-danger text-white rounded-top-4">
+                    <h5 class="modal-title"><i class="fas fa-trash-alt me-2"></i> Excluir conta</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p>Excluir a conta de <strong>{{ usuario.nome }}</strong> ({{ usuario.email }})?</p>
+                    <div class="alert alert-danger small">
+                        <strong>Não dá para desfazer.</strong> O que acontece:
+                        <ul class="mb-0 mt-1">
+                            <li>nome, e-mail, telefone, foto e mensagens são apagados;</li>
+                            <li>os serviços saem do ar e a assinatura é cancelada;</li>
+                            <li>contratos em aberto são cancelados;</li>
+                            <li>contratos concluídos e avaliações continuam para a outra pessoa, como "Usuário removido".</li>
+                        </ul>
+                    </div>
+                    <p class="small text-muted">Se a ideia é só impedir o acesso, prefira <strong>Bloquear conta</strong>, que pode ser desfeito.</p>
+                    <label class="form-label" for="confirmacaoExcluirUsuario">Para confirmar, digite <strong>EXCLUIR</strong>:</label>
+                    <input type="text" name="confirmacao" id="confirmacaoExcluirUsuario" class="form-control" autocomplete="off" required>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4" id="btnExcluirUsuario" disabled>
+                        <i class="fas fa-trash-alt me-2"></i> Excluir conta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Só libera o botão depois de digitar EXCLUIR
+    document.getElementById('confirmacaoExcluirUsuario').addEventListener('input', function() {
+        document.getElementById('btnExcluirUsuario').disabled = this.value.trim().toUpperCase() !== 'EXCLUIR';
+    });
+</script>
 {% endblock %}

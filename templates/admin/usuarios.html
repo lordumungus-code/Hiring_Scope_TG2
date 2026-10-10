@@ -4,6 +4,9 @@
 
 {% block content %}
 <div class="container mt-4">
+    {% set admin_ativo = 'usuarios' %}
+    {% include 'admin/_nav.html' %}
+
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <h2>
             <i class="fas fa-users text-primary me-2"></i>
@@ -17,6 +20,8 @@
                     <option value="prestador" {% if tipo == 'prestador' %}selected{% endif %}>Prestadores</option>
                     <option value="cliente" {% if tipo == 'cliente' %}selected{% endif %}>Clientes</option>
                     <option value="admin" {% if tipo == 'admin' %}selected{% endif %}>Administradores</option>
+                    <option value="bloqueado" {% if tipo == 'bloqueado' %}selected{% endif %}>Bloqueados</option>
+                    <option value="dormindo" {% if tipo == 'dormindo' %}selected{% endif %}>Desativados pelo usuário</option>
                 </select>
                 <button type="submit" class="btn btn-primary rounded-pill">
                     <i class="fas fa-search"></i> Filtrar
@@ -37,6 +42,7 @@
                             <th>Email</th>
                             <th>Tipo</th>
                             <th>Admin</th>
+                            <th>Situação</th>
                             <th>Data Cadastro</th>
                             <th>Ações</th>
                         </tr>
@@ -72,10 +78,19 @@
                                     <span class="badge bg-light text-dark">Não</span>
                                 {% endif %}
                             </td>
+                            <td>
+                                {% if usuario.bloqueada %}
+                                    <span class="badge bg-danger">Bloqueada</span>
+                                {% elif usuario.desativada %}
+                                    <span class="badge bg-secondary">Desativada</span>
+                                {% else %}
+                                    <span class="badge bg-success">Ativa</span>
+                                {% endif %}
+                            </td>
                             <td>{{ usuario.data_cadastro.strftime('%d/%m/%Y') }}</td>
                             <td>
-                                <a href="{{ url_for('admin.usuario_detalhe', user_id=usuario.id) }}" class="btn btn-sm btn-outline-primary rounded-pill">
-                                    <i class="fas fa-eye"></i>
+                                <a href="{{ url_for('admin.usuario_detalhe', user_id=usuario.id) }}" class="btn btn-sm btn-outline-primary rounded-pill" title="Ver, bloquear ou excluir">
+                                    <i class="fas fa-user-cog"></i> Gerenciar
                                 </a>
                             </td>
                         </tr>

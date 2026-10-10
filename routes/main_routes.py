@@ -16,6 +16,8 @@ LEGAL = {
     'email': 'contato@hiring-scope.com.br',
     'cidade': 'Cruzeiro - SP',
     'atualizado_em': '10/10/2026',
+    # Por quantos dias uma cópia de segurança do banco é guardada antes de ser apagada
+    'backup_dias': 30,
 }
 
 
@@ -104,7 +106,7 @@ def dashboard():
     from routes.orcamento_routes import contar_pedidos_para
     
     if current_user.tipo == 'prestador':
-        servicos = Servico.query.filter_by(prestador_id=current_user.id).order_by(Servico.data_postagem.desc()).all()
+        servicos = Servico.query.filter_by(prestador_id=current_user.id, removido=False).order_by(Servico.data_postagem.desc()).all()
         contratos = Contrato.query.filter_by(prestador_id=current_user.id).order_by(Contrato.data_solicitacao.desc()).all()
         
         return render_template('dashboard_prestador.html',
@@ -168,6 +170,11 @@ def perfil():
         current_user.email = email
         current_user.telefone = telefone
         current_user.descricao = descricao
+        
+        # Visibilidade do contato no perfil público (só faz sentido para prestador)
+        if current_user.tipo == 'prestador':
+            current_user.mostrar_telefone = request.form.get('mostrar_telefone') == 'on'
+            current_user.mostrar_email = request.form.get('mostrar_email') == 'on'
         
         db.session.commit()
         flash('Perfil atualizado com sucesso!', 'success')
@@ -411,7 +418,7 @@ def mudar_para_prestador():
         return redirect(url_for('main.perfil'))
     
     # Verificar se tem serviços antigos (não deveria ter)
-    servicos_antigos = Servico.query.filter_by(prestador_id=current_user.id).count()
+    servicos_antigos = Servico.query.filter_by(prestador_id=current_user.id, removido=False).count()
     
     # Mudar o tipo
     current_user.tipo = 'prestador'
@@ -432,7 +439,7 @@ def mudar_para_cliente():
         return redirect(url_for('main.perfil'))
     
     # Verificar se tem serviços ativos
-    servicos = Servico.query.filter_by(prestador_id=current_user.id).count()
+    servicos = Servico.query.filter_by(prestador_id=current_user.id, removido=False).count()
     
     if servicos > 0:
         flash(f'⚠️ Você tem {servicos} serviço(s) cadastrado(s). Eles serão desativados se você mudar para cliente. Confirme novamente.', 'warning')
