@@ -39,10 +39,11 @@
         </div>
 
         <!-- Cards dos planos -->
-        <div class="row g-4 justify-content-center align-items-stretch">
+        <!-- ALTERADO: g-4 para g-2 para diminuir o espaço entre eles -->
+        <div class="row g-2 justify-content-center align-items-stretch">
 
             <!-- Plano Básico -->
-            <div class="col-md-6 col-lg-5">
+            <div class="col-6 order-2 order-md-1">
                 <div class="plano-card h-100">
                     <div class="plano-badge">⭐ MAIS ESCOLHIDO</div>
 
@@ -108,7 +109,7 @@
             </div>
 
             <!-- Plano Pro (Destaque) -->
-            <div class="col-md-6 col-lg-5">
+            <div class="col-6 order-1 order-md-2">
                 <div class="plano-card plano-destaque h-100">
                     <div class="plano-badge destaque">
                         <i class="fas fa-fire"></i> MAIS VENDIDO
@@ -268,7 +269,6 @@
 .planos-section {
     position: relative;
     padding: 5rem 0;
-    /* ⚠️ Removido overflow: hidden para não cortar os badges */
     background:
         radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
         linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
@@ -1145,9 +1145,9 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   📱 RESPONSIVO
+   📱 RESPONSIVO (v3 — mobile first-class)
    ═══════════════════════════════════════════════════════════ */
-@media (max-width: 992px) {
+@media (max-width: 991.98px) {
     .planos-section {
         padding: 4rem 0;
         border-radius: 28px;
@@ -1158,22 +1158,37 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
+
+    /* Seção: aproveita a largura da tela (o container já tem seu padding) */
     .planos-section {
-        padding: 3rem 1rem;
-        border-radius: 20px;
-        margin: 2rem 0;
+        padding: 2.5rem 0 2rem;
+        margin: 1.5rem 0;
+        border-radius: 24px;
     }
+
+    .planos-section .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Glows menores e com blur leve (blur de 120px pesa no celular) */
+    .planos-glow { filter: blur(60px); }
+    .planos-glow-1 { width: 220px; height: 220px; left: -70px; }
+    .planos-glow-2 { width: 240px; height: 240px; right: -70px; }
+
+    /* Cabeçalho */
+    .planos-section .text-center.mb-5 { margin-bottom: 2rem !important; }
 
     .planos-icon-badge {
         width: 56px;
         height: 56px;
         border-radius: 16px;
+        margin-bottom: 1rem;
+        animation: none;
     }
 
-    .planos-icon-badge i {
-        font-size: 1.4rem;
-    }
+    .planos-icon-badge i { font-size: 1.4rem; }
 
     .planos-title {
         font-size: 1.6rem;
@@ -1181,9 +1196,12 @@
 
     .planos-subtitle {
         font-size: 0.9rem;
+        padding: 0 0.25rem;
+        margin-bottom: 1.25rem;
     }
 
     .planos-social-proof {
+        max-width: 100%;
         padding: 6px 14px 6px 6px;
         gap: 8px;
     }
@@ -1196,71 +1214,120 @@
 
     .planos-proof-text {
         font-size: 0.78rem;
+        text-align: left;
+        line-height: 1.3;
     }
 
-    /* Cards ficam empilhados e mais compactos */
+    /* ── Cards empilhados ── */
     .plano-card {
-        padding: 2.5rem 1.5rem 1.5rem;
+        padding: 1.5rem 0.5rem 1rem; /* Reduz o padding lateral */
+        margin-top: 0.5rem;
+        border-radius: 16px;
+    }
+
+    .plano-card::before { border-radius: 16px 16px 0 0; }
+
+    .plano-destaque {
+        padding-top: 2rem;
         margin-top: 0.5rem;
     }
 
-    .plano-destaque {
-        padding-top: 3rem;
-        margin-top: 1.5rem;
-    }
+    .plano-destaque::after { display: none; }
 
-    .plano-destaque::after {
-        display: none;
+    .plano-icon-wrapper {
+        margin-top: 0.25rem;
+        margin-bottom: 0.75rem;
     }
 
     .plano-icon-bg {
-        width: 64px;
-        height: 64px;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
     }
 
-    .plano-icon-bg i {
-        font-size: 1.6rem;
+    .plano-icon-bg i { font-size: 1.2rem; }
+
+    .plano-name { font-size: 0.95rem; }
+
+    .plano-desc { margin-bottom: 0.5rem; font-size: 0.7rem; }
+
+    .plano-price {
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
     }
 
-    .plano-name {
-        font-size: 1.2rem;
+    .price-value { font-size: 1.6rem; }
+
+    .price-currency { font-size: 0.8rem; margin-top: 2px; }
+    .price-period { font-size: 0.65rem; }
+
+    /* Callout do Pro: ocupa a linha toda e quebra bem em telas estreitas */
+    .plano-highlight {
+        width: 100%;
+        justify-content: center;
+        padding: 4px 6px;
+        border-radius: 10px;
+        font-size: 0.65rem;
+        line-height: 1.3;
+        text-align: left;
+        margin-bottom: 0.8rem;
     }
 
-    .price-value {
-        font-size: 2.2rem;
-    }
+    .plano-features { margin-bottom: 1rem; }
 
     .plano-features li {
-        font-size: 0.85rem;
-        margin-bottom: 0.65rem;
+        font-size: 0.7rem;
+        margin-bottom: 0.4rem;
+        gap: 4px;
+    }
+    .plano-features li i {
+        font-size: 0.65rem;
+        margin-top: 2px;
     }
 
-    /* Desativa hovers pesados */
-    .plano-card:hover {
-        transform: none;
+    /* Badges: sem sobreposição entre "MAIS VENDIDO" e "ECONOMIZE" */
+    .plano-save-badge {
+        top: 10px;
+        right: 0;
+        padding: 4px 6px;
+        font-size: 0.5rem;
+        border-radius: 6px 0 0 6px;
     }
 
+    .plano-save-badge::before { display: none; }
+
+    /* Sem hover pesado no toque */
+    .plano-card:hover,
     .plano-destaque:hover {
         transform: none;
     }
 
-    .plano-card:hover .plano-icon-bg {
+    .plano-card:hover .plano-icon-bg,
+    .plano-destaque:hover .plano-icon-bg.pro {
         transform: none;
     }
 
-    .btn-plano-pro {
-        animation: none;
+    .btn-plano:hover,
+    .btn-plano-pro:hover {
+        transform: none;
     }
 
-    .planos-icon-badge {
-        animation: none;
-    }
-
+    .btn-plano-pro,
     .plano-badge.destaque {
         animation: none;
     }
 
-    /* Tabela comparativa */
+    .btn-plano,
+    .btn-plano-pro {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .btn-plano-pro i, .btn-plano i {
+        font-size: 0.7rem;
+    }
+
+    /* ── Tabela comparativa: cabe sem rolagem lateral ── */
     .comparativo-section {
         margin-top: 3rem;
         padding-top: 2rem;
@@ -1271,44 +1338,60 @@
         margin-bottom: 1.25rem;
     }
 
-    .table-comparativo th,
-    .table-comparativo td {
-        padding: 0.75rem 0.65rem;
-        font-size: 0.82rem;
+    .table-comparativo {
+        table-layout: fixed;
+        border-radius: 16px;
     }
 
-    .th-content {
-        font-size: 0.72rem;
+    .table-comparativo th,
+    .table-comparativo td {
+        padding: 0.7rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .table-comparativo thead th {
+        font-size: 0.7rem;
+        letter-spacing: 0.04em;
     }
 
     .beneficios-col {
+        width: 44%;
         font-size: 0.72rem !important;
     }
 
-    /* CTA */
+    .table-comparativo tbody td:first-child {
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    .th-content { font-size: 0.72rem; }
+
+    .table-comparativo tbody tr:hover td { background: transparent; }
+    .table-comparativo tbody tr:hover td.destaque-cell { background: rgba(254, 243, 199, 0.35); }
+
+    /* ── CTA final ── */
+    .cta-planos { margin-top: 2.5rem; }
+
     .cta-card {
-        padding: 2rem 1.5rem;
+        padding: 2rem 1.25rem;
         border-radius: 22px;
     }
 
-    .cta-title {
-        font-size: 1.2rem;
+    .cta-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        margin-bottom: 1rem;
     }
 
-    .cta-desc {
-        font-size: 0.88rem;
-    }
+    .cta-title { font-size: 1.2rem; }
+    .cta-desc  { font-size: 0.88rem; }
 
     .btn-cta-planos {
-        padding: 0.85rem 1.75rem;
+        width: 100%;
+        justify-content: center;
+        padding: 0.9rem 1.25rem;
         font-size: 0.9rem;
-    }
-
-    .plano-save-badge {
-        top: 10px;
-        right: -4px;
-        font-size: 0.62rem;
-        padding: 5px 10px 5px 8px;
     }
 }
 
@@ -1318,13 +1401,9 @@
         height: 50px;
     }
 
-    .planos-icon-badge i {
-        font-size: 1.2rem;
-    }
+    .planos-icon-badge i { font-size: 1.2rem; }
 
-    .planos-title {
-        font-size: 1.35rem;
-    }
+    .planos-title { font-size: 1.4rem; }
 
     .planos-eyebrow {
         font-size: 0.65rem;
@@ -1337,42 +1416,65 @@
     }
 
     .plano-badge.destaque {
-        font-size: 0.65rem;
+        font-size: 0.66rem;
         padding: 8px 18px;
     }
 
-    .price-value {
-        font-size: 2rem;
-    }
+    .price-value { font-size: 2.2rem; }
 
     .price-currency {
         font-size: 1rem;
         margin-top: 4px;
     }
 
-    .plano-features li {
-        font-size: 0.82rem;
-    }
+    .plano-features li { font-size: 0.84rem; }
 
     .btn-plano,
     .btn-plano-pro {
-        padding: 0.9rem 1.25rem !important;
-        font-size: 0.88rem;
-    }
-
-    .table-comparativo th,
-    .table-comparativo td {
-        padding: 0.6rem 0.5rem;
-        font-size: 0.75rem;
-    }
-
-    .table-comparativo tbody td i {
         font-size: 0.9rem;
+    }
+}
+
+/* Ajuste extra para telas muito pequenas */
+@media (max-width: 400px) {
+    .plano-card {
+        padding: 1.2rem 0.3rem 0.8rem;
+    }
+    .price-value {
+        font-size: 1.4rem;
+    }
+    .plano-features li {
+        font-size: 0.65rem;
+    }
+    .btn-plano, .btn-plano-pro {
+        font-size: 0.7rem;
+        padding: 0.5rem 0.3rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .planos-section .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .plano-card {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 
     .planos-social-proof {
-        flex-direction: row;
-        padding: 6px 12px 6px 6px;
+        flex-wrap: wrap;
+        justify-content: center;
+        border-radius: 20px;
+        padding: 8px 14px;
+    }
+
+    .price-value { font-size: 2rem; }
+
+    .table-comparativo th,
+    .table-comparativo td {
+        padding: 0.6rem 0.35rem;
     }
 }
 

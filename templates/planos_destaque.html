@@ -1,9 +1,10 @@
-<!-- Dentro do componente, mude os links -->
-<a href="{{ url_for('servico.assinar_plano', plano='basico') }}" class="btn btn-plano w-100 rounded-pill py-3">
-    <i class="fas fa-rocket me-2"></i> Assinar Agora
+<!-- Para o plano Básico -->
+<a href="{{ url_for('servico.assinar_plano', plano='basico') }}" class="btn btn-plano w-100 rounded-pill py-3 py-sm-2">
+    <i class="fas fa-rocket me-1 me-sm-2"></i> Assinar Agora
 </a>
 
 <!-- Para o plano Pro -->
-<a href="{{ url_for('servico.assinar_plano', plano='pro') }}" class="btn btn-plano-pro w-100 rounded-pill py-3">
-    <i class="fas fa-crown me-2"></i> Assinar Agora
+<a href="{{ url_for('servico.assinar_plano', plano='pro') }}" class="btn btn-plano-pro w-100 rounded-pill py-3 py-sm-2">
+    <i class="fas fa-crown me-1 me-sm-2"></i> Assinar Agora
 </a>
+

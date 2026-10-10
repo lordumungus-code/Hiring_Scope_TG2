@@ -1,231 +1,270 @@
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- NAVBAR PREMIUM 2025 — Scroll-aware com efeitos de cor      -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNavbar">
+{#
+  ═══════════════════════════════════════════════════════════
+  NAVBAR — HiringScope
+  Tudo em um único arquivo: HTML + CSS + JS
+
+  FLAGS (ajuste conforme o seu backend):
+    AVATAR_ROUTE     true  → usa a rota main.avatar (com cache) em vez de base64 no HTML
+    LOGOUT_VIA_POST  true  → logout via <form POST> (a rota auth.logout precisa aceitar POST)
+  ═══════════════════════════════════════════════════════════
+#}
+{% set AVATAR_ROUTE = false %}
+{% set LOGOUT_VIA_POST = false %}
+
+{# ── Valores derivados (seguros contra nome vazio/None) ── #}
+{% set _ep = request.endpoint or '' %}
+{% set _hide_search = _ep in ('auth.login', 'auth.cadastro') or _ep.startswith('firebase') %}
+{% set _q = request.args.get('q', '') %}
+
+{% if current_user.is_authenticated %}
+    {% set _nome = (current_user.nome or 'Usuário')|trim or 'Usuário' %}
+    {% set _inicial = _nome[0]|upper %}
+    {% set _primeiro = _nome.split()[0] %}
+
+    {# Avatar: 1) foto_url  2) foto_perfil (se não for default)  3) inicial #}
+    {% set _foto = current_user.foto_url or '' %}
+    {% if not _foto and current_user.foto_perfil and current_user.foto_perfil != 'default.jpg' %}
+        {% if AVATAR_ROUTE %}
+            {% set _foto = url_for('main.avatar', user_id=current_user.id) %}
+        {% else %}
+            {% set _foto = 'data:image/jpeg;base64,' ~ current_user.foto_perfil %}
+        {% endif %}
+    {% endif %}
+{% endif %}
+
+{% macro search_form(input_id, q='') %}
+<form class="search-bar-wrapper" role="search" action="{{ url_for('servico.lista') }}" method="get">
+    <span class="search-icon" aria-hidden="true"><i class="fas fa-search"></i></span>
+    <input type="search"
+           name="q"
+           id="{{ input_id }}"
+           class="search-input"
+           value="{{ q }}"
+           placeholder="Buscar serviços ou prestadores..."
+           aria-label="Buscar serviços ou prestadores"
+           autocomplete="off"
+           enterkeyhint="search">
+    <button type="submit" class="search-btn" aria-label="Buscar">
+        <span class="search-btn-text">Buscar</span>
+        <i class="fas fa-arrow-right search-btn-icon" aria-hidden="true"></i>
+    </button>
+</form>
+{% endmacro %}
+
+
+<a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNavbar" aria-label="Navegação principal">
     <div class="navbar-glow" aria-hidden="true"></div>
 
     <div class="container position-relative">
 
-        <!-- ═══════════════════════════════════════════════════ -->
-        <!-- LOGO                                                -->
-        <!-- ═══════════════════════════════════════════════════ -->
-        <a class="navbar-brand" href="{{ url_for('main.index') }}">
+        {# ── LOGO ── #}
+        <a class="navbar-brand" href="{{ url_for('main.index') }}" aria-label="HiringScope — página inicial">
             <img src="{{ url_for('static', filename='img/logo.png') }}"
                  alt="HiringScope"
                  class="navbar-logo"
-                 onerror="this.style.display='none'; this.parentNode.classList.add('brand-fallback');">
+                 width="140" height="42">
         </a>
 
-        <!-- ═══════════════════════════════════════════════════ -->
-        <!-- SEARCH DESKTOP (oculta em login/cadastro/firebase)  -->
-        <!-- ═══════════════════════════════════════════════════ -->
-        {% set _ep = request.endpoint or '' %}
-        {% if 'login' not in _ep and 'cadastro' not in _ep and 'firebase' not in _ep %}
+        {# ── BUSCA DESKTOP ── #}
+        {% if not _hide_search %}
         <div class="search-bar-desktop d-none d-lg-block">
-            <div class="search-bar-wrapper">
-                <div class="search-icon"><i class="fas fa-search"></i></div>
-                <input type="text" id="globalSearchInput" class="search-input" placeholder="Buscar serviços ou prestadores...">
-                <button id="globalSearchBtn" class="search-btn">
-                    <span>Buscar</span>
-                    <i class="fas fa-arrow-right"></i>
-                </button>
-            </div>
+            {{ search_form('globalSearchInput', _q) }}
         </div>
         {% endif %}
 
-        <!-- Toggler mobile -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Menu">
+        {# ── BARRA SUPERIOR NO MOBILE: [chat] [sino] [avatar/menu]
+             Chat e sino ficam no desktop dentro do menu; no mobile o JS os move para
+             #mobileNavActions (são os mesmos elementos, então os IDs e o seu base.js
+             continuam funcionando). ── #}
+        <div class="navbar-mobile-actions d-flex d-lg-none align-items-center ms-auto">
+        {% if current_user.is_authenticated %}
+        <ul class="mobile-nav-actions list-unstyled d-flex align-items-center m-0" id="mobileNavActions"></ul>
+        <button class="navbar-toggler navbar-toggler-avatar" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false"
+                aria-label="Abrir menu de {{ _primeiro }}">
+            {% if _foto %}
+                <img src="{{ _foto }}" class="toggler-avatar js-avatar" alt="" width="38" height="38">
+                <span class="toggler-avatar toggler-avatar-placeholder" hidden>{{ _inicial }}</span>
+            {% else %}
+                <span class="toggler-avatar toggler-avatar-placeholder">{{ _inicial }}</span>
+            {% endif %}
+        </button>
+        {% else %}
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Abrir menu">
             <span class="navbar-toggler-icon"></span>
         </button>
+        {% endif %}
+        </div>
 
-        <!-- ═══════════════════════════════════════════════════ -->
-        <!-- MENU                                                -->
-        <!-- ═══════════════════════════════════════════════════ -->
+        {# ── MENU ── #}
         <div class="collapse navbar-collapse" id="navbarNav">
+
             <ul class="navbar-nav ms-auto align-items-lg-center">
 
-                <!-- Serviços -->
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('servico.lista') }}">
-                        <i class="fas fa-search me-1"></i> Serviços
+                        <i class="fas fa-compass me-1" aria-hidden="true"></i> Serviços
                     </a>
                 </li>
 
-                <!-- Admin -->
                 {% if current_user.is_authenticated and current_user.is_admin %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
-                        <i class="fas fa-shield-alt me-1"></i> Admin
+                        <i class="fas fa-shield-alt me-1" aria-hidden="true"></i> Admin
                     </a>
                 </li>
                 {% endif %}
 
                 {% if current_user.is_authenticated %}
-                    <!-- ═════════════════════════════════════════════ -->
-                    <!-- CHAT                                         -->
-                    <!-- ═════════════════════════════════════════════ -->
-                    <li class="nav-item position-relative">
+
+                    {# ── CHAT ── #}
+                    <li class="nav-item position-relative" id="navChatItem">
                         <a class="nav-link chat-link" href="{{ url_for('chat.index') }}">
-                            <i class="fas fa-comments me-1"></i> Chat
-                            <span class="notification-badge {% if chat_count and chat_count > 0 %}notification-badge--alert{% else %}notification-badge--empty{% endif %}"
-                                  id="chatNotificationBadge">
-                                {{ chat_count or 0 }}
-                            </span>
+                            <i class="fas fa-comments me-1" aria-hidden="true"></i><span class="nav-label"> Chat</span>
+                            <span class="notification-badge {{ 'notification-badge--alert' if chat_count and chat_count > 0 else 'notification-badge--empty' }}"
+                                  id="chatNotificationBadge"
+                                  aria-live="polite">{{ '9+' if chat_count and chat_count > 9 else (chat_count or 0) }}</span>
+                            <span class="visually-hidden">mensagens não lidas</span>
                         </a>
                     </li>
 
-                    <!-- ═════════════════════════════════════════════ -->
-                    <!-- NOTIFICAÇÕES                                 -->
-                    <!-- ═════════════════════════════════════════════ -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link nav-icon-link" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-label="Notificações">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-badge {% if notificacoes_count and notificacoes_count > 0 %}notification-badge--alert{% else %}notification-badge--empty{% endif %}"
+                    {# ── NOTIFICAÇÕES ── #}
+                    <li class="nav-item dropdown position-relative" id="navBellItem">
+                        <button class="nav-link nav-icon-link" type="button"
+                                id="notificationDropdown"
+                                data-bs-toggle="dropdown" aria-expanded="false"
+                                aria-label="Notificações">
+                            <i class="fas fa-bell" aria-hidden="true"></i>
+                            <span class="notification-badge {{ 'notification-badge--alert' if notificacoes_count and notificacoes_count > 0 else 'notification-badge--empty' }}"
                                   id="notificationBadge"
-                                  data-count="{{ notificacoes_count or 0 }}">
-                                {{ notificacoes_count or 0 }}
-                            </span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
+                                  data-count="{{ notificacoes_count or 0 }}"
+                                  aria-live="polite">{{ '9+' if notificacoes_count and notificacoes_count > 9 else (notificacoes_count or 0) }}</span>
+                            <span class="visually-hidden">não lidas</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown">
                             <li>
                                 <h6 class="dropdown-header">
-                                    <i class="fas fa-bell me-1"></i> Notificações
+                                    <i class="fas fa-bell me-1" aria-hidden="true"></i> Notificações
                                 </h6>
                             </li>
                             <li>
-                                <div id="notificationList" style="max-height: 300px; overflow-y: auto;">
-                                    <div class="text-center p-3 text-muted">
-                                        <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                <div id="notificationList" class="notification-list">
+                                    <div class="notification-empty">
+                                        <i class="fas fa-bell-slash fa-2x mb-2" aria-hidden="true"></i>
                                         <p class="mb-0">Nenhuma notificação</p>
                                     </div>
                                 </div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a class="dropdown-item text-center" href="{{ url_for('chat.index') }}">
-                                    Ver todas as mensagens →
+                                <a class="dropdown-item justify-content-center" href="{{ url_for('chat.index') }}">
+                                    Ver todas as mensagens <span aria-hidden="true">→</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
 
-                    <!-- ═════════════════════════════════════════════ -->
-                    <!-- DASHBOARD                                    -->
-                    <!-- ═════════════════════════════════════════════ -->
-                    <li class="nav-item">
+                    {# ── DASHBOARD ── #}
+                    <li class="nav-item" id="navDashboardItem">
                         <a class="nav-link" href="{{ url_for('main.dashboard') }}">
-                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                            <i class="fas fa-tachometer-alt me-1" aria-hidden="true"></i> Dashboard
                         </a>
                     </li>
 
-                    <!-- ═════════════════════════════════════════════ -->
-                    <!-- USER DROPDOWN                                -->
-                    <!-- ═════════════════════════════════════════════ -->
+                    {# ── USUÁRIO ── #}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle user-pill" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-
-                            {# ═══════════════════════════════════════════ #}
-                            {# AVATAR: mostra SOMENTE uma opção           #}
-                            {# 1) foto_url (se tiver)                     #}
-                            {# 2) foto_perfil (se não for default)        #}
-                            {# 3) placeholder com inicial (fallback)      #}
-                            {# ═══════════════════════════════════════════ #}
-
-                            {% if current_user.foto_url %}
-                                <img src="{{ current_user.foto_url }}"
-                                     class="user-avatar-nav"
-                                     alt="{{ current_user.nome }}"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-                                <div class="user-avatar-nav-placeholder" style="display: none;">{{ current_user.nome[0]|upper }}</div>
-                            {% elif current_user.foto_perfil and current_user.foto_perfil != 'default.jpg' %}
-                                <img src="data:image/jpeg;base64,{{ current_user.foto_perfil }}"
-                                     class="user-avatar-nav"
-                                     alt="{{ current_user.nome }}"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-                                <div class="user-avatar-nav-placeholder" style="display: none;">{{ current_user.nome[0]|upper }}</div>
+                        <button class="nav-link user-pill" type="button"
+                                id="userDropdown"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if _foto %}
+                                <img src="{{ _foto }}" class="user-avatar-nav js-avatar" alt="" width="32" height="32" loading="lazy">
+                                <span class="user-avatar-nav-placeholder" hidden>{{ _inicial }}</span>
                             {% else %}
-                                <div class="user-avatar-nav-placeholder">{{ current_user.nome[0]|upper }}</div>
+                                <span class="user-avatar-nav-placeholder">{{ _inicial }}</span>
                             {% endif %}
+                            <span class="user-name-nav">{{ _primeiro }}</span>
+                        </button>
 
-                            <span class="user-name-nav ms-1">{{ current_user.nome.split()[0] }}</span>
-                        </a>
-
-                        <ul class="dropdown-menu dropdown-menu-end user-dropdown">
-                            <!-- Header do dropdown -->
+                        <ul class="dropdown-menu dropdown-menu-end user-dropdown" aria-labelledby="userDropdown">
                             <li class="user-dropdown-header">
                                 <div class="d-flex align-items-center gap-3">
-                                    {% if current_user.foto_url %}
-                                        <img src="{{ current_user.foto_url }}" class="user-header-avatar" alt="{{ current_user.nome }}">
-                                    {% elif current_user.foto_perfil and current_user.foto_perfil != 'default.jpg' %}
-                                        <img src="data:image/jpeg;base64,{{ current_user.foto_perfil }}" class="user-header-avatar" alt="{{ current_user.nome }}">
+                                    {% if _foto %}
+                                        <img src="{{ _foto }}" class="user-header-avatar js-avatar" alt="" width="44" height="44" loading="lazy">
+                                        <span class="user-header-avatar user-header-avatar-placeholder" hidden>{{ _inicial }}</span>
                                     {% else %}
-                                        <div class="user-header-avatar user-header-avatar-placeholder">
-                                            {{ current_user.nome[0]|upper }}
-                                        </div>
+                                        <span class="user-header-avatar user-header-avatar-placeholder">{{ _inicial }}</span>
                                     {% endif %}
                                     <div class="user-header-info">
-                                        <strong>{{ current_user.nome }}</strong>
+                                        <strong>{{ _nome }}</strong>
                                         <small>{{ current_user.email }}</small>
                                     </div>
                                 </div>
                             </li>
                             <li><hr class="dropdown-divider"></li>
 
-                            <!-- Perfil -->
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('main.perfil') }}">
-                                    <i class="fas fa-user me-2"></i> Meu Perfil
+                                    <i class="fas fa-user" aria-hidden="true"></i> Meu Perfil
                                 </a>
                             </li>
 
                             {% if current_user.tipo == 'prestador' %}
-                            <!-- Meus Serviços -->
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('servico.meus_servicos') }}">
-                                    <i class="fas fa-briefcase me-2"></i> Meus Serviços
+                                    <i class="fas fa-briefcase" aria-hidden="true"></i> Meus Serviços
                                 </a>
                             </li>
-                            <!-- Novo Serviço -->
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('servico.cadastro') }}">
-                                    <i class="fas fa-plus-circle me-2"></i> Novo Serviço
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Novo Serviço
                                 </a>
                             </li>
-                            <!-- Planos -->
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('servico.planos_destaque') }}">
-                                    <i class="fas fa-crown text-warning me-2"></i> Planos de Destaque
+                                    <i class="fas fa-crown text-warning" aria-hidden="true"></i> Planos de Destaque
                                 </a>
                             </li>
                             {% endif %}
 
                             <li><hr class="dropdown-divider"></li>
 
-                            <!-- Sair -->
                             <li>
+                                {% if LOGOUT_VIA_POST %}
+                                <form method="post" action="{{ url_for('auth.logout') }}" class="m-0">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token is defined else '' }}">
+                                    <button type="submit" class="dropdown-item dropdown-item-danger">
+                                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sair
+                                    </button>
+                                </form>
+                                {% else %}
                                 <a class="dropdown-item dropdown-item-danger" href="{{ url_for('auth.logout') }}">
-                                    <i class="fas fa-sign-out-alt me-2"></i> Sair
+                                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sair
                                 </a>
+                                {% endif %}
                             </li>
                         </ul>
                     </li>
 
                 {% else %}
-                    <!-- ═════════════════════════════════════════════ -->
-                    <!-- NÃO LOGADO: LOGIN + CADASTRAR                -->
-                    <!-- ═════════════════════════════════════════════ -->
+
+                    {# ── VISITANTE ── #}
                     <li class="nav-item">
                         <a class="nav-link btn-login" href="{{ url_for('auth.login') }}">
-                            <i class="fas fa-sign-in-alt me-1"></i> Login
+                            <i class="fas fa-sign-in-alt me-1" aria-hidden="true"></i> Login
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link btn-cadastro-destaque" href="{{ url_for('auth.cadastro') }}">
-                            <i class="fas fa-user-plus me-1"></i> Cadastrar
+                            <i class="fas fa-user-plus me-1" aria-hidden="true"></i> Cadastrar
                         </a>
                     </li>
-                {% endif %}
 
+                {% endif %}
             </ul>
         </div>
     </div>
@@ -233,795 +272,902 @@
 
 <style>
 /* ═══════════════════════════════════════════════════════════
-   🚀 NAVBAR PREMIUM 2025
-   Scroll-aware • Color-shifting • Glow effects
+   NAVBAR — HiringScope
+   Escopo por #mainNavbar (evita guerra de !important com o Bootstrap)
    ═══════════════════════════════════════════════════════════ */
 
-.navbar {
-    position: sticky !important;
+#mainNavbar {
+    /* Tokens de marca */
+    --hs-navy:        #0b2b5c;
+    --hs-navy-mid:    #0f3a6b;
+    --hs-navy-deep:   #071a36;
+    --hs-teal:        #1a6d8f;
+    --hs-sky:         59, 178, 255;
+    --hs-amber:       #f59e0b;
+    --hs-amber-dark:  #d97706;
+    --hs-amber-rgb:   245, 158, 11;
+    --hs-danger:      #dc2626;
+    --hs-ink:         #334155;
+    --hs-muted:       #64748b;
+    --hs-line:        #e5e7eb;
+    --hs-ease:        cubic-bezier(0.4, 0, 0.2, 1);
+
+    position: sticky;
     top: 0;
-    z-index: 1000;
-    padding: 0.9rem 0 !important;
-    background: linear-gradient(135deg, #0b2b5c 0%, #0f3a6b 50%, #1a6d8f 100%) !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1030;
+    padding: 0.9rem 0;
+    background: linear-gradient(135deg, var(--hs-navy) 0%, var(--hs-navy-mid) 50%, var(--hs-teal) 100%);
     box-shadow: 0 2px 8px rgba(11, 43, 92, 0.15);
+    transition: padding 0.4s var(--hs-ease), background 0.4s var(--hs-ease), box-shadow 0.4s var(--hs-ease);
 }
 
-.navbar.navbar-scrolled {
-    padding: 0.65rem 0 !important;
-    background: linear-gradient(135deg, rgba(7, 26, 54, 0.92) 0%, rgba(11, 43, 92, 0.92) 50%, rgba(15, 58, 107, 0.92) 100%) !important;
-    backdrop-filter: blur(20px) saturate(150%);
+#mainNavbar.navbar-scrolled {
+    padding: 0.65rem 0;
+    background: linear-gradient(135deg, rgba(7, 26, 54, 0.92) 0%, rgba(11, 43, 92, 0.92) 50%, rgba(15, 58, 107, 0.92) 100%);
     -webkit-backdrop-filter: blur(20px) saturate(150%);
-    box-shadow:
-        0 8px 32px -8px rgba(0, 0, 0, 0.4),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.06);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px) saturate(150%);
+    box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.06);
 }
 
-.navbar::after {
+/* Linha de brilho inferior */
+#mainNavbar::after {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    inset: auto 0 0 0;
     height: 1px;
     background: linear-gradient(90deg,
         transparent 0%,
-        rgba(59, 178, 255, 0.3) 20%,
-        rgba(245, 158, 11, 0.5) 50%,
-        rgba(59, 178, 255, 0.3) 80%,
+        rgba(var(--hs-sky), 0.3) 20%,
+        rgba(var(--hs-amber-rgb), 0.5) 50%,
+        rgba(var(--hs-sky), 0.3) 80%,
         transparent 100%);
     opacity: 0.6;
     transition: opacity 0.4s ease;
+    pointer-events: none;
 }
-
-.navbar.navbar-scrolled::after {
-    opacity: 1;
-}
+#mainNavbar.navbar-scrolled::after { opacity: 1; }
 
 .navbar-glow {
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(ellipse at 15% 50%, rgba(59, 178, 255, 0.12) 0%, transparent 40%),
-        radial-gradient(ellipse at 85% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
+        radial-gradient(ellipse at 15% 50%, rgba(var(--hs-sky), 0.12) 0%, transparent 40%),
+        radial-gradient(ellipse at 85% 50%, rgba(var(--hs-amber-rgb), 0.08) 0%, transparent 40%);
     pointer-events: none;
     opacity: 0.8;
     transition: opacity 0.4s ease;
 }
+#mainNavbar.navbar-scrolled .navbar-glow { opacity: 0.5; }
 
-.navbar.navbar-scrolled .navbar-glow {
-    opacity: 0.5;
+/* ── Skip link ── */
+.skip-link {
+    position: fixed;
+    top: -100px;
+    left: 12px;
+    z-index: 2000;
+    padding: 10px 16px;
+    background: #fff;
+    color: var(--hs-navy, #0b2b5c);
+    font-weight: 700;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    transition: top 0.2s ease;
+}
+.skip-link:focus { top: 12px; }
+
+/* ── Foco visível (teclado) ── */
+#mainNavbar :is(a, button, input):focus-visible {
+    outline: 2px solid var(--hs-amber);
+    outline-offset: 2px;
+}
+#mainNavbar .search-input:focus-visible { outline: none; } /* o wrapper já destaca via :focus-within */
+#mainNavbar .dropdown-item:focus-visible {
+    outline-offset: -2px;
+    background: #f0f4f8;
 }
 
-/* ──────────────────────────────────────────────
-   LOGO / BRAND
-   ────────────────────────────────────────────── */
-.navbar-brand {
-    display: inline-flex !important;
+/* ── Logo ── */
+#mainNavbar .navbar-brand {
+    display: inline-flex;
     align-items: center;
     gap: 10px;
-    text-decoration: none !important;
-    padding: 0 !important;
-    margin-right: 1.5rem !important;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
+    margin-right: 1.5rem;
+    padding: 0;
+    text-decoration: none;
+    transition: transform 0.3s var(--hs-ease);
 }
+#mainNavbar .navbar-brand:hover { transform: translateY(-2px); }
 
-.navbar-brand:hover {
-    transform: translateY(-2px);
-}
-
-/* Logo (imagem) */
-.navbar-logo {
-    height: 42px !important;
-    width: auto !important;
+#mainNavbar .navbar-logo {
+    height: 42px;
+    width: auto;
     display: block;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s var(--hs-ease);
 }
+#mainNavbar .navbar-brand:hover .navbar-logo { transform: scale(1.05); }
 
-.navbar-brand:hover .navbar-logo {
-    transform: scale(1.05);
-}
-
-/* Fallback (se a imagem quebrar) */
-.navbar-brand.brand-fallback::after {
+#mainNavbar .navbar-brand.brand-fallback::after {
     content: 'HiringScope';
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 1.4rem;
     font-weight: 800;
     letter-spacing: -0.03em;
-    background: linear-gradient(135deg, #ffffff 0%, #c9dcf0 100%);
+    background: linear-gradient(135deg, #fff 0%, #c9dcf0 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     white-space: nowrap;
 }
 
-/* ──────────────────────────────────────────────
-   SEARCH BAR
-   ────────────────────────────────────────────── */
-.search-bar-desktop {
-    flex: 1 !important;
+/* ═══════════════════════════════════════════════════════════
+   BUSCA
+   ═══════════════════════════════════════════════════════════ */
+#mainNavbar .search-bar-desktop {
+    flex: 1;
     max-width: 480px;
-    margin: 0 1.5rem !important;
+    margin: 0 1.5rem;
 }
 
-.search-bar-wrapper {
-    display: flex !important;
-    align-items: center !important;
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-radius: 50px !important;
-    padding: 4px 4px 4px 18px !important;
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    height: 44px !important;
-    backdrop-filter: blur(10px);
+#mainNavbar .search-bar-wrapper {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    margin: 0;
+    padding: 4px 4px 4px 18px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50px;
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: background 0.3s var(--hs-ease), border-color 0.3s var(--hs-ease),
+                box-shadow 0.3s var(--hs-ease), transform 0.3s var(--hs-ease);
 }
-
-.search-bar-wrapper:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border-color: rgba(255, 255, 255, 0.25) !important;
+#mainNavbar .search-bar-wrapper:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
 }
-
-.search-bar-wrapper:focus-within {
-    background: #ffffff !important;
-    border-color: rgba(245, 158, 11, 0.5) !important;
-    box-shadow:
-        0 0 0 4px rgba(245, 158, 11, 0.15),
-        0 12px 28px -8px rgba(0, 0, 0, 0.25) !important;
+#mainNavbar .search-bar-wrapper:focus-within {
+    background: #fff;
+    border-color: rgba(var(--hs-amber-rgb), 0.5);
+    box-shadow: 0 0 0 4px rgba(var(--hs-amber-rgb), 0.15), 0 12px 28px -8px rgba(0, 0, 0, 0.25);
     transform: translateY(-1px);
 }
 
-.search-bar-wrapper .search-icon {
-    color: rgba(255, 255, 255, 0.7) !important;
-    font-size: 0.95rem !important;
-    padding: 0 10px 0 0 !important;
+#mainNavbar .search-icon {
+    flex-shrink: 0;
+    padding-right: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
     transition: color 0.3s ease;
-    flex-shrink: 0;
 }
+#mainNavbar .search-bar-wrapper:focus-within .search-icon { color: var(--hs-teal); }
 
-.search-bar-wrapper:focus-within .search-icon {
-    color: #1a6d8f !important;
-}
-
-.search-bar-wrapper .search-input {
-    flex: 1 !important;
-    background: transparent !important;
-    border: none !important;
-    outline: none !important;
-    color: #ffffff !important;
-    font-size: 0.9rem !important;
-    font-weight: 500 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: 100% !important;
+#mainNavbar .search-input {
+    flex: 1;
     min-width: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    box-shadow: none;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 500;
+    -webkit-appearance: none;
+    appearance: none;
 }
+#mainNavbar .search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
+#mainNavbar .search-input::placeholder { color: rgba(255, 255, 255, 0.6); font-weight: 400; }
+#mainNavbar .search-bar-wrapper:focus-within .search-input { color: #0f172a; }
+#mainNavbar .search-bar-wrapper:focus-within .search-input::placeholder { color: #64748b; }
 
-.search-bar-wrapper .search-input::placeholder {
-    color: rgba(255, 255, 255, 0.55) !important;
-    font-weight: 400;
-}
-
-.search-bar-wrapper:focus-within .search-input {
-    color: #0f172a !important;
-}
-
-.search-bar-wrapper:focus-within .search-input::placeholder {
-    color: #94a3b8 !important;
-}
-
-.search-bar-wrapper .search-btn {
-    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 50px !important;
-    padding: 0 18px !important;
-    height: 36px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    font-weight: 700 !important;
-    font-size: 0.82rem !important;
-    letter-spacing: 0.01em;
-    cursor: pointer !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    box-shadow: 0 4px 12px -4px rgba(245, 158, 11, 0.5);
+#mainNavbar .search-btn {
     flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 18px;
+    background: linear-gradient(135deg, var(--hs-amber), var(--hs-amber-dark));
+    border: 0;
+    border-radius: 50px;
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
     white-space: nowrap;
+    cursor: pointer;
+    box-shadow: 0 4px 12px -4px rgba(var(--hs-amber-rgb), 0.5);
+    transition: transform 0.3s var(--hs-ease), box-shadow 0.3s var(--hs-ease), background 0.3s var(--hs-ease);
 }
-
-.search-bar-wrapper .search-btn i {
-    display: none;
-    font-size: 0.75rem;
-    transition: transform 0.3s ease;
-}
-
-.search-bar-wrapper .search-btn:hover {
+#mainNavbar .search-btn-icon { display: none; font-size: 0.75rem; }
+#mainNavbar .search-btn:hover {
     transform: scale(1.03);
-    box-shadow: 0 6px 16px -4px rgba(245, 158, 11, 0.7);
+    box-shadow: 0 6px 16px -4px rgba(var(--hs-amber-rgb), 0.7);
 }
-
-.search-bar-wrapper:focus-within .search-btn {
-    background: linear-gradient(135deg, #0b2b5c, #1a6d8f) !important;
+#mainNavbar .search-bar-wrapper:focus-within .search-btn {
+    background: linear-gradient(135deg, var(--hs-navy), var(--hs-teal));
     box-shadow: 0 4px 12px -4px rgba(11, 43, 92, 0.5);
 }
 
-/* ──────────────────────────────────────────────
-   NAV LINKS
-   ────────────────────────────────────────────── */
-.navbar-nav {
-    gap: 2px;
-}
+/* ═══════════════════════════════════════════════════════════
+   LINKS
+   ═══════════════════════════════════════════════════════════ */
+#mainNavbar .navbar-nav { gap: 2px; }
 
-.navbar .nav-link {
-    color: rgba(255, 255, 255, 0.9) !important;
+#mainNavbar .nav-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    border-radius: 50px;
+    color: rgba(255, 255, 255, 0.9);
     font-family: 'Inter', sans-serif;
     font-size: 0.9rem;
     font-weight: 600;
     letter-spacing: -0.005em;
-    padding: 0.6rem 1rem !important;
-    border-radius: 50px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: inline-flex;
-    align-items: center;
-    position: relative;
     white-space: nowrap;
+    transition: background 0.3s var(--hs-ease), color 0.3s var(--hs-ease), transform 0.3s var(--hs-ease);
 }
-
-.navbar .nav-link i {
-    font-size: 0.82rem;
-    transition: transform 0.3s ease;
-}
-
-.navbar .nav-link:hover {
+#mainNavbar .nav-link i { font-size: 0.82rem; transition: transform 0.3s ease; }
+#mainNavbar .nav-link:hover,
+#mainNavbar .nav-link:focus-visible {
     background: rgba(255, 255, 255, 0.1);
-    color: #ffffff !important;
+    color: #fff;
     transform: translateY(-1px);
 }
+#mainNavbar .nav-link:hover i { transform: scale(1.15); }
 
-.navbar .nav-link:hover i {
-    transform: scale(1.15);
-}
-
-.navbar .nav-link::after {
+/* Sublinhado animado */
+#mainNavbar .nav-link::after {
     content: '';
     position: absolute;
     bottom: 2px;
     left: 50%;
     width: 0;
     height: 2px;
-    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    background: linear-gradient(90deg, #fbbf24, var(--hs-amber));
     border-radius: 2px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 8px rgba(var(--hs-amber-rgb), 0.6);
     transform: translateX(-50%);
-    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+    transition: width 0.3s var(--hs-ease);
 }
+#mainNavbar .nav-link:hover::after { width: 30%; }
+#mainNavbar .user-pill::after,
+#mainNavbar .nav-icon-link::after,
+#mainNavbar .btn-login::after,
+#mainNavbar .btn-cadastro-destaque::after { display: none; }
 
-.navbar .nav-link:hover::after {
-    width: 30%;
-}
-
-.navbar .nav-icon-link {
+/* Botão de ícone (sino) */
+#mainNavbar .nav-icon-link {
     width: 42px;
     height: 42px;
-    padding: 0 !important;
+    padding: 0;
     justify-content: center;
     border-radius: 50%;
 }
+#mainNavbar .nav-icon-link i { font-size: 1rem; }
 
-.navbar .nav-icon-link i {
-    font-size: 1rem;
-}
-
-/* Badge de notificações */
-.notification-badge {
+/* ── Badges (chat e notificações) ──
+   Os !important aqui são de propósito: o seu base.css também estiliza
+   .notification-badge e, sem eles, ele sobrescreveria este visual. */
+#mainNavbar .notification-badge {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: #ffffff;
-    font-size: 0.62rem;
-    font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 20px;
-    min-width: 18px;
-    text-align: center;
-    border: 2px solid #0b2b5c;
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-    animation: badgePulse 2s infinite;
+    top: 0;
+    right: 0;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px !important;
+    height: 20px !important;
+    padding: 0 6px !important;
+    border: 2px solid var(--hs-navy) !important;
+    border-radius: 999px !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+#mainNavbar .chat-link .notification-badge { right: -4px; }
+
+/* Com mensagens/notificações: vermelho vivo, com brilho */
+#mainNavbar .notification-badge--alert {
+    background: linear-gradient(135deg, #ff6b81 0%, #e11d48 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 10px -2px rgba(225, 29, 72, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    animation: hsBadgePulse 2s infinite;
 }
 
-.notification-badge--empty {
-    display: none !important;
+/* Zerado: discreto, de vidro, sem animação */
+#mainNavbar .notification-badge--empty {
+    background: rgba(255, 255, 255, 0.16) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    box-shadow: none;
+    animation: none;
+    /* Para esconder o badge quando for 0, descomente a linha abaixo: */
+    /* display: none !important; */
 }
 
-@keyframes badgePulse {
+/* Efeito quando chega algo novo (o JS adiciona estas classes) */
+#mainNavbar .notification-badge.badge-pop {
+    animation: hsBadgePop 0.55s var(--hs-ease), hsBadgePulse 2s 0.55s infinite;
+}
+#mainNavbar .bell-ring i {
+    transform-origin: 50% 0;
+    animation: hsBellRing 0.9s ease;
+}
+@keyframes hsBadgePop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.4); }
+    100% { transform: scale(1); }
+}
+@keyframes hsBellRing {
+    0%, 100% { transform: rotate(0); }
+    15% { transform: rotate(16deg); }
+    30% { transform: rotate(-14deg); }
+    45% { transform: rotate(10deg); }
+    60% { transform: rotate(-8deg); }
+    75% { transform: rotate(4deg); }
+}
+
+@keyframes hsBadgePulse {
     0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
     70%  { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
     100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
-/* ──────────────────────────────────────────────
-   USER PILL (avatar + nome) - CORRIGIDO
-   ────────────────────────────────────────────── */
-.navbar .user-pill {
-    padding: 5px 14px 5px 6px !important;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid transparent;
-    border-radius: 50px !important;
+/* ── Pill do usuário ── */
+#mainNavbar .user-pill {
     gap: 8px;
     margin-left: 6px;
-    display: inline-flex;
-    align-items: center;
+    padding: 5px 12px 5px 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid transparent;
+    color: #fff;
 }
-
-.navbar .user-pill:hover {
+#mainNavbar .user-pill:hover {
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.2);
 }
-
-.navbar .user-pill::after {
-    display: none;
-}
-
-.navbar .user-pill::before {
+#mainNavbar .user-pill::before {
     content: '\f078';
+    order: 3;
+    margin-left: 2px;
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
     font-size: 0.6rem;
     color: rgba(255, 255, 255, 0.6);
-    margin-left: 4px;
     transition: transform 0.25s ease;
 }
+#mainNavbar .user-pill[aria-expanded="true"]::before { transform: rotate(180deg); }
 
-.navbar .user-pill[aria-expanded="true"]::before {
-    transform: rotate(180deg);
-}
-
-/* Avatar do usuário */
-.user-avatar-nav {
-    width: 32px !important;
-    height: 32px !important;
-    border-radius: 50% !important;
-    object-fit: cover;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+#mainNavbar .user-avatar-nav,
+#mainNavbar .user-avatar-nav-placeholder {
+    width: 32px;
+    height: 32px;
     flex-shrink: 0;
-    transition: border-color 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
 }
+#mainNavbar .user-avatar-nav { object-fit: cover; transition: border-color 0.3s ease; }
+#mainNavbar .user-pill:hover .user-avatar-nav { border-color: rgba(var(--hs-amber-rgb), 0.6); }
 
-.navbar .user-pill:hover .user-avatar-nav {
-    border-color: rgba(245, 158, 11, 0.6);
-}
-
-/* Placeholder do avatar (inicial) */
-.user-avatar-nav-placeholder {
-    width: 32px !important;
-    height: 32px !important;
-    border-radius: 50% !important;
-    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+#mainNavbar .user-avatar-nav-placeholder {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #ffffff;
-    font-weight: 800;
-    font-size: 0.85rem;
+    background: linear-gradient(135deg, var(--hs-amber), var(--hs-amber-dark));
+    color: #fff;
     font-family: 'Plus Jakarta Sans', sans-serif;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    flex-shrink: 0;
+    font-size: 0.85rem;
+    font-weight: 800;
 }
+#mainNavbar .user-avatar-nav-placeholder[hidden],
+#mainNavbar .user-header-avatar[hidden] { display: none; }
 
-.user-name-nav {
-    font-size: 0.88rem !important;
-    font-weight: 600;
-    color: #ffffff;
-    margin-left: 2px !important;
-}
+#mainNavbar .user-name-nav { font-size: 0.88rem; font-weight: 600; color: #fff; }
 
-/* ──────────────────────────────────────────────
-   BOTÕES LOGIN / CADASTRAR
-   ────────────────────────────────────────────── */
-.navbar .btn-login {
-    border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border-radius: 50px !important;
-    padding: 8px 20px !important;
-    font-weight: 600;
+/* ── Login / Cadastrar ── */
+#mainNavbar .btn-login {
+    padding: 8px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
-
-.navbar .btn-login:hover {
-    background: #ffffff !important;
-    color: #0b2b5c !important;
-    border-color: #ffffff !important;
+#mainNavbar .btn-login:hover {
+    background: #fff;
+    border-color: #fff;
+    color: var(--hs-navy);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px -6px rgba(255, 255, 255, 0.3);
 }
 
-.navbar .btn-login::after {
-    display: none;
-}
-
-.navbar .btn-cadastro-destaque {
-    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-    color: #ffffff !important;
-    border-radius: 50px !important;
-    padding: 9px 22px !important;
-    font-weight: 700;
-    margin-left: 8px;
-    border: none !important;
-    box-shadow:
-        0 8px 20px -6px rgba(245, 158, 11, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+#mainNavbar .btn-cadastro-destaque {
     position: relative;
     overflow: hidden;
+    margin-left: 8px;
+    padding: 9px 22px;
+    background: linear-gradient(135deg, var(--hs-amber), var(--hs-amber-dark));
+    border: 0;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 8px 20px -6px rgba(var(--hs-amber-rgb), 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    transition: transform 0.3s var(--hs-ease), box-shadow 0.3s var(--hs-ease);
 }
-
-.navbar .btn-cadastro-destaque::before {
+#mainNavbar .btn-cadastro-destaque::before {
     content: '';
     position: absolute;
-    top: 0;
+    inset: 0;
     left: -100%;
-    width: 100%;
-    height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
     transition: left 0.6s ease;
 }
-
-.navbar .btn-cadastro-destaque:hover::before {
-    left: 100%;
-}
-
-.navbar .btn-cadastro-destaque:hover {
+#mainNavbar .btn-cadastro-destaque:hover::before { left: 100%; }
+#mainNavbar .btn-cadastro-destaque:hover {
     transform: translateY(-2px);
-    color: #ffffff !important;
-    box-shadow:
-        0 12px 28px -6px rgba(245, 158, 11, 0.7),
-        inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+    color: #fff;
+    box-shadow: 0 12px 28px -6px rgba(var(--hs-amber-rgb), 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
-.navbar .btn-cadastro-destaque::after {
-    display: none;
-}
-
-/* ──────────────────────────────────────────────
-   DROPDOWN
-   ────────────────────────────────────────────── */
-.navbar .dropdown-menu {
-    border: none !important;
-    border-radius: 18px !important;
-    padding: 8px !important;
-    margin-top: 10px !important;
-    background: #ffffff !important;
-    box-shadow:
-        0 24px 48px -12px rgba(11, 43, 92, 0.25),
-        0 8px 20px -8px rgba(0, 0, 0, 0.1) !important;
-    animation: dropdownIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+/* ═══════════════════════════════════════════════════════════
+   DROPDOWNS
+   ═══════════════════════════════════════════════════════════ */
+#mainNavbar .dropdown-menu {
+    margin-top: 10px;
+    padding: 8px;
     overflow: hidden;
+    background: #fff;
+    border: 0;
+    border-radius: 18px;
+    box-shadow: 0 24px 48px -12px rgba(11, 43, 92, 0.25), 0 8px 20px -8px rgba(0, 0, 0, 0.1);
+    animation: hsDropdownIn 0.25s var(--hs-ease);
 }
-
-@keyframes dropdownIn {
+@keyframes hsDropdownIn {
     from { opacity: 0; transform: translateY(-8px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.navbar .dropdown-menu .dropdown-item {
+#mainNavbar .dropdown-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 14px !important;
-    border-radius: 12px !important;
-    font-weight: 600 !important;
-    font-size: 0.88rem !important;
-    color: #334155 !important;
-    transition: all 0.25s ease !important;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    color: var(--hs-ink);
+    font-size: 0.88rem;
+    font-weight: 600;
     line-height: 1.3;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
 }
-
-.navbar .dropdown-menu .dropdown-item i {
+#mainNavbar .dropdown-item i {
     width: 18px;
     text-align: center;
-    color: #64748b;
+    color: var(--hs-muted);
     font-size: 0.85rem;
     transition: color 0.25s ease, transform 0.25s ease;
 }
-
-.navbar .dropdown-menu .dropdown-item:hover {
-    background: linear-gradient(90deg, #f0f4f8, #e8eef5) !important;
-    color: #0b2b5c !important;
+#mainNavbar .dropdown-item:hover {
+    background: linear-gradient(90deg, #f0f4f8, #e8eef5);
+    color: var(--hs-navy);
     transform: translateX(3px);
 }
+#mainNavbar .dropdown-item:hover i { color: var(--hs-teal); transform: scale(1.1); }
 
-.navbar .dropdown-menu .dropdown-item:hover i {
-    color: #1a6d8f;
-    transform: scale(1.1);
+#mainNavbar .dropdown-item-danger,
+#mainNavbar .dropdown-item-danger i { color: var(--hs-danger); }
+#mainNavbar .dropdown-item-danger:hover {
+    background: linear-gradient(90deg, #fef2f2, #fee2e2);
+    color: #991b1b;
 }
+#mainNavbar .dropdown-item-danger:hover i { color: #991b1b; }
 
-.navbar .dropdown-menu .dropdown-item-danger {
-    color: #dc2626 !important;
-}
+#mainNavbar .dropdown-divider { margin: 6px 4px; border-color: var(--hs-line); opacity: 1; }
 
-.navbar .dropdown-menu .dropdown-item-danger i {
-    color: #dc2626 !important;
-}
-
-.navbar .dropdown-menu .dropdown-item-danger:hover {
-    background: linear-gradient(90deg, #fef2f2, #fee2e2) !important;
-    color: #991b1b !important;
-}
-
-.navbar .dropdown-menu .dropdown-divider {
-    margin: 6px 4px !important;
-    border-color: #e5e7eb !important;
-    opacity: 1 !important;
-}
-
-/* Header do dropdown de usuário */
-.user-dropdown-header {
-    padding: 14px 14px 12px !important;
+/* Header do dropdown do usuário */
+#mainNavbar .user-dropdown-header,
+#mainNavbar .notification-dropdown .dropdown-header {
+    margin: -8px -8px 8px;
     background: linear-gradient(135deg, #f8fafc, #eef2f7);
-    margin: -8px -8px 8px -8px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--hs-line);
     border-radius: 18px 18px 0 0;
     white-space: normal;
 }
+#mainNavbar .user-dropdown-header { padding: 14px 14px 12px; list-style: none; }
 
-.user-header-avatar {
+#mainNavbar .user-header-avatar {
     width: 44px;
     height: 44px;
+    flex-shrink: 0;
+    border: 2px solid #fff;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #ffffff;
     box-shadow: 0 4px 12px -4px rgba(11, 43, 92, 0.2);
-    flex-shrink: 0;
 }
-
-.user-header-avatar-placeholder {
-    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
-    color: #ffffff;
+#mainNavbar .user-header-avatar-placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
+    background: linear-gradient(135deg, var(--hs-navy), var(--hs-teal));
+    color: #fff;
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 800;
     font-size: 1.1rem;
+    font-weight: 800;
 }
-
-.user-header-info {
-    min-width: 0;
-    overflow: hidden;
-}
-
-.user-header-info strong {
+#mainNavbar .user-header-info { min-width: 0; overflow: hidden; }
+#mainNavbar .user-header-info strong {
     display: block;
+    overflow: hidden;
+    color: var(--hs-navy);
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 0.92rem;
     font-weight: 700;
-    color: #0b2b5c;
     line-height: 1.2;
-    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
-.user-header-info small {
+#mainNavbar .user-header-info small {
     display: block;
-    font-size: 0.75rem;
-    color: #64748b;
-    font-weight: 500;
+    max-width: 180px;
     overflow: hidden;
+    color: var(--hs-muted);
+    font-size: 0.75rem;
+    font-weight: 500;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 180px;
 }
 
-/* Notification dropdown */
-.navbar .notification-dropdown {
-    min-width: 300px !important;
-}
-
-.navbar .notification-dropdown .dropdown-header {
-    padding: 12px 14px !important;
-    color: #0b2b5c !important;
+/* Notificações */
+#mainNavbar .notification-dropdown { min-width: 300px; }
+#mainNavbar .notification-dropdown .dropdown-header {
+    padding: 12px 14px;
+    color: var(--hs-navy);
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 800 !important;
-    font-size: 0.88rem !important;
-    background: linear-gradient(135deg, #f8fafc, #eef2f7);
-    margin: -8px -8px 8px -8px;
-    border-bottom: 1px solid #e5e7eb;
-    border-radius: 18px 18px 0 0;
-    white-space: normal;
+    font-size: 0.88rem;
+    font-weight: 800;
 }
+#mainNavbar .notification-list { max-height: 300px; overflow-y: auto; }
+#mainNavbar .notification-empty { padding: 1rem; text-align: center; color: var(--hs-muted); }
 
-/* ──────────────────────────────────────────────
-   TOGGLER MOBILE
-   ────────────────────────────────────────────── */
-.navbar-toggler {
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 12px !important;
-    padding: 6px 10px !important;
-    transition: all 0.3s ease;
+/* ── Toggler ── */
+#mainNavbar .navbar-toggler {
+    padding: 6px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
-
-.navbar-toggler:focus {
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3) !important;
-}
-
-.navbar-toggler:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.navbar-toggler-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.5' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+#mainNavbar .navbar-toggler:hover { background: rgba(255, 255, 255, 0.1); }
+#mainNavbar .navbar-toggler:focus { box-shadow: 0 0 0 3px rgba(var(--hs-amber-rgb), 0.3); }
+#mainNavbar .navbar-toggler-icon {
     width: 1.3em;
     height: 1.3em;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.5' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
 /* ═══════════════════════════════════════════════════════════
-   📱 RESPONSIVO
+   RESPONSIVO
    ═══════════════════════════════════════════════════════════ */
-@media (max-width: 991px) {
-    .navbar {
-        padding: 0.7rem 0 !important;
-    }
 
-    .navbar.navbar-scrolled {
-        padding: 0.55rem 0 !important;
-    }
+/* ── Toggler com avatar (mobile, usuário logado) ── */
+#mainNavbar .navbar-toggler-avatar {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+}
+/* No desktop o avatar-toggler não existe (o pill do usuário já faz esse papel) */
+@media (min-width: 992px) {
+    #mainNavbar .navbar-toggler-avatar { display: none; }
+}
+#mainNavbar .navbar-toggler-avatar:hover { background: transparent; }
+#mainNavbar .navbar-toggler-avatar:focus { box-shadow: none; }
 
-    .navbar-logo {
-        height: 34px !important;
-    }
+#mainNavbar .toggler-avatar {
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-radius: 50%;
+    object-fit: cover;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+#mainNavbar .toggler-avatar-placeholder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--hs-amber), var(--hs-amber-dark));
+    color: #fff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+}
+#mainNavbar .toggler-avatar-placeholder[hidden] { display: none; }
 
-    .navbar-collapse {
+#mainNavbar .navbar-toggler-avatar:hover .toggler-avatar,
+#mainNavbar .navbar-toggler-avatar[aria-expanded="true"] .toggler-avatar {
+    border-color: var(--hs-amber);
+}
+#mainNavbar .navbar-toggler-avatar[aria-expanded="true"] .toggler-avatar {
+    box-shadow: 0 0 0 3px rgba(var(--hs-amber-rgb), 0.3);
+}
+
+/* Faixa "lg" (992–1199px): tudo precisa caber numa linha */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    #mainNavbar .navbar-brand { margin-right: 0.5rem; }
+    #mainNavbar .search-bar-desktop { max-width: 230px; margin: 0 0.75rem; }
+    #mainNavbar .search-bar-wrapper { padding-left: 14px; }
+    #mainNavbar .search-btn { width: 36px; padding: 0; justify-content: center; }
+    #mainNavbar .search-btn-text { display: none; }
+    #mainNavbar .search-btn-icon { display: inline-block; }
+    #mainNavbar .nav-link { padding: 0.55rem 0.7rem; }
+    #mainNavbar .user-name-nav { display: none; }
+}
+
+@media (max-width: 991.98px) {
+    #mainNavbar { padding: 0.7rem 0; }
+    #mainNavbar.navbar-scrolled { padding: 0.55rem 0; }
+    #mainNavbar .navbar-logo { height: 34px; }
+
+    #mainNavbar .navbar-collapse {
         margin-top: 0.85rem;
         padding: 0.85rem;
         background: rgba(0, 0, 0, 0.15);
-        backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
-        border-radius: 16px;
+        backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        max-height: calc(100vh - 90px);
+        overflow-y: auto;
     }
 
-    .navbar-nav {
-        gap: 4px;
-        align-items: stretch !important;
-    }
-
-    .navbar .nav-link {
-        padding: 12px 16px !important;
-        border-radius: 12px;
+    #mainNavbar .navbar-nav { gap: 4px; align-items: stretch; }
+    #mainNavbar .nav-link {
         justify-content: flex-start;
+        padding: 12px 16px;
+        border-radius: 12px;
         font-size: 0.92rem;
     }
+    #mainNavbar .nav-link::after { display: none; }
 
-    .navbar .nav-link::after {
-        display: none;
+    /* Chat e sino na barra superior (fora do menu), só com ícone + badge */
+    #mobileNavActions { gap: 2px; margin-right: 2px !important; }
+    #mobileNavActions .nav-link {
+        width: 42px;
+        height: 42px;
+        padding: 0;
+        justify-content: center;
+        border-radius: 50%;
+    }
+    #mobileNavActions .nav-link i { margin: 0 !important; font-size: 1.05rem; }
+    #mobileNavActions .nav-label {   /* texto "Chat" só para leitor de tela */
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+    /* Badge colado no canto superior direito do ícone.
+       (!important: o base.css deixava o badge "no fluxo", ao lado do ícone) */
+    #mobileNavActions > li { position: relative; width: 42px; height: 42px; }
+    #mobileNavActions .notification-badge,
+    #mobileNavActions .chat-link .notification-badge {
+        position: absolute !important;
+        top: 3px !important;
+        left: calc(50% + 1px) !important;   /* a partir do centro do ícone */
+        right: auto !important;
+        bottom: auto !important;
+        margin: 0 !important;
+        order: 0 !important;
+        min-width: 18px !important;
+        height: 18px !important;
+        padding: 0 5px !important;
+        font-size: 0.62rem !important;
+    }
+    #mobileNavActions .notification-dropdown {
+        min-width: 280px;
+        max-width: calc(100vw - 24px);
     }
 
-    .navbar .nav-icon-link {
-        width: 100%;
-        justify-content: flex-start;
-        padding: 12px 16px !important;
-        border-radius: 12px;
-    }
-
-    .notification-badge {
+    /* O avatar já é o botão do menu: o perfil fica aberto dentro dele */
+    #mainNavbar .user-pill { display: none; }
+    #mainNavbar .navbar-collapse .dropdown-menu.user-dropdown {
+        display: block;
         position: static;
-        margin-left: auto;
-        border: none;
-    }
-
-    .navbar .user-pill {
-        padding: 8px 12px !important;
-        margin-left: 0;
-        margin-top: 4px;
         width: 100%;
-        justify-content: flex-start;
+        margin: 8px 0 0;
+        transform: none;
+        animation: none;
+        background: rgba(255, 255, 255, 0.97);
+        border: 0;
+        border-radius: 14px;
+        box-shadow: none;
     }
 
-    .navbar .user-pill::before {
-        margin-left: auto;
-    }
-
-    .navbar .user-name-nav {
-        display: inline;
-    }
-
-    .navbar .btn-login,
-    .navbar .btn-cadastro-destaque {
+    #mainNavbar .btn-login,
+    #mainNavbar .btn-cadastro-destaque {
         width: 100%;
         justify-content: center;
-        margin-left: 0 !important;
-        padding: 12px 20px !important;
-        margin-top: 4px;
-    }
-
-    .navbar .dropdown-menu {
-        margin-top: 4px !important;
-        border-radius: 14px !important;
+        margin: 4px 0 0;
+        padding: 12px 20px;
     }
 }
 
-@media (max-width: 576px) {
-    .navbar-logo {
-        height: 30px !important;
-    }
-
-    .navbar-brand.brand-fallback::after {
-        font-size: 1.15rem;
-    }
+@media (max-width: 575.98px) {
+    #mainNavbar .navbar-logo { height: 30px; }
+    #mainNavbar .navbar-brand.brand-fallback::after { font-size: 1.15rem; }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   🔒 ACESSIBILIDADE
+   ACESSIBILIDADE — movimento reduzido
    ═══════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-    .navbar,
-    .navbar-brand,
-    .navbar-logo,
-    .navbar .nav-link,
-    .navbar .nav-link i,
-    .navbar .nav-link::after,
-    .navbar .dropdown-menu,
-    .navbar .dropdown-menu .dropdown-item,
-    .navbar .btn-login,
-    .navbar .btn-cadastro-destaque,
-    .navbar .btn-cadastro-destaque::before,
-    .user-avatar-nav,
-    .navbar-toggler {
+    #mainNavbar,
+    #mainNavbar *,
+    #mainNavbar *::before,
+    #mainNavbar *::after {
         transition: none !important;
-    }
-
-    .notification-badge {
-        animation: none !important;
-    }
-
-    .navbar .dropdown-menu {
         animation: none !important;
     }
 }
 </style>
 
 <script>
-/* ═══════════════════════════════════════════════════════════
-   NAVBAR — Detecta scroll para mudar a cor
-   ═══════════════════════════════════════════════════════════ */
-(function() {
+/* NAVBAR — HiringScope
+   - muda o estilo ao rolar a página
+   - fallback para logo/avatares que falham ao carregar (sem onerror inline)
+   - atalho "/" para focar a busca */
+(function () {
     'use strict';
 
-    const navbar = document.getElementById('mainNavbar');
+    var navbar = document.getElementById('mainNavbar');
     if (!navbar) return;
 
-    let ticking = false;
+    /* ── Scroll ── */
+    var ticking = false;
 
-    function updateNavbar() {
-        const scrollY = window.scrollY || window.pageYOffset;
-
-        if (scrollY > 30) {
-            navbar.classList.add('navbar-scrolled');
-        } else {
-            navbar.classList.remove('navbar-scrolled');
-        }
-
+    function update() {
+        navbar.classList.toggle('navbar-scrolled', (window.scrollY || window.pageYOffset) > 30);
         ticking = false;
     }
 
-    function onScroll() {
+    window.addEventListener('scroll', function () {
         if (!ticking) {
-            window.requestAnimationFrame(updateNavbar);
             ticking = true;
+            window.requestAnimationFrame(update);
+        }
+    }, { passive: true });
+    update();
+
+    /* ── Fallback de imagens ── */
+    function onLogoError(img) {
+        img.style.display = 'none';
+        var brand = img.closest('.navbar-brand');
+        if (brand) brand.classList.add('brand-fallback');
+    }
+
+    function onAvatarError(img) {
+        img.hidden = true;
+        var next = img.nextElementSibling;
+        if (next) next.hidden = false;
+    }
+
+    function handleBroken(img) {
+        if (img.classList.contains('navbar-logo')) onLogoError(img);
+        else if (img.classList.contains('js-avatar')) onAvatarError(img);
+    }
+
+    // "error" não borbulha: captura na fase de captura
+    navbar.addEventListener('error', function (e) {
+        if (e.target && e.target.tagName === 'IMG') handleBroken(e.target);
+    }, true);
+
+    // Imagens que já falharam antes do script rodar
+    navbar.querySelectorAll('img').forEach(function (img) {
+        if (img.complete && img.naturalWidth === 0) handleBroken(img);
+    });
+
+    /* ── Mobile: chat e sino saem do menu e vão para a barra superior ──
+       São os MESMOS elementos (só mudam de lugar), então IDs, dropdown e o seu
+       base.js continuam funcionando. */
+    var chatItem  = document.getElementById('navChatItem');
+    var bellItem  = document.getElementById('navBellItem');
+    var dashItem  = document.getElementById('navDashboardItem');
+    var topBar    = document.getElementById('mobileNavActions');
+    var isMobile  = window.matchMedia('(max-width: 991.98px)');
+
+    function placeNavItems() {
+        if (!chatItem || !bellItem || !dashItem || !topBar) return;
+
+        // fecha o dropdown do sino antes de mover, para não ficar aberto no lugar errado
+        var bellBtn = document.getElementById('notificationDropdown');
+        if (bellBtn && window.bootstrap && bootstrap.Dropdown) {
+            var inst = bootstrap.Dropdown.getInstance(bellBtn);
+            if (inst) inst.hide();
+        }
+
+        if (isMobile.matches) {
+            topBar.appendChild(chatItem);
+            topBar.appendChild(bellItem);
+        } else {
+            dashItem.parentNode.insertBefore(chatItem, dashItem);
+            dashItem.parentNode.insertBefore(bellItem, dashItem);
         }
     }
 
-    updateNavbar();
-    window.addEventListener('scroll', onScroll, { passive: true });
+    if (isMobile.addEventListener) isMobile.addEventListener('change', placeNavItems);
+    else if (isMobile.addListener) isMobile.addListener(placeNavItems);
+    placeNavItems();
 
-    console.log('✅ Navbar scroll-aware ativada');
+    var badges = ['chatNotificationBadge', 'notificationBadge']
+        .map(function (id) { return document.getElementById(id); })
+        .filter(Boolean);
+
+    /* Animação quando o número aumenta (badge "pula" e o sino balança) */
+    var last = {};
+    function readCount(b) { return parseInt(b.textContent, 10) || 0; }
+
+    function celebrate(b) {
+        b.classList.remove('badge-pop');
+        void b.offsetWidth;                       // reinicia a animação
+        b.classList.add('badge-pop');
+        b.addEventListener('animationend', function done(e) {
+            if (e.animationName !== 'hsBadgePop') return;
+            b.removeEventListener('animationend', done);
+            b.classList.remove('badge-pop');
+        });
+
+        if (b.id === 'notificationBadge') {
+            var bellBtn = document.getElementById('notificationDropdown');
+            if (bellBtn) {
+                bellBtn.classList.remove('bell-ring');
+                void bellBtn.offsetWidth;
+                bellBtn.classList.add('bell-ring');
+                setTimeout(function () { bellBtn.classList.remove('bell-ring'); }, 1000);
+            }
+        }
+    }
+
+    function onBadgeChange() {
+        badges.forEach(function (b) {
+            var n = readCount(b);
+            if (n > (last[b.id] || 0)) celebrate(b);
+            last[b.id] = n;
+        });
+    }
+
+    if (badges.length) {
+        badges.forEach(function (b) { last[b.id] = readCount(b); });
+        var mo = new MutationObserver(onBadgeChange);   // o seu JS de socket atualiza os badges
+        badges.forEach(function (b) {
+            mo.observe(b, { childList: true, characterData: true, subtree: true });
+        });
+    }
+
+    /* ── Atalho "/" para buscar ── */
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+        var t = e.target;
+        if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+
+        var input = document.getElementById('globalSearchInput');
+        if (input && input.offsetParent !== null) {   // só se estiver visível (desktop)
+            e.preventDefault();
+            input.focus();
+            input.select();
+        }
+    });
 })();
 </script>

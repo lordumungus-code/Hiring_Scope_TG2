@@ -2,15 +2,13 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <!-- ============================================ -->
     <!-- SEO BÁSICO -->
     <!-- ============================================ -->
     <title>{% block title %}HiringScope - Profissionais em Cruzeiro - SP | Eletricistas, Diaristas, Encanadores{% endblock %}</title>
-     <!-- ⬇️ COLE A META TAG DO GOOGLE AQUI ⬇️ -->
     <meta name="google-site-verification" content="NnmSl_WgIyY7wrPQYnCm-ZbR4dWPuNeYuz1iuF8nmiM" />
-    <!-- ⬆️ COLE A META TAG DO GOOGLE AQUI ⬆️ -->
     <meta name="description" content="{% block meta_description %}Encontre profissionais qualificados em Cruzeiro - SP. Eletricistas, diaristas, encanadores, pintores e mais. Grátis para clientes. Chat em tempo real e avaliações reais.{% endblock %}">
     <meta name="keywords" content="eletricista em Cruzeiro, diarista em Cruzeiro, encanador em Cruzeiro, pintor em Cruzeiro, profissionais Cruzeiro SP, serviços Cruzeiro">
     <meta name="author" content="HiringScope">
@@ -44,6 +42,7 @@
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/favicon.png') }}">
     <meta name="theme-color" content="#0b2b5c">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="HiringScope">
@@ -85,6 +84,23 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     {% block head_extra %}{% endblock %}
+
+    <style>
+        /* ============================================ */
+        /* CORREÇÃO DE OVERFLOW HORIZONTAL              */
+        /* ============================================ */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden; /* Impede rolagem lateral */
+        }
+        
+        /* Garante que a seção de planos não estoure a tela */
+        .planos-section {
+            overflow: hidden;
+            width: 100%;
+            max-width: 100vw;
+        }
+    </style>
 </head>
 
 <body style="overflow-x: hidden;">
@@ -167,8 +183,11 @@
     <!-- ============================================ -->
     {% include "components/base/navbar.html" %}
     
-    {% include "components/base/search_mobile.html" %}
-    
+    {# Busca mobile oculta (d-none). Mantida no DOM para o base.js não dar erro ao procurar os elementos. #}
+    <div class="d-none" aria-hidden="true">
+        {% include "components/base/search_mobile.html" %}
+    </div>
+
     {% include "components/base/toast_container.html" %}
     
     {% include "components/base/flash_messages.html" %}
@@ -176,7 +195,7 @@
     <!-- ============================================ -->
     <!-- CONTEÚDO PRINCIPAL -->
     <!-- ============================================ -->
-    <main>
+    <main id="main-content">
         {% block content %}{% endblock %}
     </main>
     
@@ -262,9 +281,6 @@
         
         /* ─────────────────────────────────────────
            🎯 ATUALIZA BADGE
-           Regra nova: reflete SEMPRE o servidor
-             0 notificações  → cinza
-             >0 notificações → vermelho
            ───────────────────────────────────────── */
         function atualizarBadge(totalCount, options = {}) {
             badge.dataset.count = totalCount;
@@ -274,7 +290,6 @@
                 badge.classList.add('notification-badge--alert');
                 badge.textContent = totalCount > 9 ? '9+' : totalCount;
                 
-                // Toca som SÓ se a contagem aumentou (evita bip a cada 30s)
                 if (options.playSound && totalCount > lastKnownCount) {
                     tocarSom();
                 }
@@ -345,7 +360,6 @@
         
         /* ─────────────────────────────────────────
            CLIQUE NO SINO
-           (só abre a lista e toca — NÃO zera o badge)
            ───────────────────────────────────────── */
         bell.addEventListener('click', function() {
             carregarLista();
@@ -359,13 +373,8 @@
         atualizarBadge(initialCount, { playSound: false });
         lastKnownCount = initialCount;
         
-        // Sync inicial depois de 1s (sem som)
         setTimeout(() => sincronizar({ playSound: false }), 1000);
-        
-        // A cada 30s COM SOM (detecta notificação nova)
         setInterval(() => sincronizar({ playSound: true }), 30000);
-        
-        // A cada 5s SÓ ATUALIZA O BADGE (sem som)
         setInterval(() => sincronizar({ playSound: false }), 5000);
         
         console.log('🔔 Sistema de notificações ativo');
