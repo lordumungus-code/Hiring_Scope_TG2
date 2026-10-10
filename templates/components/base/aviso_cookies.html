@@ -1,0 +1,91 @@
+{# Aviso de cookies: apenas informativo, porque o site só usa cookies necessários (login).
+   Se um dia entrarem cookies de análise ou publicidade, este aviso precisa virar um pedido de consentimento. #}
+<div class="aviso-cookies" id="avisoCookies" role="region" aria-label="Aviso de cookies" hidden>
+    <p class="aviso-cookies-texto">
+        <i class="fas fa-cookie-bite" aria-hidden="true"></i>
+        Usamos apenas cookies necessários para o site funcionar, como manter você logado.
+        Não usamos cookies de publicidade.
+        <a href="{{ url_for('main.privacidade') }}#cookies">Saiba mais</a>
+    </p>
+    <button type="button" class="aviso-cookies-botao" id="avisoCookiesOk">Entendi</button>
+</div>
+
+<style>
+    .aviso-cookies {
+        position: fixed;
+        left: 16px;
+        bottom: 16px;
+        z-index: 1040;   /* abaixo das janelas modais */
+        max-width: 420px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 14px;
+        box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.45);
+        font-size: 0.82rem;
+        line-height: 1.45;
+    }
+    .aviso-cookies[hidden] {
+        display: none;
+    }
+    .aviso-cookies-texto {
+        margin: 0;
+    }
+    .aviso-cookies-texto i {
+        color: #fbbf24;
+        margin-right: 4px;
+    }
+    .aviso-cookies-texto a {
+        color: #7dd3fc;
+        text-decoration: underline;
+        white-space: nowrap;
+    }
+    .aviso-cookies-botao {
+        flex-shrink: 0;
+        border: 0;
+        border-radius: 999px;
+        padding: 8px 16px;
+        background: #f59e0b;
+        color: #1f2937;
+        font-weight: 700;
+        font-size: 0.82rem;
+        cursor: pointer;
+    }
+    .aviso-cookies-botao:hover {
+        background: #fbbf24;
+    }
+    @media (max-width: 576px) {
+        .aviso-cookies {
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            max-width: none;
+        }
+    }
+    @media print {
+        .aviso-cookies {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        var aviso = document.getElementById('avisoCookies');
+        if (!aviso) return;
+
+        // A escolha fica só no navegador da pessoa (armazenamento local), sem criar outro cookie
+        var jaViu = false;
+        try { jaViu = localStorage.getItem('hs_aviso_cookies') === 'ok'; } catch (e) { /* navegador sem armazenamento local */ }
+        if (jaViu) return;
+
+        aviso.hidden = false;
+        document.getElementById('avisoCookiesOk').addEventListener('click', function () {
+            aviso.hidden = true;
+            try { localStorage.setItem('hs_aviso_cookies', 'ok'); } catch (e) { /* some só até a próxima página */ }
+        });
+    })();
+</script>

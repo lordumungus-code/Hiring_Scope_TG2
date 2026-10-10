@@ -47,15 +47,17 @@
                 <div class="col-md-4">
                     <div class="card bg-light border-0 rounded-3">
                         <div class="card-body text-center">
-                            {% if current_user.id == contrato.cliente_id %}
-                                <i class="fas fa-user-tie fa-3x text-primary mb-2"></i>
-                                <h6 class="mb-1">{{ contrato.prestador.nome }}</h6>
-                                <small class="text-muted">Prestador</small>
+                            {# A outra parte do contrato, com a foto real dela (ou a inicial, se não tiver foto) #}
+                            {% set outra_parte = contrato.prestador if current_user.id == contrato.cliente_id else contrato.cliente %}
+                            {% if outra_parte.foto_url %}
+                                <img src="{{ outra_parte.foto_url }}" alt="Foto de {{ outra_parte.nome }}" class="contrato-avatar mb-2" referrerpolicy="no-referrer">
+                            {% elif outra_parte.foto_perfil and outra_parte.foto_perfil != 'default.jpg' %}
+                                <img src="data:image/jpeg;base64,{{ outra_parte.foto_perfil }}" alt="Foto de {{ outra_parte.nome }}" class="contrato-avatar mb-2">
                             {% else %}
-                                <i class="fas fa-user fa-3x text-success mb-2"></i>
-                                <h6 class="mb-1">{{ contrato.cliente.nome }}</h6>
-                                <small class="text-muted">Cliente</small>
+                                <div class="contrato-avatar contrato-avatar-inicial mb-2">{{ (outra_parte.nome or '?')[0]|upper }}</div>
                             {% endif %}
+                            <h6 class="mb-1">{{ outra_parte.nome }}</h6>
+                            <small class="text-muted">{% if current_user.id == contrato.cliente_id %}Prestador{% else %}Cliente{% endif %}</small>
                         </div>
                     </div>
                 </div>
@@ -215,6 +217,29 @@
         </div>
     </div>
 </div>
+
+<style>
+    .contrato-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #ffffff;
+        box-shadow: 0 4px 12px rgba(11, 43, 92, 0.18);
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    .contrato-avatar-inicial {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+        color: #ffffff;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+</style>
 
 <script>
     function iniciarChat(usuarioId, usuarioNome) {

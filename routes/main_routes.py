@@ -8,6 +8,16 @@ from utils.validators import validar_telefone, formatar_telefone, telefone_ja_ex
 
 main_bp = Blueprint('main', __name__)
 
+# Dados exibidos nos Termos de Uso e na Política de Privacidade.
+# 'documento' é o CPF ou CNPJ do responsável pelo site; enquanto for None, a linha não aparece.
+LEGAL = {
+    'responsavel': 'HiringScope',
+    'documento': None,
+    'email': 'contato@hiring-scope.com.br',
+    'cidade': 'Cruzeiro - SP',
+    'atualizado_em': '10/10/2026',
+}
+
 
 def servicos_em_destaque():
     """Serviços em destaque, ignorando os que tiveram o destaque pago vencido"""
@@ -91,6 +101,7 @@ def index():
 @login_required
 def dashboard():
     from models import Contrato
+    from routes.orcamento_routes import contar_pedidos_para
     
     if current_user.tipo == 'prestador':
         servicos = Servico.query.filter_by(prestador_id=current_user.id).order_by(Servico.data_postagem.desc()).all()
@@ -102,7 +113,8 @@ def dashboard():
                              contratos_pendentes=[c for c in contratos if c.status == 'pendente'],
                              contratos_andamento=[c for c in contratos if c.status in ['aceito', 'em_andamento']],
                              contratos_concluidos=[c for c in contratos if c.status == 'concluido'],
-                             media_avaliacoes=current_user.media_avaliacoes())
+                             media_avaliacoes=current_user.media_avaliacoes(),
+                             pedidos_orcamento=contar_pedidos_para(current_user.id))
     else:
         contratos = Contrato.query.filter_by(cliente_id=current_user.id).order_by(Contrato.data_solicitacao.desc()).all()
         return render_template('dashboard_cliente.html',
@@ -353,6 +365,16 @@ def vidraceiro_cruzeiro():
     servicos_destaque = servicos_em_destaque().limit(8).all()
     return render_template('servico/emergencia/vidraceiro.html',
                          servicos_destaque=servicos_destaque)
+
+@main_bp.route('/privacidade')
+def privacidade():
+    return render_template('legal/privacidade.html', legal=LEGAL)
+
+
+@main_bp.route('/termos')
+def termos():
+    return render_template('legal/termos.html', legal=LEGAL)
+
 
 @main_bp.route('/sitemap.xml')
 def sitemap():

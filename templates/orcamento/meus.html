@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Meus pedidos de orçamento - HiringScope{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5" style="max-width: 900px;">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h3 class="mb-0"><i class="fas fa-bullhorn text-primary me-2"></i> Meus pedidos de orçamento</h3>
+        <a href="{{ url_for('orcamento.novo') }}" class="btn btn-primary rounded-pill px-4">
+            <i class="fas fa-plus me-2"></i> Novo pedido
+        </a>
+    </div>
+
+    {% if not pedidos %}
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-5 text-center">
+                <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                <h5>Você ainda não pediu nenhum orçamento</h5>
+                <p class="text-muted">Descreva o que precisa e receba propostas de profissionais da região.</p>
+                <a href="{{ url_for('orcamento.novo') }}" class="btn btn-primary rounded-pill px-4">Pedir orçamento</a>
+            </div>
+        </div>
+    {% endif %}
+
+    {% for pedido in pedidos %}
+        {% set expirado = pedido.status == 'aberto' and pedido.criado_em < limite %}
+        <div class="card shadow-sm border-0 rounded-4 mb-4" data-pedido="{{ pedido.id }}">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                    <div>
+                        <span class="badge bg-info text-dark rounded-pill">{{ pedido.categoria }}</span>
+                        {% if pedido.status == 'fechado' %}
+                            <span class="badge bg-secondary rounded-pill">Encerrado</span>
+                        {% elif expirado %}
+                            <span class="badge bg-secondary rounded-pill">Expirado</span>
+                        {% else %}
+                            <span class="badge bg-success rounded-pill">Aberto</span>
+                        {% endif %}
+                        <small class="text-muted ms-1">{{ pedido.criado_em.strftime('%d/%m/%Y') }} · {{ pedido.local }} · {{ urgencias.get(pedido.urgencia, '') }}</small>
+                    </div>
+                    {% if pedido.status == 'aberto' and not expirado %}
+                        <form method="POST" action="{{ url_for('orcamento.fechar', pedido_id=pedido.id) }}"
+                              onsubmit="return confirm('Encerrar este pedido? Ele deixa de receber propostas.')">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                                <i class="fas fa-check me-1"></i> Já resolvi, encerrar
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+
+                <p class="mb-3" style="white-space: pre-line; overflow-wrap: anywhere;">{{ pedido.descricao }}</p>
+
+                <h6 class="text-muted mb-2">
+                    <i class="fas fa-inbox me-1"></i>
+                    {{ pedido.respostas|length }} de {{ max_respostas }} propostas
+                </h6>
+
+                {% if not pedido.respostas %}
+                    <p class="text-muted small mb-0">Ainda sem propostas. Você recebe um aviso no chat quando um profissional responder.</p>
+                {% endif %}
+
+                {% for resposta in pedido.respostas %}
+                    {% set p = resposta.prestador %}
+                    <div class="orc-resposta">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                            <div>
+                                <strong>{{ p.nome }}</strong>
+                                {% if p.total_avaliacoes() %}
+                                    <span class="text-warning ms-1"><i class="fas fa-star"></i></span>
+                                    <span class="small">{{ p.media_avaliacoes() }} ({{ p.total_avaliacoes() }})</span>
+                                {% else %}
+                                    <span class="small text-muted ms-1">ainda sem avaliações</span>
+                                {% endif %}
+                            </div>
+                            {% if resposta.valor %}
+                                <span class="orc-valor">R$ {{ ('%.2f'|format(resposta.valor))|replace('.', ',') }}</span>
+                            {% endif %}
+                        </div>
+                        <p class="mb-2 mt-1" style="white-space: pre-line; overflow-wrap: anywhere;">{{ resposta.mensagem }}</p>
+                        {% if not p.desativada %}
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="button" class="btn btn-primary btn-sm rounded-pill px-3"
+                                        onclick='conversarCom({{ p.id }}, {{ p.nome|tojson }})'>
+                                    <i class="fas fa-comments me-1"></i> Conversar
+                                </button>
+                                <a href="{{ url_for('main.perfil_prestador', prestador_id=p.id) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                    <i class="fas fa-user me-1"></i> Ver perfil e serviços
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<style>
+    .orc-resposta {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+    }
+    .orc-valor {
+        font-weight: 800;
+        color: #15803d;
+        white-space: nowrap;
+    }
+</style>
+
+<script>
+    function conversarCom(usuarioId, usuarioNome) {
+        sessionStorage.setItem('chat_with_id', usuarioId);
+        sessionStorage.setItem('chat_with_name', usuarioNome);
+        window.location.href = '/chat';
+    }
+</script>
+{% endblock %}

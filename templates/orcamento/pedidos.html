@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Pedidos de clientes - HiringScope{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5" style="max-width: 900px;">
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+        <h3 class="mb-0"><i class="fas fa-inbox text-primary me-2"></i> Pedidos de clientes</h3>
+        <div class="btn-group" role="group" aria-label="Filtro de categorias">
+            <a href="{{ url_for('orcamento.pedidos') }}" class="btn btn-sm rounded-start-pill px-3 {% if not ver_todas %}btn-primary{% else %}btn-outline-primary{% endif %} {% if not categorias %}disabled{% endif %}">
+                Minhas categorias
+            </a>
+            <a href="{{ url_for('orcamento.pedidos', todas=1) }}" class="btn btn-sm rounded-end-pill px-3 {% if ver_todas %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                Todas
+            </a>
+        </div>
+    </div>
+    <p class="text-muted mb-4">
+        Clientes que descreveram o que precisam e estão esperando propostas. Responder é grátis; cada pedido aceita até {{ max_respostas }} propostas.
+        {% if not categorias %}
+            <br><i class="fas fa-info-circle me-1"></i>
+            Você ainda não tem serviços cadastrados, então mostramos todas as categorias.
+            <a href="{{ url_for('servico.cadastro') }}">Cadastre um serviço</a> para ser avisado dos pedidos da sua área.
+        {% endif %}
+    </p>
+
+    {% if not pedidos %}
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-5 text-center">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5>Nenhum pedido em aberto {% if not ver_todas %}nas suas categorias{% endif %}</h5>
+                <p class="text-muted mb-0">
+                    Quando um cliente pedir um orçamento, você recebe um aviso aqui no site.
+                    {% if not ver_todas %}<a href="{{ url_for('orcamento.pedidos', todas=1) }}">Ver pedidos de todas as categorias</a>.{% endif %}
+                </p>
+            </div>
+        </div>
+    {% endif %}
+
+    {% for pedido in pedidos %}
+        {% set respondi = pedido.id in ja_respondidos %}
+        {% set cheio = pedido.respostas|length >= max_respostas %}
+        <div class="card shadow-sm border-0 rounded-4 mb-3" data-pedido="{{ pedido.id }}">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                    <div>
+                        <span class="badge bg-info text-dark rounded-pill">{{ pedido.categoria }}</span>
+                        {% if pedido.urgencia == 'urgente' %}<span class="badge bg-danger rounded-pill"><i class="fas fa-bolt me-1"></i>Urgente</span>{% endif %}
+                        <small class="text-muted ms-1">
+                            {{ (pedido.cliente.nome or 'Cliente').split()[0] }} · {{ pedido.local }} · {{ pedido.criado_em.strftime('%d/%m') }}
+                            {% if pedido.urgencia != 'urgente' %} · {{ urgencias.get(pedido.urgencia, '') }}{% endif %}
+                        </small>
+                    </div>
+                    <small class="text-muted">{{ pedido.respostas|length }} de {{ max_respostas }} propostas</small>
+                </div>
+
+                <p class="mb-3" style="white-space: pre-line; overflow-wrap: anywhere;">{{ pedido.descricao }}</p>
+
+                {% if respondi %}
+                    <span class="text-success fw-semibold"><i class="fas fa-check-circle me-1"></i> Você já enviou uma proposta. A conversa continua no chat.</span>
+                {% elif cheio %}
+                    <span class="text-muted"><i class="fas fa-lock me-1"></i> Este pedido já recebeu as {{ max_respostas }} propostas.</span>
+                {% else %}
+                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="collapse" data-bs-target="#proposta{{ pedido.id }}">
+                        <i class="fas fa-reply me-1"></i> Enviar proposta
+                    </button>
+                    <div class="collapse mt-3" id="proposta{{ pedido.id }}">
+                        <form method="POST" action="{{ url_for('orcamento.responder', pedido_id=pedido.id) }}">
+                            <div class="mb-2">
+                                <label class="form-label small fw-semibold" for="msg{{ pedido.id }}">Sua mensagem para o cliente</label>
+                                <textarea class="form-control" id="msg{{ pedido.id }}" name="mensagem" rows="3" minlength="10" maxlength="1000" required
+                                          placeholder="Apresente-se, diga como faria o serviço e quando pode atender."></textarea>
+                            </div>
+                            <div class="row g-2 align-items-end">
+                                <div class="col-sm-5">
+                                    <label class="form-label small fw-semibold" for="valor{{ pedido.id }}">Valor estimado (R$) <span class="text-muted fw-normal">opcional</span></label>
+                                    <input type="number" class="form-control" id="valor{{ pedido.id }}" name="valor" min="0" step="0.01" placeholder="Ex.: 150,00">
+                                </div>
+                                <div class="col-sm-7 text-sm-end">
+                                    <button type="submit" class="btn btn-success rounded-pill px-4">
+                                        <i class="fas fa-paper-plane me-2"></i> Enviar
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-2">A proposta vai para o chat do cliente. Só é possível enviar uma por pedido.</small>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

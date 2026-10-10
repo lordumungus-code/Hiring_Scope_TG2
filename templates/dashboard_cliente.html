@@ -15,9 +15,17 @@
             </span>
             Painel do Cliente
         </h2>
-        <a href="{{ url_for('servico.lista') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold">
-            <i class="fas fa-search me-2"></i> Explorar Serviços
-        </a>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ url_for('orcamento.novo') }}" class="btn btn-warning rounded-pill px-4 py-2 fw-semibold">
+                <i class="fas fa-bullhorn me-2"></i> Pedir orçamento
+            </a>
+            <a href="{{ url_for('orcamento.meus') }}" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-semibold">
+                <i class="fas fa-list me-2"></i> Meus pedidos
+            </a>
+            <a href="{{ url_for('servico.lista') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold">
+                <i class="fas fa-search me-2"></i> Explorar Serviços
+            </a>
+        </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════ -->

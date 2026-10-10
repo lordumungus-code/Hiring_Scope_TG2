@@ -415,6 +415,47 @@ class Favorito(db.Model):
         return f'<Favorito {self.id}>'
 
 
+class PedidoOrcamento(db.Model):
+    """Pedido de orçamento: o cliente descreve o que precisa e os prestadores respondem"""
+    __tablename__ = 'pedidos_orcamento'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False, index=True)
+    categoria = db.Column(db.String(100), nullable=False, index=True)
+    descricao = db.Column(db.Text, nullable=False)
+    local = db.Column(db.String(200), nullable=False)
+    urgencia = db.Column(db.String(20), default='flexivel')  # urgente, semana, mes, flexivel
+    status = db.Column(db.String(20), default='aberto', nullable=False)  # aberto, fechado
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    
+    cliente = db.relationship('Usuario', foreign_keys=[cliente_id])
+    respostas = db.relationship('RespostaOrcamento', back_populates='pedido', order_by='RespostaOrcamento.criado_em',
+                                cascade='all, delete-orphan', lazy=True)
+    
+    def __repr__(self):
+        return f'<PedidoOrcamento {self.id} - {self.categoria}>'
+
+
+class RespostaOrcamento(db.Model):
+    """Proposta de um prestador para um pedido de orçamento"""
+    __tablename__ = 'respostas_orcamento'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    pedido_id = db.Column(db.Integer, db.ForeignKey('pedidos_orcamento.id'), nullable=False, index=True)
+    prestador_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    mensagem = db.Column(db.Text, nullable=False)
+    valor = db.Column(db.Float, nullable=True)
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    pedido = db.relationship('PedidoOrcamento', back_populates='respostas')
+    prestador = db.relationship('Usuario', foreign_keys=[prestador_id])
+    
+    __table_args__ = (db.UniqueConstraint('pedido_id', 'prestador_id', name='uma_resposta_por_prestador'),)
+    
+    def __repr__(self):
+        return f'<RespostaOrcamento {self.id}>'
+
+
 class Mensagem(db.Model):
     __tablename__ = 'mensagens'
     

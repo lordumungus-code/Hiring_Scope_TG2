@@ -186,8 +186,8 @@
                                 <input type="checkbox" class="form-check-input" id="terms" required>
                                 <label class="form-check-label small" for="terms">
                                     Concordo com os
-                                    <a href="#" class="terms-link">Termos de Uso</a> e
-                                    <a href="#" class="terms-link">Política de Privacidade</a>
+                                    <a href="{{ url_for('main.termos') }}" target="_blank" class="terms-link">Termos de Uso</a> e
+                                    <a href="{{ url_for('main.privacidade') }}" target="_blank" class="terms-link">Política de Privacidade</a>
                                 </label>
                             </div>
 

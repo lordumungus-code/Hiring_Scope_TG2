@@ -15,6 +15,14 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 VALIDADE_LINK_SENHA = 3600  # 1 hora
 
 
+def destino_apos_login():
+    """Volta para a página que pediu o login (?next=...), só se for um caminho do próprio site"""
+    destino = request.args.get('next', '')
+    if destino.startswith('/') and not destino.startswith('//') and '\\' not in destino:
+        return destino
+    return url_for('main.index')
+
+
 def reativar_se_desativada(usuario):
     """Conta "dormindo" volta a ficar ativa quando o dono faz login"""
     if usuario.desativada:
@@ -58,7 +66,7 @@ def login():
             reativar_se_desativada(usuario)
             login_user(usuario)
             flash(f'Bem-vindo, {usuario.nome}!', 'success')
-            return redirect(url_for('main.index'))
+            return redirect(destino_apos_login())
         else:
             flash('Email ou senha inválidos', 'danger')
     

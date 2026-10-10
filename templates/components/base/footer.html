@@ -118,6 +118,11 @@
         <div class="footer-bottom">
             <p class="footer-copyright">
                 &copy; 2026 <strong>HiringScope</strong>. Todos os direitos reservados.
+                <span class="footer-legal">
+                    <a href="{{ url_for('main.termos') }}">Termos de Uso</a>
+                    <span aria-hidden="true">·</span>
+                    <a href="{{ url_for('main.privacidade') }}">Política de Privacidade</a>
+                </span>
             </p>
             <p class="footer-made">
                 Feito com <i class="fas fa-heart"></i> para conectar profissionais em <strong>Cruzeiro - SP</strong>
@@ -541,4 +546,19 @@
         transition: none !important;
     }
 }
+    /* Links legais no rodapé */
+    .footer-legal {
+        display: inline-block;
+        margin-left: 10px;
+        white-space: nowrap;
+    }
+    .footer-legal a {
+        color: inherit;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        opacity: 0.85;
+    }
+    .footer-legal a:hover {
+        opacity: 1;
+    }
 </style>

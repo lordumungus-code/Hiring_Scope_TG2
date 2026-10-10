@@ -3,7 +3,8 @@ import secrets
 from sqlalchemy import or_
 
 from extensions import db
-from models import Servico, Solicitacao, Contrato, Reclamacao, Favorito, Mensagem, Assinatura
+from models import (Servico, Solicitacao, Contrato, Reclamacao, Favorito, Mensagem, Assinatura,
+                    PedidoOrcamento, RespostaOrcamento)
 
 
 def excluir_conta(usuario):
@@ -22,6 +23,11 @@ def excluir_conta(usuario):
     ).delete(synchronize_session=False)
     Reclamacao.query.filter_by(usuario_id=uid).delete(synchronize_session=False)
     Solicitacao.query.filter_by(cliente_id=uid).delete(synchronize_session=False)
+
+    # Pedidos de orçamento do usuário (com as propostas recebidas) e as propostas que ele enviou
+    RespostaOrcamento.query.filter_by(prestador_id=uid).delete(synchronize_session=False)
+    for pedido in PedidoOrcamento.query.filter_by(cliente_id=uid).all():
+        db.session.delete(pedido)
 
     Assinatura.query.filter_by(prestador_id=uid, status='ativa').update(
         {'status': 'cancelada'}, synchronize_session=False

@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Política de Privacidade - HiringScope{% endblock %}
+{% block meta_description %}Como o HiringScope coleta, usa, compartilha e protege seus dados pessoais, e como você exerce seus direitos pela LGPD.{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5 legal-page">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4 p-md-5 legal-doc">
+
+            <h1>Política de Privacidade</h1>
+            <p class="legal-atualizado">Última atualização: {{ legal.atualizado_em }}</p>
+
+            <div class="legal-resumo">
+                <strong>Em resumo:</strong>
+                <ul>
+                    <li>Coletamos só o que é necessário para a sua conta, seus serviços, conversas e contratos.</li>
+                    <li>Não vendemos seus dados e não usamos cookies de publicidade ou rastreamento.</li>
+                    <li>Você pode corrigir seus dados, desativar ou excluir sua conta a qualquer momento, pelo próprio perfil.</li>
+                </ul>
+            </div>
+
+            <ol class="legal-indice">
+                <li><a href="#quem">Quem somos</a></li>
+                <li><a href="#dados">Dados que coletamos</a></li>
+                <li><a href="#uso">Para que usamos</a></li>
+                <li><a href="#visivel">O que outras pessoas veem</a></li>
+                <li><a href="#terceiros">Com quem compartilhamos</a></li>
+                <li><a href="#cookies">Cookies</a></li>
+                <li><a href="#prazo">Por quanto tempo guardamos</a></li>
+                <li><a href="#direitos">Seus direitos</a></li>
+                <li><a href="#seguranca">Segurança</a></li>
+                <li><a href="#menores">Menores de idade</a></li>
+                <li><a href="#mudancas">Mudanças nesta política</a></li>
+                <li><a href="#contato">Contato</a></li>
+            </ol>
+
+            <h2 id="quem">1. Quem somos</h2>
+            <p>
+                O HiringScope é uma plataforma que aproxima clientes e prestadores de serviços de Cruzeiro - SP e região.
+                O responsável pelo tratamento dos seus dados pessoais (o "controlador", nos termos da Lei nº 13.709/2018 — LGPD) é
+                <strong>{{ legal.responsavel }}</strong>{% if legal.documento %}, inscrito sob o nº {{ legal.documento }}{% endif %},
+                com atendimento em {{ legal.cidade }}.
+            </p>
+            <p>Para qualquer assunto sobre privacidade, escreva para <a href="mailto:{{ legal.email }}">{{ legal.email }}</a>.</p>
+
+            <h2 id="dados">2. Dados que coletamos</h2>
+
+            <h3>2.1. Dados que você informa</h3>
+            <ul>
+                <li><strong>Cadastro:</strong> nome, e-mail, telefone, senha (guardada de forma cifrada, que não permite leitura) e tipo de conta (cliente ou prestador).</li>
+                <li><strong>Perfil:</strong> foto e descrição profissional, se você quiser incluir.</li>
+                <li><strong>Serviços (prestadores):</strong> título, descrição, categoria, preço e fotos dos serviços.</li>
+                <li><strong>Pedidos de orçamento:</strong> a descrição do que você precisa, o bairro ou cidade e o prazo.</li>
+                <li><strong>Chat:</strong> as mensagens e fotos que você envia a outros usuários.</li>
+                <li><strong>Solicitações e avaliações:</strong> os serviços que você solicita ou presta, as notas e os comentários.</li>
+                <li><strong>Contrato formal (opcional):</strong> CPF ou CNPJ, endereço e as condições do serviço (data, local, valor e forma de pagamento).</li>
+            </ul>
+
+            <h3>2.2. Dados que recebemos de terceiros</h3>
+            <ul>
+                <li><strong>Login com Google:</strong> se você escolher entrar com sua conta Google, recebemos do Google seu nome, e-mail e foto de perfil.</li>
+                <li><strong>Pagamentos:</strong> o Mercado Pago nos informa se um pagamento foi aprovado e o seu identificador. <strong>Não recebemos nem guardamos dados de cartão.</strong></li>
+            </ul>
+
+            <h3>2.3. Dados coletados automaticamente</h3>
+            <ul>
+                <li><strong>Assinatura de contrato formal:</strong> data, hora, endereço IP e identificação do navegador no momento em que cada parte assina.</li>
+                <li><strong>Segurança:</strong> o endereço IP é usado temporariamente para limitar tentativas repetidas (por exemplo, de login) e pode constar nos registros técnicos do servidor.</li>
+                <li><strong>Presença:</strong> enquanto o site está aberto, registramos de forma temporária que você está online, para mostrar isso no chat.</li>
+            </ul>
+
+            <h2 id="uso">3. Para que usamos seus dados</h2>
+            <table>
+                <thead>
+                    <tr><th>Finalidade</th><th>Base legal (LGPD, art. 7º)</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Criar e manter sua conta; publicar seus serviços; permitir pedidos de orçamento, conversas, solicitações e avaliações</td><td>Execução de contrato (os Termos de Uso)</td></tr>
+                    <tr><td>Gerar e guardar o contrato formal e o registro das assinaturas</td><td>Execução de contrato e exercício regular de direitos</td></tr>
+                    <tr><td>Processar pagamentos de planos de destaque e de contratos formais</td><td>Execução de contrato</td></tr>
+                    <tr><td>Enviar e-mails necessários ao serviço (recuperação de senha, código de assinatura, contrato assinado)</td><td>Execução de contrato</td></tr>
+                    <tr><td>Prevenir fraudes, abusos e acessos indevidos</td><td>Legítimo interesse</td></tr>
+                    <tr><td>Cumprir obrigações legais e responder a autoridades</td><td>Obrigação legal</td></tr>
+                </tbody>
+            </table>
+            <p>Não usamos seus dados para publicidade de terceiros e não tomamos decisões automatizadas que produzam efeitos jurídicos sobre você.</p>
+
+            <h2 id="visivel">4. O que outras pessoas veem</h2>
+            <ul>
+                <li><strong>Público (qualquer visitante), para prestadores:</strong> nome, foto, descrição, <strong>telefone e e-mail de contato</strong>, os serviços publicados e as avaliações recebidas. Esses dados ficam visíveis para que clientes possam entrar em contato.</li>
+                <li><strong>Avaliações:</strong> o nome de quem avaliou aparece junto à avaliação.</li>
+                <li><strong>Usuários logados:</strong> seu nome e sua foto podem aparecer no chat, inclusive na lista de pessoas com quem é possível iniciar uma conversa, e a indicação de que você está online.</li>
+                <li><strong>Pedidos de orçamento:</strong> os prestadores veem apenas seu primeiro nome, o bairro ou cidade e a descrição do pedido. Telefone e e-mail não são exibidos.</li>
+                <li><strong>A outra parte de um contrato formal:</strong> vê os dados que constam no contrato, incluindo nome, CPF/CNPJ, endereço, telefone e e-mail.</li>
+                <li><strong>Verificação de contrato:</strong> quem tiver o código de verificação de um contrato assinado vê o número do contrato, o serviço, o nome das partes e a data das assinaturas. CPF/CNPJ e endereço não são exibidos.</li>
+            </ul>
+            <p>O e-mail e o telefone de <strong>clientes</strong> não são exibidos publicamente.</p>
+
+            <h2 id="terceiros">5. Com quem compartilhamos</h2>
+            <p>Não vendemos dados pessoais. Compartilhamos apenas o necessário com empresas que prestam serviços para o funcionamento do site:</p>
+            <table>
+                <thead>
+                    <tr><th>Empresa</th><th>Para quê</th><th>Dados envolvidos</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Mercado Pago</td><td>Processar pagamentos</td><td>Nome e e-mail de quem paga; o que está sendo pago</td></tr>
+                    <tr><td>Google (Firebase Authentication)</td><td>Login com conta Google</td><td>Os dados da sua conta Google usados no login</td></tr>
+                    <tr><td>Google (Gemini)</td><td>Sugestões de preço e de descrição de serviço por inteligência artificial, quando o prestador pede</td><td>Título, categoria e texto do serviço digitados pelo prestador. Não enviamos nome, e-mail ou telefone</td></tr>
+                    <tr><td>Resend</td><td>Envio de e-mails do sistema</td><td>Nome, e-mail e o conteúdo do e-mail (incluindo o contrato assinado, quando houver)</td></tr>
+                    <tr><td>Railway</td><td>Hospedagem do site e do banco de dados</td><td>Todos os dados armazenados</td></tr>
+                    <tr><td>Cloudflare</td><td>Proteção e entrega do site</td><td>Endereço IP e dados de navegação que trafegam pelo site</td></tr>
+                </tbody>
+            </table>
+            <p>
+                O site também carrega fontes e bibliotecas de terceiros (Google Fonts, jsDelivr, cdnjs e Socket.IO), que por isso recebem o endereço IP do seu navegador.
+            </p>
+            <p>
+                Algumas dessas empresas mantêm servidores fora do Brasil; nesses casos há transferência internacional de dados, feita com as garantias
+                oferecidas por essas empresas e nos limites da LGPD. Também podemos compartilhar dados quando houver ordem judicial ou exigência legal.
+            </p>
+
+            <h2 id="cookies">6. Cookies</h2>
+            <p>Usamos apenas o que é necessário para o site funcionar:</p>
+            <ul>
+                <li><strong>Cookie de sessão:</strong> mantém você logado. Sem ele não é possível usar a conta.</li>
+                <li><strong>Armazenamento local do navegador:</strong> guarda preferências simples, como o fato de você já ter visto o aviso de cookies.</li>
+                <li><strong>Cookies técnicos do Cloudflare:</strong> o serviço de proteção do site pode usar cookies próprios para diferenciar pessoas de robôs.</li>
+            </ul>
+            <p>
+                Não usamos cookies de publicidade nem de análise de comportamento. Se isso mudar, esta política será atualizada e pediremos
+                seu consentimento antes de ativá-los.
+            </p>
+
+            <h2 id="prazo">7. Por quanto tempo guardamos</h2>
+            <ul>
+                <li><strong>Enquanto a conta existir:</strong> mantemos seus dados de cadastro, perfil, serviços, pedidos, conversas, solicitações e avaliações.</li>
+                <li><strong>Conta desativada:</strong> nada é apagado; seu perfil e seus serviços apenas deixam de aparecer até você voltar.</li>
+                <li><strong>Conta excluída:</strong> apagamos imediatamente seu nome, e-mail, telefone, foto, descrição, mensagens do chat, pedidos de orçamento e serviços sem histórico de contratação.</li>
+                <li><strong>O que permanece após a exclusão:</strong> solicitações concluídas e avaliações continuam visíveis para a outra pessoa, sem o seu nome ("Usuário removido"), para preservar o histórico dela.</li>
+                <li><strong>Contratos formais:</strong> o contrato e o registro das assinaturas, com os dados que constam nele, são guardados mesmo após a exclusão da conta, pelo tempo necessário para que as partes possam comprovar e exercer seus direitos e para o cumprimento de obrigações legais.</li>
+                <li><strong>Conversas apagadas:</strong> quando você apaga uma conversa, ela some para você; as mensagens são removidas em definitivo quando a outra pessoa também apaga.</li>
+                <li><strong>Códigos de assinatura e links de recuperação de senha:</strong> valem por minutos e não podem ser reutilizados.</li>
+            </ul>
+
+            <h2 id="direitos">8. Seus direitos</h2>
+            <p>A LGPD garante a você, entre outros, o direito de:</p>
+            <ul>
+                <li>confirmar se tratamos seus dados e acessá-los;</li>
+                <li>corrigir dados incompletos, inexatos ou desatualizados;</li>
+                <li>pedir a eliminação de dados desnecessários ou tratados com base em consentimento;</li>
+                <li>pedir a portabilidade dos dados;</li>
+                <li>saber com quem compartilhamos seus dados;</li>
+                <li>opor-se a um tratamento que considere irregular.</li>
+            </ul>
+            <p><strong>Como exercer:</strong></p>
+            <ul>
+                <li><strong>Corrigir:</strong> em <em>Meu Perfil</em> você altera nome, e-mail, telefone, foto e descrição.</li>
+                <li><strong>Desativar ou excluir a conta:</strong> em <em>Meu Perfil → Gerenciar Conta</em>.</li>
+                <li><strong>Demais pedidos:</strong> escreva para <a href="mailto:{{ legal.email }}">{{ legal.email }}</a>. Respondemos em até 15 dias e podemos pedir uma confirmação de identidade.</li>
+            </ul>
+            <p>Você também pode apresentar reclamação à Autoridade Nacional de Proteção de Dados (ANPD).</p>
+
+            <h2 id="seguranca">9. Segurança</h2>
+            <p>
+                Adotamos medidas para proteger seus dados: conexão cifrada (HTTPS), senhas guardadas de forma cifrada, confirmação por senha e código
+                para assinar contratos, limites contra tentativas repetidas de acesso e acesso restrito às fotos e mensagens do chat.
+                Nenhum sistema é totalmente imune; se houver um incidente que possa causar risco ou dano relevante, avisaremos os usuários afetados e a ANPD.
+            </p>
+            <p>Cuide da sua senha: ela e o código enviado ao seu e-mail equivalem à sua assinatura nos contratos formais.</p>
+
+            <h2 id="menores">10. Menores de idade</h2>
+            <p>O HiringScope é destinado a maiores de 18 anos. Não coletamos intencionalmente dados de crianças e adolescentes; se soubermos de um cadastro nessa situação, a conta será removida.</p>
+
+            <h2 id="mudancas">11. Mudanças nesta política</h2>
+            <p>Podemos atualizar esta política para refletir mudanças no site ou na lei. A data no topo indica a versão em vigor; mudanças relevantes serão avisadas no próprio site.</p>
+
+            <h2 id="contato">12. Contato</h2>
+            <p>
+                Dúvidas, pedidos ou reclamações sobre privacidade: <a href="mailto:{{ legal.email }}">{{ legal.email }}</a>.
+                Veja também os <a href="{{ url_for('main.termos') }}">Termos de Uso</a>.
+            </p>
+        </div>
+    </div>
+</div>
+{% include 'legal/_estilo.html' %}
+{% endblock %}

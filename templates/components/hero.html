@@ -37,9 +37,9 @@
                 <!-- Botões CTA -->
                 {% if not current_user.is_authenticated %}
                     <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
-                        <a href="{{ url_for('servico.lista') }}" class="btn-hero">
-                            <i class="fas fa-search"></i>
-                            <span>Encontrar profissional</span>
+                        <a href="{{ url_for('orcamento.novo') }}" class="btn-hero">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Pedir orçamento grátis</span>
                             <i class="fas fa-arrow-right btn-hero-arrow"></i>
                         </a>
                         <a href="{{ url_for('auth.cadastro') }}?tipo=prestador" class="btn-hero-outline">
@@ -49,12 +49,16 @@
                     </div>
                 {% else %}
                     <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
-                        <a href="{{ url_for('servico.lista') }}" class="btn-hero">
-                            <i class="fas fa-search"></i>
-                            <span>Buscar em Cruzeiro</span>
+                        <a href="{{ url_for('orcamento.novo') }}" class="btn-hero">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Pedir orçamento grátis</span>
                             <i class="fas fa-arrow-right btn-hero-arrow"></i>
                         </a>
                         {% if current_user.tipo == 'prestador' %}
+                            <a href="{{ url_for('orcamento.pedidos') }}" class="btn-hero-outline">
+                                <i class="fas fa-inbox"></i>
+                                <span>Pedidos de clientes</span>
+                            </a>
                             <a href="{{ url_for('servico.cadastro') }}" class="btn-hero-outline">
                                 <i class="fas fa-plus"></i>
                                 <span>Cadastrar serviço</span>
@@ -81,12 +85,20 @@
                     </form>
 
                     <!-- Sugestões populares -->
+                    {# Atalhos: as categorias com mais serviços cadastrados (ou buscas comuns, se ainda não houver) #}
+                    {% set populares = (categorias_com_contagem or [])|selectattr('0')|sort(attribute='1', reverse=true)|list %}
                     <div class="hero-popular">
                         <span class="hero-popular-label">Popular em Cruzeiro:</span>
-                        <a href="{{ url_for('servico.lista') }}?q=eletricista">Eletricista</a>
-                        <a href="{{ url_for('servico.lista') }}?q=diarista">Diarista</a>
-                        <a href="{{ url_for('servico.lista') }}?q=encanador">Encanador</a>
-                        <a href="{{ url_for('servico.lista') }}?q=pintor">Pintor</a>
+                        {% if populares|length >= 3 %}
+                            {% for categoria, total in populares[:5] %}
+                                <a href="{{ url_for('servico.lista', categoria=categoria) }}">{{ categoria }}</a>
+                            {% endfor %}
+                        {% else %}
+                            <a href="{{ url_for('servico.lista') }}?q=eletricista">Eletricista</a>
+                            <a href="{{ url_for('servico.lista') }}?q=diarista">Diarista</a>
+                            <a href="{{ url_for('servico.lista') }}?q=encanador">Encanador</a>
+                            <a href="{{ url_for('servico.lista') }}?q=pintor">Pintor</a>
+                        {% endif %}
                     </div>
                 </div>
 

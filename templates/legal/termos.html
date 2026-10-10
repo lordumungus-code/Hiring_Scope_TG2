@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Termos de Uso - HiringScope{% endblock %}
+{% block meta_description %}Regras de uso do HiringScope: como funciona a plataforma, responsabilidades de clientes e prestadores, planos e contrato formal.{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5 legal-page">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4 p-md-5 legal-doc">
+
+            <h1>Termos de Uso</h1>
+            <p class="legal-atualizado">Última atualização: {{ legal.atualizado_em }}</p>
+
+            <div class="legal-resumo">
+                <strong>Em resumo:</strong>
+                <ul>
+                    <li>O HiringScope aproxima clientes e prestadores. O serviço é combinado e prestado diretamente entre eles.</li>
+                    <li>Não somos parte do serviço contratado, não o executamos e não intermediamos o pagamento entre cliente e prestador.</li>
+                    <li>Usar o site como cliente é gratuito. Para prestadores, publicar serviços é gratuito; planos de destaque e contrato formal são opcionais e pagos.</li>
+                </ul>
+            </div>
+
+            <ol class="legal-indice">
+                <li><a href="#aceite">Aceitação</a></li>
+                <li><a href="#plataforma">O que é o HiringScope</a></li>
+                <li><a href="#conta">Cadastro e conta</a></li>
+                <li><a href="#prestadores">Regras para prestadores</a></li>
+                <li><a href="#clientes">Regras para clientes</a></li>
+                <li><a href="#proibido">Condutas proibidas</a></li>
+                <li><a href="#avaliacoes">Avaliações</a></li>
+                <li><a href="#pagos">Serviços pagos da plataforma</a></li>
+                <li><a href="#formal">Contrato formal</a></li>
+                <li><a href="#ia">Sugestões por inteligência artificial</a></li>
+                <li><a href="#responsabilidade">Responsabilidades</a></li>
+                <li><a href="#encerramento">Suspensão e encerramento</a></li>
+                <li><a href="#propriedade">Conteúdo e propriedade intelectual</a></li>
+                <li><a href="#mudancas">Mudanças</a></li>
+                <li><a href="#foro">Lei e foro</a></li>
+                <li><a href="#contato">Contato</a></li>
+            </ol>
+
+            <h2 id="aceite">1. Aceitação</h2>
+            <p>
+                Ao criar uma conta ou usar o HiringScope, você declara que leu e concorda com estes Termos e com a
+                <a href="{{ url_for('main.privacidade') }}">Política de Privacidade</a>. Se não concordar, não use a plataforma.
+            </p>
+
+            <h2 id="plataforma">2. O que é o HiringScope</h2>
+            <p>
+                O HiringScope, mantido por <strong>{{ legal.responsavel }}</strong>{% if legal.documento %} ({{ legal.documento }}){% endif %},
+                é um site que permite a prestadores divulgar seus serviços e a clientes encontrá-los, pedir orçamentos, conversar, solicitar serviços e avaliá-los.
+            </p>
+            <p>
+                <strong>O HiringScope é apenas o meio de aproximação.</strong> A negociação, a contratação, a execução e o pagamento do serviço acontecem
+                diretamente entre cliente e prestador. Não somos empregadores, sócios, agentes ou representantes de nenhum prestador, e não garantimos
+                que um pedido receberá propostas nem que um serviço será contratado.
+            </p>
+
+            <h2 id="conta">3. Cadastro e conta</h2>
+            <ul>
+                <li>É preciso ter 18 anos ou mais e capacidade civil para usar a plataforma.</li>
+                <li>Os dados informados devem ser verdadeiros e mantidos atualizados. Cada pessoa deve ter apenas uma conta.</li>
+                <li>Você é responsável por manter sua senha em sigilo e por tudo o que for feito com a sua conta.</li>
+                <li>Você pode alternar entre os perfis de cliente e prestador, desativar ou excluir sua conta a qualquer momento, em <em>Meu Perfil</em>.</li>
+            </ul>
+
+            <h2 id="prestadores">4. Regras para prestadores</h2>
+            <ul>
+                <li>Anunciar apenas serviços que você realmente presta, com descrição, preço e fotos verdadeiros e de sua autoria ou com direito de uso.</li>
+                <li>Ter as habilitações, licenças e registros profissionais exigidos por lei para a atividade, quando houver.</li>
+                <li>Cumprir o que for combinado com o cliente e responder pela qualidade e segurança do serviço, pelos tributos e pelas obrigações trabalhistas e previdenciárias da sua atividade.</li>
+                <li>Enviar propostas a pedidos de orçamento apenas quando tiver real interesse e condição de atender.</li>
+            </ul>
+
+            <h2 id="clientes">5. Regras para clientes</h2>
+            <ul>
+                <li>Descrever com clareza o que precisa e fornecer informações verdadeiras.</li>
+                <li>Combinar diretamente com o prestador preço, prazo, forma de pagamento e demais condições.</li>
+                <li>Pagar ao prestador o que for combinado. O HiringScope não recebe nem repassa o pagamento do serviço.</li>
+                <li>Avaliar com honestidade, com base na experiência real.</li>
+            </ul>
+
+            <h2 id="proibido">6. Condutas proibidas</h2>
+            <p>Não é permitido:</p>
+            <ul>
+                <li>anunciar ou solicitar serviços ilegais, ou que violem direitos de terceiros;</li>
+                <li>publicar conteúdo falso, enganoso, ofensivo, discriminatório, sexual ou violento;</li>
+                <li>assediar, ameaçar ou enviar mensagens em massa (spam) a outros usuários;</li>
+                <li>criar avaliações falsas ou combinar avaliações para manipular a reputação;</li>
+                <li>usar dados de outros usuários para fim diferente da contratação do serviço;</li>
+                <li>tentar burlar pagamentos, acessar contas alheias ou explorar falhas de segurança do site;</li>
+                <li>usar robôs ou meios automatizados para coletar dados da plataforma.</li>
+            </ul>
+
+            <h2 id="avaliacoes">7. Avaliações</h2>
+            <p>
+                Só o cliente de um serviço concluído pode avaliá-lo, e pode editar a avaliação por até 7 dias. As avaliações expressam a opinião de quem as escreveu.
+                Podemos remover avaliações que violem estes Termos, mas não alteramos notas a pedido do avaliado.
+            </p>
+
+            <h2 id="pagos">8. Serviços pagos da plataforma</h2>
+            <h3>8.1. Planos de destaque</h3>
+            <ul>
+                <li>São opcionais e dão ao prestador mais visibilidade na página inicial, conforme os limites de cada plano, exibidos na página de planos.</li>
+                <li>Cada pagamento vale por 30 dias e <strong>não é renovado automaticamente</strong>.</li>
+                <li>O destaque aumenta a visibilidade, mas não garante contatos nem contratações.</li>
+                <li>Cancelar o plano encerra o destaque.</li>
+            </ul>
+            <h3>8.2. Pagamento e reembolso</h3>
+            <ul>
+                <li>Os pagamentos são processados pelo Mercado Pago. O HiringScope não tem acesso aos dados do seu cartão.</li>
+                <li>O plano ou o contrato formal é liberado quando o Mercado Pago confirma o pagamento.</li>
+                <li>Depois de liberado e utilizado, o valor não é reembolsado, ressalvados o direito de arrependimento e os demais direitos previstos no Código de Defesa do Consumidor. Pedidos de reembolso devem ser enviados para {{ legal.email }}.</li>
+            </ul>
+
+            <h2 id="formal">9. Contrato formal</h2>
+            <ul>
+                <li>É um recurso opcional, liberado pelo prestador mediante pagamento, que gera um contrato de prestação de serviços com os dados das duas partes e as condições que elas definirem.</li>
+                <li><strong>O contrato é firmado exclusivamente entre cliente e prestador.</strong> O HiringScope fornece o modelo e o meio eletrônico de assinatura e guarda, mas não é parte, fiador nem garantidor do contrato.</li>
+                <li>O modelo é genérico. Cabe às partes ler com atenção, ajustar as condições ao seu caso e, se necessário, consultar um advogado. O HiringScope não presta assessoria jurídica.</li>
+                <li>A assinatura é feita com a senha da conta e um código enviado ao e-mail cadastrado. Ao assinar, você reconhece esse meio como válido para comprovar sua autoria, e ficam registrados data, hora, endereço IP e navegador.</li>
+                <li>Depois que as duas partes assinam, o contrato não pode mais ser alterado pela plataforma. Um contrato assinado continua guardado mesmo se uma das contas for excluída.</li>
+                <li>Se o serviço for combinado sem o contrato formal, a plataforma continua funcionando normalmente, inclusive as avaliações.</li>
+            </ul>
+
+            <h2 id="ia">10. Sugestões por inteligência artificial</h2>
+            <p>
+                As sugestões de preço e de descrição de serviço são geradas automaticamente e servem apenas como ponto de partida. Elas podem conter erros.
+                O prestador é o único responsável pelo preço e pelo texto que decidir publicar.
+            </p>
+
+            <h2 id="responsabilidade">11. Responsabilidades</h2>
+            <ul>
+                <li>Cada prestador responde pelos serviços que anuncia e executa; cada usuário responde pelo conteúdo que publica e pelas mensagens que envia.</li>
+                <li>O HiringScope não verifica previamente a identidade, a qualificação ou os antecedentes dos usuários, nem a veracidade dos anúncios, e não garante a qualidade, a segurança ou a legalidade dos serviços oferecidos.</li>
+                <li>Não respondemos por danos decorrentes da relação entre cliente e prestador, incluindo atrasos, defeitos, cancelamentos ou falta de pagamento. Recomendamos conferir as avaliações, combinar tudo por escrito e não fazer pagamentos adiantados sem segurança.</li>
+                <li>Buscamos manter o site disponível e seguro, mas podem ocorrer interrupções para manutenção ou por falhas técnicas e de terceiros.</li>
+                <li>Nada nestes Termos afasta direitos que a lei garante ao consumidor nem a responsabilidade do HiringScope nos casos em que a lei não permite limitá-la.</li>
+            </ul>
+
+            <h2 id="encerramento">12. Suspensão e encerramento</h2>
+            <p>
+                Podemos remover conteúdo, suspender ou encerrar contas que violem estes Termos ou a lei, ou que coloquem outros usuários em risco.
+                Você pode encerrar sua conta quando quiser. O que acontece com seus dados nesse caso está descrito na
+                <a href="{{ url_for('main.privacidade') }}#prazo">Política de Privacidade</a>.
+            </p>
+
+            <h2 id="propriedade">13. Conteúdo e propriedade intelectual</h2>
+            <ul>
+                <li>Os textos e as fotos que você publica continuam sendo seus. Ao publicá-los, você autoriza o HiringScope a exibi-los na plataforma e em sua divulgação, enquanto estiverem publicados.</li>
+                <li>A marca, o layout e o código do HiringScope pertencem à plataforma e não podem ser copiados sem autorização.</li>
+            </ul>
+
+            <h2 id="mudancas">14. Mudanças nestes Termos</h2>
+            <p>Podemos alterar estes Termos. A data no topo indica a versão em vigor; mudanças relevantes serão avisadas no site. Continuar usando a plataforma depois do aviso significa concordar com a nova versão.</p>
+
+            <h2 id="foro">15. Lei e foro</h2>
+            <p>
+                Estes Termos são regidos pelas leis brasileiras. Fica eleito o foro da comarca de {{ legal.cidade }} para resolver questões decorrentes deles,
+                ressalvado o direito do consumidor de escolher o foro do seu domicílio.
+            </p>
+
+            <h2 id="contato">16. Contato</h2>
+            <p>Dúvidas sobre estes Termos: <a href="mailto:{{ legal.email }}">{{ legal.email }}</a>.</p>
+        </div>
+    </div>
+</div>
+{% include 'legal/_estilo.html' %}
+{% endblock %}

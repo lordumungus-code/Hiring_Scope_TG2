@@ -112,6 +112,13 @@
                     </a>
                 </li>
 
+                {# Em telas médias a barra já fica cheia: o link aparece no menu do celular e em telas largas #}
+                <li class="nav-item d-lg-none d-xxl-block">
+                    <a class="nav-link" href="{{ url_for('orcamento.novo') }}">
+                        <i class="fas fa-bullhorn me-1" aria-hidden="true"></i> Pedir orçamento
+                    </a>
+                </li>
+
                 {% if current_user.is_authenticated and current_user.is_admin %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
@@ -213,7 +220,18 @@
                                 </a>
                             </li>
 
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('orcamento.meus') }}">
+                                    <i class="fas fa-bullhorn" aria-hidden="true"></i> Meus pedidos de orçamento
+                                </a>
+                            </li>
+
                             {% if current_user.tipo == 'prestador' %}
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('orcamento.pedidos') }}">
+                                    <i class="fas fa-inbox" aria-hidden="true"></i> Pedidos de clientes
+                                </a>
+                            </li>
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('servico.meus_servicos') }}">
                                     <i class="fas fa-briefcase" aria-hidden="true"></i> Meus Serviços
