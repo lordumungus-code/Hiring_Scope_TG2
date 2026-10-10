@@ -9,6 +9,7 @@ from extensions import db, limiter, socketio
 from models import Contrato, ContratoFormal
 from services.mercado_pago_service import criar_preferencia, verificar_pagamento
 from services.email_service import enviar_email
+from services.push_service import notificar
 from services import contrato_formal_service as servico_formal
 from services.contrato_formal_service import PRECO_CONTRATO_FORMAL, VALIDADE_CODIGO, MAX_TENTATIVAS_CODIGO
 from utils.validators import validar_cpf_cnpj
@@ -53,8 +54,8 @@ def limpar_assinaturas(formal):
 
 
 def avisar(usuario_id, titulo, mensagem):
-    """Aviso em tempo real para a outra parte (aparece como notificação no site)"""
-    socketio.emit('notification', {'titulo': titulo, 'mensagem': mensagem}, room=f'user_{usuario_id}')
+    """Avisa a outra parte: na tela se estiver com o site aberto, por notificação push se estiver fora"""
+    notificar(usuario_id, titulo, mensagem, url_for('contrato.meus_contratos'))
 
 
 def numero_valido(texto, maximo):

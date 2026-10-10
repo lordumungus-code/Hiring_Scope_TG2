@@ -415,6 +415,21 @@ class Favorito(db.Model):
         return f'<Favorito {self.id}>'
 
 
+class InscricaoPush(db.Model):
+    """Um navegador/aparelho em que o usuário ativou as notificações push"""
+    __tablename__ = 'inscricoes_push'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False, index=True)
+    endpoint = db.Column(db.String(1000), nullable=False, unique=True)
+    p256dh = db.Column(db.String(200), nullable=False)
+    auth = db.Column(db.String(100), nullable=False)
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<InscricaoPush {self.id} do usuario {self.usuario_id}>'
+
+
 class PedidoOrcamento(db.Model):
     """Pedido de orçamento: o cliente descreve o que precisa e os prestadores respondem"""
     __tablename__ = 'pedidos_orcamento'

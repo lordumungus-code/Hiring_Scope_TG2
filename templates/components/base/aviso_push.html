@@ -1,0 +1,99 @@
+{# Convite para ativar as notificações push. Só é incluído para quem está logado e se o push estiver configurado.
+   O navegador só mostra o pedido de permissão depois que a pessoa clica em "Ativar". #}
+<div class="aviso-push" id="avisoPush" data-chave="{{ push_chave_publica }}" role="region" aria-label="Ativar notificações" hidden>
+    <div class="aviso-push-icone"><i class="fas fa-bell" aria-hidden="true"></i></div>
+    <div class="aviso-push-texto">
+        <strong>Receber avisos no aparelho?</strong>
+        <span>Saiba na hora quando chegar mensagem, proposta ou solicitação, mesmo com o site fechado.</span>
+        <div class="aviso-push-botoes">
+            <button type="button" class="aviso-push-ativar" id="avisoPushAtivar">Ativar</button>
+            <button type="button" class="aviso-push-depois" id="avisoPushDepois">Agora não</button>
+        </div>
+        <small class="aviso-push-erro" id="avisoPushErro" hidden></small>
+    </div>
+</div>
+
+<style>
+    .aviso-push {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 1040;   /* abaixo das janelas modais */
+        max-width: 360px;
+        display: flex;
+        gap: 12px;
+        padding: 14px;
+        background: #ffffff;
+        color: #1f2937;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        box-shadow: 0 16px 36px -12px rgba(11, 43, 92, 0.35);
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    .aviso-push[hidden] {
+        display: none;
+    }
+    .aviso-push-icone {
+        flex-shrink: 0;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: #78350f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .aviso-push-texto strong {
+        display: block;
+        color: #0b2b5c;
+    }
+    .aviso-push-botoes {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .aviso-push-botoes button {
+        border: 0;
+        border-radius: 999px;
+        padding: 7px 16px;
+        font-weight: 700;
+        font-size: 0.82rem;
+        cursor: pointer;
+    }
+    .aviso-push-ativar {
+        background: #0b2b5c;
+        color: #ffffff;
+    }
+    .aviso-push-ativar:disabled {
+        opacity: 0.6;
+        cursor: wait;
+    }
+    .aviso-push-depois {
+        background: #f1f5f9;
+        color: #475569;
+    }
+    .aviso-push-erro {
+        display: block;
+        margin-top: 8px;
+        color: #b91c1c;
+    }
+    .aviso-push-erro[hidden] {
+        display: none;
+    }
+    @media (max-width: 576px) {
+        .aviso-push {
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            max-width: none;
+        }
+    }
+    @media print {
+        .aviso-push {
+            display: none;
+        }
+    }
+</style>
+<script src="{{ url_for('static', filename='js/push.js') }}" defer></script>

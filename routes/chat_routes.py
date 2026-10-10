@@ -4,6 +4,7 @@ from flask_socketio import join_room
 from extensions import db, socketio, limiter
 from models import Usuario, Mensagem
 from utils.imagens import processar_imagem
+from services.push_service import enviar_push
 from datetime import datetime
 from sqlalchemy import func, or_, and_
 import base64
@@ -121,6 +122,11 @@ def entregar(mensagem):
     if mensagem.imagem_base64 is not None and not mensagem.conteudo:
         dados['conteudo'] = '📷 Foto'   # texto usado nas notificações e na prévia da conversa
     socketio.emit('new_private_message', dados, room=f'user_{mensagem.destinatario_id}')
+    
+    # Destinatário com o site fechado: aviso por notificação push
+    if not esta_online(mensagem.destinatario_id):
+        enviar_push(mensagem.destinatario_id, f'Nova mensagem de {current_user.nome}', dados['conteudo'],
+                    url='/chat/', tag=f'chat-{current_user.id}')
 
 
 # ============================================

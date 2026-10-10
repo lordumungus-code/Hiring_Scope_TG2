@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from extensions import db, limiter, socketio
 from models import PedidoOrcamento, RespostaOrcamento, Servico, Usuario, Mensagem
 from utils.categorias import CATEGORIAS, CATEGORIAS_POR_GRUPO
+from services.push_service import notificar
 
 orcamento_bp = Blueprint('orcamento', __name__, url_prefix='/orcamento')
 
@@ -49,8 +50,9 @@ def contar_pedidos_para(prestador_id):
     ).count()
 
 
-def avisar(usuario_id, titulo, mensagem):
-    socketio.emit('notification', {'titulo': titulo, 'mensagem': mensagem}, room=f'user_{usuario_id}')
+def avisar(usuario_id, titulo, mensagem, url='/'):
+    """Aviso na tela para quem está com o site aberto; notificação push para quem está fora"""
+    notificar(usuario_id, titulo, mensagem, url)
 
 
 # ============================================
@@ -94,7 +96,7 @@ def novo():
             Servico.categoria == categoria, Servico.prestador_id != current_user.id
         ).distinct().all()
         for (prestador_id,) in prestadores:
-            avisar(prestador_id, 'Novo pedido de orçamento', f'{categoria}: {descricao[:80]}')
+            avisar(prestador_id, 'Novo pedido de orçamento', f'{categoria}: {descricao[:80]}', url_for('orcamento.pedidos'))
 
         if prestadores:
             flash(f'✅ Pedido enviado para {len(prestadores)} profissional(is) de {categoria}. As propostas chegam pelo chat e aparecem aqui.', 'success')
@@ -201,7 +203,7 @@ def responder(pedido_id):
 
     from routes.chat_routes import entregar
     entregar(mensagem_chat)
-    avisar(pedido.cliente_id, 'Nova proposta de orçamento', f'{current_user.nome} respondeu ao seu pedido de {pedido.categoria}.')
+    avisar(pedido.cliente_id, 'Nova proposta de orçamento', f'{current_user.nome} respondeu ao seu pedido de {pedido.categoria}.', url_for('orcamento.meus'))
 
     flash('Proposta enviada! O cliente recebeu sua mensagem no chat.', 'success')
     return redirect(url_for('orcamento.pedidos'))

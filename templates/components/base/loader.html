@@ -1,5 +1,5 @@
 <div id="loader">
-    <img src="{{ url_for('static', filename='img/logo.png') }}" class="loader-logo" alt="Logo">
+    <img src="{{ url_for('static', filename='img/logo-360.png') }}" srcset="{{ url_for('static', filename='img/logo-180.png') }} 180w, {{ url_for('static', filename='img/logo-360.png') }} 360w, {{ url_for('static', filename='img/logo-540.png') }} 540w" sizes="180px" class="loader-logo" alt="HiringScope">
     <div class="loader-text">Carregando experiência incrível...</div>
     <div class="loader-bar"><span></span></div>
 </div>

@@ -40,8 +40,9 @@
     <!-- FAVICON E MOBILE -->
     <!-- ============================================ -->
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/icon-192.png') }}">
     <meta name="theme-color" content="#0b2b5c">
+<link rel="manifest" href="{{ url_for('push.manifest') }}">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -143,7 +144,7 @@
     <!-- LOADER -->
     <!-- ============================================ -->
     <div id="loader" style="position: fixed; inset: 0; background: linear-gradient(135deg, #0a2540, #1a6d8f); display: flex; align-items: center; justify-content: center; flex-direction: column; z-index: 9999;">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" class="loader-logo" style="width: 120px;" alt="HiringScope">
+        <img src="{{ url_for('static', filename='img/logo-360.png') }}" srcset="{{ url_for('static', filename='img/logo-180.png') }} 180w, {{ url_for('static', filename='img/logo-360.png') }} 360w, {{ url_for('static', filename='img/logo-540.png') }} 540w" sizes="180px" class="loader-logo" style="width: 120px;" alt="HiringScope">
         <div class="loader-text" style="color: white; margin-top: 20px;">Carregando experiência incrível...</div>
     </div>
     
@@ -205,6 +206,10 @@
     {% include "components/base/footer.html" %}
 
     {% include "components/base/aviso_cookies.html" %}
+
+    {% if current_user.is_authenticated and push_chave_publica %}
+        {% include "components/base/aviso_push.html" %}
+    {% endif %}
     
     <!-- ============================================ -->
     <!-- SCRIPTS -->

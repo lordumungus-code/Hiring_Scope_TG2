@@ -13,7 +13,8 @@
             <div class="col-lg-5 col-md-12 footer-col-brand">
                 <div class="footer-brand">
                     <a href="{{ url_for('main.index') }}" class="footer-logo">
-                        <img src="{{ url_for('static', filename='img/logo.png') }}"
+                        <img src="{{ url_for('static', filename='img/logo-360.png') }}"
+                            srcset="{{ url_for('static', filename='img/logo-180.png') }} 180w, {{ url_for('static', filename='img/logo-360.png') }} 360w, {{ url_for('static', filename='img/logo-540.png') }} 540w" sizes="180px"
                             alt="HiringScope"
                             class="footer-logo-img"
                             onerror="this.onerror=null; this.parentNode.innerHTML='<span class=&quot;footer-logo-fallback&quot;>HiringScope</span>';">

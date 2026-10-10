@@ -5266,16 +5266,11 @@ textarea:focus-visible {
     background: linear-gradient(135deg, #8b5cf6, #6d28d9) !important;
     box-shadow: 0 8px 20px -6px rgba(139, 92, 246, 0.4) !important;
 }
+/* Logotipo: redimensionamento suave. ("crisp-edges" é para pixel art e deixava o logo serrilhado.) */
 .navbar .navbar-logo,
 .footer-logo-img,
 .loader-logo {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-  
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    
-    -webkit-backface-visibility: hidden;
+    image-rendering: auto;
 }
 
 #loader .loader-logo {

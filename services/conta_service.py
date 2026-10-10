@@ -4,7 +4,7 @@ from sqlalchemy import or_
 
 from extensions import db
 from models import (Servico, Solicitacao, Contrato, Reclamacao, Favorito, Mensagem, Assinatura,
-                    PedidoOrcamento, RespostaOrcamento)
+                    PedidoOrcamento, RespostaOrcamento, InscricaoPush)
 
 
 def excluir_conta(usuario):
@@ -22,6 +22,7 @@ def excluir_conta(usuario):
         or_(Favorito.cliente_id == uid, Favorito.prestador_id == uid)
     ).delete(synchronize_session=False)
     Reclamacao.query.filter_by(usuario_id=uid).delete(synchronize_session=False)
+    InscricaoPush.query.filter_by(usuario_id=uid).delete(synchronize_session=False)
     Solicitacao.query.filter_by(cliente_id=uid).delete(synchronize_session=False)
 
     # Pedidos de orçamento do usuário (com as propostas recebidas) e as propostas que ele enviou

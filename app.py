@@ -18,6 +18,7 @@ from routes.servico_routes import servico_bp
 from routes.contrato_routes import contrato_bp
 from routes.contrato_formal_routes import formal_bp
 from routes.orcamento_routes import orcamento_bp
+from routes.push_routes import push_bp
 from routes.chat_routes import chat_bp
 from routes.admin_routes import admin_bp
 from routes.assinatura_routes import assinatura_bp
@@ -51,6 +52,7 @@ app.register_blueprint(servico_bp)
 app.register_blueprint(contrato_bp)
 app.register_blueprint(formal_bp)
 app.register_blueprint(orcamento_bp)
+app.register_blueprint(push_bp)
 app.register_blueprint(chat_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(assinatura_bp)
@@ -121,10 +123,14 @@ def utility_processor():
         }
         return colors.get(categoria, 'dark')
     
+    from services.push_service import chave_publica, push_configurado
+
     return {
         'get_icone_categoria': get_icone_categoria,
         'get_cor_categoria': get_cor_categoria,
-        'now': datetime.utcnow()
+        'now': datetime.utcnow(),
+        # Chave pública das notificações push (vazia = recurso desligado)
+        'push_chave_publica': chave_publica() if push_configurado() else ''
     }
 @app.context_processor
 def inject_notificacoes():

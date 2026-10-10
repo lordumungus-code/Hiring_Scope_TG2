@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from datetime import datetime
 from extensions import db
 from models import Contrato, Servico, Avaliacao, Usuario
+from services.push_service import notificar
 
 contrato_bp = Blueprint('contrato', __name__, url_prefix='/contrato')
 
@@ -49,6 +50,10 @@ def solicitar_servico(servico_id):
     
     db.session.add(contrato)
     db.session.commit()
+    
+    notificar(contrato.prestador_id, 'Nova solicitação de serviço',
+              f'{current_user.nome} solicitou: {servico.titulo}',
+              url_for('contrato.detalhe_contrato', contrato_id=contrato.id))
     
     flash('✅ Solicitação enviada com sucesso! Aguarde a resposta do prestador.', 'success')
     return redirect(url_for('contrato.meus_contratos'))
@@ -137,6 +142,19 @@ def atualizar_status(contrato_id):
         flash('❌ Serviço cancelado!', 'warning')
     
     db.session.commit()
+    
+    # Avisa a outra parte sobre a mudança
+    if contrato.status == novo_status:
+        avisos = {
+            'aceito': ('Serviço aceito', f'{contrato.prestador.nome} aceitou: {contrato.servico.titulo}'),
+            'em_andamento': ('Serviço iniciado', f'{contrato.prestador.nome} iniciou: {contrato.servico.titulo}'),
+            'concluido': ('Serviço concluído', f'{contrato.prestador.nome} concluiu: {contrato.servico.titulo}. Avalie o serviço!'),
+            'cancelado': ('Serviço cancelado', f'{current_user.nome} cancelou: {contrato.servico.titulo}'),
+        }
+        outra_parte = contrato.cliente_id if current_user.id == contrato.prestador_id else contrato.prestador_id
+        titulo, mensagem = avisos[novo_status]
+        notificar(outra_parte, titulo, mensagem, url_for('contrato.detalhe_contrato', contrato_id=contrato.id))
+    
     return redirect(url_for('contrato.detalhe_contrato', contrato_id=contrato.id))
 
 
