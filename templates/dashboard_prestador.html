@@ -186,7 +186,7 @@
                                         </button>
                                     </form>
                                     {% endif %}
-                                    <button onclick="iniciarChat({{ contrato.cliente.id }}, '{{ contrato.cliente.nome|replace("'", "\\'") }}')" 
+                                    <button onclick='iniciarChat({{ contrato.cliente.id }}, {{ contrato.cliente.nome|tojson }})' 
                                             class="btn btn-sm btn-info rounded-pill">
                                         <i class="fas fa-comments me-1"></i> Conversar
                                     </button>

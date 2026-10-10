@@ -148,7 +148,7 @@
             <h5>Nenhum serviço em destaque no momento</h5>
             <p class="mb-3">Seja um prestador destaque e tenha seu serviço na página inicial!</p>
             {% if current_user.is_authenticated and current_user.tipo == 'prestador' %}
-                <a href="{{ url_for('servico.plano_destaque') }}" class="btn btn-primary rounded-pill px-4">
+                <a href="{{ url_for('servico.planos_destaque') }}" class="btn btn-primary rounded-pill px-4">
                     <i class="fas fa-crown me-2"></i> Ver Planos de Destaque
                 </a>
             {% else %}

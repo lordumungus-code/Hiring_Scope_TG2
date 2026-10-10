@@ -143,29 +143,40 @@
 
                 <!-- Imagem -->
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Imagem do Serviço</label>
-                    <div class="border rounded-3 p-3 text-center">
-                        {% if servico.imagem_base64 %}
-                            <div class="mb-3">
-                                <img src="data:image/jpeg;base64,{{ servico.imagem_base64 }}" style="max-width: 200px; max-height: 150px; border-radius: 10px;">
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="remover_imagem" id="removerImagem" value="true">
-                                <label class="form-check-label text-danger" for="removerImagem">
-                                    <i class="fas fa-trash me-1"></i> Remover imagem atual
-                                </label>
+                    <label class="form-label fw-bold">Fotos do Serviço <span class="text-muted fw-normal">(até {{ max_fotos }})</span></label>
+                    <div class="border rounded-3 p-3">
+                        {% set versoes_fotos = servico.fotos_versoes() %}
+                        {% set total_fotos = versoes_fotos|length %}
+                        {% if total_fotos %}
+                            <small class="text-muted d-block">Fotos atuais — clique no <i class="fas fa-times text-danger"></i> para marcar uma foto para remoção.</small>
+                            <div class="foto-grade mb-3" id="fotosAtuais">
+                                {% if servico.imagem_base64 %}
+                                    <div class="foto-item">
+                                        <img src="{{ url_for('servico.foto', id=servico.id, n=0, v=versoes_fotos[0]) }}" alt="Capa">
+                                        <span class="foto-selo">Capa</span>
+                                        <input type="checkbox" name="remover_fotos" value="capa" id="removerFotoCapa">
+                                        <label class="foto-remover" for="removerFotoCapa" title="Remover foto"><i class="fas fa-times"></i></label>
+                                    </div>
+                                {% endif %}
+                                {% for imagem in servico.imagens_extras %}
+                                    {% set n = loop.index0 + (1 if servico.imagem_base64 else 0) %}
+                                    <div class="foto-item">
+                                        <img src="{{ url_for('servico.foto', id=servico.id, n=n, v=versoes_fotos[n]) }}" alt="Foto {{ loop.index + 1 }}">
+                                        <input type="checkbox" name="remover_fotos" value="{{ imagem.id }}" id="removerFoto{{ imagem.id }}">
+                                        <label class="foto-remover" for="removerFoto{{ imagem.id }}" title="Remover foto"><i class="fas fa-times"></i></label>
+                                    </div>
+                                {% endfor %}
                             </div>
                         {% endif %}
-                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
-                        <input type="file" name="imagem" id="imagemInput" class="d-none" accept="image/*">
-                        <button type="button" class="btn btn-outline-primary rounded-pill" onclick="document.getElementById('imagemInput').click()">
-                            <i class="fas fa-folder-open me-2"></i> Escolher nova imagem
-                        </button>
-                        <span id="nomeArquivo" class="ms-2 text-muted small">Nenhum arquivo escolhido</span>
-                        <div id="previewImagem" class="mt-3" style="display: none;">
-                            <img id="previewImg" src="#" alt="Preview" style="max-width: 100%; max-height: 150px; border-radius: 10px;">
+                        <div class="text-center">
+                            <input type="file" name="imagens" id="imagemInput" class="d-none" accept="image/*" multiple>
+                            <button type="button" class="btn btn-outline-primary rounded-pill" onclick="document.getElementById('imagemInput').click()">
+                                <i class="fas fa-folder-open me-2"></i> Adicionar fotos
+                            </button>
+                            <span id="nomeArquivo" class="ms-2 text-muted small">Nenhuma foto escolhida</span>
                         </div>
-                        <small class="text-muted d-block mt-2">Formatos: JPG, PNG, GIF. Máx: 5MB</small>
+                        <div id="previewFotos" class="foto-grade" style="display: none;"></div>
+                        <small class="text-muted d-block mt-2 text-center">Se a capa for removida, a próxima foto passa a ser a capa.</small>
                     </div>
                 </div>
 
@@ -190,26 +201,25 @@
     </div>
 </div>
 
+{% include 'components/servico_fotos_styles.html' %}
+<script src="{{ url_for('static', filename='js/servico_fotos.js') }}"></script>
 <script>
-    // Preview de imagem
-    document.getElementById('imagemInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const nomeArquivo = document.getElementById('nomeArquivo');
-        const previewDiv = document.getElementById('previewImagem');
-        const previewImg = document.getElementById('previewImg');
-        
-        if (file) {
-            nomeArquivo.textContent = file.name;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                previewImg.src = event.target.result;
-                previewDiv.style.display = 'block';
-            }
-            reader.readAsDataURL(file);
-        } else {
-            nomeArquivo.textContent = 'Nenhum arquivo escolhido';
-            previewDiv.style.display = 'none';
-        }
+    // Fotos: cabem (limite - fotos atuais que não estão marcadas para remoção) fotos novas
+    const fotosAtuais = {{ servico.fotos()|length }};
+    function vagasParaFotosNovas() {
+        const marcadas = document.querySelectorAll('input[name="remover_fotos"]:checked').length;
+        return {{ max_fotos }} - (fotosAtuais - marcadas);
+    }
+    const fotosNovas = initFotosServico({
+        inputId: 'imagemInput',
+        previewId: 'previewFotos',
+        contadorId: 'nomeArquivo',
+        maxFotos: {{ max_fotos }},
+        limite: vagasParaFotosNovas,
+        primeiraECapa: false
+    });
+    document.querySelectorAll('input[name="remover_fotos"]').forEach(function(caixa) {
+        caixa.addEventListener('change', function() { fotosNovas.ajustarAoLimite(); });
     });
 
     // Gerenciar tipo de preço

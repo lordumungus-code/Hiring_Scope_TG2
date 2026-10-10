@@ -2,8 +2,9 @@ from flask import Flask
 from datetime import datetime
 from dotenv import load_dotenv
 import os
+import secrets
 
-from flask_socketio import join_room
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # CARREGAR .env PRIMEIRO (antes de usar os.environ)
 load_dotenv()
@@ -20,12 +21,19 @@ from routes.admin_routes import admin_bp
 from routes.assinatura_routes import assinatura_bp
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'chave-secreta')
-if app.config['SECRET_KEY'] == 'chave-secreta':
-    print("⚠️  AVISO: SECRET_KEY usando valor padrão! Configure no .env para produção.")
+# Atrás do proxy do Railway: usa o IP/protocolo reais do visitante (rate limit por IP, HTTPS)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+if not app.config['SECRET_KEY']:
+    # Sem chave fixa as sessões seriam forjáveis; uma aleatória só derruba os logins a cada reinício
+    app.config['SECRET_KEY'] = secrets.token_hex(32)
+    print("⚠️  AVISO: SECRET_KEY não configurada! Usando chave temporária (logins caem a cada reinício).")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///prestadores.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # uploads de até 10MB
 
 # Inicializar extensões
 db.init_app(app)
@@ -46,35 +54,36 @@ app.register_blueprint(assinatura_bp)
 @login_manager.user_loader
 def load_user(user_id):
     from models import Usuario
-    return Usuario.query.get(int(user_id))
+    usuario = Usuario.query.get(int(user_id))
+    # Conta desativada/excluída: encerra as sessões abertas em outros aparelhos
+    return usuario if usuario and not usuario.desativada else None
 
-# Criar tabelas e dados de exemplo
+
+def garantir_colunas():
+    """Adiciona colunas novas em bancos já existentes (o create_all não altera tabelas)."""
+    from sqlalchemy import inspect, text
+
+    novas_colunas = [
+        ('usuarios', 'desativada', 'BOOLEAN NOT NULL DEFAULT FALSE'),
+        ('mensagens', 'imagem_base64', 'TEXT'),
+        ('mensagens', 'apagada_remetente', 'BOOLEAN NOT NULL DEFAULT FALSE'),
+        ('mensagens', 'apagada_destinatario', 'BOOLEAN NOT NULL DEFAULT FALSE'),
+    ]
+    inspetor = inspect(db.engine)
+    existentes = {tabela: [c['name'] for c in inspetor.get_columns(tabela)] for tabela in ('usuarios', 'mensagens')}
+
+    for tabela, coluna, tipo in novas_colunas:
+        if coluna not in existentes[tabela]:
+            db.session.execute(text(f'ALTER TABLE {tabela} ADD COLUMN {coluna} {tipo}'))
+            db.session.commit()
+            print(f"✅ Coluna '{coluna}' adicionada em {tabela}")
+
+
+# Criar tabelas
 with app.app_context():
     from models import Usuario, Servico, Assinatura
     db.create_all()
-    
-    if Usuario.query.filter_by(email='prestador@email.com').first() is None:
-        prestador = Usuario(
-            nome='Prestador Exemplo', 
-            email='prestador@email.com',
-            telefone='11999999999', 
-            tipo='prestador'
-        )
-        prestador.set_password('123456')
-        db.session.add(prestador)
-        db.session.commit()
-        
-        servicos = [
-            Servico(prestador_id=prestador.id, titulo='Consultoria em Marketing Digital',
-                   descricao='Ajuda com estratégias de marketing', categoria='Marketing', preco=150.00, destaque=True),
-            Servico(prestador_id=prestador.id, titulo='Desenvolvimento de Sites',
-                   descricao='Criação de sites profissionais', categoria='Tecnologia', preco=2000.00, destaque=True),
-            Servico(prestador_id=prestador.id, titulo='Aulas Particulares de Inglês',
-                   descricao='Aulas online para todos os níveis', categoria='Educação', preco=50.00, destaque=True)
-        ]
-        db.session.add_all(servicos)
-        db.session.commit()
-        print("✅ Dados de exemplo criados!")
+    garantir_colunas()
 
 @app.context_processor
 def utility_processor():
@@ -161,7 +170,6 @@ def inject_notificacoes():
         }
     
 @app.route('/api/notificacoes')
-@login_manager.user_loader if False else (lambda f: f)  # ignora, só pra contexto
 def api_notificacoes():
     """Retorna lista de notificações em JSON."""
     from flask import jsonify, url_for
@@ -214,34 +222,60 @@ def api_notificacoes():
         })
     except Exception as e:
         print(f"⚠️ Erro em api_notificacoes: {e}")
-        return jsonify({'notificacoes': [], 'chat': [], 'erro': str(e)})
+        return jsonify({'notificacoes': [], 'chat': []})
 
 
 
-        @socketio.on('join')
-        def handle_join(data):
-            from flask_socketio import join_room
-            user_id = data.get('user_id')
-            if user_id:
-                room = f'user_{user_id}'
-                join_room(room)
-                print(f"👤 Usuário {user_id} entrou na sala user_{user_id}")
+@app.errorhandler(413)
+def arquivo_muito_grande(e):
+    from flask import flash, redirect, request, url_for
+
+    flash('Arquivo muito grande. O tamanho máximo é 10MB.', 'danger')
+    return redirect(request.referrer or url_for('main.index'))
+
+
+def criar_dados_exemplo():
+    """Cria o prestador e os serviços de exemplo (apenas em desenvolvimento local)."""
+    from models import Usuario, Servico
+
+    if Usuario.query.filter_by(email='prestador@email.com').first() is None:
+        prestador = Usuario(
+            nome='Prestador Exemplo', 
+            email='prestador@email.com',
+            telefone='11999999999', 
+            tipo='prestador'
+        )
+        prestador.set_password('123456')
+        db.session.add(prestador)
+        db.session.commit()
+        
+        servicos = [
+            Servico(prestador_id=prestador.id, titulo='Consultoria em Marketing Digital',
+                   descricao='Ajuda com estratégias de marketing', categoria='Marketing', preco=150.00, destaque=True),
+            Servico(prestador_id=prestador.id, titulo='Desenvolvimento de Sites',
+                   descricao='Criação de sites profissionais', categoria='Tecnologia', preco=2000.00, destaque=True),
+            Servico(prestador_id=prestador.id, titulo='Aulas Particulares de Inglês',
+                   descricao='Aulas online para todos os níveis', categoria='Educação', preco=50.00, destaque=True)
+        ]
+        db.session.add_all(servicos)
+        db.session.commit()
+        print("✅ Dados de exemplo criados!")
+
 
 if __name__ == '__main__':
+    # Só no servidor local: em produção (gunicorn) a conta de teste não é criada
+    with app.app_context():
+        criar_dados_exemplo()
+
     print("="*60)
     print("🚀 SISTEMA DE PRESTADORES DE SERVIÇOS")
     print("📍 Acesse: http://localhost:5000")
     print("📧 Prestador teste: prestador@email.com / 123456")
-    print("🔐 Admin: crie um admin no banco")
+    print("🔐 Admin: python admin.py <email>")
     print("="*60)
     
-    # Debug do token
-    token = os.environ.get('MERCADOPAGO_ACCESS_TOKEN', 'NÃO ENCONTRADO')
-    if token != 'NÃO ENCONTRADO':
-        print(f"🔑 Token Mercado Pago carregado: {token[:30]}...")
-    else:
+    if not os.environ.get('MERCADOPAGO_ACCESS_TOKEN'):
         print("⚠️ Token Mercado Pago NÃO encontrado! Verifique o arquivo .env")
     
-    if __name__ == '__main__':
-        debug_mode = os.environ.get('FLASK_DEBUG', '1') == '1'
-        socketio.run(app, debug=debug_mode)
+    debug_mode = os.environ.get('FLASK_DEBUG', '1') == '1'
+    socketio.run(app, debug=debug_mode)

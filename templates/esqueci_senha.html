@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Recuperar senha - HiringScope{% endblock %}
+{% block search_bar_desktop %}{% endblock %}
+{% block search_bar_mobile %}{% endblock %}
+
+{% block content %}
+<div class="login-page">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-5 col-xl-4">
+
+                <div class="login-card">
+
+                    <!-- Header -->
+                    <div class="login-header">
+                        <div class="login-header-glow"></div>
+                        <div class="logo-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <h3 class="login-title">Esqueceu a senha?</h3>
+                        <p class="login-subtitle">Enviaremos um link para você criar uma nova</p>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="login-body">
+
+                        <form method="POST">
+
+                            <div class="input-group-modern">
+                                <div class="input-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <input type="email"
+                                       class="form-control"
+                                       id="email"
+                                       name="email"
+                                       placeholder="E-mail da sua conta"
+                                       autocomplete="email"
+                                       required
+                                       autofocus>
+                            </div>
+
+                            <button type="submit" class="btn-login">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Enviar link de recuperação</span>
+                            </button>
+                        </form>
+
+                        <div class="signup-prompt">
+                            Lembrou a senha?
+                            <a href="{{ url_for('auth.login') }}" class="signup-link">
+                                Voltar ao login <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'components/auth_styles.html' %}
+{% endblock %}

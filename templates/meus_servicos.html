@@ -66,7 +66,7 @@
 
                     <!-- Preço (lógica original) -->
                     <div class="ms-preco-row">
-                        {% if servico.tipo_preco and servico.tipo_preco != 'consulta' %}
+                        {% if servico.preco and servico.tipo_preco and servico.tipo_preco != 'consulta' %}
                             <span class="ms-preco">
                                 R$ {{ "%.2f"|format(servico.preco) }}
                                 <small>
@@ -76,7 +76,7 @@
                                     {% endif %}
                                 </small>
                             </span>
-                        {% elif servico.tipo_preco == 'consulta' %}
+                        {% elif servico.tipo_preco == 'consulta' or not servico.preco %}
                             <span class="ms-preco-consulta">Sob Consulta</span>
                         {% elif servico.preco %}
                             <span class="ms-preco">R$ {{ "%.2f"|format(servico.preco) }}</span>

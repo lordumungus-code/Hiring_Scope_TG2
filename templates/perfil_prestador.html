@@ -62,7 +62,7 @@
                     
                     <!-- Botão Chat -->
                     {% if current_user.is_authenticated and current_user.id != prestador.id %}
-                        <button onclick="iniciarChat({{ prestador.id }}, '{{ prestador.nome|replace("'", "\\'") }}')" 
+                        <button onclick='iniciarChat({{ prestador.id }}, {{ prestador.nome|tojson }})' 
                                 class="btn btn-primary w-100 rounded-pill py-2 mt-3">
                             <i class="fas fa-comments me-2"></i> Conversar com {{ prestador.nome.split()[0] }}
                         </button>

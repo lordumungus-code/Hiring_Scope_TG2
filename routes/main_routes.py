@@ -1,22 +1,30 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request
-from flask_login import login_required, current_user
+from flask import Blueprint, render_template, flash, redirect, url_for, request, jsonify, abort
+from flask_login import login_required, current_user, logout_user
 from datetime import datetime
 from extensions import db
-from models import Servico, Usuario, Avaliacao, Contrato
+from models import Servico, Usuario, Avaliacao, Contrato, servicos_visiveis
 from sqlalchemy import desc
 from utils.validators import validar_telefone, formatar_telefone, telefone_ja_existe
 
 main_bp = Blueprint('main', __name__)
 
+
+def servicos_em_destaque():
+    """Serviços em destaque, ignorando os que tiveram o destaque pago vencido"""
+    return servicos_visiveis().filter(
+        Servico.destaque == True,
+        db.or_(Servico.destaque_data_fim.is_(None), Servico.destaque_data_fim > datetime.utcnow())
+    ).order_by(Servico.data_postagem.desc())
+
 @main_bp.route('/')
 def index():
-    servicos_destaque = Servico.query.filter_by(destaque=True).order_by(Servico.data_postagem.desc()).all()
+    servicos_destaque = servicos_em_destaque().all()
     
     # Buscar 50 serviços para mostrar inicialmente
-    servicos_recentes = Servico.query.order_by(Servico.data_postagem.desc()).limit(50).all()
+    servicos_recentes = servicos_visiveis().order_by(Servico.data_postagem.desc()).limit(50).all()
     
     # Total de serviços (para saber se tem mais)
-    total_servicos = Servico.query.count()
+    total_servicos = servicos_visiveis().count()
     
     # Depoimentos reais (notas 4 ou 5)
     depoimentos = Avaliacao.query.filter(
@@ -43,6 +51,7 @@ def index():
     # Top prestadores
     prestadores = Usuario.query.filter(
         Usuario.tipo == 'prestador',
+        Usuario.desativada == False,
         Usuario.avaliacoes_recebidas.any()
     ).all()
     
@@ -62,7 +71,7 @@ def index():
     
     # Categorias com contagem
     from sqlalchemy import func
-    categorias_com_contagem = db.session.query(
+    categorias_com_contagem = servicos_visiveis().with_entities(
         Servico.categoria, 
         func.count(Servico.id).label('total')
     ).group_by(Servico.categoria).all()
@@ -141,6 +150,7 @@ def perfil():
                     return redirect(url_for('main.perfil'))
                 foto_base64 = base64.b64encode(file_data).decode('utf-8')
                 current_user.foto_perfil = foto_base64
+                current_user.foto_url = None  # a foto enviada substitui a do Google
         
         current_user.nome = nome
         current_user.email = email
@@ -152,6 +162,64 @@ def perfil():
         return redirect(url_for('main.perfil'))
     
     return render_template('perfil.html', usuario=current_user)
+
+
+@main_bp.route('/perfil/foto', methods=['POST'])
+@login_required
+def atualizar_foto():
+    """Salva a nova foto de perfil na hora (chamado pelo recorte de imagem do perfil)"""
+    import base64
+    from PIL import Image
+    
+    file = request.files.get('foto_perfil')
+    if not file or file.filename == '':
+        return jsonify({'erro': 'Nenhuma imagem enviada.'}), 400
+    
+    file_data = file.read()
+    if len(file_data) > 5 * 1024 * 1024:
+        return jsonify({'erro': 'A imagem deve ter no máximo 5MB.'}), 400
+    
+    try:
+        file.stream.seek(0)
+        Image.open(file.stream).verify()
+    except Exception:
+        return jsonify({'erro': 'Arquivo de imagem inválido.'}), 400
+    
+    current_user.foto_perfil = base64.b64encode(file_data).decode('utf-8')
+    current_user.foto_url = None  # a foto enviada substitui a do Google
+    db.session.commit()
+    
+    return jsonify({'sucesso': True})
+
+
+@main_bp.route('/conta/desativar', methods=['POST'])
+@login_required
+def desativar_conta():
+    """Deixa a conta "dormindo": some do site até o usuário fazer login de novo"""
+    current_user.desativada = True
+    db.session.commit()
+    logout_user()
+    
+    flash('Sua conta foi desativada. Quando quiser voltar, é só fazer login.', 'info')
+    return redirect(url_for('main.index'))
+
+
+@main_bp.route('/conta/excluir', methods=['POST'])
+@login_required
+def excluir_conta_route():
+    """Exclui a conta definitivamente"""
+    from services.conta_service import excluir_conta
+    
+    if request.form.get('confirmacao', '').strip().upper() != 'EXCLUIR':
+        flash('Para excluir a conta, digite EXCLUIR no campo de confirmação.', 'danger')
+        return redirect(url_for('main.perfil'))
+    
+    usuario = current_user._get_current_object()
+    logout_user()
+    excluir_conta(usuario)
+    
+    flash('Sua conta foi excluída. Sentiremos sua falta!', 'info')
+    return redirect(url_for('main.index'))
 
 
 @main_bp.route('/alterar-senha', methods=['POST'])
@@ -169,6 +237,10 @@ def alterar_senha():
         flash('As novas senhas não coincidem.', 'danger')
         return redirect(url_for('main.perfil'))
     
+    if not nova_senha or len(nova_senha) < 6:
+        flash('A nova senha deve ter pelo menos 6 caracteres.', 'danger')
+        return redirect(url_for('main.perfil'))
+    
     current_user.set_password(nova_senha)
     db.session.commit()
     flash('Senha alterada com sucesso!', 'success')
@@ -178,6 +250,8 @@ def alterar_senha():
 @main_bp.route('/perfil/<int:prestador_id>')
 def perfil_prestador(prestador_id):
     prestador = Usuario.query.get_or_404(prestador_id)
+    if prestador.desativada:
+        abort(404)
     if prestador.tipo != 'prestador':
         flash('Usuário não é um prestador de serviços', 'warning')
         return redirect(url_for('main.index'))
@@ -193,7 +267,7 @@ def lista_prestadores():
     """Lista todos os prestadores com ranking"""
     from models import Usuario, Contrato
     
-    prestadores = Usuario.query.filter_by(tipo='prestador').all()
+    prestadores = Usuario.query.filter_by(tipo='prestador', desativada=False).all()
     ranking = []
     for p in prestadores:
         ranking.append({
@@ -214,9 +288,11 @@ def servicos_recentes_api():
     
     offset = request.args.get('offset', 0, type=int)
     limit = request.args.get('limit', 8, type=int)  # Carrega 8 por vez
+    offset = max(offset, 0)
+    limit = max(1, min(limit, 24))
     
-    servicos = Servico.query.order_by(Servico.data_postagem.desc()).offset(offset).limit(limit).all()
-    total = Servico.query.count()
+    servicos = servicos_visiveis().order_by(Servico.data_postagem.desc()).offset(offset).limit(limit).all()
+    total = servicos_visiveis().count()
     
     resultado = []
     for servico in servicos:
@@ -243,9 +319,7 @@ def desentupimento_cruzeiro():
     from models import Servico
     
     # Busca serviços de desentupimento/encanamento em destaque
-    servicos_destaque = Servico.query.filter(
-        Servico.destaque == True
-    ).order_by(Servico.data_postagem.desc()).limit(8).all()
+    servicos_destaque = servicos_em_destaque().limit(8).all()
     
     return render_template('servico/pagina_desentupimento.html',
                          servicos_destaque=servicos_destaque)
@@ -258,9 +332,7 @@ def desentupimento_cruzeiro():
 def chaveiro_cruzeiro():
     """Página SEO local para chaveiro em Cruzeiro - SP"""
     from models import Servico
-    servicos_destaque = Servico.query.filter(
-        Servico.destaque == True
-    ).order_by(Servico.data_postagem.desc()).limit(8).all()
+    servicos_destaque = servicos_em_destaque().limit(8).all()
     return render_template('servico/emergencia/chaveiro.html',
                          servicos_destaque=servicos_destaque)
 
@@ -269,9 +341,7 @@ def chaveiro_cruzeiro():
 def eletricista_cruzeiro():
     """Página SEO local para eletricista em Cruzeiro - SP"""
     from models import Servico
-    servicos_destaque = Servico.query.filter(
-        Servico.destaque == True
-    ).order_by(Servico.data_postagem.desc()).limit(8).all()
+    servicos_destaque = servicos_em_destaque().limit(8).all()
     return render_template('servico/emergencia/eletricista.html',
                          servicos_destaque=servicos_destaque)
 
@@ -280,9 +350,7 @@ def eletricista_cruzeiro():
 def vidraceiro_cruzeiro():
     """Página SEO local para vidraceiro em Cruzeiro - SP"""
     from models import Servico
-    servicos_destaque = Servico.query.filter(
-        Servico.destaque == True
-    ).order_by(Servico.data_postagem.desc()).limit(8).all()
+    servicos_destaque = servicos_em_destaque().limit(8).all()
     return render_template('servico/emergencia/vidraceiro.html',
                          servicos_destaque=servicos_destaque)
 

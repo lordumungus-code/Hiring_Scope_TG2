@@ -118,7 +118,7 @@
                     <div class="d-flex gap-2 flex-wrap justify-content-center">
                         
                         <!-- Botão Chat -->
-                        <button onclick="iniciarChat({{ contrato.prestador_id if current_user.id == contrato.cliente_id else contrato.cliente_id }}, '{{ (contrato.prestador.nome if current_user.id == contrato.cliente_id else contrato.cliente.nome)|replace("'", "\\'") }}')" 
+                        <button onclick='iniciarChat({{ contrato.prestador_id if current_user.id == contrato.cliente_id else contrato.cliente_id }}, {{ (contrato.prestador.nome if current_user.id == contrato.cliente_id else contrato.cliente.nome)|tojson }})' 
                                 class="btn btn-info rounded-pill px-4">
                             <i class="fas fa-comments me-2"></i> Conversar
                         </button>

@@ -6,18 +6,16 @@ from datetime import datetime, timedelta
 ACCESS_TOKEN = os.environ.get('MERCADOPAGO_ACCESS_TOKEN')
 
 if not ACCESS_TOKEN:
-    raise ValueError(
-        "❌ MERCADOPAGO_ACCESS_TOKEN não configurado. "
-        "Adicione a variável no Railway com o Access Token de produção."
-    )
+    print("⚠️ MERCADOPAGO_ACCESS_TOKEN não configurado: pagamentos de planos ficarão indisponíveis.")
 
-print(f"🔑 Usando token: {ACCESS_TOKEN[:30]}...")
-
-sdk = mercadopago.SDK(ACCESS_TOKEN)
+sdk = mercadopago.SDK(ACCESS_TOKEN) if ACCESS_TOKEN else None
 
 
-def criar_link_pagamento(plano_nome, plano_valor, prestador_id, prestador_email, prestador_nome):
+def criar_link_pagamento(plano, plano_nome, plano_valor, prestador_id, prestador_email, prestador_nome):
     """Cria um link de pagamento no Mercado Pago"""
+    
+    if sdk is None:
+        return {'success': False, 'error': 'Mercado Pago não configurado'}
     
     print(f"💳 Criando pagamento para: {plano_nome} - R$ {plano_valor}")
     
@@ -42,7 +40,8 @@ def criar_link_pagamento(plano_nome, plano_valor, prestador_id, prestador_email,
             "failure": f"{base_url}/assinatura/erro",
             "pending": f"{base_url}/assinatura/pendente"
         },
-        "external_reference": f"prestador_{prestador_id}_{plano_nome.lower()}"
+        "notification_url": f"{base_url}/assinatura/webhook",
+        "external_reference": f"prestador_{prestador_id}_{plano}"
     }
     
     try:
@@ -73,6 +72,9 @@ def verificar_pagamento(payment_id):
     """Verifica o status de um pagamento no Mercado Pago"""
     
     print(f"🔍 Verificando pagamento: {payment_id}")
+    
+    if sdk is None:
+        return None
     
     try:
         payment = sdk.payment().get(payment_id)

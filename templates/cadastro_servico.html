@@ -26,222 +26,300 @@
             <div class="cad-body">
                 <form method="POST" enctype="multipart/form-data">
 
-                    <!-- Título -->
-                    <div class="cad-field">
-                        <label class="cad-label">
-                            Título do Serviço
-                            <span class="cad-required">*</span>
-                        </label>
-                        <div class="cad-input-wrapper">
-                            <i class="fas fa-heading cad-input-icon"></i>
-                            <input type="text"
-                                   name="titulo"
-                                   class="cad-input"
-                                   placeholder="Ex: Instalação elétrica residencial"
-                                   required>
+                    <!-- ═══════════ 1. SOBRE O SERVIÇO ═══════════ -->
+                    <div class="cad-secao">
+                        <div class="cad-secao-header">
+                            <span class="cad-secao-num">1</span>
+                            <div>
+                                <h2 class="cad-secao-titulo">Sobre o serviço</h2>
+                                <p class="cad-secao-sub">O que você oferece e para quem</p>
+                            </div>
+                        </div>
+
+                        <div class="cad-linha">
+                            <!-- Título -->
+                            <div class="cad-field">
+                                <label class="cad-label">
+                                    Título do Serviço
+                                    <span class="cad-required">*</span>
+                                </label>
+                                <div class="cad-input-wrapper">
+                                    <i class="fas fa-heading cad-input-icon"></i>
+                                    <input type="text"
+                                           name="titulo"
+                                           class="cad-input"
+                                           placeholder="Ex: Instalação elétrica residencial"
+                                           maxlength="200"
+                                           required>
+                                </div>
+                            </div>
+
+                            <!-- Categoria -->
+                            <div class="cad-field">
+                                <label class="cad-label">
+                                    Categoria
+                                    <span class="cad-required">*</span>
+                                </label>
+                                <div class="cad-input-wrapper">
+                                    <i class="fas fa-tag cad-input-icon"></i>
+                                    <select name="categoria" class="cad-select" required>
+                                        <option value="">Selecione uma categoria...</option>
+                                        <optgroup label="🏠 Casa & Serviços">
+                                            <option value="Construção">🏗️ Construção</option>
+                                            <option value="Limpeza">🧹 Limpeza</option>
+                                            <option value="Jardinagem">🌿 Jardinagem</option>
+                                            <option value="Assistência Técnica">🔧 Assistência Técnica</option>
+                                        </optgroup>
+                                        <optgroup label="💼 Profissional & Negócios">
+                                            <option value="Tecnologia">💻 Tecnologia</option>
+                                            <option value="Design">🎨 Design</option>
+                                            <option value="Marketing">📈 Marketing</option>
+                                            <option value="Contabilidade">💼 Contabilidade</option>
+                                        </optgroup>
+                                        <optgroup label="👤 Pessoas & Cuidados">
+                                            <option value="Saúde">💊 Saúde</option>
+                                            <option value="Beleza & Estética">💅 Beleza & Estética</option>
+                                            <option value="Bem-estar & Fitness">🧘 Bem-estar & Fitness</option>
+                                            <option value="Educação">📚 Educação</option>
+                                        </optgroup>
+                                        <optgroup label="🎯 Outros Serviços">
+                                            <option value="Fotografia">📷 Fotografia</option>
+                                            <option value="Eventos">🎉 Eventos</option>
+                                            <option value="Música">🎵 Música</option>
+                                            <option value="Pets">🐾 Pets</option>
+                                            <option value="Automotivo">🚗 Automotivo</option>
+                                            <option value="Transporte & Mudança">🚚 Transporte & Mudança</option>
+                                            <option value="Segurança">🔒 Segurança</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Descrição -->
+                        <div class="cad-field">
+                            <label class="cad-label" for="descricaoInput">
+                                Descrição do Serviço
+                                <span class="cad-required">*</span>
+                            </label>
+
+                            <!-- Botão de IA -->
+                            <button type="button"
+                                    class="cad-btn-ia"
+                                    id="btnSugerirDescricao"
+                                    onclick="sugerirDescricaoIA()">
+                                <i class="fas fa-magic"></i>
+                                <span id="btnSugerirDescricaoTexto">✨ Escrever descrição com IA</span>
+                            </button>
+
+                            <!-- Resultado da sugestão IA -->
+                            <div id="resultadoDescricaoIA" class="cad-resultado-ia" style="display: none;">
+                                <div class="cad-resultado-header">
+                                    <strong><i class="fas fa-pen-fancy"></i> Sugestão de Descrição</strong>
+                                    <button type="button" class="cad-resultado-close" onclick="fecharSugestaoDescricao()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <p id="textoDescricaoIA" class="cad-descricao-ia"></p>
+                                <small class="cad-hint">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    Confira o texto antes de usar: a IA escreve a partir do título e do que você digitou, e pode errar detalhes.
+                                </small>
+                                <div class="cad-descricao-ia-acoes">
+                                    <button type="button" class="cad-btn cad-btn-cancel" onclick="sugerirDescricaoIA()">
+                                        <i class="fas fa-redo"></i>
+                                        <span>Gerar outra</span>
+                                    </button>
+                                    <button type="button" class="cad-btn cad-btn-save" onclick="usarDescricaoIA()">
+                                        <i class="fas fa-check"></i>
+                                        <span>Usar este texto</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <textarea name="descricao"
+                                      id="descricaoInput"
+                                      class="cad-textarea"
+                                      rows="6"
+                                      placeholder="Descreva detalhadamente o serviço. Inclua o que está incluso, prazo médio, diferenciais..."
+                                      required></textarea>
+                            <small class="cad-hint">
+                                <i class="fas fa-lightbulb"></i>
+                                Dica: escreva algumas palavras (o que está incluso, prazo, região) e peça para a IA melhorar o texto
+                            </small>
                         </div>
                     </div>
 
-                    <!-- Categoria -->
-                    <div class="cad-field">
-                        <label class="cad-label">
-                            Categoria
-                            <span class="cad-required">*</span>
-                        </label>
-                        <div class="cad-input-wrapper">
-                            <i class="fas fa-tag cad-input-icon"></i>
-                            <select name="categoria" class="cad-select" required>
-                                <option value="">Selecione uma categoria...</option>
-                                <optgroup label="🏠 Casa & Serviços">
-                                    <option value="Construção">🏗️ Construção</option>
-                                    <option value="Limpeza">🧹 Limpeza</option>
-                                    <option value="Jardinagem">🌿 Jardinagem</option>
-                                    <option value="Assistência Técnica">🔧 Assistência Técnica</option>
-                                </optgroup>
-                                <optgroup label="💼 Profissional & Negócios">
-                                    <option value="Tecnologia">💻 Tecnologia</option>
-                                    <option value="Design">🎨 Design</option>
-                                    <option value="Marketing">📈 Marketing</option>
-                                    <option value="Contabilidade">💼 Contabilidade</option>
-                                </optgroup>
-                                <optgroup label="👤 Pessoas & Cuidados">
-                                    <option value="Saúde">💊 Saúde</option>
-                                    <option value="Beleza & Estética">💅 Beleza & Estética</option>
-                                    <option value="Bem-estar & Fitness">🧘 Bem-estar & Fitness</option>
-                                    <option value="Educação">📚 Educação</option>
-                                </optgroup>
-                                <optgroup label="🎯 Outros Serviços">
-                                    <option value="Fotografia">📷 Fotografia</option>
-                                    <option value="Eventos">🎉 Eventos</option>
-                                    <option value="Música">🎵 Música</option>
-                                    <option value="Pets">🐾 Pets</option>
-                                    <option value="Automotivo">🚗 Automotivo</option>
-                                    <option value="Transporte & Mudança">🚚 Transporte & Mudança</option>
-                                    <option value="Segurança">🔒 Segurança</option>
-                                </optgroup>
-                            </select>
+                    <!-- ═══════════ 2. PREÇO ═══════════ -->
+                    <div class="cad-secao">
+                        <div class="cad-secao-header">
+                            <span class="cad-secao-num">2</span>
+                            <div>
+                                <h2 class="cad-secao-titulo">Preço</h2>
+                                <p class="cad-secao-sub">Como você cobra e quanto</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Tipo de Precificação -->
-                    <div class="cad-field">
-                        <label class="cad-label">Tipo de Precificação</label>
-                        <div class="cad-radio-group">
-                            <div class="cad-radio-option">
-                                <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoFixo" value="fixo" checked>
-                                <label class="cad-radio-label" for="precoFixo">
-                                    <span class="cad-radio-emoji">💰</span>
-                                    <span class="cad-radio-text">Preço Fixo</span>
-                                </label>
-                            </div>
-                            <div class="cad-radio-option">
-                                <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoHora" value="hora">
-                                <label class="cad-radio-label" for="precoHora">
-                                    <span class="cad-radio-emoji">⏰</span>
-                                    <span class="cad-radio-text">Por Hora</span>
-                                </label>
-                            </div>
-                            <div class="cad-radio-option">
-                                <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoDia" value="dia">
-                                <label class="cad-radio-label" for="precoDia">
-                                    <span class="cad-radio-emoji">📅</span>
-                                    <span class="cad-radio-text">Por Dia</span>
-                                </label>
-                            </div>
-                            <div class="cad-radio-option">
-                                <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoMetro" value="metro">
-                                <label class="cad-radio-label" for="precoMetro">
-                                    <span class="cad-radio-emoji">📏</span>
-                                    <span class="cad-radio-text">Por m²</span>
-                                </label>
-                            </div>
-                            <div class="cad-radio-option">
-                                <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoConsulta" value="consulta">
-                                <label class="cad-radio-label" for="precoConsulta">
-                                    <span class="cad-radio-emoji">💬</span>
-                                    <span class="cad-radio-text">A Combinar</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Preço -->
-                    <div class="cad-field" id="campoPreco">
-                        <label class="cad-label">Valor</label>
-                        
-                        <!-- Botão de IA -->
-                        <button type="button" 
-                                class="cad-btn-ia"
-                                id="btnSugerirPreco"
-                                onclick="sugerirPrecoIA()">
-                            <i class="fas fa-magic"></i>
-                            <span>✨ Sugerir preço com IA</span>
-                        </button>
-                        
-                        <!-- Resultado da sugestão IA -->
-                        <div id="resultadoIA" class="cad-resultado-ia" style="display: none;">
-                            <div class="cad-resultado-header">
-                                <strong><i class="fas fa-lightbulb"></i> Sugestão de Preço</strong>
-                                <button type="button" class="cad-resultado-close" onclick="fecharSugestao()">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            <div id="conteudoIA"></div>
-                        </div>
-                        
-                        <div class="cad-preco-wrapper">
-                            <span class="cad-preco-prefix">R$</span>
-                            <input type="number"
-                                   name="preco"
-                                   id="precoInput"
-                                   class="cad-preco-input"
-                                   step="0.01"
-                                   placeholder="0,00">
-                            <span class="cad-preco-unit" id="unidadePreco"></span>
-                        </div>
-                        <small class="cad-hint" id="descricaoPreco">
-                            Deixe em branco se for "preço sob consulta"
-                        </small>
-                    </div>
-
-                    <!-- DESTAQUE -->
-                    <div class="cad-field">
-                        {% if assinatura_ativa %}
-                            {% set total_destaques = servicos_em_destaque|length %}
-                            {% set limite_plano = 1 if assinatura_ativa.plano == 'basico' else 3 %}
-                            
-                            {% if total_destaques < limite_plano %}
-                                <div class="cad-destaque-box">
-                                    <input class="cad-destaque-check" type="checkbox" name="destaque" id="destaqueCheck">
-                                    <label class="cad-destaque-label" for="destaqueCheck">
-                                        <div class="cad-destaque-icon">
-                                            <i class="fas fa-star"></i>
-                                        </div>
-                                        <div class="cad-destaque-text">
-                                            <strong>Serviço em Destaque</strong>
-                                            <small>
-                                                Você tem {{ limite_plano - total_destaques }} de {{ limite_plano }} vagas disponíveis no plano {{ assinatura_ativa.plano|capitalize }}
-                                            </small>
-                                        </div>
-                                        <div class="cad-destaque-check-icon">
-                                            <i class="fas fa-check"></i>
-                                        </div>
+                        <!-- Tipo de Precificação -->
+                        <div class="cad-field">
+                            <label class="cad-label">Tipo de Precificação</label>
+                            <div class="cad-radio-group">
+                                <div class="cad-radio-option">
+                                    <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoFixo" value="fixo" checked>
+                                    <label class="cad-radio-label" for="precoFixo">
+                                        <span class="cad-radio-emoji">💰</span>
+                                        <span class="cad-radio-text">Preço Fixo</span>
                                     </label>
                                 </div>
+                                <div class="cad-radio-option">
+                                    <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoHora" value="hora">
+                                    <label class="cad-radio-label" for="precoHora">
+                                        <span class="cad-radio-emoji">⏰</span>
+                                        <span class="cad-radio-text">Por Hora</span>
+                                    </label>
+                                </div>
+                                <div class="cad-radio-option">
+                                    <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoDia" value="dia">
+                                    <label class="cad-radio-label" for="precoDia">
+                                        <span class="cad-radio-emoji">📅</span>
+                                        <span class="cad-radio-text">Por Dia</span>
+                                    </label>
+                                </div>
+                                <div class="cad-radio-option">
+                                    <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoMetro" value="metro">
+                                    <label class="cad-radio-label" for="precoMetro">
+                                        <span class="cad-radio-emoji">📏</span>
+                                        <span class="cad-radio-text">Por m²</span>
+                                    </label>
+                                </div>
+                                <div class="cad-radio-option">
+                                    <input class="cad-radio-input" type="radio" name="tipo_preco" id="precoConsulta" value="consulta">
+                                    <label class="cad-radio-label" for="precoConsulta">
+                                        <span class="cad-radio-emoji">💬</span>
+                                        <span class="cad-radio-text">A Combinar</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preço -->
+                        <div class="cad-field" id="campoPreco">
+                            <label class="cad-label">Valor</label>
+
+                            <!-- Botão de IA -->
+                            <button type="button"
+                                    class="cad-btn-ia"
+                                    id="btnSugerirPreco"
+                                    onclick="sugerirPrecoIA()">
+                                <i class="fas fa-magic"></i>
+                                <span>✨ Sugerir preço com IA</span>
+                            </button>
+
+                            <!-- Resultado da sugestão IA -->
+                            <div id="resultadoIA" class="cad-resultado-ia" style="display: none;">
+                                <div class="cad-resultado-header">
+                                    <strong><i class="fas fa-lightbulb"></i> Sugestão de Preço</strong>
+                                    <button type="button" class="cad-resultado-close" onclick="fecharSugestao()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div id="conteudoIA"></div>
+                            </div>
+
+                            <div class="cad-preco-wrapper">
+                                <span class="cad-preco-prefix">R$</span>
+                                <input type="number"
+                                       name="preco"
+                                       id="precoInput"
+                                       class="cad-preco-input"
+                                       step="0.01"
+                                       placeholder="0,00">
+                                <span class="cad-preco-unit" id="unidadePreco"></span>
+                            </div>
+                            <small class="cad-hint" id="descricaoPreco">
+                                Deixe em branco se for "preço sob consulta"
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- ═══════════ 3. FOTOS ═══════════ -->
+                    <div class="cad-secao">
+                        <div class="cad-secao-header">
+                            <span class="cad-secao-num">3</span>
+                            <div>
+                                <h2 class="cad-secao-titulo">Fotos <span class="cad-optional">(opcional, até {{ max_fotos }})</span></h2>
+                                <p class="cad-secao-sub">Anúncios com fotos chamam mais atenção</p>
+                            </div>
+                        </div>
+
+                        <div class="cad-field">
+                            <div class="cad-upload" onclick="document.getElementById('imagemInput').click()">
+                                <div class="cad-upload-placeholder">
+                                    <div class="cad-upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <p class="cad-upload-title">Clique para escolher uma ou mais fotos</p>
+                                    <small class="cad-upload-hint">JPG ou PNG — a primeira foto será a capa do anúncio</small>
+                                </div>
+                                <span id="nomeArquivo" class="cad-upload-nome">Nenhuma foto escolhida</span>
+                            </div>
+                            <input type="file" name="imagens" id="imagemInput" class="d-none" accept="image/*" multiple>
+                            <div id="previewFotos" class="foto-grade" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- ═══════════ 4. DESTAQUE ═══════════ -->
+                    <div class="cad-secao cad-secao--ultima">
+                        <div class="cad-secao-header">
+                            <span class="cad-secao-num">4</span>
+                            <div>
+                                <h2 class="cad-secao-titulo">Destaque</h2>
+                                <p class="cad-secao-sub">Apareça na página inicial</p>
+                            </div>
+                        </div>
+
+                        <div class="cad-field">
+                            {% if assinatura_ativa %}
+                                {% set total_destaques = servicos_em_destaque|length %}
+                                {% set limite_plano = 1 if assinatura_ativa.plano == 'basico' else 3 %}
+
+                                {% if total_destaques < limite_plano %}
+                                    <div class="cad-destaque-box">
+                                        <input class="cad-destaque-check" type="checkbox" name="destaque" id="destaqueCheck">
+                                        <label class="cad-destaque-label" for="destaqueCheck">
+                                            <div class="cad-destaque-icon">
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <div class="cad-destaque-text">
+                                                <strong>Serviço em Destaque</strong>
+                                                <small>
+                                                    Você tem {{ limite_plano - total_destaques }} de {{ limite_plano }} vagas disponíveis no plano {{ assinatura_ativa.plano|capitalize }}
+                                                </small>
+                                            </div>
+                                            <div class="cad-destaque-check-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                        </label>
+                                    </div>
+                                {% else %}
+                                    <div class="cad-alert cad-alert-warning">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <span>
+                                            Você já atingiu o limite de {{ limite_plano }} serviço(s) em destaque do plano {{ assinatura_ativa.plano|capitalize }}.
+                                            <a href="{{ url_for('assinatura.checkout', plano='pro') }}" class="cad-alert-link">Faça upgrade para o Pro</a> para destacar mais serviços.
+                                        </span>
+                                    </div>
+                                {% endif %}
                             {% else %}
-                                <div class="cad-alert cad-alert-warning">
-                                    <i class="fas fa-exclamation-triangle"></i>
+                                <div class="cad-alert cad-alert-info">
+                                    <i class="fas fa-info-circle"></i>
                                     <span>
-                                        Você já atingiu o limite de {{ limite_plano }} serviço(s) em destaque do plano {{ assinatura_ativa.plano|capitalize }}.
-                                        <a href="{{ url_for('assinatura.checkout', plano='pro') }}" class="cad-alert-link">Faça upgrade para o Pro</a> para destacar mais serviços.
+                                        Para destacar seus serviços na página inicial, você precisa de um
+                                        <a href="{{ url_for('servico.planos_destaque') }}" class="cad-alert-link">plano de destaque ativo</a>.
                                     </span>
                                 </div>
                             {% endif %}
-                        {% else %}
-                            <div class="cad-alert cad-alert-info">
-                                <i class="fas fa-info-circle"></i>
-                                <span>
-                                    Para destacar seus serviços na página inicial, você precisa de um
-                                    <a href="{{ url_for('servico.planos_destaque') }}" class="cad-alert-link">plano de destaque ativo</a>.
-                                </span>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Imagem -->
-                    <div class="cad-field">
-                        <label class="cad-label">Imagem do Serviço <span class="cad-optional">(opcional)</span></label>
-                        <div class="cad-upload" onclick="document.getElementById('imagemInput').click()">
-                            <div class="cad-upload-placeholder">
-                                <div class="cad-upload-icon">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                </div>
-                                <p class="cad-upload-title">Clique para escolher uma imagem</p>
-                                <small class="cad-upload-hint">JPG, PNG ou GIF — máx 5MB</small>
-                            </div>
-                            <div id="previewImagem" class="cad-preview" style="display: none;">
-                                <img id="previewImg" src="#" alt="Preview">
-                            </div>
-                            <input type="file" name="imagem" id="imagemInput" class="d-none" accept="image/*">
-                            <span id="nomeArquivo" class="cad-upload-nome">Nenhum arquivo escolhido</span>
                         </div>
-                    </div>
-
-                    <!-- Descrição -->
-                    <div class="cad-field">
-                        <label class="cad-label">
-                            Descrição do Serviço
-                            <span class="cad-required">*</span>
-                        </label>
-                        <textarea name="descricao"
-                                  class="cad-textarea"
-                                  rows="6"
-                                  placeholder="Descreva detalhadamente o serviço. Inclua o que está incluso, prazo médio, diferenciais..."
-                                  required></textarea>
-                        <small class="cad-hint">
-                            <i class="fas fa-lightbulb"></i>
-                            Seja detalhado — bons textos aumentam suas chances de contratação
-                        </small>
                     </div>
 
                     <!-- Botões -->
@@ -357,6 +435,70 @@
    ═══════════════════════════════════════════════════════════ */
 .cad-body {
     padding: 2rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SEÇÕES (blocos numerados do formulário)
+   ═══════════════════════════════════════════════════════════ */
+.cad-secao {
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.75rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* A última seção não precisa de linha: os botões já têm a deles */
+.cad-secao--ultima {
+    border-bottom: 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.cad-secao-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+}
+
+.cad-secao-num {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0b2b5c, #1a6d8f);
+    color: #ffffff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+
+.cad-secao-titulo {
+    margin: 0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #0b2b5c;
+}
+
+.cad-secao-titulo .cad-optional {
+    font-size: 0.8rem;
+}
+
+.cad-secao-sub {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Título e categoria lado a lado no computador */
+.cad-linha {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 1rem;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -689,6 +831,29 @@
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* Sugestão de descrição */
+.cad-descricao-ia {
+    margin: 0;
+    padding: 12px 14px;
+    background: #ffffff;
+    border-radius: 10px;
+    color: #334155;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    white-space: pre-line;
+}
+
+.cad-descricao-ia-acoes {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.cad-descricao-ia-acoes .cad-btn {
+    flex: 1;
+    padding: 10px 14px;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1121,6 +1286,15 @@
     .cad-upload {
         padding: 1.5rem 1rem;
     }
+
+    .cad-linha {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .cad-descricao-ia-acoes {
+        flex-direction: column;
+    }
 }
 
 @media (max-width: 400px) {
@@ -1130,28 +1304,19 @@
 }
 </style>
 
+{% include 'components/servico_fotos_styles.html' %}
+<script src="{{ url_for('static', filename='js/servico_fotos.js') }}"></script>
 <script>
     // ============================================
-    // PREVIEW DE IMAGEM
+    // FOTOS DO SERVIÇO (várias, com miniaturas)
     // ============================================
-    document.getElementById('imagemInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const nomeArquivo = document.getElementById('nomeArquivo');
-        const previewDiv = document.getElementById('previewImagem');
-        const previewImg = document.getElementById('previewImg');
-        
-        if (file) {
-            nomeArquivo.textContent = file.name;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                previewImg.src = event.target.result;
-                previewDiv.style.display = 'block';
-            }
-            reader.readAsDataURL(file);
-        } else {
-            nomeArquivo.textContent = 'Nenhum arquivo escolhido';
-            previewDiv.style.display = 'none';
-        }
+    initFotosServico({
+        inputId: 'imagemInput',
+        previewId: 'previewFotos',
+        contadorId: 'nomeArquivo',
+        maxFotos: {{ max_fotos }},
+        limite: {{ max_fotos }},
+        primeiraECapa: true
     });
 
     // ============================================
@@ -1191,6 +1356,79 @@
         radio.addEventListener('change', updateTipoPreco);
     });
     updateTipoPreco();
+
+    // ============================================
+    // IA: SUGESTÃO DE DESCRIÇÃO
+    // ============================================
+    const descricaoInput = document.getElementById('descricaoInput');
+    const btnDescricaoTexto = document.getElementById('btnSugerirDescricaoTexto');
+
+    // Com texto digitado a IA melhora o que já existe; sem texto, escreve do zero
+    function atualizarBotaoDescricao() {
+        btnDescricaoTexto.textContent = descricaoInput.value.trim()
+            ? '✨ Melhorar meu texto com IA'
+            : '✨ Escrever descrição com IA';
+    }
+    descricaoInput.addEventListener('input', atualizarBotaoDescricao);
+
+    async function sugerirDescricaoIA() {
+        const titulo = document.querySelector('input[name="titulo"]').value.trim();
+        const categoria = document.querySelector('select[name="categoria"]').value;
+
+        if (!titulo) {
+            alert('⚠️ Preencha o Título do Serviço primeiro!');
+            document.querySelector('input[name="titulo"]').focus();
+            return;
+        }
+
+        const btn = document.getElementById('btnSugerirDescricao');
+        btn.disabled = true;
+        btnDescricaoTexto.textContent = 'Escrevendo...';
+
+        try {
+            const res = await fetch('/servico/api/sugerir-descricao', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    titulo: titulo,
+                    categoria: categoria,
+                    tipo_preco: document.querySelector('input[name="tipo_preco"]:checked').value,
+                    rascunho: descricaoInput.value.trim()
+                })
+            });
+
+            let data = {};
+            try { data = await res.json(); } catch (e) { /* resposta sem JSON (ex.: limite de uso) */ }
+
+            if (res.ok && data.sucesso) {
+                document.getElementById('textoDescricaoIA').textContent = data.descricao;
+                const caixa = document.getElementById('resultadoDescricaoIA');
+                caixa.style.display = 'block';
+                caixa.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else if (res.status === 429) {
+                alert('⏳ Muitas tentativas seguidas. Aguarde um minuto e tente de novo.');
+            } else {
+                alert('❌ ' + (data.erro || 'Não foi possível gerar a descrição. Tente novamente.'));
+            }
+        } catch (e) {
+            console.error('Erro:', e);
+            alert('❌ Erro de conexão. Tente novamente.');
+        } finally {
+            btn.disabled = false;
+            atualizarBotaoDescricao();
+        }
+    }
+
+    function usarDescricaoIA() {
+        descricaoInput.value = document.getElementById('textoDescricaoIA').textContent;
+        fecharSugestaoDescricao();
+        atualizarBotaoDescricao();
+        descricaoInput.focus();
+    }
+
+    function fecharSugestaoDescricao() {
+        document.getElementById('resultadoDescricaoIA').style.display = 'none';
+    }
 
     // ============================================
     // IA: SUGESTÃO DE PREÇO
@@ -1297,7 +1535,7 @@
                 <div style="font-size: 0.82rem; color: #4b5563; margin-bottom: 12px; 
                             padding: 8px 12px; background: white; border-radius: 8px;">
                     <i class="fas fa-info-circle" style="color: #1a6d8f;"></i>
-                    ${data.justificativa}
+                    ${escapeHtml(data.justificativa)}
                 </div>
             `;
         }
@@ -1307,7 +1545,7 @@
             html += `<strong style="display: block; margin-bottom: 4px;">💡 Dicas:</strong>`;
             html += `<ul style="margin: 0; padding-left: 20px;">`;
             data.dicas.forEach(dica => {
-                html += `<li>${dica}</li>`;
+                html += `<li>${escapeHtml(dica)}</li>`;
             });
             html += `</ul></div>`;
         }

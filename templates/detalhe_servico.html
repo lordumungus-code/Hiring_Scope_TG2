@@ -62,6 +62,192 @@
             <!-- ───────────────────────────────────────────── -->
             <div class="col-lg-8">
 
+                <!-- Card: Fotos do serviço -->
+                {% set versoes_fotos = servico.fotos_versoes() %}
+                {% set total_fotos = versoes_fotos|length %}
+                {% if total_fotos %}
+                <div class="sd-card">
+                    <div class="sd-card-header">
+                        <div class="sd-card-icon sd-card-icon--blue">
+                            <i class="fas fa-images"></i>
+                        </div>
+                        <div>
+                            <h2 class="sd-card-title">Fotos</h2>
+                            <p class="sd-card-subtitle">
+                                {% if total_fotos > 1 %}{{ total_fotos }} fotos deste serviço — clique para ampliar{% else %}Clique na foto para ampliar{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="sd-card-body">
+                        <div class="sd-galeria" id="sdGaleria">
+                            <button type="button" class="sd-galeria-principal" id="sdGaleriaPrincipal" aria-label="Ampliar foto">
+                                <img id="sdGaleriaImg" src="{{ url_for('servico.foto', id=servico.id, n=0, v=versoes_fotos[0]) }}" alt="Foto 1 de {{ servico.titulo }}">
+                                {% if total_fotos > 1 %}
+                                    <span class="sd-galeria-contador"><i class="fas fa-camera"></i> <span id="sdGaleriaPos">1</span>/{{ total_fotos }}</span>
+                                {% endif %}
+                            </button>
+                            {% if total_fotos > 1 %}
+                            <div class="sd-galeria-miniaturas">
+                                {% for n in range(total_fotos) %}
+                                    <button type="button" class="sd-galeria-mini {% if n == 0 %}ativa{% endif %}" data-indice="{{ n }}" aria-label="Ver foto {{ n + 1 }}">
+                                        <img src="{{ url_for('servico.foto', id=servico.id, n=n, v=versoes_fotos[n]) }}" alt="Foto {{ n + 1 }}" loading="lazy">
+                                    </button>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Foto ampliada -->
+                <div class="modal fade" id="sdGaleriaModal" tabindex="-1" aria-label="Foto ampliada">
+                    <div class="modal-dialog modal-dialog-centered modal-xl">
+                        <div class="modal-content sd-galeria-modal">
+                            <button type="button" class="btn-close btn-close-white sd-galeria-fechar" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            {% if total_fotos > 1 %}
+                                <button type="button" class="sd-galeria-seta sd-galeria-seta--ant" id="sdGaleriaAnt" aria-label="Foto anterior"><i class="fas fa-chevron-left"></i></button>
+                                <button type="button" class="sd-galeria-seta sd-galeria-seta--prox" id="sdGaleriaProx" aria-label="Próxima foto"><i class="fas fa-chevron-right"></i></button>
+                            {% endif %}
+                            <img id="sdGaleriaModalImg" src="" alt="Foto ampliada de {{ servico.titulo }}">
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                    .sd-galeria-principal {
+                        position: relative;
+                        display: block;
+                        width: 100%;
+                        padding: 0;
+                        border: 0;
+                        border-radius: 16px;
+                        overflow: hidden;
+                        background: #0f172a;
+                        cursor: zoom-in;
+                    }
+                    .sd-galeria-principal img {
+                        display: block;
+                        width: 100%;
+                        height: clamp(220px, 45vw, 420px);
+                        object-fit: contain;
+                    }
+                    .sd-galeria-contador {
+                        position: absolute;
+                        right: 12px;
+                        bottom: 12px;
+                        padding: 4px 12px;
+                        border-radius: 999px;
+                        background: rgba(15, 23, 42, 0.75);
+                        color: #ffffff;
+                        font-size: 0.8rem;
+                        font-weight: 600;
+                    }
+                    .sd-galeria-miniaturas {
+                        display: flex;
+                        gap: 10px;
+                        margin-top: 12px;
+                        overflow-x: auto;
+                        padding-bottom: 4px;
+                    }
+                    .sd-galeria-mini {
+                        flex: 0 0 auto;
+                        width: 84px;
+                        height: 64px;
+                        padding: 0;
+                        border: 3px solid transparent;
+                        border-radius: 10px;
+                        overflow: hidden;
+                        background: #e2e8f0;
+                        cursor: pointer;
+                        opacity: 0.65;
+                        transition: opacity 0.2s ease, border-color 0.2s ease;
+                    }
+                    .sd-galeria-mini:hover,
+                    .sd-galeria-mini.ativa {
+                        opacity: 1;
+                    }
+                    .sd-galeria-mini.ativa {
+                        border-color: #1a6d8f;
+                    }
+                    .sd-galeria-mini img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        display: block;
+                    }
+                    .sd-galeria-modal {
+                        position: relative;
+                        background: transparent;
+                        border: 0;
+                        align-items: center;
+                    }
+                    .sd-galeria-modal img {
+                        max-width: 100%;
+                        max-height: 85vh;
+                        border-radius: 12px;
+                    }
+                    .sd-galeria-fechar {
+                        position: absolute;
+                        top: 8px;
+                        right: 8px;
+                        z-index: 2;
+                        padding: 10px;
+                        border-radius: 50%;
+                        background-color: rgba(15, 23, 42, 0.7);
+                        opacity: 1;
+                    }
+                    .sd-galeria-seta {
+                        position: absolute;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        z-index: 2;
+                        width: 44px;
+                        height: 44px;
+                        border: 0;
+                        border-radius: 50%;
+                        background: rgba(15, 23, 42, 0.7);
+                        color: #ffffff;
+                    }
+                    .sd-galeria-seta--ant { left: 8px; }
+                    .sd-galeria-seta--prox { right: 8px; }
+                </style>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const fotos = [{% for n in range(total_fotos) %}{{ url_for('servico.foto', id=servico.id, n=n, v=versoes_fotos[n])|tojson }}{% if not loop.last %}, {% endif %}{% endfor %}];
+                        const principal = document.getElementById('sdGaleriaImg');
+                        const modalEl = document.getElementById('sdGaleriaModal');
+                        const modalImg = document.getElementById('sdGaleriaModalImg');
+                        const posicao = document.getElementById('sdGaleriaPos');
+                        const miniaturas = document.querySelectorAll('.sd-galeria-mini');
+                        const modal = new bootstrap.Modal(modalEl);
+                        let atual = 0;
+
+                        function mostrar(indice) {
+                            atual = (indice + fotos.length) % fotos.length;
+                            principal.src = fotos[atual];
+                            modalImg.src = fotos[atual];
+                            if (posicao) posicao.textContent = atual + 1;
+                            miniaturas.forEach(function(mini, i) { mini.classList.toggle('ativa', i === atual); });
+                        }
+
+                        miniaturas.forEach(function(mini) {
+                            mini.addEventListener('click', function() { mostrar(parseInt(mini.dataset.indice)); });
+                        });
+                        document.getElementById('sdGaleriaPrincipal').addEventListener('click', function() {
+                            mostrar(atual);
+                            modal.show();
+                        });
+                        document.getElementById('sdGaleriaAnt')?.addEventListener('click', function() { mostrar(atual - 1); });
+                        document.getElementById('sdGaleriaProx')?.addEventListener('click', function() { mostrar(atual + 1); });
+                        modalEl.addEventListener('keydown', function(e) {
+                            if (e.key === 'ArrowLeft') mostrar(atual - 1);
+                            if (e.key === 'ArrowRight') mostrar(atual + 1);
+                        });
+                    });
+                </script>
+                {% endif %}
+
                 <!-- Card: Sobre o serviço -->
                 <div class="sd-card">
                     <div class="sd-card-header">
@@ -79,7 +265,7 @@
                 </div>
 
                 <!-- Card: Preço (dinâmico) -->
-                {% if servico.tipo_preco and servico.tipo_preco != 'consulta' %}
+                {% if servico.preco and servico.tipo_preco and servico.tipo_preco != 'consulta' %}
                 <div class="sd-price-card">
                     <div class="sd-price-card-glow" aria-hidden="true"></div>
 
@@ -136,7 +322,7 @@
                     </div>
                 </div>
 
-                {% elif servico.tipo_preco == 'consulta' %}
+                {% elif servico.tipo_preco == 'consulta' or not servico.preco %}
                 <div class="sd-price-card sd-price-card--consult">
                     <div class="sd-price-consult-inner">
                         <div class="sd-price-consult-icon">
@@ -298,7 +484,7 @@
 
                         <!-- ✅ Botão Chat — escondido se for o próprio dono -->
                         {% if current_user.is_authenticated and current_user.id != servico.prestador.id %}
-                            <button onclick="iniciarChat({{ servico.prestador.id }}, '{{ servico.prestador.nome|replace("'", "\\'") }}')"
+                            <button onclick='iniciarChat({{ servico.prestador.id }}, {{ servico.prestador.nome|tojson }})'
                                     class="sd-btn sd-btn-chat">
                                 <i class="fas fa-comments"></i>
                                 <span>Conversar com {{ servico.prestador.nome.split()[0] }}</span>
@@ -371,10 +557,10 @@
     {% if current_user.is_authenticated and current_user.tipo == 'cliente' %}
     <div class="sd-mobile-cta">
         <div class="sd-mobile-cta-info">
-            {% if servico.tipo_preco and servico.tipo_preco != 'consulta' %}
+            {% if servico.preco and servico.tipo_preco and servico.tipo_preco != 'consulta' %}
                 <small>Valor</small>
                 <strong>R$ {{ "%.2f"|format(servico.preco) }}</strong>
-            {% elif servico.tipo_preco == 'consulta' %}
+            {% elif servico.tipo_preco == 'consulta' or not servico.preco %}
                 <small>Preço</small>
                 <strong>A combinar</strong>
             {% elif servico.preco %}
@@ -388,7 +574,7 @@
         <div class="sd-mobile-cta-actions">
             <!-- ✅ Botão Chat mobile — escondido se for o próprio dono -->
             {% if current_user.is_authenticated and current_user.id != servico.prestador.id %}
-                <button onclick="iniciarChat({{ servico.prestador.id }}, '{{ servico.prestador.nome|replace("'", "\\'") }}')"
+                <button onclick='iniciarChat({{ servico.prestador.id }}, {{ servico.prestador.nome|tojson }})'
                         class="sd-mobile-btn sd-mobile-btn--chat"
                         aria-label="Chat">
                     <i class="fas fa-comments"></i>
@@ -448,10 +634,10 @@
                             <div>
                                 <small>Preço</small>
                                 <strong>
-                                    {% if servico.tipo_preco and servico.tipo_preco != 'consulta' %}
+                                    {% if servico.preco and servico.tipo_preco and servico.tipo_preco != 'consulta' %}
                                         R$ {{ "%.2f"|format(servico.preco) }}
                                         {% if servico.tipo_preco == 'hora' %}/hora{% elif servico.tipo_preco == 'dia' %}/dia{% elif servico.tipo_preco == 'metro' %}/m²{% endif %}
-                                    {% elif servico.tipo_preco == 'consulta' %}
+                                    {% elif servico.tipo_preco == 'consulta' or not servico.preco %}
                                         A combinar
                                     {% elif servico.preco %}
                                         R$ {{ "%.2f"|format(servico.preco) }}
@@ -2195,7 +2381,7 @@
         const abrirChat = urlParams.get('chat');
         if (abrirChat === 'true') {
             const prestadorId = {{ servico.prestador.id }};
-            const prestadorNome = '{{ servico.prestador.nome|replace("'", "\\'") }}';
+            const prestadorNome = {{ servico.prestador.nome|tojson }};
             iniciarChat(prestadorId, prestadorNome);
         }
     });

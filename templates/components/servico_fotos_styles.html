@@ -1,0 +1,91 @@
+{# Miniaturas das fotos do serviço (cadastro e edição) #}
+<style>
+.foto-grade {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.foto-item {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f1f5f9;
+    border: 2px solid #ffffff;
+    box-shadow: 0 6px 16px -6px rgba(11, 43, 92, 0.25);
+}
+
+.foto-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.foto-selo {
+    position: absolute;
+    left: 6px;
+    bottom: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #0b2b5c;
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.foto-remover {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 26px;
+    height: 26px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(220, 38, 38, 0.92);
+    color: #ffffff;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.foto-remover:hover {
+    background: #b91c1c;
+}
+
+/* Fotos já salvas (edição): marcar para remover */
+.foto-item input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.foto-item label.foto-remover {
+    margin: 0;
+}
+
+.foto-item:has(input:checked) img {
+    opacity: 0.3;
+    filter: grayscale(1);
+}
+
+.foto-item:has(input:checked)::after {
+    content: 'Será removida';
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 4px;
+    background: rgba(220, 38, 38, 0.92);
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.foto-item:has(input:checked) .foto-selo {
+    display: none;
+}
+</style>

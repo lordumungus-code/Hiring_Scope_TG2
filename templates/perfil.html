@@ -374,11 +374,140 @@
                     </div>
                 </div>
 
+                <!-- Gerenciar conta: desativar ou excluir -->
+                <div class="perfil-section">
+                    <div class="perfil-section-header">
+                        <div class="icon-box slate">
+                            <i class="fas fa-user-cog"></i>
+                        </div>
+                        <div>
+                            <h5>Gerenciar Conta</h5>
+                            <small>Dê um tempo ou exclua sua conta</small>
+                        </div>
+                    </div>
+                    <div class="perfil-section-body">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold mb-2"><i class="fas fa-moon me-1"></i> Desativar por um tempo</h6>
+                                <p class="text-muted small mb-3">
+                                    Sua conta fica "dormindo": seu perfil{% if usuario.tipo == 'prestador' %} e seus serviços{% endif %}
+                                    somem do site, mas nada é apagado. Para voltar, é só fazer login.
+                                </p>
+                                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalDesativarConta">
+                                    <i class="fas fa-moon me-1"></i> Desativar conta
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold mb-2 text-danger"><i class="fas fa-trash-alt me-1"></i> Excluir conta</h6>
+                                <p class="text-muted small mb-3">
+                                    Apaga seus dados pessoais, mensagens{% if usuario.tipo == 'prestador' %}, serviços{% endif %} e foto
+                                    de forma definitiva. Não dá para desfazer.
+                                </p>
+                                <button type="button" class="btn btn-outline-danger rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalExcluirConta">
+                                    <i class="fas fa-trash-alt me-1"></i> Excluir conta
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
     </div>
 </div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MODAL: DESATIVAR CONTA                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalDesativarConta" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header bg-secondary text-white rounded-top-4">
+                <h5 class="modal-title">
+                    <i class="fas fa-moon me-2"></i>
+                    Desativar conta
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="mb-3">Enquanto sua conta estiver desativada:</p>
+                <ul class="mb-3">
+                    <li>Seu perfil{% if usuario.tipo == 'prestador' %} e seus serviços{% endif %} não aparecem para ninguém</li>
+                    <li>Você sai da conta em todos os aparelhos</li>
+                    <li>Seus dados, contratos e avaliações ficam guardados</li>
+                    {% if usuario.tipo == 'prestador' %}
+                    <li>Se você tiver um plano de destaque, o prazo dele <strong>continua contando</strong></li>
+                    {% endif %}
+                </ul>
+                <p class="text-muted small mb-0">
+                    Não há prazo para voltar: basta fazer login de novo e a conta é reativada na hora.
+                </p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <form method="POST" action="{{ url_for('main.desativar_conta') }}" class="d-inline">
+                    <button type="submit" class="btn btn-secondary rounded-pill px-4">
+                        <i class="fas fa-moon me-2"></i> Desativar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MODAL: EXCLUIR CONTA                                       -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalExcluirConta" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <form method="POST" action="{{ url_for('main.excluir_conta_route') }}">
+                <div class="modal-header bg-danger text-white rounded-top-4">
+                    <h5 class="modal-title">
+                        <i class="fas fa-trash-alt me-2"></i>
+                        Excluir conta definitivamente
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Atenção!</strong> Esta ação não pode ser desfeita.
+                    </div>
+                    <ul class="mb-3">
+                        <li>Seu nome, e-mail, telefone e foto são apagados</li>
+                        <li>Suas mensagens do chat são apagadas</li>
+                        {% if usuario.tipo == 'prestador' %}
+                        <li>Seus serviços saem do ar e sua assinatura é cancelada, sem reembolso</li>
+                        {% endif %}
+                        <li>Contratos em aberto são cancelados</li>
+                        <li>Contratos concluídos e avaliações continuam visíveis para a outra pessoa, como "Usuário removido"</li>
+                    </ul>
+                    <label class="perfil-label" for="confirmacaoExcluir">Para confirmar, digite <strong>EXCLUIR</strong>:</label>
+                    <input type="text" name="confirmacao" id="confirmacaoExcluir" class="form-control" autocomplete="off" required>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4" id="btnExcluirConta" disabled>
+                        <i class="fas fa-trash-alt me-2"></i> Excluir minha conta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Só libera o botão de excluir depois de digitar EXCLUIR
+    document.getElementById('confirmacaoExcluir')?.addEventListener('input', function() {
+        document.getElementById('btnExcluirConta').disabled = this.value.trim().toUpperCase() !== 'EXCLUIR';
+    });
+</script>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <!-- MODAL DE CROP (do usuário)                                 -->
@@ -516,7 +645,8 @@
 <!-- SCRIPT: Crop + Máscara                                     -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <script>
-(function() {
+// Espera a página carregar: o Cropper.js só é incluído depois deste bloco, no fim do base.html
+document.addEventListener('DOMContentLoaded', function() {
     'use strict';
 
     const inputFoto = document.getElementById('fotoPerfil');
@@ -641,10 +771,28 @@
             }
 
             if (nomeArquivo) {
-                nomeArquivo.textContent = '✓ ' + nomeSaida;
+                nomeArquivo.textContent = 'Salvando foto...';
                 nomeArquivo.classList.add('file-chosen');
             }
-            btnRemover?.classList.remove('d-none');
+
+            // Salva a foto na hora, sem precisar clicar em "Salvar Alterações"
+            const dadosFoto = new FormData();
+            dadosFoto.append('foto_perfil', novoFile);
+            fetch("{{ url_for('main.atualizar_foto') }}", { method: 'POST', body: dadosFoto })
+                .then(res => res.json().then(data => ({ ok: res.ok, data })))
+                .then(({ ok, data }) => {
+                    if (!ok || !data.sucesso) throw new Error(data.erro || 'Erro ao salvar a foto');
+                    inputFoto.value = '';
+                    if (nomeArquivo) nomeArquivo.textContent = '✓ Foto atualizada';
+                    btnRemover?.classList.add('d-none');
+                    atualizarAvataresNavbar(previewUrl);
+                })
+                .catch(err => {
+                    // Não salvou agora: a foto continua selecionada e vai junto com "Salvar Alterações"
+                    if (nomeArquivo) nomeArquivo.textContent = '✓ ' + nomeSaida + ' (clique em Salvar Alterações)';
+                    btnRemover?.classList.remove('d-none');
+                    alert('Não foi possível salvar a foto agora: ' + err.message);
+                });
 
             cropModal.hide();
             setTimeout(() => {
@@ -658,6 +806,29 @@
         if (cropper) { cropper.destroy(); cropper = null; }
     });
 
+    // Troca o avatar da barra de navegação (foto existente ou a inicial do nome)
+    function atualizarAvataresNavbar(url) {
+        document.querySelectorAll('.js-avatar').forEach(img => {
+            img.src = url;
+            img.hidden = false;
+        });
+        const classes = {
+            'toggler-avatar-placeholder': 'toggler-avatar',
+            'user-avatar-nav-placeholder': 'user-avatar-nav',
+            'user-header-avatar-placeholder': 'user-header-avatar'
+        };
+        Object.entries(classes).forEach(([placeholder, classeImg]) => {
+            document.querySelectorAll('.' + placeholder + ':not([hidden])').forEach(span => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = '';
+                img.className = classeImg + ' js-avatar';
+                span.parentNode.insertBefore(img, span);
+                span.hidden = true;
+            });
+        });
+    }
+
     // Cancelar seleção de foto
     window.removerFotoSelecionada = function() {
         inputFoto.value = '';
@@ -665,7 +836,7 @@
         nomeArquivo.classList.remove('file-chosen');
         btnRemover?.classList.add('d-none');
     };
-})();
+});
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════ -->

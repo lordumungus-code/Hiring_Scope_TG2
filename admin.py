@@ -1,21 +1,24 @@
+"""Torna um usuário já cadastrado administrador.
+
+Uso: python admin.py email@do-usuario.com
+"""
+import sys
+
 from app import app, db
 from models import Usuario
 
+if len(sys.argv) != 2:
+    print("Uso: python admin.py email@do-usuario.com")
+    sys.exit(1)
+
+email = sys.argv[1].strip()
+
 with app.app_context():
-    # Criar admin
-    admin = Usuario.query.filter_by(email='seu-email@admin.com').first()
-    if not admin:
-        admin = Usuario(
-            nome='Admin',
-            email='admin@admin.com',
-            tipo='prestador',
-            is_admin=True
-        )
-        admin.set_password('admin')
-        db.session.add(admin)
-        db.session.commit()
-        print("✅ Admin criado!")
-    else:
-        admin.is_admin = True
-        db.session.commit()
-        print("✅ Admin ativado!")
+    usuario = Usuario.query.filter_by(email=email).first()
+    if not usuario:
+        print(f"❌ Nenhum usuário com o e-mail {email}. Cadastre-se pelo site primeiro.")
+        sys.exit(1)
+
+    usuario.is_admin = True
+    db.session.commit()
+    print(f"✅ {email} agora é administrador!")

@@ -142,7 +142,7 @@
                             <i class="fas fa-user me-1"></i> Perfil
                         </a>
                         {% if current_user.is_authenticated and current_user.id != item.prestador.id %}
-                            <button onclick="iniciarChat({{ item.prestador.id }}, '{{ item.prestador.nome|replace("'", "\\'") }}')" 
+                            <button onclick='iniciarChat({{ item.prestador.id }}, {{ item.prestador.nome|tojson }})' 
                                     class="btn btn-primary rounded-pill">
                                 <i class="fas fa-comments"></i>
                             </button>

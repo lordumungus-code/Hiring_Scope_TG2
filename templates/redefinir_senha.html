@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Nova senha - HiringScope{% endblock %}
+{% block search_bar_desktop %}{% endblock %}
+{% block search_bar_mobile %}{% endblock %}
+
+{% block content %}
+<div class="login-page">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-5 col-xl-4">
+
+                <div class="login-card">
+
+                    <!-- Header -->
+                    <div class="login-header">
+                        <div class="login-header-glow"></div>
+                        <div class="logo-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3 class="login-title">Criar nova senha</h3>
+                        <p class="login-subtitle">Escolha uma senha com pelo menos 6 caracteres</p>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="login-body">
+
+                        <form method="POST" action="{{ url_for('auth.redefinir_senha', token=token) }}">
+
+                            <div class="input-group-modern">
+                                <div class="input-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <input type="password"
+                                       class="form-control"
+                                       id="nova_senha"
+                                       name="nova_senha"
+                                       placeholder="Nova senha"
+                                       autocomplete="new-password"
+                                       minlength="6"
+                                       required
+                                       autofocus>
+                            </div>
+
+                            <div class="input-group-modern">
+                                <div class="input-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <input type="password"
+                                       class="form-control"
+                                       id="confirmar_senha"
+                                       name="confirmar_senha"
+                                       placeholder="Repita a nova senha"
+                                       autocomplete="new-password"
+                                       minlength="6"
+                                       required>
+                            </div>
+
+                            <button type="submit" class="btn-login">
+                                <i class="fas fa-check"></i>
+                                <span>Salvar nova senha</span>
+                            </button>
+                        </form>
+
+                        <div class="signup-prompt">
+                            <a href="{{ url_for('auth.login') }}" class="signup-link">
+                                Voltar ao login <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'components/auth_styles.html' %}
+{% endblock %}

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify, request, flash, redirect, url_for
+from flask import Blueprint, render_template, jsonify, request, flash, redirect, url_for, abort
 from flask_login import login_required, current_user
 from datetime import datetime
 from extensions import db
@@ -6,15 +6,26 @@ from models import Contrato, Servico, Avaliacao, Usuario
 
 contrato_bp = Blueprint('contrato', __name__, url_prefix='/contrato')
 
+
+def ler_nota(campo):
+    """Lê uma nota de 1 a 5 do formulário; 0 se vazia ou inválida"""
+    try:
+        nota = int(request.form.get(campo, 0))
+    except (TypeError, ValueError):
+        return 0
+    return nota if 1 <= nota <= 5 else 0
+
 @contrato_bp.route('/solicitar/<int:servico_id>', methods=['POST'])
 @login_required
 def solicitar_servico(servico_id):
     """Cliente solicita um serviço"""
     if current_user.tipo != 'cliente':
         flash('Apenas clientes podem solicitar serviços', 'danger')
-        return redirect(url_for('detalhe_servico', id=servico_id))
+        return redirect(url_for('servico.detalhe', id=servico_id))
     
     servico = Servico.query.get_or_404(servico_id)
+    if servico.prestador.desativada:
+        abort(404)
     mensagem = request.form.get('mensagem')
     
     # Verificar se já existe solicitação pendente
@@ -26,7 +37,7 @@ def solicitar_servico(servico_id):
     
     if contrato_existente:
         flash('Você já possui uma solicitação pendente para este serviço', 'warning')
-        return redirect(url_for('detalhe_servico', id=servico_id))
+        return redirect(url_for('servico.detalhe', id=servico_id))
     
     contrato = Contrato(
         cliente_id=current_user.id,
@@ -68,7 +79,7 @@ def detalhe_contrato(contrato_id):
     # Verificar permissão
     if contrato.cliente_id != current_user.id and contrato.prestador_id != current_user.id:
         flash('Acesso negado', 'danger')
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     
     # Verificar se já existe avaliação (usando cliente_id)
     avaliacao = None
@@ -91,7 +102,19 @@ def atualizar_status(contrato_id):
     # Verificar permissão
     if contrato.prestador_id != current_user.id and contrato.cliente_id != current_user.id:
         flash('Acesso negado', 'danger')
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
+    
+    # Cada status só pode vir de determinados status anteriores
+    transicoes = {
+        'aceito': ['pendente'],
+        'em_andamento': ['aceito'],
+        'concluido': ['aceito', 'em_andamento'],
+        'cancelado': ['pendente', 'aceito', 'em_andamento'],
+    }
+    
+    if contrato.status not in transicoes.get(novo_status, []):
+        flash('Não é possível alterar o status deste contrato.', 'warning')
+        return redirect(url_for('contrato.detalhe_contrato', contrato_id=contrato.id))
     
     # Validações de status
     if novo_status == 'aceito' and contrato.prestador_id == current_user.id:
@@ -126,7 +149,7 @@ def avaliar_servico(contrato_id):
     # Verificações
     if contrato.cliente_id != current_user.id:
         flash('Apenas o cliente pode avaliar o serviço', 'danger')
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     
     if contrato.status != 'concluido':
         flash('Apenas serviços concluídos podem ser avaliados', 'warning')
@@ -143,12 +166,12 @@ def avaliar_servico(contrato_id):
         return redirect(url_for('contrato.detalhe_contrato', contrato_id=contrato.id))
     
     if request.method == 'POST':
-        nota = int(request.form.get('nota', 0))
+        nota = ler_nota('nota')
         comentario = request.form.get('comentario', '').strip()
-        qualidade = int(request.form.get('qualidade', 0))
-        pontualidade = int(request.form.get('pontualidade', 0))
-        comunicacao = int(request.form.get('comunicacao', 0))
-        preco = int(request.form.get('preco', 0))
+        qualidade = ler_nota('qualidade')
+        pontualidade = ler_nota('pontualidade')
+        comunicacao = ler_nota('comunicacao')
+        preco = ler_nota('preco')
         
         if nota < 1 or nota > 5:
             flash('A nota deve ser entre 1 e 5 estrelas', 'danger')
@@ -184,15 +207,19 @@ def editar_avaliacao(avaliacao_id):
     
     if avaliacao.cliente_id != current_user.id:
         flash('Acesso negado', 'danger')
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     
     if not avaliacao.pode_editar(current_user.id):
         flash('Não é mais possível editar esta avaliação (apenas 7 dias após a criação)', 'warning')
         return redirect(url_for('contrato.detalhe_contrato', contrato_id=avaliacao.contrato_id))
     
     if request.method == 'POST':
-        nota = int(request.form.get('nota', 0))
+        nota = ler_nota('nota')
         comentario = request.form.get('comentario', '').strip()
+        
+        if nota < 1 or nota > 5:
+            flash('A nota deve ser entre 1 e 5 estrelas', 'danger')
+            return redirect(url_for('contrato.editar_avaliacao', avaliacao_id=avaliacao.id))
         
         avaliacao.nota = nota
         avaliacao.comentario = comentario

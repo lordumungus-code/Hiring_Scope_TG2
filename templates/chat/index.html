@@ -52,7 +52,7 @@
                                     {{ usuario.nome[0]|upper }}
                                 </div>
                             {% endif %}
-                            <span class="status-dot"></span>
+                            <span class="status-dot" data-status-usuario="{{ usuario.id }}"></span>
                         </div>
                         <div class="conversation-info flex-grow-1">
                             <div class="d-flex justify-content-between align-items-center">
@@ -94,6 +94,7 @@
                                     {{ usuario.nome[0]|upper }}
                                 </div>
                             {% endif %}
+                            <span class="status-dot" data-status-usuario="{{ usuario.id }}"></span>
                         </div>
                         <div class="conversation-info flex-grow-1">
                             <div class="d-flex justify-content-between align-items-center">
@@ -130,14 +131,15 @@
                 <div class="avatar-wrapper me-3">
                     <img src="" alt="Avatar" class="avatar-img" id="chatAvatarImg" style="display: none;">
                     <div class="avatar-img avatar-placeholder bg-secondary" id="chatAvatar" style="font-size: 1rem;">?</div>
-                    <span class="status-dot" id="chatStatusDot"></span>
+                    <span class="status-dot" id="chatStatusDot" style="display: none;"></span>
                 </div>
                 <div class="flex-grow-1">
                     <h6 class="mb-0 fw-bold text-white" id="chatUsuarioNome">Selecione uma conversa</h6>
-                    <small class="text-white-50" id="chatStatus">
-                        {% if usuarios %}Online{% else %}Aguardando{% endif %}
-                    </small>
+                    <small class="text-white-50" id="chatStatus"></small>
                 </div>
+                <button type="button" class="btn-chat-acao" id="btnApagarConversa" title="Apagar conversa" aria-label="Apagar conversa" style="display: none;">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </div>
             
             <!-- Área de Mensagens -->
@@ -152,6 +154,10 @@
             <!-- Barra de Mensagem (DESTAQUE) -->
             <div class="chat-input-bar" id="chatInputBar">
                 <div class="input-wrapper">
+                    <button type="button" class="btn-anexo" id="btnImagem" title="Enviar foto" aria-label="Enviar foto" disabled>
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <input type="file" id="imagemChatInput" class="d-none" accept="image/*">
                     <input type="text" 
                            id="mensagemInput" 
                            class="message-input" 
@@ -163,6 +169,41 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmar: apagar conversa -->
+<div class="modal fade" id="modalApagarConversa" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header bg-danger text-white rounded-top-4">
+                <h5 class="modal-title"><i class="fas fa-trash-alt me-2"></i> Apagar conversa</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="mb-2">Apagar toda a conversa com <strong id="apagarConversaNome"></strong>?</p>
+                <p class="text-muted small mb-0">
+                    As mensagens e fotos somem só para você e não dá para desfazer.
+                    A outra pessoa continua vendo a conversa.
+                </p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger rounded-pill px-4" id="btnConfirmarApagar">
+                    <i class="fas fa-trash-alt me-2"></i> Apagar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Foto ampliada -->
+<div class="modal fade" id="modalImagemChat" tabindex="-1" aria-label="Foto ampliada">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content chat-imagem-modal">
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            <img id="imagemAmpliada" src="" alt="Foto ampliada">
         </div>
     </div>
 </div>
@@ -351,8 +392,12 @@
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background: #22c55e;
+        background: #9ca3af;   /* offline */
         border: 2px solid white;
+    }
+    
+    .status-dot.online {
+        background: #22c55e;
     }
     
     /* Info da conversa */
@@ -481,10 +526,99 @@
         gap: 3px;
     }
     
-    .message.sent .message-time::after {
-        content: '✓✓';
-        color: #53bdeb;
+    /* ✓ cinza = enviada · ✓✓ azul = vista */
+    .message-tick {
+        color: #8696a0;
         font-size: 0.7rem;
+    }
+    
+    .message-tick.lida {
+        color: #53bdeb;
+    }
+    
+    /* Foto dentro da bolha */
+    .message-content.com-imagem {
+        padding: 4px 4px 6px;
+    }
+    
+    .message-content.com-imagem .message-text,
+    .message-content.com-imagem .message-time {
+        padding: 0 8px;
+    }
+    
+    .message-image {
+        display: block;
+        max-width: 100%;
+        width: 280px;
+        max-height: 320px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-bottom: 4px;
+        background: #e5e7eb;
+        cursor: zoom-in;
+    }
+    
+    .chat-imagem-modal {
+        position: relative;
+        background: transparent;
+        border: 0;
+        align-items: center;
+    }
+    
+    .chat-imagem-modal img {
+        max-width: 100%;
+        max-height: 88vh;
+        border-radius: 12px;
+    }
+    
+    .chat-imagem-modal .btn-close {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 10px;
+        border-radius: 50%;
+        background-color: rgba(15, 23, 42, 0.7);
+        opacity: 1;
+    }
+    
+    /* Botões do cabeçalho e de anexo */
+    .btn-chat-acao {
+        flex-shrink: 0;
+        width: 38px;
+        height: 38px;
+        border: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    
+    .btn-chat-acao:hover {
+        background: rgba(220, 38, 38, 0.85);
+    }
+    
+    .btn-anexo {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: #54656f;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease;
+    }
+    
+    .btn-anexo:hover:not(:disabled) {
+        background: #f0f2f5;
+        color: #0b2b5c;
+    }
+    
+    .btn-anexo:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
     }
     
     @keyframes messageFade {
@@ -657,28 +791,89 @@
     let usuarioAtual = null;
     let chatSocket = null;
     let pollingTimer = null;
-    let conversaIdAtual = null;
-    let ultimaMensagemRecebida = null;
-    
-    console.log('👤 Usuário logado:', currentUserId);
-    
+    let idsNaTela = [];                   // ids das mensagens já desenhadas na conversa aberta
+    const usuariosOnline = new Set();     // ids de quem está online agora
+
+    // ============================================
+    // UTILITÁRIOS
+    // ============================================
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // O servidor manda o horário em UTC; aqui vira o horário local de quem está vendo
+    function formatarHora(iso) {
+        const data = iso ? new Date(iso) : new Date();
+        const hora = data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        if (data.toDateString() === new Date().toDateString()) return hora;
+        return data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + hora;
+    }
+
+    // ============================================
+    // PRESENÇA (online de verdade)
+    // ============================================
+    function atualizarStatusCabecalho() {
+        const ponto = document.getElementById('chatStatusDot');
+        const texto = document.getElementById('chatStatus');
+        if (!usuarioAtual) {
+            ponto.style.display = 'none';
+            texto.textContent = '';
+            return;
+        }
+        const online = usuariosOnline.has(usuarioAtual.id);
+        ponto.style.display = '';
+        ponto.classList.toggle('online', online);
+        texto.textContent = online ? 'Online' : 'Offline';
+    }
+
+    function aplicarStatus(usuarioId) {
+        const online = usuariosOnline.has(usuarioId);
+        document.querySelectorAll('[data-status-usuario="' + usuarioId + '"]').forEach(function(ponto) {
+            ponto.classList.toggle('online', online);
+        });
+        if (usuarioAtual && usuarioAtual.id === usuarioId) atualizarStatusCabecalho();
+    }
+
+    function carregarOnline() {
+        fetch('/chat/online')
+            .then(res => res.json())
+            .then(data => {
+                usuariosOnline.clear();
+                (data.online || []).forEach(id => usuariosOnline.add(id));
+                document.querySelectorAll('[data-status-usuario]').forEach(function(ponto) {
+                    ponto.classList.toggle('online', usuariosOnline.has(parseInt(ponto.dataset.statusUsuario)));
+                });
+                atualizarStatusCabecalho();
+            })
+            .catch(err => console.log('Erro ao buscar quem está online:', err));
+    }
+
     // ============================================
     // SOCKET.IO
     // ============================================
     function iniciarSocketChat() {
         if (!currentUserId || currentUserId === 'null') return;
-        
+
         try {
             chatSocket = io();
-            
-            chatSocket.on('connect', function() {
-                console.log('✅ Socket conectado!');
-                chatSocket.emit('join', { user_id: currentUserId });
+
+            // Também roda nas reconexões, para a lista de online não ficar desatualizada
+            chatSocket.on('connect', carregarOnline);
+
+            chatSocket.on('user_status', function(data) {
+                if (data.online) usuariosOnline.add(data.user_id);
+                else usuariosOnline.delete(data.user_id);
+                aplicarStatus(data.user_id);
             });
-            
+
             chatSocket.on('new_private_message', function(data) {
                 if (usuarioAtual && data.remetente_id === usuarioAtual.id) {
                     adicionarMensagem(data, false);
+                    // Conversa aberta e aba visível = mensagem vista
+                    if (!document.hidden) marcarComoLidas(usuarioAtual.id);
                 }
                 if (data.remetente_id) {
                     atualizarPreview(data.remetente_id, data.conteudo);
@@ -687,30 +882,35 @@
                     updateUnreadCount();
                 }
             });
+
+            // A outra pessoa abriu a conversa: os ✓ viram ✓✓ azuis
+            chatSocket.on('messages_read', function(data) {
+                if (usuarioAtual && data.leitor_id === usuarioAtual.id) {
+                    document.querySelectorAll('#chatMessages .message-tick').forEach(marcarTickComoVisto);
+                }
+            });
         } catch (error) {
             console.error('❌ Erro no socket:', error);
         }
     }
-    
+
+    function marcarComoLidas(usuarioId) {
+        fetch('/chat/marcar-lidas/' + usuarioId, { method: 'POST' }).catch(() => {});
+    }
+
     // ============================================
     // CARREGAR CONVERSA
     // ============================================
     window.carregarConversa = function(usuarioId, usuarioNome, usuarioFoto) {
-        console.log('🔍 Carregando conversa com:', usuarioNome, 'ID:', usuarioId);
-        
         window.chatAtivoCom = usuarioId;
-
         usuarioAtual = { id: usuarioId, nome: usuarioNome };
-        conversaIdAtual = usuarioId;
-        
+
         const chatHeader = document.getElementById('chatUsuarioNome');
         const chatAvatar = document.getElementById('chatAvatar');
         const chatAvatarImg = document.getElementById('chatAvatarImg');
-        const msgInput = document.getElementById('mensagemInput');
-        const enviarBtn = document.getElementById('enviarBtn');
-        
+
         if (chatHeader) chatHeader.textContent = usuarioNome;
-        
+
         // ============================================
         // ATUALIZAR AVATAR (foto ou inicial)
         // ============================================
@@ -730,102 +930,137 @@
             }
             if (chatAvatarImg) chatAvatarImg.style.display = 'none';
         }
-        
-        if (msgInput) msgInput.disabled = false;
-        if (enviarBtn) enviarBtn.disabled = false;
-        
+
+        document.getElementById('mensagemInput').disabled = false;
+        document.getElementById('enviarBtn').disabled = false;
+        document.getElementById('btnImagem').disabled = false;
+        document.getElementById('btnApagarConversa').style.display = '';
+        atualizarStatusCabecalho();
+
         document.querySelectorAll('.conversation-item').forEach(item => {
-            item.classList.remove('active');
-            if (parseInt(item.dataset.usuarioId) === usuarioId) {
-                item.classList.add('active');
-            }
+            const ativa = parseInt(item.dataset.usuarioId) === usuarioId;
+            item.classList.toggle('active', ativa);
+            // As mensagens desta conversa passam a estar lidas: some o contador
+            if (ativa) item.querySelector('.badge.bg-success')?.remove();
         });
-        
+
         // Mobile: esconde lista e mostra chat
         if (window.innerWidth < 768) {
             document.getElementById('chatSidebar').classList.add('hidden-mobile');
             document.getElementById('chatMain').classList.remove('hidden-mobile');
             document.getElementById('btnVoltarConversas').style.display = 'inline-block';
         }
-        
+
         carregarMensagens();
     };
-    
+
+    // ============================================
+    // MENSAGENS
+    // ============================================
+    function desenharMensagens(data) {
+        const container = document.getElementById('chatMessages');
+        if (!container) return;
+
+        container.innerHTML = '';
+        idsNaTela = [];
+
+        if (data && data.length > 0) {
+            data.forEach(msg => adicionarMensagem(msg, msg.remetente_id === currentUserId));
+            const ultima = data[data.length - 1];
+            atualizarPreview(usuarioAtual.id, ultima.tem_imagem && !ultima.conteudo ? '📷 Foto' : ultima.conteudo);
+        } else {
+            container.innerHTML = `
+                <div class="empty-chat">
+                    <i class="fas fa-comment-dots fa-3x mb-3 opacity-25"></i>
+                    <p class="mb-0">Nenhuma mensagem ainda</p>
+                    <small>Envie uma mensagem para começar</small>
+                </div>
+            `;
+        }
+
+        container.scrollTop = container.scrollHeight;
+    }
+
     function carregarMensagens() {
         if (!usuarioAtual) return;
-        
-        fetch(`/chat/historico/${usuarioAtual.id}`)
+        const idPedido = usuarioAtual.id;
+
+        fetch(`/chat/historico/${idPedido}`)
             .then(res => res.json())
             .then(data => {
-                const container = document.getElementById('chatMessages');
-                if (!container) return;
-                
-                container.innerHTML = '';
-                
-                if (data && data.length > 0) {
-                    data.forEach(msg => {
-                        adicionarMensagem(msg, msg.remetente_id === currentUserId);
-                    });
-                    const ultima = data[data.length - 1];
-                    ultimaMensagemRecebida = `${ultima.id || ultima.data_envio}_${ultima.conteudo}`;
-                } else {
-                    container.innerHTML = `
-                        <div class="empty-chat">
-                            <i class="fas fa-comment-dots fa-3x mb-3 opacity-25"></i>
-                            <p class="mb-0">Nenhuma mensagem ainda</p>
-                            <small>Envie uma mensagem para começar</small>
-                        </div>
-                    `;
-                }
-                
-                container.scrollTop = container.scrollHeight;
+                // O usuário pode ter trocado de conversa enquanto a resposta chegava
+                if (usuarioAtual && usuarioAtual.id === idPedido) desenharMensagens(data);
+                if (typeof updateUnreadCount === 'function') updateUnreadCount();
             })
             .catch(error => {
                 console.error('❌ Erro ao carregar mensagens:', error);
             });
     }
-    
+
+    function marcarTickComoVisto(tick) {
+        tick.classList.add('lida');
+        tick.title = 'Vista';
+        tick.innerHTML = '<i class="fas fa-check-double"></i>';
+    }
+
     function adicionarMensagem(mensagem, isSent) {
         const container = document.getElementById('chatMessages');
         if (!container) return;
-        
-        const placeholder = container.querySelector('.empty-chat');
-        if (placeholder) container.innerHTML = '';
-        
+        if (mensagem.id && idsNaTela.includes(mensagem.id)) return;   // já está na tela
+
+        container.querySelector('.empty-chat')?.remove();
+
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
-        
-        let dataHora = mensagem.data_envio;
-        let conteudo = mensagem.conteudo;
-        
-        if (!dataHora) {
-            dataHora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        if (mensagem.id) {
+            messageDiv.dataset.id = mensagem.id;
+            idsNaTela.push(mensagem.id);
         }
-        
+
+        const foto = mensagem.tem_imagem && mensagem.id
+            ? `<img class="message-image" src="/chat/imagem/${mensagem.id}" alt="Foto enviada" loading="lazy">`
+            : '';
+        // ✓ cinza = enviada; ✓✓ azul = vista
+        const tick = isSent
+            ? `<span class="message-tick" title="Enviada"><i class="fas fa-check"></i></span>`
+            : '';
+
         messageDiv.innerHTML = `
-            <div class="message-content">
-                ${escapeHtml(conteudo)}
-                <div class="message-time">${dataHora}</div>
+            <div class="message-content ${foto ? 'com-imagem' : ''}">
+                ${foto}
+                ${mensagem.conteudo ? `<div class="message-text">${escapeHtml(mensagem.conteudo)}</div>` : ''}
+                <div class="message-time">${formatarHora(mensagem.data_iso)} ${tick}</div>
             </div>
         `;
-        
+
+        if (isSent && mensagem.lida) marcarTickComoVisto(messageDiv.querySelector('.message-tick'));
+        messageDiv.querySelector('.message-image')?.addEventListener('click', function() {
+            document.getElementById('imagemAmpliada').src = this.src;
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalImagemChat')).show();
+        });
+        // Depois que a foto carrega a altura muda: mantém a conversa no fim
+        messageDiv.querySelector('.message-image')?.addEventListener('load', function() {
+            container.scrollTop = container.scrollHeight;
+        });
+
         container.appendChild(messageDiv);
         container.scrollTop = container.scrollHeight;
     }
-    
+
     function enviarMensagem() {
         const input = document.getElementById('mensagemInput');
         const conteudo = input.value.trim();
-        
+
         if (!conteudo || !usuarioAtual) return;
-        
+        const destinatarioId = usuarioAtual.id;
+
         input.disabled = true;
-        
+
         fetch('/chat/enviar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                destinatario_id: usuarioAtual.id,
+                destinatario_id: destinatarioId,
                 conteudo: conteudo
             })
         })
@@ -833,25 +1068,125 @@
         .then(data => {
             if (data.success) {
                 input.value = '';
-                adicionarMensagem({
-                    conteudo: conteudo,
-                    data_envio: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                    remetente_id: currentUserId
-                }, true);
-                atualizarPreview(usuarioAtual.id, conteudo);
+                if (usuarioAtual && usuarioAtual.id === destinatarioId) adicionarMensagem(data.mensagem, true);
+                atualizarPreview(destinatarioId, conteudo);
             } else {
                 alert('Erro ao enviar: ' + (data.error || 'Tente novamente'));
             }
         })
         .catch(error => {
             console.error('❌ Erro ao enviar:', error);
+            alert('Erro de conexão. Tente novamente.');
         })
         .finally(() => {
             input.disabled = false;
             input.focus();
         });
     }
-    
+
+    // ============================================
+    // FOTOS
+    // ============================================
+    // Reduz a foto no navegador antes de enviar (fotos de celular são grandes)
+    function reduzirImagem(arquivo) {
+        return new Promise(function(resolve) {
+            const img = new Image();
+            const url = URL.createObjectURL(arquivo);
+            img.onload = function() {
+                URL.revokeObjectURL(url);
+                const escala = Math.min(1, 1280 / Math.max(img.width, img.height));
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.round(img.width * escala);
+                canvas.height = Math.round(img.height * escala);
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(function(blob) {
+                    resolve(blob ? new File([blob], 'foto.jpg', { type: 'image/jpeg' }) : arquivo);
+                }, 'image/jpeg', 0.85);
+            };
+            img.onerror = function() {
+                URL.revokeObjectURL(url);
+                resolve(arquivo);
+            };
+            img.src = url;
+        });
+    }
+
+    async function enviarImagem(arquivo) {
+        if (!arquivo || !usuarioAtual) return;
+        if (!arquivo.type.startsWith('image/')) {
+            alert('Escolha um arquivo de imagem.');
+            return;
+        }
+
+        const destinatarioId = usuarioAtual.id;
+        const botao = document.getElementById('btnImagem');
+        const input = document.getElementById('mensagemInput');
+        botao.disabled = true;
+        botao.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        try {
+            const dados = new FormData();
+            dados.append('destinatario_id', destinatarioId);
+            dados.append('imagem', await reduzirImagem(arquivo));
+            dados.append('legenda', input.value.trim());   // o texto digitado vai como legenda
+
+            const res = await fetch('/chat/enviar-imagem', { method: 'POST', body: dados });
+            let data = {};
+            try { data = await res.json(); } catch (e) { /* resposta sem JSON (ex.: limite de envio) */ }
+
+            if (res.ok && data.success) {
+                input.value = '';
+                if (usuarioAtual && usuarioAtual.id === destinatarioId) adicionarMensagem(data.mensagem, true);
+                atualizarPreview(destinatarioId, data.mensagem.conteudo || '📷 Foto');
+            } else if (res.status === 429) {
+                alert('Muitas fotos em pouco tempo. Aguarde um minuto e tente de novo.');
+            } else if (res.status === 413) {
+                alert('A foto é grande demais.');
+            } else {
+                alert('Erro ao enviar a foto: ' + (data.error || 'Tente novamente'));
+            }
+        } catch (error) {
+            console.error('❌ Erro ao enviar foto:', error);
+            alert('Erro de conexão. Tente novamente.');
+        } finally {
+            botao.disabled = false;
+            botao.innerHTML = '<i class="fas fa-image"></i>';
+        }
+    }
+
+    // ============================================
+    // APAGAR CONVERSA
+    // ============================================
+    function confirmarApagarConversa() {
+        if (!usuarioAtual) return;
+        document.getElementById('apagarConversaNome').textContent = usuarioAtual.nome;
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalApagarConversa')).show();
+    }
+
+    function apagarConversa() {
+        if (!usuarioAtual) return;
+        const botao = document.getElementById('btnConfirmarApagar');
+        botao.disabled = true;
+
+        fetch('/chat/apagar/' + usuarioAtual.id, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) throw new Error('falhou');
+                // Recarrega para a lista de conversas voltar atualizada do servidor
+                window.location.reload();
+            })
+            .catch(() => {
+                botao.disabled = false;
+                alert('Não foi possível apagar a conversa. Tente novamente.');
+            });
+    }
+
+    // ============================================
+    // LISTA DE CONVERSAS
+    // ============================================
     function atualizarPreview(usuarioId, conteudo) {
         const preview = document.getElementById(`preview-${usuarioId}`);
         if (preview) {
@@ -859,86 +1194,85 @@
             preview.innerHTML = `${escapeHtml(texto)}${(conteudo || '').length > 40 ? '...' : ''}`;
         }
     }
-    
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-    
+
     function voltarParaLista() {
-         window.chatAtivoCom = null;
-         
+        window.chatAtivoCom = null;
+        usuarioAtual = null;
+
         document.getElementById('chatSidebar').classList.remove('hidden-mobile');
         document.getElementById('chatMain').classList.add('hidden-mobile');
         document.getElementById('btnVoltarConversas').style.display = 'none';
     }
-    
+
+    // Reserva para quando o tempo real falhar: confere mensagens novas e os "vistos" a cada 4s
     function iniciarPolling() {
         if (pollingTimer) clearInterval(pollingTimer);
-        
+
         pollingTimer = setInterval(function() {
-            if (usuarioAtual && usuarioAtual.id && conversaIdAtual === usuarioAtual.id) {
-                fetch(`/chat/historico/${usuarioAtual.id}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (!data || data.length === 0) return;
-                        
-                        const ultima = data[data.length - 1];
-                        const chaveAtual = `${ultima.id || ultima.data_envio}_${ultima.conteudo}`;
-                        
-                        if (ultimaMensagemRecebida !== chaveAtual) {
-                            ultimaMensagemRecebida = chaveAtual;
-                            
-                            const container = document.getElementById('chatMessages');
-                            if (container) {
-                                container.innerHTML = '';
-                                data.forEach(msg => {
-                                    adicionarMensagem(msg, msg.remetente_id === currentUserId);
-                                });
-                                container.scrollTop = container.scrollHeight;
-                            }
+            // Aba em segundo plano não conta como "visto"
+            if (!usuarioAtual || document.hidden) return;
+            const idPedido = usuarioAtual.id;
+
+            fetch(`/chat/historico/${idPedido}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!Array.isArray(data) || !usuarioAtual || usuarioAtual.id !== idPedido) return;
+
+                    if (data.map(m => m.id).join(',') !== idsNaTela.join(',')) {
+                        desenharMensagens(data);
+                        return;
+                    }
+                    // Mesmas mensagens: só atualiza os "vistos"
+                    data.forEach(function(msg) {
+                        if (msg.lida && msg.remetente_id === currentUserId) {
+                            const tick = document.querySelector(`#chatMessages .message[data-id="${msg.id}"] .message-tick:not(.lida)`);
+                            if (tick) marcarTickComoVisto(tick);
                         }
-                    })
-                    .catch(err => console.log('Polling erro:', err));
-            }
+                    });
+                })
+                .catch(err => console.log('Polling erro:', err));
         }, 4000);
     }
-    
+
     // ============================================
     // EVENT LISTENERS
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
         iniciarSocketChat();
-        
+        carregarOnline();
+        atualizarStatusCabecalho();
+
         // Verificar sessionStorage (vindo de iniciarChat)
         const chatWithId = sessionStorage.getItem('chat_with_id');
         const chatWithName = sessionStorage.getItem('chat_with_name');
-        
+
         if (chatWithId && chatWithName) {
-            console.log('🔗 Iniciando conversa automaticamente com:', chatWithName);
             sessionStorage.removeItem('chat_with_id');
             sessionStorage.removeItem('chat_with_name');
-            
+
             setTimeout(function() {
                 carregarConversa(parseInt(chatWithId), chatWithName, '');
             }, 300);
         }
-        
-        const enviarBtn = document.getElementById('enviarBtn');
-        if (enviarBtn) enviarBtn.addEventListener('click', enviarMensagem);
-        
-        const mensagemInput = document.getElementById('mensagemInput');
-        if (mensagemInput) {
-            mensagemInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    enviarMensagem();
-                }
-            });
-        }
-        
+
+        document.getElementById('enviarBtn').addEventListener('click', enviarMensagem);
+        document.getElementById('mensagemInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarMensagem();
+            }
+        });
+
+        const imagemInput = document.getElementById('imagemChatInput');
+        document.getElementById('btnImagem').addEventListener('click', () => imagemInput.click());
+        imagemInput.addEventListener('change', function() {
+            enviarImagem(imagemInput.files[0]);
+            imagemInput.value = '';   // permite escolher a mesma foto de novo
+        });
+
+        document.getElementById('btnApagarConversa').addEventListener('click', confirmarApagarConversa);
+        document.getElementById('btnConfirmarApagar').addEventListener('click', apagarConversa);
+
         const buscarInput = document.getElementById('buscarConversa');
         if (buscarInput) {
             buscarInput.addEventListener('input', function(e) {
@@ -949,14 +1283,19 @@
                 });
             });
         }
-        
+
+        // Voltou para a aba com uma conversa aberta: agora sim as mensagens foram vistas
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && usuarioAtual) carregarMensagens();
+        });
+
         setTimeout(iniciarPolling, 500);
-        
+
         if (typeof updateUnreadCount === 'function') {
             updateUnreadCount();
         }
     });
-    
+
     window.addEventListener('beforeunload', function() {
         if (pollingTimer) clearInterval(pollingTimer);
     });

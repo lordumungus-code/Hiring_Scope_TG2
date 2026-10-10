@@ -117,7 +117,7 @@
                         <span>Ver Serviços</span>
                     </a>
                     {% if current_user.is_authenticated and current_user.id != item.prestador.id %}
-                        <button onclick="iniciarChat({{ item.prestador.id }}, '{{ item.prestador.nome|replace("'", "\\'") }}')"
+                        <button onclick='iniciarChat({{ item.prestador.id }}, {{ item.prestador.nome|tojson }})'
                                 class="btn-top-chat"
                                 title="Conversar com {{ item.prestador.nome }}">
                             <i class="fas fa-comments"></i>

@@ -36,16 +36,18 @@
                     <small class="text-muted">{{ assinatura.dias_restantes() }} dias</small>
                 </div>
                 
-                <a href="{{ url_for('assinatura.cancelar') }}" class="btn btn-outline-danger w-100 rounded-pill mt-3" onclick="return confirm('Tem certeza que deseja cancelar?')">
-                    Cancelar Assinatura
-                </a>
-                
+                <form method="POST" action="{{ url_for('assinatura.cancelar') }}" onsubmit="return confirm('Tem certeza que deseja cancelar?')">
+                    <button type="submit" class="btn btn-outline-danger w-100 rounded-pill mt-3">
+                        Cancelar Assinatura
+                    </button>
+                </form>
+
             {% else %}
                 <div class="text-center py-4">
                     <i class="fas fa-crown fa-4x text-muted mb-3"></i>
                     <h4>Nenhuma assinatura ativa</h4>
                     <p class="text-muted">Assine um plano para ter destaque</p>
-                    <a href="{{ url_for('assinatura.planos') }}" class="btn btn-primary rounded-pill px-4">
+                    <a href="{{ url_for('servico.planos_destaque') }}" class="btn btn-primary rounded-pill px-4">
                         Ver Planos
                     </a>
                 </div>

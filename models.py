@@ -1,3 +1,4 @@
+import zlib
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -13,6 +14,7 @@ class Usuario(UserMixin, db.Model):
     telefone = db.Column(db.String(20))
     tipo = db.Column(db.String(20), nullable=False)  # cliente, prestador
     is_admin = db.Column(db.Boolean, default=False)
+    desativada = db.Column(db.Boolean, default=False, nullable=False, server_default=db.false())  # conta "dormindo" ou excluída
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
     foto_perfil = db.Column(db.String(200), default='default.jpg')
     foto_url = db.Column(db.String(500), nullable=True)
@@ -131,6 +133,18 @@ class Servico(db.Model):
     solicitacoes = db.relationship('Solicitacao', back_populates='servico', lazy=True)
     avaliacoes = db.relationship('Avaliacao', back_populates='servico', lazy=True)
     contratos = db.relationship('Contrato', back_populates='servico', lazy=True)
+    # Fotos além da capa (a capa continua em imagem_base64, usada nos cards)
+    imagens_extras = db.relationship('ServicoImagem', order_by='ServicoImagem.ordem, ServicoImagem.id',
+                                     cascade='all, delete-orphan', lazy=True)
+    
+    def fotos(self):
+        """Todas as fotos do serviço em base64: a capa primeiro, depois as extras"""
+        capa = [self.imagem_base64] if self.imagem_base64 else []
+        return capa + [img.imagem_base64 for img in self.imagens_extras]
+    
+    def fotos_versoes(self):
+        """Um código por foto, que muda quando a foto muda (evita o navegador mostrar foto antiga em cache)"""
+        return [format(zlib.crc32(foto.encode()), 'x') for foto in self.fotos()]
     
     def is_destaque_ativo(self):
         """Verifica se o destaque pago ainda está ativo"""
@@ -167,6 +181,19 @@ class Servico(db.Model):
     
     def __repr__(self):
         return f'<Servico {self.titulo}>'
+
+
+class ServicoImagem(db.Model):
+    """Foto adicional de um serviço"""
+    __tablename__ = 'servico_imagens'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    servico_id = db.Column(db.Integer, db.ForeignKey('servicos.id'), nullable=False, index=True)
+    imagem_base64 = db.Column(db.Text, nullable=False)
+    ordem = db.Column(db.Integer, default=0)
+    
+    def __repr__(self):
+        return f'<ServicoImagem {self.id} do servico {self.servico_id}>'
 
 
 class Solicitacao(db.Model):
@@ -348,6 +375,10 @@ class Mensagem(db.Model):
     conteudo = db.Column(db.Text, nullable=False)
     data_envio = db.Column(db.DateTime, default=datetime.utcnow)
     lida = db.Column(db.Boolean, default=False)
+    imagem_base64 = db.Column(db.Text, nullable=True)  # foto enviada pelo chat (JPEG)
+    # "Apagar conversa" vale só para quem apagou; a outra pessoa continua vendo
+    apagada_remetente = db.Column(db.Boolean, default=False, nullable=False, server_default=db.false())
+    apagada_destinatario = db.Column(db.Boolean, default=False, nullable=False, server_default=db.false())
     
     remetente = db.relationship('Usuario', foreign_keys=[remetente_id])
     destinatario = db.relationship('Usuario', foreign_keys=[destinatario_id])
@@ -380,3 +411,8 @@ class Assinatura(db.Model):
     
     def __repr__(self):
         return f'<Assinatura {self.id} - {self.plano} - {self.status}>'
+
+
+def servicos_visiveis():
+    """Serviços de contas ativas (os de contas desativadas ou excluídas ficam ocultos)"""
+    return Servico.query.join(Usuario, Servico.prestador_id == Usuario.id).filter(Usuario.desativada == False)

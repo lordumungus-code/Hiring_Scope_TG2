@@ -217,9 +217,6 @@ function updateNotificationBadges() {
     const chatBadge = document.getElementById('chatNotificationBadge');
     const notifBadge = document.getElementById('notificationBadge');
     
-     if (chatBadge) {
-        chatBadge.textContent = notificationCount > 0 ? notificationCount : '0';
-
     if (notificationCount > 0) {
         if (chatBadge) {
             chatBadge.style.display = 'inline';
@@ -230,23 +227,14 @@ function updateNotificationBadges() {
             notifBadge.textContent = notificationCount;
         }
     } else {
-        if (chatBadge) chatBadge.style.display = 'none';
+        if (chatBadge) {
+            chatBadge.style.display = 'none';
+            chatBadge.textContent = '0';
+        }
         if (notifBadge) notifBadge.style.display = 'none';
     }
 }
-}
-        if (notifBadge) {
-                const notifCount = parseInt(notifBadge.dataset.count || '0');
-                notifBadge.textContent = notifCount > 0 ? notifCount : '0';
-                
-                if (notifCount > 0) {
-                    notifBadge.classList.remove('notification-badge--empty');
-                    notifBadge.classList.add('notification-badge--alert');
-                } else {
-                    notifBadge.classList.remove('notification-badge--alert');
-                    notifBadge.classList.add('notification-badge--empty');
-                }
-            }
+
 async function updateUnreadCount() {
     if (typeof currentUserId === 'undefined' || !currentUserId || currentUserId === 'null') return;
     
