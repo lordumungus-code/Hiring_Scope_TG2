@@ -249,6 +249,8 @@ class Contrato(db.Model):
     prestador = db.relationship('Usuario', foreign_keys=[prestador_id], back_populates='contratos_como_prestador')
     servico = db.relationship('Servico', foreign_keys=[servico_id], back_populates='contratos')
     avaliacao = db.relationship('Avaliacao', back_populates='contrato', uselist=False, cascade='all, delete-orphan')
+    # Contrato formal com assinatura eletrônica (opcional, pago pelo prestador)
+    formal = db.relationship('ContratoFormal', back_populates='contrato', uselist=False, cascade='all, delete-orphan')
     
     def __repr__(self):
         return f'<Contrato {self.id} - {self.status}>'
@@ -283,6 +285,53 @@ class Contrato(db.Model):
                 ).first()
                 return avaliacao_existente is None
         return False
+
+
+class ContratoFormal(db.Model):
+    """Contrato formal de prestação de serviços, com assinatura eletrônica das duas partes.
+    
+    status: aguardando_pagamento -> rascunho -> aguardando_assinaturas -> assinado
+    """
+    __tablename__ = 'contratos_formais'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    contrato_id = db.Column(db.Integer, db.ForeignKey('contratos.id'), nullable=False, unique=True)
+    numero = db.Column(db.String(30), unique=True)
+    status = db.Column(db.String(30), default='aguardando_pagamento', nullable=False)
+    criado_em = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Taxa paga pelo prestador para liberar o contrato
+    pagamento_id = db.Column(db.String(100), nullable=True)
+    pago_em = db.Column(db.DateTime, nullable=True)
+    
+    # Dados das partes e condições (JSON). Congelado quando vai para assinatura.
+    termos_json = db.Column(db.Text, nullable=True)
+    motivo_reabertura = db.Column(db.Text, nullable=True)
+    
+    # Assinatura de cada parte: quando, de onde e com qual navegador
+    cliente_assinou_em = db.Column(db.DateTime, nullable=True)
+    cliente_ip = db.Column(db.String(60), nullable=True)
+    cliente_dispositivo = db.Column(db.String(300), nullable=True)
+    prestador_assinou_em = db.Column(db.DateTime, nullable=True)
+    prestador_ip = db.Column(db.String(60), nullable=True)
+    prestador_dispositivo = db.Column(db.String(300), nullable=True)
+    
+    # Código de confirmação enviado por e-mail (guardado só como hash)
+    cliente_codigo_hash = db.Column(db.String(200), nullable=True)
+    cliente_codigo_expira = db.Column(db.DateTime, nullable=True)
+    cliente_codigo_tentativas = db.Column(db.Integer, default=0)
+    prestador_codigo_hash = db.Column(db.String(200), nullable=True)
+    prestador_codigo_expira = db.Column(db.DateTime, nullable=True)
+    prestador_codigo_tentativas = db.Column(db.Integer, default=0)
+    
+    # Selo: hash SHA-256 do conteúdo + assinaturas, gerado quando os dois assinam
+    hash_documento = db.Column(db.String(64), nullable=True, index=True)
+    selado_em = db.Column(db.DateTime, nullable=True)
+    
+    contrato = db.relationship('Contrato', back_populates='formal')
+    
+    def __repr__(self):
+        return f'<ContratoFormal {self.numero} - {self.status}>'
 
 
 class Avaliacao(db.Model):

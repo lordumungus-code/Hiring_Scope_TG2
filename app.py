@@ -16,6 +16,7 @@ from routes.auth_routes import auth_bp
 from routes.main_routes import main_bp
 from routes.servico_routes import servico_bp
 from routes.contrato_routes import contrato_bp
+from routes.contrato_formal_routes import formal_bp
 from routes.chat_routes import chat_bp
 from routes.admin_routes import admin_bp
 from routes.assinatura_routes import assinatura_bp
@@ -47,6 +48,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(main_bp)
 app.register_blueprint(servico_bp)
 app.register_blueprint(contrato_bp)
+app.register_blueprint(formal_bp)
 app.register_blueprint(chat_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(assinatura_bp)

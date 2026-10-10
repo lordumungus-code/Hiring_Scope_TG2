@@ -98,7 +98,10 @@ def webhook():
     payment_id = corpo.get('id') or request.args.get('data.id') or request.args.get('id')
 
     if tipo == 'payment' and payment_id:
-        confirmar_pagamento(payment_id)
+        # O mesmo webhook recebe pagamentos de planos e de contratos formais
+        if confirmar_pagamento(payment_id) == 'invalido':
+            from routes.contrato_formal_routes import confirmar_pagamento_contrato
+            confirmar_pagamento_contrato(payment_id)
 
     return jsonify({'status': 'ok'}), 200
 

@@ -49,3 +49,32 @@ def telefone_ja_existe(telefone_limpo, ignorar_usuario_id=None):
         if limpar_telefone(u.telefone) == telefone_limpo:
             return True
     return False
+
+
+def validar_cpf_cnpj(documento):
+    """Confere os dígitos verificadores de um CPF ou CNPJ. Retorna (valido, documento_formatado)"""
+    numeros = re.sub(r'\D', '', str(documento or ''))
+    
+    if len(numeros) == 11:
+        if len(set(numeros)) == 1:
+            return False, None
+        for tamanho in (9, 10):
+            soma = sum(int(numeros[i]) * (tamanho + 1 - i) for i in range(tamanho))
+            digito = (soma * 10) % 11 % 10
+            if digito != int(numeros[tamanho]):
+                return False, None
+        return True, f'{numeros[:3]}.{numeros[3:6]}.{numeros[6:9]}-{numeros[9:]}'
+    
+    if len(numeros) == 14:
+        if len(set(numeros)) == 1:
+            return False, None
+        for tamanho in (12, 13):
+            pesos = list(range(tamanho - 7, 1, -1)) + list(range(9, 1, -1))
+            soma = sum(int(numeros[i]) * pesos[i] for i in range(tamanho))
+            resto = soma % 11
+            digito = 0 if resto < 2 else 11 - resto
+            if digito != int(numeros[tamanho]):
+                return False, None
+        return True, f'{numeros[:2]}.{numeros[2:5]}.{numeros[5:8]}/{numeros[8:12]}-{numeros[12:]}'
+    
+    return False, None

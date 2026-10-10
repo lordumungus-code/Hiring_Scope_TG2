@@ -1,0 +1,455 @@
+{% extends "base.html" %}
+
+{% block title %}Contrato formal - HiringScope{% endblock %}
+
+{% block content %}
+{% set status = formal.status if formal else 'sem_contrato' %}
+{% set meu_lado = 'cliente' if papel == 'cliente' else 'prestador' %}
+{% set ja_assinei = formal and ((papel == 'cliente' and formal.cliente_assinou_em) or (papel == 'prestador' and formal.prestador_assinou_em)) %}
+
+<div class="container mt-4 mb-5 cf-page">
+    <div class="mb-3 no-print">
+        <a href="{{ url_for('contrato.detalhe_contrato', contrato_id=contrato.id) }}" class="btn btn-outline-secondary rounded-pill">
+            <i class="fas fa-arrow-left me-2"></i> Voltar para o contrato #{{ contrato.id }}
+        </a>
+    </div>
+
+    <!-- Cabeçalho -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4 no-print">
+        <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h4 class="mb-1"><i class="fas fa-file-signature text-primary me-2"></i> Contrato formal{% if formal and formal.numero %} nº {{ formal.numero }}{% endif %}</h4>
+                <p class="text-muted mb-0">
+                    {{ contrato.servico.titulo }} — {{ contrato.cliente.nome }} (cliente) e {{ contrato.prestador.nome }} (prestador)
+                </p>
+            </div>
+            <span class="badge rounded-pill px-3 py-2
+                {% if status == 'assinado' %}bg-success{% elif status == 'aguardando_assinaturas' %}bg-warning text-dark{% elif status == 'rascunho' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
+                {% if status == 'assinado' %}<i class="fas fa-check-circle me-1"></i> Assinado pelas duas partes
+                {% elif status == 'aguardando_assinaturas' %}<i class="fas fa-pen me-1"></i> Aguardando assinaturas
+                {% elif status == 'rascunho' %}<i class="fas fa-edit me-1"></i> Em preparação
+                {% else %}<i class="fas fa-lock me-1"></i> Não gerado{% endif %}
+            </span>
+        </div>
+    </div>
+
+    {# ═══════════════════════════════════════════════════════════ #}
+    {# 1. AINDA NÃO PAGO                                           #}
+    {# ═══════════════════════════════════════════════════════════ #}
+    {% if status in ('sem_contrato', 'aguardando_pagamento') %}
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4 p-md-5 text-center">
+                <i class="fas fa-file-signature fa-3x text-primary mb-3"></i>
+                {% if papel == 'prestador' and pode_iniciar %}
+                    <h4 class="mb-2">Formalize este serviço com um contrato assinado</h4>
+                    <p class="text-muted mx-auto" style="max-width: 560px;">
+                        O site monta o contrato com os dados de vocês dois e as condições combinadas.
+                        Cada um assina com senha e código por e-mail, e recebe o PDF com registro de data, hora e IP.
+                    </p>
+                    <ul class="list-unstyled text-start mx-auto mb-4" style="max-width: 420px;">
+                        <li class="mb-1"><i class="fas fa-check text-success me-2"></i> Contrato já preenchido com nomes e serviço</li>
+                        <li class="mb-1"><i class="fas fa-check text-success me-2"></i> Assinatura eletrônica das duas partes</li>
+                        <li class="mb-1"><i class="fas fa-check text-success me-2"></i> PDF com código de verificação</li>
+                        <li><i class="fas fa-check text-success me-2"></i> Cópia por e-mail para os dois</li>
+                    </ul>
+                    <form method="POST" action="{{ url_for('contrato_formal.pagar', contrato_id=contrato.id) }}">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5">
+                            <i class="fas fa-lock-open me-2"></i> Liberar contrato por {{ brl(preco) }}
+                        </button>
+                    </form>
+                    <p class="text-muted small mt-3 mb-0">
+                        Pagamento único pelo Mercado Pago, só para este contrato.
+                        É opcional: sem ele o serviço e a avaliação continuam funcionando normalmente.
+                    </p>
+                {% elif papel == 'prestador' %}
+                    <h4 class="mb-2">Contrato formal indisponível</h4>
+                    <p class="text-muted mb-0">O contrato formal pode ser gerado depois de aceitar o serviço e antes de concluí-lo.</p>
+                {% else %}
+                    <h4 class="mb-2">Ainda não há contrato formal</h4>
+                    <p class="text-muted mb-0">
+                        O prestador pode gerar um contrato com assinatura eletrônica para este serviço.
+                        Quando ele enviar, você recebe um aviso para ler e assinar aqui.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+    {# ═══════════════════════════════════════════════════════════ #}
+    {# 2. RASCUNHO                                                 #}
+    {# ═══════════════════════════════════════════════════════════ #}
+    {% elif status == 'rascunho' %}
+        {% if formal.motivo_reabertura %}
+            <div class="alert alert-warning rounded-4">
+                <i class="fas fa-comment-dots me-2"></i>
+                <strong>Alteração pedida —</strong> {{ formal.motivo_reabertura }}
+            </div>
+        {% endif %}
+
+        {% if papel == 'prestador' %}
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="mb-1">Condições do contrato</h5>
+                    <p class="text-muted small">Confira e complete. Depois de enviar, o cliente lê e os dois assinam.</p>
+
+                    <form method="POST" action="{{ url_for('contrato_formal.salvar_termos', contrato_id=contrato.id) }}">
+                        <h6 class="cf-secao">Seus dados (contratado)</h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Nome</label>
+                                <input type="text" class="form-control" value="{{ termos.contratado.nome }}" disabled>
+                                <small class="text-muted">Vem do seu cadastro.</small>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="cfDoc">CPF ou CNPJ <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cfDoc" name="contratado_doc" value="{{ termos.contratado.doc }}" placeholder="000.000.000-00" maxlength="18">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label" for="cfEnd">Endereço <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cfEnd" name="contratado_endereco" value="{{ termos.contratado.endereco }}" placeholder="Rua, nº, bairro, cidade/UF" maxlength="300">
+                            </div>
+                        </div>
+
+                        <h6 class="cf-secao">Cliente (contratante)</h6>
+                        <p class="text-muted small mb-0">
+                            {{ termos.contratante.nome }} — {{ termos.contratante.email }}{% if termos.contratante.telefone %} — {{ termos.contratante.telefone }}{% endif %}.
+                            O CPF e o endereço são informados pelo próprio cliente na hora de assinar.
+                        </p>
+
+                        <h6 class="cf-secao">O serviço</h6>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label" for="cfDescricao">O que será feito <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="cfDescricao" name="descricao" rows="4" maxlength="3000">{{ termos.descricao }}</textarea>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="cfData">Data <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="cfData" name="data_servico" value="{{ termos.data_servico }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="cfHora">Horário de início</label>
+                                <input type="time" class="form-control" id="cfHora" name="hora_inicio" value="{{ termos.hora_inicio }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="cfPrazo">Prazo ou duração</label>
+                                <input type="text" class="form-control" id="cfPrazo" name="prazo" value="{{ termos.prazo }}" placeholder="Ex.: 3 dias úteis, ou 4 horas" maxlength="200">
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label" for="cfLocal">Local <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cfLocal" name="local" value="{{ termos.local }}" placeholder="Endereço onde o serviço será feito" maxlength="300">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="cfCidade">Cidade / UF <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cfCidade" name="cidade" value="{{ termos.cidade }}" placeholder="Cruzeiro/SP" maxlength="120">
+                            </div>
+                        </div>
+
+                        <h6 class="cf-secao">Valor e pagamento</h6>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label" for="cfValor">Valor total (R$) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="cfValor" name="valor_total" min="0" step="0.01" value="{{ '%.2f'|format(termos.valor_total or 0) }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" for="cfForma">Forma de pagamento</label>
+                                <select class="form-select" id="cfForma" name="forma_pagamento">
+                                    {% for forma in formas_pagamento %}
+                                        <option {% if termos.forma_pagamento == forma %}selected{% endif %}>{{ forma }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label" for="cfEntrada">Sinal (R$)</label>
+                                <input type="number" class="form-control" id="cfEntrada" name="entrada" min="0" step="0.01" value="{{ '%.2f'|format(termos.entrada or 0) }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label" for="cfVenc">Pagar até</label>
+                                <input type="date" class="form-control" id="cfVenc" name="venc_saldo" value="{{ termos.venc_saldo }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label" for="cfMulta">Multa (%)</label>
+                                <input type="number" class="form-control" id="cfMulta" name="multa" min="0" max="100" step="1" value="{{ '%g'|format(termos.multa or 0) }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="cfObs">Condições adicionais <span class="text-muted">(opcional)</span></label>
+                                <textarea class="form-control" id="cfObs" name="observacoes" rows="3" maxlength="3000" placeholder="Ex.: material por conta do cliente; garantia de 90 dias sobre o serviço.">{{ termos.observacoes }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 flex-wrap justify-content-end mt-4">
+                            <button type="submit" name="acao" value="salvar" class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="fas fa-save me-2"></i> Salvar rascunho
+                            </button>
+                            <button type="submit" name="acao" value="enviar" class="btn btn-primary rounded-pill px-4">
+                                <i class="fas fa-paper-plane me-2"></i> Enviar para assinatura
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-5 text-center">
+                    <i class="fas fa-hourglass-half fa-3x text-info mb-3"></i>
+                    <h4 class="mb-2">O prestador está preparando o contrato</h4>
+                    <p class="text-muted mb-0">Quando ele enviar, você recebe um aviso para ler e assinar aqui.</p>
+                </div>
+            </div>
+        {% endif %}
+
+    {# ═══════════════════════════════════════════════════════════ #}
+    {# 3 e 4. PARA ASSINAR / ASSINADO                              #}
+    {# ═══════════════════════════════════════════════════════════ #}
+    {% else %}
+        {% if status == 'assinado' %}
+            <div class="alert alert-success rounded-4 no-print">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Contrato assinado e selado</strong> em {{ horario_brasilia(formal.selado_em) }}.
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{{ url_for('contrato_formal.pdf', contrato_id=contrato.id) }}" target="_blank" class="btn btn-success rounded-pill px-4">
+                            <i class="fas fa-file-pdf me-2"></i> Abrir PDF
+                        </a>
+                        <a href="{{ url_for('contrato_formal.pdf', contrato_id=contrato.id, baixar=1) }}" class="btn btn-outline-success rounded-pill px-4">
+                            <i class="fas fa-download me-2"></i> Baixar
+                        </a>
+                    </div>
+                </div>
+                <div class="cf-hash mt-3">
+                    <small class="d-block mb-1">Código de verificação (hash SHA-256):</small>
+                    <code id="cfHash">{{ formal.hash_documento }}</code>
+                </div>
+                <small class="d-block mt-2">
+                    Qualquer pessoa pode conferir este código em
+                    <a href="{{ url_for('contrato_formal.verificar', codigo=formal.hash_documento) }}" class="alert-link">Verificar contrato</a>.
+                </small>
+            </div>
+        {% endif %}
+
+        <div class="row g-4">
+            <!-- Documento -->
+            <div class="{% if status == 'assinado' or papel == 'admin' %}col-12{% else %}col-lg-8{% endif %}">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body p-4 p-md-5 cf-doc" id="cfDocumento">
+                        <h2>Contrato de Prestação de Serviços</h2>
+                        <p class="cf-sub">Contrato nº {{ formal.numero }}</p>
+
+                        <p>{{ descricao_da_parte('CONTRATANTE', termos.contratante) }}</p>
+                        <p>{{ descricao_da_parte('CONTRATADO(A)', termos.contratado) }}</p>
+                        <p>As partes acima identificadas firmam o presente Contrato de Prestação de Serviços, regido pelas cláusulas a seguir.</p>
+
+                        {% for titulo, paragrafos in clausulas %}
+                            <h3>{{ titulo }}</h3>
+                            {% for texto in paragrafos %}{% if texto %}<p>{{ texto }}</p>{% endif %}{% endfor %}
+                        {% endfor %}
+
+                        <h3>Registro das assinaturas eletrônicas</h3>
+                        {% for a in assinaturas %}
+                            <p class="mb-1 cf-assinatura">
+                                <strong>{{ a.parte }} — {{ termos.contratante.nome if a.parte == 'CONTRATANTE' else termos.contratado.nome }}:</strong>
+                                {% if a.quando %}
+                                    assinou em {{ horario_brasilia(a.quando) }}, IP {{ a.ip or 'não registrado' }}.
+                                {% else %}
+                                    <span class="text-danger">assinatura pendente.</span>
+                                {% endif %}
+                            </p>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if status == 'aguardando_assinaturas' %}
+                    <div class="text-end mt-2 no-print">
+                        <a href="{{ url_for('contrato_formal.pdf', contrato_id=contrato.id) }}" target="_blank" class="small">
+                            <i class="fas fa-file-pdf me-1"></i> Ver como ficará o PDF
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Painel de assinatura -->
+            {% if status == 'aguardando_assinaturas' and papel != 'admin' %}
+            <div class="col-lg-4 no-print">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body p-4">
+                        <h5 class="mb-3"><i class="fas fa-pen-nib text-primary me-2"></i> Assinatura</h5>
+
+                        <div class="cf-quem mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Cliente</span>
+                                {% if formal.cliente_assinou_em %}<span class="text-success fw-bold"><i class="fas fa-check"></i> Assinou</span>{% else %}<span class="text-muted">Pendente</span>{% endif %}
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Prestador</span>
+                                {% if formal.prestador_assinou_em %}<span class="text-success fw-bold"><i class="fas fa-check"></i> Assinou</span>{% else %}<span class="text-muted">Pendente</span>{% endif %}
+                            </div>
+                        </div>
+
+                        {% if ja_assinei %}
+                            <div class="alert alert-success mb-3">
+                                <i class="fas fa-check-circle me-1"></i> Você já assinou. Falta a outra parte.
+                            </div>
+                        {% else %}
+                            <p class="text-muted small">Leia o contrato com atenção. Para assinar, confirme sua senha e o código que enviaremos ao seu e-mail.</p>
+
+                            <form method="POST" action="{{ url_for('contrato_formal.assinar', contrato_id=contrato.id) }}" id="cfFormAssinar">
+                                {% if papel == 'cliente' %}
+                                    <div class="mb-3">
+                                        <label class="form-label" for="cfMeuDoc">Seu CPF ou CNPJ</label>
+                                        <input type="text" class="form-control" id="cfMeuDoc" name="doc" placeholder="000.000.000-00" maxlength="18" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="cfMeuEnd">Seu endereço</label>
+                                        <input type="text" class="form-control" id="cfMeuEnd" name="endereco" placeholder="Rua, nº, bairro, cidade/UF" maxlength="300" required>
+                                    </div>
+                                {% endif %}
+                                <div class="mb-3">
+                                    <label class="form-label" for="cfSenha">Senha da sua conta</label>
+                                    <input type="password" class="form-control" id="cfSenha" name="senha" autocomplete="current-password" required>
+                                    <small class="text-muted">
+                                        Entra com Google e não tem senha? Saia da conta e use
+                                        <a href="{{ url_for('auth.esqueci_senha') }}">Esqueceu a senha?</a> para criar uma.
+                                    </small>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label" for="cfCodigo">Código de 6 dígitos</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control cf-codigo" id="cfCodigo" name="codigo" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" required>
+                                        <button type="button" class="btn btn-outline-primary" id="cfBtnCodigo">Enviar código</button>
+                                    </div>
+                                    <small class="d-block mt-1" id="cfCodigoMsg">O código vai para {{ current_user.email }} e vale por {{ validade_codigo }} minutos.</small>
+                                </div>
+                                <div class="form-check my-3">
+                                    <input class="form-check-input" type="checkbox" id="cfLi" required>
+                                    <label class="form-check-label small" for="cfLi">Li o contrato e concordo com todas as cláusulas.</label>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100 rounded-pill">
+                                    <i class="fas fa-signature me-2"></i> Assinar contrato
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        <hr>
+                        <button type="button" class="btn btn-link btn-sm text-decoration-none p-0" data-bs-toggle="collapse" data-bs-target="#cfReabrir">
+                            <i class="fas fa-edit me-1"></i>
+                            {% if papel == 'prestador' %}Preciso alterar o contrato{% else %}Pedir uma alteração{% endif %}
+                        </button>
+                        <div class="collapse mt-2" id="cfReabrir">
+                            <form method="POST" action="{{ url_for('contrato_formal.reabrir', contrato_id=contrato.id) }}">
+                                <textarea class="form-control mb-2" name="motivo" rows="3" maxlength="1000"
+                                          placeholder="{% if papel == 'prestador' %}Motivo (opcional){% else %}O que precisa mudar?{% endif %}"
+                                          {% if papel == 'cliente' %}required{% endif %}></textarea>
+                                <small class="text-muted d-block mb-2">O contrato volta para o prestador editar e as assinaturas já feitas são desfeitas.</small>
+                                <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                                    {% if papel == 'prestador' %}Reabrir para edição{% else %}Enviar pedido{% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .cf-secao {
+        margin: 1.75rem 0 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid #e5e7eb;
+        color: #0b2b5c;
+        font-weight: 700;
+    }
+    .cf-doc {
+        font-size: 0.95rem;
+        line-height: 1.75;
+    }
+    .cf-doc h2 {
+        font-size: 1.15rem;
+        text-align: center;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        color: #0b2b5c;
+    }
+    .cf-doc .cf-sub {
+        text-align: center;
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-bottom: 1.5rem;
+    }
+    .cf-doc h3 {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        margin: 1.4rem 0 0.4rem;
+        color: #111827;
+    }
+    .cf-doc p {
+        margin-bottom: 0.5rem;
+        text-align: justify;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+    }
+    /* Linhas do registro de assinaturas: sem as quebras de linha do HTML */
+    .cf-doc p.cf-assinatura {
+        white-space: normal;
+        text-align: left;
+    }
+    .cf-quem {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        display: grid;
+        gap: 4px;
+    }
+    .cf-codigo {
+        letter-spacing: 4px;
+        text-align: center;
+        font-weight: 700;
+    }
+    .cf-hash code {
+        display: block;
+        background: #0f172a;
+        color: #a5f3fc;
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        word-break: break-all;
+    }
+</style>
+
+<script>
+    // Pede o código de assinatura por e-mail
+    document.getElementById('cfBtnCodigo')?.addEventListener('click', async function() {
+        const botao = this;
+        const msg = document.getElementById('cfCodigoMsg');
+        botao.disabled = true;
+        botao.textContent = 'Enviando...';
+
+        try {
+            const res = await fetch("{{ url_for('contrato_formal.enviar_codigo', contrato_id=contrato.id) }}", { method: 'POST' });
+            let data = {};
+            try { data = await res.json(); } catch (e) { /* resposta sem JSON (ex.: limite de envio) */ }
+
+            if (res.ok && data.sucesso) {
+                msg.textContent = data.mensagem;
+                msg.className = 'd-block mt-1 text-success';
+                document.getElementById('cfCodigo').focus();
+            } else {
+                msg.textContent = res.status === 429
+                    ? 'Muitos pedidos seguidos. Aguarde um minuto e tente de novo.'
+                    : (data.erro || 'Não foi possível enviar o código.');
+                msg.className = 'd-block mt-1 text-danger';
+            }
+        } catch (e) {
+            msg.textContent = 'Erro de conexão. Tente novamente.';
+            msg.className = 'd-block mt-1 text-danger';
+        } finally {
+            botao.textContent = 'Reenviar código';
+            // Evita vários e-mails seguidos por clique repetido
+            setTimeout(() => { botao.disabled = false; }, 15000);
+        }
+    });
+</script>
+{% endblock %}

@@ -11,45 +11,43 @@ if not ACCESS_TOKEN:
 sdk = mercadopago.SDK(ACCESS_TOKEN) if ACCESS_TOKEN else None
 
 
-def criar_link_pagamento(plano, plano_nome, plano_valor, prestador_id, prestador_email, prestador_nome):
-    """Cria um link de pagamento no Mercado Pago"""
+BASE_URL = "https://hiring-scope.com.br"
+
+
+def criar_preferencia(titulo, descricao, valor, email, nome, referencia, retorno):
+    """Cria um link de pagamento no Mercado Pago.
+    
+    referencia: identifica o que está sendo pago (volta no pagamento como external_reference)
+    retorno: caminhos do site para onde o Mercado Pago devolve o usuário
+             ({'success': ..., 'failure': ..., 'pending': ...})
+    """
     
     if sdk is None:
         return {'success': False, 'error': 'Mercado Pago não configurado'}
     
-    print(f"💳 Criando pagamento para: {plano_nome} - R$ {plano_valor}")
-    
-    base_url = "https://hiring-scope.com.br"
+    print(f"💳 Criando pagamento para: {titulo} - R$ {valor}")
     
     payment_data = {
         "items": [
             {
-                "title": f"Assinatura {plano_nome} - HiringScope",
-                "description": f"Acesso ao plano {plano_nome} por 30 dias",
+                "title": titulo,
+                "description": descricao,
                 "quantity": 1,
                 "currency_id": "BRL",
-                "unit_price": plano_valor
+                "unit_price": valor
             }
         ],
         "payer": {
-            "email": prestador_email,
-            "name": prestador_nome
+            "email": email,
+            "name": nome
         },
-        "back_urls": {
-            "success": f"{base_url}/assinatura/sucesso",
-            "failure": f"{base_url}/assinatura/erro",
-            "pending": f"{base_url}/assinatura/pendente"
-        },
-        "notification_url": f"{base_url}/assinatura/webhook",
-        "external_reference": f"prestador_{prestador_id}_{plano}"
+        "back_urls": {chave: f"{BASE_URL}{caminho}" for chave, caminho in retorno.items()},
+        "notification_url": f"{BASE_URL}/assinatura/webhook",
+        "external_reference": referencia
     }
     
     try:
-        print("📤 Enviando requisição para Mercado Pago...")
-        
         preference = sdk.preference().create(payment_data)
-        
-        print(f"📦 Resposta status: {preference['status']}")
         
         if preference['status'] == 201:
             url = preference['response']['init_point']  # init_point = produção
@@ -67,6 +65,22 @@ def criar_link_pagamento(plano, plano_nome, plano_valor, prestador_id, prestador
         print(f"❌ Exceção: {e}")
         return {'success': False, 'error': str(e)}
 
+
+def criar_link_pagamento(plano, plano_nome, plano_valor, prestador_id, prestador_email, prestador_nome):
+    """Cria o link de pagamento de um plano de destaque"""
+    return criar_preferencia(
+        titulo=f"Assinatura {plano_nome} - HiringScope",
+        descricao=f"Acesso ao plano {plano_nome} por 30 dias",
+        valor=plano_valor,
+        email=prestador_email,
+        nome=prestador_nome,
+        referencia=f"prestador_{prestador_id}_{plano}",
+        retorno={
+            'success': '/assinatura/sucesso',
+            'failure': '/assinatura/erro',
+            'pending': '/assinatura/pendente'
+        }
+    )
 
 def verificar_pagamento(payment_id):
     """Verifica o status de um pagamento no Mercado Pago"""

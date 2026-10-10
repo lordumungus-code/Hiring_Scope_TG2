@@ -1928,14 +1928,20 @@ textarea:focus-visible {
     box-shadow: 0 2px 8px rgba(11, 43, 92, 0.15) !important;
 }
 
+/* Cinza = offline; verde só com a classe .online (definida pelo chat em tempo real) */
 .status-dot {
-    background: #10b981 !important;
+    background: #9ca3af !important;
     border: 2px solid #ffffff !important;
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25) !important;
+    box-shadow: none !important;
     width: 12px !important;
     height: 12px !important;
     bottom: 2px !important;
     right: 2px !important;
+}
+
+.status-dot.online {
+    background: #10b981 !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25) !important;
 }
 
 /* Badge de não lidas */

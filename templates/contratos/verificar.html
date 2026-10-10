@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Verificar contrato - HiringScope{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5" style="max-width: 760px;">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4 p-md-5">
+            <h4 class="mb-2"><i class="fas fa-shield-alt text-primary me-2"></i> Verificar autenticidade de contrato</h4>
+            <p class="text-muted">
+                Cole o código de verificação (hash SHA-256) impresso no rodapé do PDF para conferir se o contrato
+                foi assinado pelas duas partes no HiringScope e não foi alterado.
+            </p>
+
+            <form method="POST" action="{{ url_for('contrato_formal.verificar') }}" class="mb-4">
+                <div class="input-group">
+                    <input type="text" name="hash" class="form-control font-monospace" value="{{ codigo }}"
+                           placeholder="Código de 64 caracteres" maxlength="64" required>
+                    <button type="submit" class="btn btn-primary px-4">Verificar</button>
+                </div>
+            </form>
+
+            {% if codigo %}
+                {% if formal and integro %}
+                    <div class="alert alert-success rounded-4" id="resultadoVerificacao">
+                        <h5 class="alert-heading"><i class="fas fa-check-circle me-2"></i> Contrato autêntico</h5>
+                        <p class="mb-2">
+                            Contrato nº <strong>{{ formal.numero }}</strong>, selado em {{ horario_brasilia(formal.selado_em) }}.
+                        </p>
+                        <p class="mb-2">Serviço: <strong>{{ termos.servico_titulo }}</strong></p>
+                        <ul class="mb-0">
+                            {% for a in assinaturas %}
+                                <li>
+                                    {{ a.parte }}: <strong>{{ termos.contratante.nome if a.parte == 'CONTRATANTE' else termos.contratado.nome }}</strong>
+                                    — assinou em {{ horario_brasilia(a.quando) }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        Esta página confirma que existe um contrato com este código e mostra quem assinou e quando.
+                        Compare esses dados com o PDF que você recebeu: se o número, os nomes ou as datas forem diferentes, o PDF não é o original.
+                    </p>
+                {% elif formal %}
+                    <div class="alert alert-danger rounded-4" id="resultadoVerificacao">
+                        <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i> Registro inconsistente</h5>
+                        <p class="mb-0">Existe um contrato com este código, mas os dados guardados não conferem mais com o selo original. Entre em contato com o suporte.</p>
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger rounded-4" id="resultadoVerificacao">
+                        <h5 class="alert-heading"><i class="fas fa-times-circle me-2"></i> Código não encontrado</h5>
+                        <p class="mb-0">Nenhum contrato assinado no HiringScope corresponde a este código. Confira se copiou os 64 caracteres.</p>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

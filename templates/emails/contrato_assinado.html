@@ -1,0 +1,13 @@
+<div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; color: #1f2937;">
+    <h2 style="color: #0b2b5c;">Contrato assinado</h2>
+    <p>Olá, {{ usuario.nome }}!</p>
+    <p>O contrato nº <strong>{{ formal.numero }}</strong>, do serviço "{{ servico }}", foi assinado pelas duas partes. O PDF segue em anexo.</p>
+    <p style="text-align: center; margin: 28px 0;">
+        <a href="{{ link }}"
+           style="background: #0b2b5c; color: #ffffff; padding: 12px 28px; border-radius: 999px; text-decoration: none; font-weight: bold;">
+            Ver contrato no site
+        </a>
+    </p>
+    <p style="font-size: 13px; color: #6b7280;">Código de verificação (hash SHA-256):<br><span style="font-family: monospace; word-break: break-all;">{{ formal.hash_documento }}</span></p>
+    <p style="font-size: 13px; color: #6b7280;">Qualquer pessoa pode conferir a autenticidade em {{ verificar }}. Guarde este e-mail.</p>
+</div>

@@ -112,6 +112,41 @@
             </div>
             {% endif %}
 
+            {# Contrato formal com assinatura eletrônica (opcional, pago pelo prestador) #}
+            {% set formal = contrato.formal %}
+            {% set formal_liberado = formal and formal.status != 'aguardando_pagamento' %}
+            {% if formal_liberado or (current_user.id == contrato.prestador_id and contrato.status in ('aceito', 'em_andamento')) %}
+            <div class="mb-4 p-3 rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-3" style="background: #f8fafc;">
+                <div>
+                    <h6 class="mb-1">
+                        <i class="fas fa-file-signature text-primary me-2"></i> Contrato formal
+                        {% if formal_liberado %}
+                            {% if formal.status == 'assinado' %}<span class="badge bg-success rounded-pill ms-1">Assinado</span>
+                            {% elif formal.status == 'aguardando_assinaturas' %}<span class="badge bg-warning text-dark rounded-pill ms-1">Aguardando assinaturas</span>
+                            {% else %}<span class="badge bg-info text-dark rounded-pill ms-1">Em preparação</span>{% endif %}
+                        {% endif %}
+                    </h6>
+                    <small class="text-muted">
+                        {% if not formal_liberado %}
+                            Formalize este serviço com um contrato assinado eletronicamente pelas duas partes. Opcional.
+                        {% elif formal.status == 'assinado' %}
+                            Contrato nº {{ formal.numero }} assinado pelas duas partes.
+                        {% elif formal.status == 'aguardando_assinaturas' %}
+                            Contrato nº {{ formal.numero }} pronto para leitura e assinatura.
+                        {% else %}
+                            O prestador está preenchendo as condições do contrato.
+                        {% endif %}
+                    </small>
+                </div>
+                <a href="{{ url_for('contrato_formal.ver', contrato_id=contrato.id) }}" class="btn btn-outline-primary rounded-pill px-4">
+                    {% if not formal_liberado %}Gerar contrato formal
+                    {% elif formal.status == 'assinado' %}Ver contrato e PDF
+                    {% elif formal.status == 'aguardando_assinaturas' %}Ler e assinar
+                    {% else %}Abrir{% endif %}
+                </a>
+            </div>
+            {% endif %}
+
             <!-- Ações conforme o status -->
             <div class="row mt-4">
                 <div class="col-12">

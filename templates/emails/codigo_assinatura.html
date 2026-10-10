@@ -1,0 +1,10 @@
+<div style="font-family: Arial, Helvetica, sans-serif; max-width: 520px; margin: 0 auto; color: #1f2937;">
+    <h2 style="color: #0b2b5c;">Código para assinar o contrato</h2>
+    <p>Olá, {{ usuario.nome }}!</p>
+    <p>Use o código abaixo para assinar o contrato nº <strong>{{ formal.numero }}</strong>, do serviço "{{ servico }}":</p>
+    <p style="text-align: center; margin: 28px 0;">
+        <span style="display: inline-block; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px 28px; font-size: 30px; font-weight: bold; letter-spacing: 8px; color: #0b2b5c;">{{ codigo }}</span>
+    </p>
+    <p style="font-size: 13px; color: #6b7280;">O código vale por {{ validade }} minutos e só pode ser usado uma vez.</p>
+    <p style="font-size: 13px; color: #6b7280;">Não compartilhe este código com ninguém: ele equivale à sua assinatura. Se você não pediu, ignore este e-mail e troque a senha da sua conta.</p>
+</div>
